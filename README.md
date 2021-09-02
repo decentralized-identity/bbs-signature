@@ -1,6 +1,6 @@
 # BBS Signature Specification
 
-[Latest Draft](https://mattrglobal.github.io/bbs-signatures-spec/)
+[Latest Draft](https://identity.foundation/bbs-signature/)
 
 This repository is home to the "BBS Signature" work item of the Applied Cryptography Working group, who's goal is
 to describe the short group signature scheme of BBS in a manner suitable for standardization.
