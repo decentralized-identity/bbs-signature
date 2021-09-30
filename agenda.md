@@ -9,29 +9,20 @@
 
 - Before your contribute - [**join DIF**](https://identity.foundation/join) and [sign the WG charter](https://bit.ly/DIF-WG-select1) (both are required!)
 - Time: 6pm UTC, 2pm EDT, 11am PDT
-- [Zoom room](https://us04web.zoom.us/j/73636815351?pwd=ODNBcHlpL3Z2dUhEMDcwVWx4L3ZWZz09), Meeting ID: 843 0611 0644 , Password: 799969
+- [Zoom room](https://us02web.zoom.us/j/87409761657?pwd=SXVSUGtVQXUyYzdxbnVvQkNJcXdGQT09), Meeting ID: 843 0611 0644 , Password: 799969
 </details>
 
-## Meeting - Monday 13th September 2021 - (6pm UTC)
+## Meeting - Monday 11th October 2021 - (6pm UTC)
 
 ### Chair
 
 ### Agenda
 
-- IPR reminder, Agenda Review, and Introductions
-- Agenda bashing
-- Agree meeting cadence
-- Brief review of current draft
-- Agree ways of working
-
 ### Attendees
 
 ### Notes
 
-#### Introductions
-
-#### Issue Review
-
-#### PR Review
-
 ## Previous Meetings
+
+- [27th September 2021](./meetings/2021-08-27/agenda.md)
+- [13th September 2021](./meetings/2021-08-13/agenda.md)
