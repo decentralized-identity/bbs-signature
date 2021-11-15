@@ -15,6 +15,20 @@
 - [Zoom room](https://us02web.zoom.us/j/87409761657?pwd=SXVSUGtVQXUyYzdxbnVvQkNJcXdGQT09), Meeting ID: 843 0611 0644 , Password: 799969
 </details>
 
+## Meeting Template
+- PR review
+- Issue Review
+- Additional Topics
+
+## Meeting - Monday 15th November 2021 - (6pm UTC)
+- PR review - None!
+- Issue Review
+    - #10 - [at a crossroads approach-wise](https://github.com/decentralized-identity/bbs-signature/issues/10#issuecomment-939546272)
+- Additional Topics
+    - Presi from Vasileios Kalos on Message Indexes
+
+
+
 ## Meeting - Monday 11th October 2021 - (6pm UTC)
 
 ### Chair
