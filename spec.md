@@ -199,14 +199,6 @@ This document is organized as follows:
 
 * Section 5 defines test vectors.
 
-## Comparison with ECC Signatures
-
-The following comparison assumes BBS signatures with curve BLS12-381, targeting 128 bit security.
-
-For 128 bits security, ECDSA with curve P-256 takes 37 and 79 micro-seconds to sign and verify signature on a modern computer. BBS 680 and 1400 milliseconds to sign and verify a single message. However, ECDSA can only sign a single message whereas BBS can sign any number of messages at the expense of a bigger public key. To sign and verify 10 messages takes 3.7 and 5.4 milliseconds, and 22.3 and 24.4 milliseconds for 100 messages.
-
-The signature size remains constant regardless of the number of signed messages. ECDSA and ED25519 use 32 bytes for public keys and 64 bytes for signatures. In contrast, BBS public key sizes follow the formula 48 \* (messages + 1) + 96, and 112 bytes for signatures. However, A single BBS signature is sufficient to authenticate multiple messages. We also present a method that only needs 96 bytes for the public key at the expense of a some computation before performing operations like signing, proof generation, and verification.
-
 # Core operations
 
 This section defines core operations used by the schemes defined in Section 3. These operations MUST NOT be used except as described in that section.
@@ -831,5 +823,14 @@ The cipher-suites in Section 4 are based upon the BLS12-381 pairing-friendly ell
 ## Test Vectors
 
 //TODO
+
+
+## Comparison with ECC Signatures
+
+The following comparison assumes BBS signatures with curve BLS12-381, targeting 128 bit security.
+
+For 128 bits security, ECDSA with curve P-256 takes 37 and 79 micro-seconds to sign and verify signature on a modern computer. BBS 680 and 1400 milliseconds to sign and verify a single message. However, ECDSA can only sign a single message whereas BBS can sign any number of messages at the expense of a bigger public key. To sign and verify 10 messages takes 3.7 and 5.4 milliseconds, and 22.3 and 24.4 milliseconds for 100 messages.
+
+The signature size remains constant regardless of the number of signed messages. ECDSA and ED25519 use 32 bytes for public keys and 64 bytes for signatures. In contrast, BBS public key sizes follow the formula 48 \* (messages + 1) + 96, and 112 bytes for signatures. However, A single BBS signature is sufficient to authenticate multiple messages. We also present a method that only needs 96 bytes for the public key at the expense of a some computation before performing operations like signing, proof generation, and verification.
 
 {backmatter}
