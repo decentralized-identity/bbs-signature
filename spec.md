@@ -623,7 +623,7 @@ Inputs:
 
 - PK, octet string in output form from SkToPk, DpkToPk
 - (msg\[1\],...,msg\[L\]), octet strings (messages in input to Sign).
-- RIdxs, integers vector (indices of revealed messages).
+- RIdxs, vector of unsigned integers (indices of revealed messages).
 - signature, octet string in output form from Sign
 - nonce, octet string
 
@@ -689,13 +689,7 @@ Procedure:
 
 28. return spk
 
-How a signature is to be encoded is not covered by the BBS+ spec itshelf. A common way is is to use a DER-encoded ASN.1 SEQUENCE for the proof value and append to that the list of indexes of revealed messeges, creating the following structure,
-
-+-------------------------------------+--------------------------------------------+------------------------------------------+-------------------------+
-
-| Total messages N (16bit)| Revealed messages N (16bit) | Revealed messages indexes | remaining proof |
-
-+-------------------------------------+--------------------------------------------+------------------------------------------+-------------------------+
+How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
 
 ## SpkVerify
 
@@ -710,7 +704,7 @@ Inputs:
 - spk, octet string.
 - PK, octet string in output form from SkToPk, DpkToPk.
 - (Rmsg\[1\], ..., Rmsg\[R\]), octet strings (revealed messages).
-- RIdxs, integers vector (indices of revealed messages).
+- RIdxs, vector of unsigned integers (indices of revealed messages).
 - nonce, octet string.
 
 Outputs:
