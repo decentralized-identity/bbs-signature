@@ -35,11 +35,6 @@
 
 ### Attendees
 
-- Tobias Looker
-- Vasileios Kalos
-- Juan Caballero
-- Christian Paquin
-
 ### Notes
 
 ## Previous Meetings
