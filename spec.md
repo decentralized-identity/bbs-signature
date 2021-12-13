@@ -737,7 +737,7 @@ Procedure:
 
 12. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
 
-13. Y2 = d \* r3^ + h0 \* s^ + h\[ii\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
+13. Y2 = d \* r3^ + h0 \* s^ + h\[i1\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
 
 14. if C1 != Y1 return INVALID
 
