@@ -613,17 +613,17 @@ Procedure:
 
 ## SpkGen
 
-A signature proof of knowledge generating algorithm that creates a zero-knowledge proof of knowledge of a signature while selectively disclosing messages from a signature, a vector of messages, vector of indices, the signer's public key, and a nonce.
+A signature proof of knowledge generating algorithm that creates a zero-knowledge proof of knowledge of a signature while selectively disclosing messages from a signature given a vector of messages, a vector of indices of the revealed messages, the signer's public key, and a nonce.
 
 ```
-spk = SpkGen(PK, (msg[i],...,msg[L]), (i,...,R), signature, nonce)
+spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, nonce)
 ```
 
 Inputs:
 
 - PK, octet string in output form from SkToPk, DpkToPk
-- msg\[i\],...,msg\[L\], octet strings
-- i,...,R, integers
+- (msg\[1\],...,msg\[L\]), octet strings (messages in input to Sign).
+- RIdxs, vector of unsigned integers (indices of revealed messages).
 - signature, octet string in output form from Sign
 - nonce, octet string
 
@@ -635,71 +635,76 @@ Procedure:
 
 1. (A, e, s) = signature
 
-2. if subgroup\_check(A) is INVALID abort
+2. (w, h0, h\[1\],...,h\[L\]) = PK
 
-3. if KeyValidate(PK) is INVALID abort
+3. (i1, i2,..., iR) = RIdxs
 
-4. b = commitment + h0 \* s + h\[i\] \* msg\[i\] + ... + h\[L\] \* msg\[L\]
+4. if subgroup\_check(A) is INVALID abort
 
-5. r1 = H(PRF(8\*ceil(log2(r)))) mod r
+5. if KeyValidate(PK) is INVALID abort
 
-6. r2 = H(PRF(8\*ceil(log2(r)))) mod r
+6. b = commitment + h0 \* s + h\[1\] \* msg\[1\] + ... + h\[L\] \* msg\[L\]
 
-7. e\~ = H(PRF(8\*ceil(log2(r)))) mod r
+7. r1 = H(PRF(8\*ceil(log2(r)))) mod r
 
-8. r2\~ = H(PRF(8\*ceil(log2(r)))) mod r
+8. r2 = H(PRF(8\*ceil(log2(r)))) mod r
 
-9. r3\~ = H(PRF(8\*ceil(log2(r)))) mod r
+9. e\~ = H(PRF(8\*ceil(log2(r)))) mod r
 
-10. s\~ = H(PRF(8\*ceil(log2(r)))) mod r
+10. r2\~ = H(PRF(8\*ceil(log2(r)))) mod r
 
-11. r3 = r1 ^ -1 mod r
+11. r3\~ = H(PRF(8\*ceil(log2(r)))) mod r
 
-12. m\~ = \[R\]
+12. s\~ = H(PRF(8\*ceil(log2(r)))) mod r
 
-13. for i in 0 to R: m~\[i\] = H(PRF(8*ceil(log2(r)))) mod r
+13. r3 = r1 ^ -1 mod r
 
-14. A' = A \* r1
+14. for i in RIdxs m\~\[i\] = H(PRF(8\*ceil(log2(r)))) mod r
 
-15. Abar = A' \* -e + b \* r1
+15. A' = A \* r1
 
-16. d = b \* r1 + h0 \* -r2
+16. Abar = A' \* -e + b \* r1
 
-17. s' = s - r2 \* r3
+17. d = b \* r1 + h0 \* -r2
 
-18. C1 = A' \* e\~ + h0 \* r2\~
+18. s' = s - r2 \* r3
 
-19. C2 = d \* r3\~ + h0 \* s\~ + h\[i\] \* m\~\[i\] + ... + h\[R\] \* m\~\[R\]
+19. C1 = A' \* e\~ + h0 \* r2\~
 
-20. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i\] || ... || h\[R\] || C2 || nonce)
+20. C2 = d \* r3\~ + h0 \* s\~ + h\[i1\] \* m\~\[i1\] + ... + h\[iR\] \* m\~\[iR\]
 
-21. e^ = e\~ + c \* e
+21. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || nonce)
 
-22. r2^ = r2\~ - c \* r2
+22. e^ = e\~ + c \* e
 
-23. r3^ = r3\~ + c \* r3
+23. r2^ = r2\~ - c \* r2
 
-24. s^ = s\~ - c \* s'
+24. r3^ = r3\~ + c \* r3
 
-25. for i in 0 to R: m^\[i\] = m~\[i\] - c \* msg\[i\]
+25. s^ = s\~ - c \* s'
 
-26. spk = ( A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i\], ..., m^\[R\]) )
+26. for i in RIdxs: m^\[i\] = m\~\[i\] - c \* msg\[i\]
 
-27. return spk
+27. spk = ( A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i1\], ..., m^\[iR\]) )
+
+28. return spk
+
+How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
 
 ## SpkVerify
 
-SpkVerify checks if a signature proof of knowledge is VALID given the signer's public key, a vector of revealed messages, the proof, and the nonce used in SpkGen.
+SpkVerify checks if a signature proof of knowledge is VALID given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the nonce used in SpkGen.
 
 ```
-result = SpkVerify(spk, PK, (msg[i],...,msg[D]), nonce)
+result = SpkVerify(spk, PK, (Rmsg[1],..., Rmsg[R]), RIdxs, nonce)
 ```
 
 Inputs:
 
 - spk, octet string.
 - PK, octet string in output form from SkToPk, DpkToPk.
-- msg\[i\],...,msg\[D\], octet strings.
+- (Rmsg\[1\], ..., Rmsg\[R\]), octet strings (revealed messages).
+- RIdxs, vector of unsigned integers (indices of revealed messages).
 - nonce, octet string.
 
 Outputs:
@@ -710,33 +715,35 @@ Procedure:
 
 1. if KeyValidate(PK) is INVALID
 
-2. (A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i\],...,m^\[R\])) = spk
+2. (i1, i2, ..., iR) = RIndxs
 
-3. (w, h0, h\[i\],...,h\[L\]) = PK
+3. (A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i1\],...,m^\[iR\])) = spk
 
-4. if A' == 1 return INVALID
+4. (w, h0, h\[1\],...,h\[L\]) = PK
 
-5. X1 = e(A', w)
+5. if A' == 1 return INVALID
 
-6. X2 = e(Abar, P2)
+6. X1 = e(A', w)
 
-7. if X1 != X2 return INVALID
+7. X2 = e(Abar, P2)
 
-8. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i\] || ... || h\[R\] || C2 || nonce)
+8. if X1 != X2 return INVALID
 
-9. T1 = Abar - d
+9. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || nonce)
 
-10. T2 = P1 + h\[i\] \* msg\[i\] + ... + h\[D\] \* msg\[D\]
+10. T1 = Abar - d
 
-11. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
+11. T2 = P1 + h\[i1\] \* Rmsg\[1\] + ... + h\[iR\] \* Rmsg\[R\]
 
-12. Y2 = d \* r3^ + h0 \* s^ + h\[i\] \* m^\[i\] + ... + h\[R\] \* m^\[R\] - T2 \* c
+12. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
 
-13. if C1 != Y1 return INVALID
+13. Y2 = d \* r3^ + h0 \* s^ + h\[i1\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
 
-14. if C2 != Y2 return INVALID
+14. if C1 != Y1 return INVALID
 
-15. return VALID
+15. if C2 != Y2 return INVALID
+
+16. return VALID
 
 # Security Considerations
 
@@ -830,6 +837,7 @@ The following comparison assumes BBS signatures with curve BLS12-381, targeting 
 For 128 bits security, ECDSA with curve P-256 takes 37 and 79 micro-seconds to sign and verify signature on a modern computer. BBS 680 and 1400 milliseconds to sign and verify a single message. However, ECDSA can only sign a single message whereas BBS can sign any number of messages at the expense of a bigger public key. To sign and verify 10 messages takes 3.7 and 5.4 milliseconds, and 22.3 and 24.4 milliseconds for 100 messages.
 
 The signature size remains constant regardless of the number of signed messages. ECDSA and ED25519 use 32 bytes for public keys and 64 bytes for signatures. In contrast, BBS public key sizes follow the formula 48 \* (messages + 1) + 96, and 112 bytes for signatures. However, A single BBS signature is sufficient to authenticate multiple messages. We also present a method that only needs 96 bytes for the public key at the expense of a some computation before performing operations like signing, proof generation, and verification.
+
 
 ## Blind Sign Flow Example
 
