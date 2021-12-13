@@ -14,11 +14,6 @@ Tobias Looker
 
 ### Attendees
 
-- Tobias Looker
-- Vasileios Kalos
-- Juan Caballero
-- Christian Paquin
-
 ### Notes
 
 - PR review - None!
