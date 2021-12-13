@@ -26,12 +26,15 @@
 
 ### Agenda
 
+- IPR reminder, Agenda Review, and Introductions
+- Agenda bashing
 - PR review
     - [Changes in the handling of reveled message indexes](https://github.com/decentralized-identity/bbs-signature/pull/140)
     - [Checks for the blind message generators and PoK during signing](https://github.com/decentralized-identity/bbs-signature/pull/17)
     - [Blind Sign Flow Example](https://github.com/decentralized-identity/bbs-signature/pull/18)
 - Issue Review
     - #15 - [Generalize the presentation proof nonce](https://github.com/decentralized-identity/bbs-signature/issues/15)
+- Additional Topics
 
 ### Attendees
 
