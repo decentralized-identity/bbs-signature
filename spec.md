@@ -837,7 +837,7 @@ The example below illustrates the creation of a blind signature. Let the Signer 
 
 <pre>
 +--------+                               +--------+
-|        | <-(1)------- nonce ---------> |        |
+|        | <-(1)------- nonce ---------- |        |
 |        |                               |        |
 | Client | --(2)- Commitment, nizk, U -> | Signer |
 |        |                               |        |
