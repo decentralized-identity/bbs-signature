@@ -20,20 +20,21 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 15th November 2021 - (6pm UTC)
-- PR review - None!
-- Issue Review
-    - #10 - [at a crossroads approach-wise](https://github.com/decentralized-identity/bbs-signature/issues/10#issuecomment-939546272)
-- Additional Topics
-    - Presi from Vasileios Kalos on Message Indexes
-
-
-
-## Meeting - Monday 11th October 2021 - (6pm UTC)
+## Meeting - Monday 13th December 2021 - (6pm UTC)
 
 ### Chair
 
 ### Agenda
+
+- IPR reminder, Agenda Review, and Introductions
+- Agenda bashing
+- PR review
+    - [Changes in the handling of reveled message indexes](https://github.com/decentralized-identity/bbs-signature/pull/140)
+    - [Checks for the blind message generators and PoK during signing](https://github.com/decentralized-identity/bbs-signature/pull/17)
+    - [Blind Sign Flow Example](https://github.com/decentralized-identity/bbs-signature/pull/18)
+- Issue Review
+    - #15 - [Generalize the presentation proof nonce](https://github.com/decentralized-identity/bbs-signature/issues/15)
+- Additional Topics
 
 ### Attendees
 
@@ -41,5 +42,6 @@
 
 ## Previous Meetings
 
+- [15th November 2021](./meetings/2021-11-15/agenda.md)
 - [27th September 2021](./meetings/2021-08-27/agenda.md)
 - [13th September 2021](./meetings/2021-08-13/agenda.md)

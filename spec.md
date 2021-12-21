@@ -607,7 +607,7 @@ Procedure:
 BlindMessagesProofVerify checks whether a proof of committed messages zero-knowledge proof is valid.
 
 ```
-result = BlindMessagesProofVerify(commitment, nizk, PK, CGens, nonce)
+  result = BlindMessagesProofVerify(commitment, nizk, PK, CGIdxs, nonce)
 ```
 
 Inputs:
@@ -714,6 +714,7 @@ Procedure:
 
 28. return spk
 
+
 How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
 
 ## SpkVerify
@@ -741,6 +742,7 @@ Procedure:
 1. if KeyValidate(PK) is INVALID
 
 2. (i1, i2, ..., iR) = RIndxs
+
 
 3. (A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i1\],...,m^\[iR\])) = spk
 
@@ -862,5 +864,32 @@ The following comparison assumes BBS signatures with curve BLS12-381, targeting 
 For 128 bits security, ECDSA with curve P-256 takes 37 and 79 micro-seconds to sign and verify signature on a modern computer. BBS 680 and 1400 milliseconds to sign and verify a single message. However, ECDSA can only sign a single message whereas BBS can sign any number of messages at the expense of a bigger public key. To sign and verify 10 messages takes 3.7 and 5.4 milliseconds, and 22.3 and 24.4 milliseconds for 100 messages.
 
 The signature size remains constant regardless of the number of signed messages. ECDSA and ED25519 use 32 bytes for public keys and 64 bytes for signatures. In contrast, BBS public key sizes follow the formula 48 \* (messages + 1) + 96, and 112 bytes for signatures. However, A single BBS signature is sufficient to authenticate multiple messages. We also present a method that only needs 96 bytes for the public key at the expense of a some computation before performing operations like signing, proof generation, and verification.
+
+
+
+## Blind Sign Flow Example
+
+The example below illustrates the creation of a blind signature. Let the Signer have a public key PK = (w, h0, h[1],...,h[L]) where (h[1],...,h[L]) generators. The end result will be a signature to the messages (m[1],...,m[K]) (K less than L). The messages (m[1],...,m[U]) (U less than K), will be committed by the Client using the first U generators from the Signers PK (i.e., h[1],,,,h[U]). The messages (m[U+1],...,m[K]) will be known to the Signer and will be signed using the generators (h[U+1],...,h[K]) from their PK.
+
+<pre>
++--------+                               +--------+
+|        | <-(1)------- nonce ---------- |        |
+|        |                               |        |
+| Client | --(2)- Commitment, nizk, U -> | Signer |
+|        |                               |        |
+|        | <-(3)--- Blind Signature ---- |        |
++--------+                               +--------+
+</pre>
+
+1. The Signer and the Client will agree on a nonce to be used by the BlindMessagesProofGen and BlindMessagesProofVerify functions.
+
+2. The Client will use the PreBlindSign function to calculate a Pedersen commitment for the messages (m[1],...,m[U]), using the generators (h[1],...,h[U]). Then they will create a proof of knowledge (nizk) for that commitment using BlindMessagesProofGen. The Signer will receive the commitment, the proof of knowledge (nizk) and the number of committed messages (U).
+
+3. Before sending the blinded signature to the Client the Signer must execute the following steps,
+    - Validate the proof of knowledge of the commitment using BlindMessagesProofVerify, on input the commitment, nizk, the nonce (from step 1) and the U first generators from their PK. Then check that the intersection between the generators used by the Client for the commitment, and the generators (h[U+1],...,h[K]), used by the Signer for the known messages, is indeed empty.
+    - Create the blind signature using the BlindSign function. Note that the blinded signature is not a valid BBS+ signature.
+
+    After the Client receives the blind signature they will use the UnblindSign function to unblinded it, getting a valid BBS+ signature on the messages (m[1],...,m[K]).
+
 
 {backmatter}
