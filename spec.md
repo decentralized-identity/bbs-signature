@@ -452,14 +452,15 @@ The PreBlindSign algorithm allows a holder of a signature to blind messages that
 The algorithm returns a generated blinding factor that is used to un-blind the signature from the signer, and a pedersen commitment from the generators in the signers public key PK and a vector of messages.
 
 ```
-(s', commitment) = PreBlindSign((msg[1],...,msg[U]), h0, CGens)
+(s', commitment) = PreBlindSign((msg[1],...,msg[U]), h0, PK, CGIdxs)
 ```
 
 Inputs:
 
 - msg\[1\],...,msg\[U\], octet strings of the messages to be blinded.
 - h0, octet string.
-- CGens, vector of octet strings of generators for the messages to be blinded
+- PK, a public key in the format output by SkToPk.
+- CGIdxs, vector of unsigned integers. Indices of the generators from the public key (PK) used for the messages to be blinded.
     
 Outputs:
 
@@ -468,24 +469,26 @@ Outputs:
 
 Procedure:
 
-1. (Ch[1],...,Ch[U]) = CGens
+1. (i1,...,iU) = CGIdxs
 
-2. s' = H(PRF(8 \* ceil(log2(r)))) mod r
+2. (w, h0, h) =  octets\_to\_point(PK)
 
-3. if subgroup\_check(h0) is INVALID abort
+3. s' = H(PRF(8 \* ceil(log2(r)))) mod r
 
-4. if (subgroup\_check(Ch\[1\]) && ... && subgroup\_check(Ch\[U\])) is INVALID abort
+4. if subgroup\_check(h0) is INVALID abort
 
-5. commitment = h0 \* s' + Ch\[1\] \* msg\[1\] + ... + Ch\[U\] \* msg\[U\]
+5. if (subgroup\_check(h\[i1\]) && ... && subgroup\_check(h\[iU\])) is INVALID abort
 
-6. return s', commitment
+6. commitment = h0 \* s' + h\[i1\] \* msg\[1\] + ... + Ch\[iU\] \* msg\[U\]
+
+7. return s', commitment
 
 ## BlindSign
 
 BlindSign generates a blind signature from a commitment received from a holder, known messages, a secret key, and generators from the corresponding public key. The signer also validates the commitment using the proof of knowledge of committed messages received from the holder and checks that the generators used in the commitment are not also used for the known messages.
 
 ``` 
-blind_signature = BlindSign(commitment, (msg[1],...msg[K]), SK, h0, Gens, CGens, nizk, nonce)
+blind_signature = BlindSign(commitment, (msg[1],...msg[K]), SK, PK, GIdxs, CGIdxs, nizk, nonce)
 ```
 
 Inputs:
@@ -494,9 +497,9 @@ Inputs:
 - nizk, octet string received from the holder in output from BlindMessagesProofGen.
 - msg\[1\],...,msg\[K\], octet strings.
 - SK, a secret key output from KeyGen.
-- h0, octet string.
-- Gens, vector of octet strings of generators for the known messages.
-- CGens, vector of octet strings of generators for the commited messages.
+- PK, a public key in the format output by SkToPk (corresponding to SK).
+- GIdxs, vector of unsigned integers. Indices of the generators from the public key (PK) used for the known messages.
+- CGIdxs, vector of unsigned integers. Indices of the generators from the public key (PK) used for the commited messages.
 - nonce, octet string, suplied to the holder by the signer to be used with BlindMessagesProofGen.
 
 Outputs:
@@ -505,23 +508,25 @@ Outputs:
 
 Procedure:
 
-1. (h[1],...,h[K]) = Gens
+1. (w, h0, h) = octets\_to\_point(PK)
 
-2. e = H(PRF(8 \* ceil(log2(r)))) mod r
+2. (j1, ..., jK) = GIdxs
 
-3. s'' = H(PRF(8 \* ceil(log2(r)))) mod r
+3. e = H(PRF(8 \* ceil(log2(r)))) mod r
 
-4. if BlindMessagesProofVerify(commitment, nizk, CGens, nonce) is INVALID abort
+4. s'' = H(PRF(8 \* ceil(log2(r)))) mod r
 
-5. if CGens intersection with Gens is not empty abort
+5. if BlindMessagesProofVerify(commitment, nizk, PK, CGIdxs, nonce) is INVALID abort
 
-6. b = commitment + h0 \* s'' + h\[1\] \* msg\[1\] + ... + h\[K\] \* msg\[K\]
+6. if GIdxs intersection with CGIdxs is not empty abort
 
-7. A = b \* (1 / (SK + e))
+7. b = commitment + h0 \* s'' + h\[j1\] \* msg\[1\] + ... + h\[jK\] \* msg\[K\]
 
-8. blind\_signature = (A, e, s'')
+8. A = b \* (1 / (SK + e))
 
-9. return blind\_signature
+9. blind\_signature = (A, e, s'')
+
+10. return blind\_signature
 
 ## UnblindSign
 
@@ -559,7 +564,7 @@ Procedure:
 BlindMessagesProofGen creates a proof of committed messages zero-knowledge proof. The proof should be verified before a signer computes a blind signature. The proof is created from a nonce given to the holder from the signer, a vector of messages, a blinding factor output from PreBlindSign, and generators from the signers public key.
 
 ```
-nizk = BlindMessagesProofGen(commitment, s', (msg[1],...,msg[U]), h0, CGens, nonce)
+nizk = BlindMessagesProofGen(commitment, s', (msg[1],...,msg[U]), PK, CGIdxs, nonce)
 ```
 
 Inputs:
@@ -567,8 +572,8 @@ Inputs:
 - commitment, octet string as output from PreBlindSign
 - s', octet string as output from PreBlindSign
 - msg\[1\],...,msg\[U\], octet strings of the blinded messages.
-- h0, octet string.
-- CGens, vector of octet strings of generators for the blinded messages.
+- PK, a public key in the format output by SkToPk.
+- CGIdxs, vector of unsigned integers. Indices of the generators from the public key (PK) used for the commited messages.
 - nonce, octet string.
     
 Outputs:
@@ -577,37 +582,40 @@ Outputs:
 
 Procedure:
 
-1. (Ch[1],...,Ch[U]) = CGens
+1. (w, h0, h) =  octets\_to\_point(PK)
 
-2. r\~ = \[U\]
+2. (i1,...,iU) = CGIdxs
 
-3. s\~ = H(PRF(8 \* ceil(log2(r)))) mod r
+3. r\~ = \[U\]
 
-4. for i in 1 to U: r\~\[i\] = H(PRF(8 \* ceil(log2(r)))) mod r
+4. s\~ = H(PRF(8 \* ceil(log2(r)))) mod r
 
-5. U~ = h0 \* s\~ + Ch\[1\] \* r\~\[1\] + ... + Ch\[U\] \* r\~\[U\]
+5. for i in 1 to U: r\~\[i\] = H(PRF(8 \* ceil(log2(r)))) mod r
 
-6. c = H(commitment || U\~ || nonce)
+6. U~ = h0 \* s\~ + h\[i1\] \* r\~\[1\] + ... + h\[iU\] \* r\~\[U\]
 
-7. s^ = s\~ + c \* s'
+7. c = H(commitment || U\~ || nonce)
 
-8. for i in 1 to U: r^\[i\] = r\~\[i\] + c \* msg\[i\]
+8. s^ = s\~ + c \* s'
 
-9. nizk = ( c, s^, r^)
+9. for i in 1 to U: r^\[i\] = r\~\[i\] + c \* msg\[i\]
+
+10. nizk = ( c, s^, r^)
 
 ## BlindMessagesProofVerify
 
 BlindMessagesProofVerify checks whether a proof of committed messages zero-knowledge proof is valid.
 
 ```
-result = BlindMessagesProofVerify(commitment, nizk, CGens, nonce)
+result = BlindMessagesProofVerify(commitment, nizk, PK, CGens, nonce)
 ```
 
 Inputs:
 
 - commitment, octet string in output form from PreBlindSign
 - nizk, octet string in output form from BlindMessagesProofGen
-- CGens, vector of octet strings of generators for the blinded messages.
+- PK, a public key in the format output by SkToPk.
+- CGIdxs, vector of unsigned integers. Indices of the generators from the public key (PK) used for the commited messages.
 - nonce, octet string
 
 Outputs:
@@ -616,29 +624,31 @@ Outputs:
 
 Procedure:
 
-1. ( c, s^, r^ ) = nizk
+1. (w, h0, h) =  octets\_to\_point(PK)
 
-2. (Ch[1],...,Ch[U]) = CGens
+2. (i1,...,iU) = CGIdxs
 
-3. U^ = commitment \* -c + h0 \* s^ + Ch\[1\] \* r^\[1\] + ... + Ch\[U\] \* r^\[U\]
+3. ( c, s^, r^ ) = nizk
 
-4. c\_v = H(U || U^ || nonce)
+4. U^ = commitment \* -c + h0 \* s^ + h\[i1\] \* r^\[1\] + ... + h\[iU\] \* r^\[U\]
 
-5. return c == c\_v
+5. c\_v = H(U || U^ || nonce)
+
+6. return c == c\_v
 
 ## SpkGen
 
-A signature proof of knowledge generating algorithm that creates a zero-knowledge proof of knowledge of a signature while selectively disclosing messages from a signature, a vector of messages, vector of indices, the signer's public key, and a nonce.
+A signature proof of knowledge generating algorithm that creates a zero-knowledge proof of knowledge of a signature while selectively disclosing messages from a signature given a vector of messages, a vector of indices of the revealed messages, the signer's public key, and a nonce.
 
 ```
-spk = SpkGen(PK, (msg[i],...,msg[L]), (i,...,R), signature, nonce)
+spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, nonce)
 ```
 
 Inputs:
 
 - PK, octet string in output form from SkToPk, DpkToPk
-- msg\[i\],...,msg\[L\], octet strings
-- i,...,R, integers
+- (msg\[1\],...,msg\[L\]), octet strings (messages in input to Sign).
+- RIdxs, vector of unsigned integers (indices of revealed messages).
 - signature, octet string in output form from Sign
 - nonce, octet string
 
@@ -650,71 +660,76 @@ Procedure:
 
 1. (A, e, s) = signature
 
-2. if subgroup\_check(A) is INVALID abort
+2. (w, h0, h\[1\],...,h\[L\]) = PK
 
-3. if KeyValidate(PK) is INVALID abort
+3. (i1, i2,..., iR) = RIdxs
 
-4. b = commitment + h0 \* s + h\[i\] \* msg\[i\] + ... + h\[L\] \* msg\[L\]
+4. if subgroup\_check(A) is INVALID abort
 
-5. r1 = H(PRF(8\*ceil(log2(r)))) mod r
+5. if KeyValidate(PK) is INVALID abort
 
-6. r2 = H(PRF(8\*ceil(log2(r)))) mod r
+6. b = commitment + h0 \* s + h\[1\] \* msg\[1\] + ... + h\[L\] \* msg\[L\]
 
-7. e\~ = H(PRF(8\*ceil(log2(r)))) mod r
+7. r1 = H(PRF(8\*ceil(log2(r)))) mod r
 
-8. r2\~ = H(PRF(8\*ceil(log2(r)))) mod r
+8. r2 = H(PRF(8\*ceil(log2(r)))) mod r
 
-9. r3\~ = H(PRF(8\*ceil(log2(r)))) mod r
+9. e\~ = H(PRF(8\*ceil(log2(r)))) mod r
 
-10. s\~ = H(PRF(8\*ceil(log2(r)))) mod r
+10. r2\~ = H(PRF(8\*ceil(log2(r)))) mod r
 
-11. r3 = r1 ^ -1 mod r
+11. r3\~ = H(PRF(8\*ceil(log2(r)))) mod r
 
-12. m\~ = \[R\]
+12. s\~ = H(PRF(8\*ceil(log2(r)))) mod r
 
-13. for i in 0 to R: m~\[i\] = H(PRF(8*ceil(log2(r)))) mod r
+13. r3 = r1 ^ -1 mod r
 
-14. A' = A \* r1
+14. for i in RIdxs m\~\[i\] = H(PRF(8\*ceil(log2(r)))) mod r
 
-15. Abar = A' \* -e + b \* r1
+15. A' = A \* r1
 
-16. d = b \* r1 + h0 \* -r2
+16. Abar = A' \* -e + b \* r1
 
-17. s' = s - r2 \* r3
+17. d = b \* r1 + h0 \* -r2
 
-18. C1 = A' \* e\~ + h0 \* r2\~
+18. s' = s - r2 \* r3
 
-19. C2 = d \* r3\~ + h0 \* s\~ + h\[i\] \* m\~\[i\] + ... + h\[R\] \* m\~\[R\]
+19. C1 = A' \* e\~ + h0 \* r2\~
 
-20. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i\] || ... || h\[R\] || C2 || nonce)
+20. C2 = d \* r3\~ + h0 \* s\~ + h\[i1\] \* m\~\[i1\] + ... + h\[iR\] \* m\~\[iR\]
 
-21. e^ = e\~ + c \* e
+21. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || nonce)
 
-22. r2^ = r2\~ - c \* r2
+22. e^ = e\~ + c \* e
 
-23. r3^ = r3\~ + c \* r3
+23. r2^ = r2\~ - c \* r2
 
-24. s^ = s\~ - c \* s'
+24. r3^ = r3\~ + c \* r3
 
-25. for i in 0 to R: m^\[i\] = m~\[i\] - c \* msg\[i\]
+25. s^ = s\~ - c \* s'
 
-26. spk = ( A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i\], ..., m^\[R\]) )
+26. for i in RIdxs: m^\[i\] = m\~\[i\] - c \* msg\[i\]
 
-27. return spk
+27. spk = ( A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i1\], ..., m^\[iR\]) )
+
+28. return spk
+
+How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
 
 ## SpkVerify
 
-SpkVerify checks if a signature proof of knowledge is VALID given the signer's public key, a vector of revealed messages, the proof, and the nonce used in SpkGen.
+SpkVerify checks if a signature proof of knowledge is VALID given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the nonce used in SpkGen.
 
 ```
-result = SpkVerify(spk, PK, (msg[i],...,msg[D]), nonce)
+result = SpkVerify(spk, PK, (Rmsg[1],..., Rmsg[R]), RIdxs, nonce)
 ```
 
 Inputs:
 
 - spk, octet string.
 - PK, octet string in output form from SkToPk, DpkToPk.
-- msg\[i\],...,msg\[D\], octet strings.
+- (Rmsg\[1\], ..., Rmsg\[R\]), octet strings (revealed messages).
+- RIdxs, vector of unsigned integers (indices of revealed messages).
 - nonce, octet string.
 
 Outputs:
@@ -725,33 +740,35 @@ Procedure:
 
 1. if KeyValidate(PK) is INVALID
 
-2. (A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i\],...,m^\[R\])) = spk
+2. (i1, i2, ..., iR) = RIndxs
 
-3. (w, h0, h\[i\],...,h\[L\]) = PK
+3. (A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i1\],...,m^\[iR\])) = spk
 
-4. if A' == 1 return INVALID
+4. (w, h0, h\[1\],...,h\[L\]) = PK
 
-5. X1 = e(A', w)
+5. if A' == 1 return INVALID
 
-6. X2 = e(Abar, P2)
+6. X1 = e(A', w)
 
-7. if X1 != X2 return INVALID
+7. X2 = e(Abar, P2)
 
-8. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i\] || ... || h\[R\] || C2 || nonce)
+8. if X1 != X2 return INVALID
 
-9. T1 = Abar - d
+9. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || nonce)
 
-10. T2 = P1 + h\[i\] \* msg\[i\] + ... + h\[D\] \* msg\[D\]
+10. T1 = Abar - d
 
-11. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
+11. T2 = P1 + h\[i1\] \* Rmsg\[1\] + ... + h\[iR\] \* Rmsg\[R\]
 
-12. Y2 = d \* r3^ + h0 \* s^ + h\[i\] \* m^\[i\] + ... + h\[R\] \* m^\[R\] - T2 \* c
+12. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
 
-13. if C1 != Y1 return INVALID
+13. Y2 = d \* r3^ + h0 \* s^ + h\[i1\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
 
-14. if C2 != Y2 return INVALID
+14. if C1 != Y1 return INVALID
 
-15. return VALID
+15. if C2 != Y2 return INVALID
+
+16. return VALID
 
 # Security Considerations
 
