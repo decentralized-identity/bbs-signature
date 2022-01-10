@@ -546,7 +546,7 @@ Procedure:
 
 ## BlindMessagesProofGen
 
-BlindMessagesProofGen creates a proof of committed messages zero-knowledge proof. The proof should be verified before a signer computes a blind signature. The proof is created from a nonce given to the holder from the signer, a vector of messages, a blinding factor output from PreBlindSign, and generators from the signers public key.
+BlindMessagesProofGen creates a proof of committed messages zero-knowledge proof. The proof should be verified before a signer computes a blind signature. The proof is created from a nonce, a vector of messages, a blinding factor output from PreBlindSign, and generators from the signers public key.
 
 ```
 nizk = BlindMessagesProofGen(commitment, s', (msg[i],...,msg[U]), h0, (h[i],...,h[U]), nonce)
@@ -769,7 +769,7 @@ As discussed in Section 2.2, the IKM input to KeyGen MUST be infeasible to guess
    
 Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.
 
-BBS signatures are nondeterministic, meaning care must be taken against attacks arising from signing with bad randomness, for example, the nonce reuse attack on ECDSA [HDWH12]. It is recommended that the nonces used in signature proof generation are from a trusted source of randomness.
+BBS signatures are nondeterministic, meaning care must be taken against attacks arising from signing with bad randomness, for example, the nonce reuse attack on ECDSA [HDWH12]. It is recommended that the nonces used in signature proof generation are from a trusted source of randomness (see Nonce selection section below).
 
 BlindSign as discussed in 2.10 uses randomness from two parties so care MUST be taken that both sources of randomness are trusted. If one party uses weak randomness, it could compromise the signature.
 
@@ -796,6 +796,12 @@ The ZKP protocols use nonces which MUST be different in each context.
 ## Choice of Signature Primitive
 
 BBS signatures can be implemented on any pairing-friendly curve. Using BLS12-381 the signature achieves close to 128-bit security, and is the recommended curve at this time.
+
+## Nonce selection
+
+The proofs generated in this specification insures that the key material was applied on the specified nonce. A verifier-specified cryptographically random nonce provides strong protections against replay attacks. In some settings, proofs can be generated in a non-interactive fashion; in this case verifiers MUST be able to verify the uniqueness of the nonce values (provers could use a unique verifier ID combined with a timestamp to help with this).
+
+The proof generation acts a digital signature on the nonce, which could be used to design BBS+ based digital signature mechanisms. In this case, the nonce could be the hash digest of the message to sign, and the resulting proofs (potentially containing disclosed attribute values) would form the signature.
 
 # IANA Considerations
 
