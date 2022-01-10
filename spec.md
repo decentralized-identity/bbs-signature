@@ -52,20 +52,19 @@ A digital signature scheme is a fundamental cryptographic primitive that is used
 
 However traditional digital signatures are limited to fixed mode of signing and verifying, that is the entire payload that was signed by a signer must be known by the verifier in-order to validate the digital signature.
 
-This document describes the BBS signature scheme. The scheme features many important properties:
+This document describes the BBS signature scheme. (FIXME: THE BBS signature scheme? Or A BBS signature schemes? Also: BBS citation needed/informative reference).
+The scheme feature important properties that allow the scheme to be used in applications where privacy and data minimization techniques are desired and/or required:
 
-1. The signature is over a group of Pedersen commitments--signatures can be created blinded or un-blinded.
+1. Signatures can be created blinded or un-blinded.
    
-2. The signature is encoded as a single group element and two field elements.
+2. Signatures are encoded as a single group element and two field elements. (FIXME: Why is this important? Succinctness? Unclear)
 
-3. Verification requires 2 pairing operations.
+3. Verification requires 2 pairing operations. (FIXME: Only two? Why is this important? It's not as good as one or no pairing!)
 
-4. Simple signature schemes require the entire signature and message be disclosed during verification. BBS allows a fast and small zero-knowledge signature proof of knowledge to be created from the signature and the public key. This allows the signature holder to selectively reveal any number of signed messages to another entity (none, all, or any number in between).   
+4. Traditional signature schemes require the entire signature and message to be disclosed during verification. BBS allows a fast and small zero-knowledge signature proof of knowledge to be created from the signature and the public key. This allows the signature holder to selectively reveal any number of signed messages to another entity (none, all, or any number in between).   
     
-These properties allow the scheme to be used in applications where privacy and data minimization techniques are desired and/or required.
-     
 A recent emerging use case applies signature schemes in [verifiable credentials](https://www.w3.org/TR/vc-data-model/). One problem with
-using simple signature schemes like ECSDA or ED25519 is a holder must disclose the entire signed message and signature for verification. Circuit based logic can be applied to verify these in zero-knowledge like SNARKS or Bulletproofs with R1CS but tend to be complicated. BBS on the other hand adds, to verifiable credentials or any other application, the ability to do very efficient zero-knowledge proofs. A holder gains the ability to choose which claims to reveal to a relying party without the need for any additional complicated logic.
+using simple signature schemes like ECDSA or ED25519 is that a holder must disclose the entire signed message and signature for verification. Circuit based logic can be applied to verify these in zero-knowledge like SNARKS or Bulletproofs with R1CS but tend to be complicated. BBS on the other hand adds, to verifiable credentials or any other application, the ability to do very efficient zero-knowledge proofs. A holder gains the ability to choose which claims to reveal to a relying party without the need for any additional complicated logic. (FIXME: Informative references missing)
 
 ## Notational Conventions
 
@@ -168,10 +167,11 @@ hash\_to\_curve\_g2(ostr) -> P
 : The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G2 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G2 using the random oracle method. The domain separation tag value is dst.
      
 point\_to\_octets\_min(P) -> ostr
-: returns the canonical representation of the point P as an octet string in compressed form. This operation is also known as serialization.
+: returns the canonical representation of the point P as an octet string in compressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)
      
 point\_to\_octets\_norm(P) -> ostr
-: returns the canonical representation of the point P as an octet string in uncompressed form. This operation is also known as serialization.
+: returns the canonical representation of the point P as an octet string in uncompressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)
+
      
 octets\_to\_point(ostr) -> P
 : returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point\_to\_octets.  This operation is also known as deserialization. Consumes either compressed or uncompressed ostr.
@@ -215,9 +215,11 @@ The core operations in this section depend on several parameters:
 
 The KeyGen algorithm generates a secret key SK deterministically from a secret octet string IKM.
 
-KeyGen uses HKDF [@!RFC5869] instantiated with the hash function H.
+KeyGen uses a HKDF [@!RFC5869] instantiated with the hash function H.
 
-For security, IKM MUST be infeasible to guess, e.g., generated by a trusted source of randomness.  IKM MUST be at least 32 bytes long, but it MAY be longer.
+For security, IKM MUST be infeasible to guess, e.g., generated by a trusted source of randomness.
+
+IKM MUST be at least 32 bytes long, but it MAY be longer.
 
 Because KeyGen is deterministic, implementations MAY choose either to store the resulting SK or to store IKM and call KeyGen to derive SK when necessary.
 
@@ -262,6 +264,8 @@ Procedure:
 SkToDpk algorithm takes a secret key SK and outputs a corresponding short formed public key.
 
 SK MUST be indistinguishable from uniformly random modulo r (Section 2.2) and infeasible to guess, e.g., generated using a trusted source of randomness.  KeyGen (Section 2.3) outputs SK meeting these requirements.  Other key generation approaches meeting these requirements MAY also be used; details of such methods are beyond the scope of this document.
+(FIXME: This paragraph is a duplicate from Section 2.2. where it is already established that IKM is random and cannot be guessed)
+
 
 ```
 DPK = SkToDpk(SK)
@@ -288,6 +292,7 @@ Procedure:
 The SkToPk algorithm takes a secret key SK and the number of messages that can be signed and outputs the corresponding public key PK.
 
 SK MUST be indistinguishable from uniformly random modulo r (Section 2.2) and infeasible to guess, e.g., generated using a trusted source of randomness.  KeyGen (Section 2.3) outputs SK meeting these requirements.  Other key generation approaches meeting these requirements MAY also be used; details of such methods are beyond the scope of this document.
+(FIXME: Again duplicate from Section 2.2)
 
 ```
 PK = SkToPk(Sk, L)
@@ -690,6 +695,7 @@ Procedure:
 28. return spk
 
 How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
+(FIXME: Encoding out of scope OK, but wire format is required for test vectors. Unless this document is not normative.)
 
 ## SpkVerify
 
@@ -835,6 +841,8 @@ The cipher-suites in Section 4 are based upon the BLS12-381 pairing-friendly ell
 The following comparison assumes BBS signatures with curve BLS12-381, targeting 128 bit security.
 
 For 128 bits security, ECDSA with curve P-256 takes 37 and 79 micro-seconds to sign and verify signature on a modern computer. BBS 680 and 1400 milliseconds to sign and verify a single message. However, ECDSA can only sign a single message whereas BBS can sign any number of messages at the expense of a bigger public key. To sign and verify 10 messages takes 3.7 and 5.4 milliseconds, and 22.3 and 24.4 milliseconds for 100 messages.
+
+(FIXME: How is sign and verify of 10 messages faster than a single message? Also, it seems to scale linearly, as would an ECDSA signature over 10/100 messages)
 
 The signature size remains constant regardless of the number of signed messages. ECDSA and ED25519 use 32 bytes for public keys and 64 bytes for signatures. In contrast, BBS public key sizes follow the formula 48 \* (messages + 1) + 96, and 112 bytes for signatures. However, A single BBS signature is sufficient to authenticate multiple messages. We also present a method that only needs 96 bytes for the public key at the expense of a some computation before performing operations like signing, proof generation, and verification.
 
