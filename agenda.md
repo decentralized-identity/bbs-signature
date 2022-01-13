@@ -20,7 +20,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 10th January 2022 - (6pm UTC)
+## Meeting - Monday 24th January 2022 - (6pm UTC)
 
 ### Chair
 
