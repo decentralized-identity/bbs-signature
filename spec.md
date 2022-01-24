@@ -57,11 +57,7 @@ The scheme feature important properties that allow the scheme to be used in appl
 
 1. Signatures can be created blinded or un-blinded.
    
-2. Signatures are encoded as a single group element and two field elements. (FIXME: Why is this important? Succinctness? Unclear)
-
-3. Verification requires 2 pairing operations. (FIXME: Only two? Why is this important? It's not as good as one or no pairing!)
-
-4. Traditional signature schemes require the entire signature and message to be disclosed during verification. BBS allows a fast and small zero-knowledge signature proof of knowledge to be created from the signature and the public key. This allows the signature holder to selectively reveal any number of signed messages to another entity (none, all, or any number in between).   
+2. Traditional signature schemes require the entire signature and message to be disclosed during verification. BBS allows a fast and small zero-knowledge signature proof of knowledge to be created from the signature and the public key. This allows the signature holder to selectively reveal any number of signed messages to another entity (none, all, or any number in between).   
     
 A recent emerging use case applies signature schemes in [verifiable credentials](https://www.w3.org/TR/vc-data-model/). One problem with
 using simple signature schemes like ECDSA or ED25519 is that a holder must disclose the entire signed message and signature for verification. Circuit based logic can be applied to verify these in zero-knowledge like SNARKS or Bulletproofs with R1CS but tend to be complicated. BBS on the other hand adds, to verifiable credentials or any other application, the ability to do very efficient zero-knowledge proofs. A holder gains the ability to choose which claims to reveal to a relying party without the need for any additional complicated logic. (FIXME: Informative references missing)
@@ -263,10 +259,6 @@ Procedure:
 
 SkToDpk algorithm takes a secret key SK and outputs a corresponding short formed public key.
 
-SK MUST be indistinguishable from uniformly random modulo r (Section 2.2) and infeasible to guess, e.g., generated using a trusted source of randomness.  KeyGen (Section 2.3) outputs SK meeting these requirements.  Other key generation approaches meeting these requirements MAY also be used; details of such methods are beyond the scope of this document.
-(FIXME: This paragraph is a duplicate from Section 2.2. where it is already established that IKM is random and cannot be guessed)
-
-
 ```
 DPK = SkToDpk(SK)
 ```
@@ -290,9 +282,6 @@ Procedure:
 ## SkToPk
 
 The SkToPk algorithm takes a secret key SK and the number of messages that can be signed and outputs the corresponding public key PK.
-
-SK MUST be indistinguishable from uniformly random modulo r (Section 2.2) and infeasible to guess, e.g., generated using a trusted source of randomness.  KeyGen (Section 2.3) outputs SK meeting these requirements.  Other key generation approaches meeting these requirements MAY also be used; details of such methods are beyond the scope of this document.
-(FIXME: Again duplicate from Section 2.2)
 
 ```
 PK = SkToPk(Sk, L)
@@ -771,7 +760,7 @@ Implementations of the signing algorithm SHOULD protect the secret key from side
    
 ## Randomness considerations
 
-As discussed in Section 2.2, the IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One possibility is to generate IKM from a trusted source of randomness.  Guidelines on constructing such a source are outside the scope of this document.
+The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One possibility is to generate IKM from a trusted source of randomness.  Guidelines on constructing such a source are outside the scope of this document.
    
 Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.
 
@@ -834,17 +823,6 @@ The cipher-suites in Section 4 are based upon the BLS12-381 pairing-friendly ell
 ## Test Vectors
 
 //TODO
-
-
-## Comparison with ECC Signatures
-
-The following comparison assumes BBS signatures with curve BLS12-381, targeting 128 bit security.
-
-For 128 bits security, ECDSA with curve P-256 takes 37 and 79 micro-seconds to sign and verify signature on a modern computer. BBS 680 and 1400 milliseconds to sign and verify a single message. However, ECDSA can only sign a single message whereas BBS can sign any number of messages at the expense of a bigger public key. To sign and verify 10 messages takes 3.7 and 5.4 milliseconds, and 22.3 and 24.4 milliseconds for 100 messages.
-
-(FIXME: How is sign and verify of 10 messages faster than a single message? Also, it seems to scale linearly, as would an ECDSA signature over 10/100 messages)
-
-The signature size remains constant regardless of the number of signed messages. ECDSA and ED25519 use 32 bytes for public keys and 64 bytes for signatures. In contrast, BBS public key sizes follow the formula 48 \* (messages + 1) + 96, and 112 bytes for signatures. However, A single BBS signature is sufficient to authenticate multiple messages. We also present a method that only needs 96 bytes for the public key at the expense of a some computation before performing operations like signing, proof generation, and verification.
 
 
 ## Blind Sign Flow Example
