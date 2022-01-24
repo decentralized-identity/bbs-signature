@@ -449,18 +449,16 @@ Procedure:
 
 The PreBlindSign algorithm allows a holder of a signature to blind messages that when signed, are unknown to the signer.
 
-The algorithm takes in a generated blinding factor that is used to un-blind the signature from the signer, and a pedersen commitment from the generators in the signers public key PK and a vector of messages.
+The algorithm returns a generated blinding factor that is used to un-blind the signature from the signer, and a pedersen commitment from a vector of messages and the domain parameters h and h0.
 
 ```
-(s', commitment) = PreBlindSign((msg[i],...,msg[U]), h0, (h[i],...,h[U]))
+(s', commitment) = PreBlindSign((msg[1],...,msg[U]), CGIdxs)
 ```
 
 Inputs:
 
-- msg\[i\],...,msg\[U\], octet strings of the messages to be blinded.
-- h0, octet string.
-- h\[i\],...,h\[U\], octet strings of generators for the messages to
-    be blinded.
+- msg\[1\],...,msg\[U\], octet strings of the messages to be blinded.
+- CGIdxs, vector of unsigned integers. Indices of the generators from the domain parameter h, used for the messages to be blinded.
     
 Outputs:
 
@@ -469,31 +467,35 @@ Outputs:
 
 Procedure:
 
-1. s' = H(PRF(8 \* ceil(log2(r)))) mod r
+1. (i1,...,iU) = CGIdxs
 
-2. if subgroup\_check(h0) is INVALID abort
+2. s' = H(PRF(8 \* ceil(log2(r)))) mod r
 
-3. if (subgroup\_check(h\[i\]) && ... && subgroup\_check(h\[U\])) is INVALID abort
+3. if subgroup\_check(h0) is INVALID abort
 
-4. commitment = h0 \* s' + h\[i\] \* msg\[i\] + ... + h\[U\] \* msg\[U\]
+4. if (subgroup\_check(h\[i1\]) && ... && subgroup\_check(h\[iU\])) is INVALID abort
 
-5. return s', commitment
+5. commitment = h0 \* s' + h\[i1\] \* msg\[1\] + ... + Ch\[iU\] \* msg\[U\]
+
+6. return s', commitment
 
 ## BlindSign
 
-BlindSign generates a blind signature from a commitment received from a holder, known messages, a secret key, and generators from the corresponding public key.
+BlindSign generates a blind signature from a commitment received from a holder, known messages, a secret key, the domain parameter h0 and generators from the domain parameter h. The signer also validates the commitment using the proof of knowledge of committed messages received from the holder and checks that the generators used in the commitment are not also used for the known messages.
 
 ``` 
-blind_signature = BlindSign(commitment, (msg[i],...msg[K]), SK, h0, (h[i],...,h[K]))
+blind_signature = BlindSign(commitment, (msg[1],...msg[K]), SK, GIdxs, CGIdxs, nizk, nonce)
 ```
 
 Inputs:
 
-- commitment, octet string receive from the holder in output form from PreBlindSign
-- msg\[i\],...,msg\[K\], octet strings
-- SK, a secret key output from KeyGen
-- h0, octet string.
-- h\[i\],...,h\[K\], octet strings of generators for the known messages
+- commitment, octet string receive from the holder in output form PreBlindSign.
+- nizk, octet string received from the holder in output from BlindMessagesProofGen.
+- msg\[1\],...,msg\[K\], octet strings.
+- SK, a secret key output from KeyGen.
+- GIdxs, vector of unsigned integers. Indices of the generators from the domain parameter h, used for the known messages.
+- CGIdxs, vector of unsigned integers. Indices of the generators from the domain parameter h, used for the commited messages.
+- nonce, octet string, suplied to the holder by the signer to be used with BlindMessagesProofGen.
 
 Outputs:
 
@@ -501,17 +503,23 @@ Outputs:
 
 Procedure:
 
-1. e = H(PRF(8 \* ceil(log2(r)))) mod r
+1. (j1, ..., jK) = GIdxs
 
-2. s'' = H(PRF(8 \* ceil(log2(r)))) mod r
+2. e = H(PRF(8 \* ceil(log2(r)))) mod r
 
-3. b = commitment + h0 \* s'' + h\[i\] \* msg\[i\] + ... + h\[K\] \* msg\[K\]
+3. s'' = H(PRF(8 \* ceil(log2(r)))) mod r
 
-4. A = b \* (1 / (SK + e))
+4. if BlindMessagesProofVerify(commitment, nizk, CGIdxs, nonce) is INVALID abort
 
-5. blind\_signature = (A, e, s'')
+5. if GIdxs intersection with CGIdxs is not empty abort
 
-6. return blind\_signature
+6. b = commitment + h0 \* s'' + h\[j1\] \* msg\[1\] + ... + h\[jK\] \* msg\[K\]
+
+7. A = b \* (1 / (SK + e))
+
+8. blind\_signature = (A, e, s'')
+
+9. return blind\_signature
 
 ## UnblindSign
 
@@ -546,19 +554,18 @@ Procedure:
 
 ## BlindMessagesProofGen
 
-BlindMessagesProofGen creates a proof of committed messages zero-knowledge proof. The proof should be verified before a signer computes a blind signature. The proof is created from a nonce given to the holder from the signer, a vector of messages, a blinding factor output from PreBlindSign, and generators from the signers public key.
+BlindMessagesProofGen creates a proof of committed messages zero-knowledge proof. The proof should be verified before a signer computes a blind signature. The proof is created from a nonce given to the holder from the signer, a vector of messages, a blinding factor output from PreBlindSign, the domain parameter h0 and generators from the domain parameter h.
 
 ```
-nizk = BlindMessagesProofGen(commitment, s', (msg[i],...,msg[U]), h0, (h[i],...,h[U]), nonce)
+nizk = BlindMessagesProofGen(commitment, s', (msg[1],...,msg[U]), CGIdxs, nonce)
 ```
 
 Inputs:
 
 - commitment, octet string as output from PreBlindSign
 - s', octet string as output from PreBlindSign
-- msg\[i\],...,msg\[U\], octet strings of the messages to be blinded.
-- h0, octet string.
-- h\[i\],...,h\[U\], octet strings of generators for the messages to be blinded.
+- msg\[1\],...,msg\[U\], octet strings of the blinded messages.
+- CGIdxs, vector of unsigned integers. Indices of the generators from the domain parameter h, used for the commited messages.
 - nonce, octet string.
     
 Outputs:
@@ -567,34 +574,37 @@ Outputs:
 
 Procedure:
 
-1. r\~ = \[U\]
+1. (i1,...,iU) = CGIdxs
 
-2. s\~ = H(PRF(8 \* ceil(log2(r)))) mod r
+2. r\~ = \[U\]
 
-3. for i in 0 to U: r\~\[i\] = H(PRF(8 \* ceil(log2(r)))) mod r
+3. s\~ = H(PRF(8 \* ceil(log2(r)))) mod r
 
-4. U~ = h0 \* s\~ + h\[i\] \* r\~\[i\] + ... + h\[U\] \* r\~\[U\]
+4. for i in 1 to U: r\~\[i\] = H(PRF(8 \* ceil(log2(r)))) mod r
 
-5. c = H(commitment || U\~ || nonce)
+5. U~ = h0 \* s\~ + h\[i1\] \* r\~\[1\] + ... + h\[iU\] \* r\~\[U\]
 
-6. s^ = s\~ + c \* s'
+6. c = H(commitment || U\~ || nonce)
 
-7. r^\[i\] = r\~\[i\] + c \* msg\[i\]
+7. s^ = s\~ + c \* s'
 
-8. nizk = ( c, s^, r^ )
+8. for i in 1 to U: r^\[i\] = r\~\[i\] + c \* msg\[i\]
+
+9. nizk = ( c, s^, r^)
 
 ## BlindMessagesProofVerify
 
 BlindMessagesProofVerify checks whether a proof of committed messages zero-knowledge proof is valid.
 
 ```
-result = BlindMessagesProofVerify(commitment, nizk, nonce)
+  result = BlindMessagesProofVerify(commitment, nizk, CGIdxs, nonce)
 ```
 
 Inputs:
 
 - commitment, octet string in output form from PreBlindSign
 - nizk, octet string in output form from BlindMessagesProofGen
+- CGIdxs, vector of unsigned integers. Indices of the generators from the domain parameter h, used for the commited messages.
 - nonce, octet string
 
 Outputs:
@@ -603,13 +613,15 @@ Outputs:
 
 Procedure:
 
-1. ( c, s^, r^ ) = nizk
+1. (i1,...,iU) = CGIdxs
 
-2. U^ = commitment \* -c + h0 \* s^ + h\[i\] \* r^\[i\] + ... + h\[U\] \* r^\[U\]
+2. ( c, s^, r^ ) = nizk
 
-3. c\_v = H(U || U^ || nonce)
+3. U^ = commitment \* -c + h0 \* s^ + h\[i1\] \* r^\[1\] + ... + h\[iU\] \* r^\[U\]
 
-4. return c == c\_v
+4. c\_v = H(U || U^ || nonce)
+
+5. return c == c\_v
 
 ## SpkGen
 
