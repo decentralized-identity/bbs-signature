@@ -1,6 +1,6 @@
 %%%
-title = "BBS Signature Scheme"
-abbrev = "BBS Signature Scheme"
+title = "The BBS Signature Scheme"
+abbrev = "The BBS Signature Scheme"
 ipr= "none"
 area = "Internet"
 workgroup = "none"
@@ -9,7 +9,7 @@ keyword = [""]
 
 [seriesInfo]
 name = "Individual-Draft"
-value = "bbs-signatures-00"
+value = "draft-bbs-signatures"
 status = "informational"
 
 [[author]]
@@ -857,9 +857,9 @@ The example below illustrates the creation of a blind signature. Let the Signer 
 
 3. Before sending the blinded signature to the Client the Signer must execute the following steps,
     - Validate the proof of knowledge of the commitment using BlindMessagesProofVerify, on input the commitment, nizk, the nonce (from step 1) and the U first generators from their PK. Then check that the intersection between the generators used by the Client for the commitment, and the generators (h[U+1],...,h[K]), used by the Signer for the known messages, is indeed empty.
-    - Create the blind signature using the BlindSign function. Note that the blinded signature is not a valid BBS+ signature.
+    - Create the blind signature using the BlindSign function. Note that the blinded signature is not a valid BBS signature.
 
-    After the Client receives the blind signature they will use the UnblindSign function to unblinded it, getting a valid BBS+ signature on the messages (m[1],...,m[K]).
+    After the Client receives the blind signature they will use the UnblindSign function to unblinded it, getting a valid BBS signature on the messages (m[1],...,m[K]).
 
 
 {backmatter}
