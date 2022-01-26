@@ -1,0 +1,41 @@
+name: "Perform Initial Repository Setup"
+
+on: workflow_dispatch
+
+jobs:
+  setup:
+    name: "Setup Repository"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+
+      - name: "Git Config"
+        run: |
+          git config user.email "idbot@example.com"
+          git config user.name "I-D Bot"
+      - name: "Cleanup"
+        run: |
+          git rm -rf .github/workflows/setup.yml README.md
+          git commit -m "Remove setup files"
+      - name: "Clone the i-d-template Repo"
+        run: |
+          git clone --depth=1 https://github.com/martinthomson/i-d-template lib
+      - name: "Run i-d-template Setup"
+        uses: martinthomson/i-d-template@v1
+        with:
+          make: setup
+
+      - name: "Update Venue Information"
+        uses: martinthomson/i-d-template@v1
+        with:
+          make: update-venue
+
+      - name: "Update GitHub Pages"
+        uses: martinthomson/i-d-template@v1
+        with:
+          make: gh-pages
+
+      - name: "Push Changes"
+        run: |
+          git push
