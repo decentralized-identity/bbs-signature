@@ -841,7 +841,7 @@ The cipher-suites in Section 4 are based upon the BLS12-381 pairing-friendly ell
 
 The example below illustrates the creation of a blind signature. Let the Signer have a public key PK = (w, h0, h[1],...,h[L]) where (h[1],...,h[L]) generators. The end result will be a signature to the messages (m[1],...,m[K]) (K less than L). The messages (m[1],...,m[U]) (U less than K), will be committed by the Client using the first U generators from the Signers PK (i.e., h[1],,,,h[U]). The messages (m[U+1],...,m[K]) will be known to the Signer and will be signed using the generators (h[U+1],...,h[K]) from their PK.
 
-<pre>
+~~~ ascii-art
 +--------+                               +--------+
 |        | <-(1)------- nonce ---------- |        |
 |        |                               |        |
@@ -849,7 +849,7 @@ The example below illustrates the creation of a blind signature. Let the Signer 
 |        |                               |        |
 |        | <-(3)--- Blind Signature ---- |        |
 +--------+                               +--------+
-</pre>
+~~~
 
 1. The Signer and the Client will agree on a nonce to be used by the BlindMessagesProofGen and BlindMessagesProofVerify functions.
 
