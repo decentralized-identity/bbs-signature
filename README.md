@@ -1,30 +1,16 @@
 # The BBS Signature Scheme
 
-This is the working area for the individual Internet-Draft, "The BBS Signature Scheme".
+* [Latest Draft](https://decentralized-identity.github.io/bbs-signature/#go.draft-bbs-signatures.html)
+* [Compare Drafts](https://decentralized-identity.github.io/bbs-signature)
 
-* [Editor's Copy](https://decentralized-identity.github.io/bbs-signature/#go.draft-bbs-signatures.html)
-* [Datatracker Page](https://datatracker.ietf.org/doc/draft-bbs-signatures)
-* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-bbs-signatures)
-* [Compare Editor's Copy to Individual Draft](https://decentralized-identity.github.io/bbs-signature/#go.draft-bbs-signatures.diff)
+This repository is home to the "BBS Signature Scheme" work item of the DIF [Applied Cryptography Working Group](https://identity.foundation/working-groups/crypto.html). The goal of this work item is to describe the short group signature scheme of BBS in a manner suitable for standardization.
 
+### Meetings
 
-## Contributing
+Regular meetings are held bi-weekly on Mondays, on the same weeks as the Applied Crypto Working Group call is held.
 
-See the
-[guidelines for contributions](https://github.com/decentralized-identity/bbs-signature/blob/main/CONTRIBUTING.md).
+- [Meeting details](https://calendar.google.com/calendar/event?eid=NXJ2Z29jaGJwcTlraXZnbGNxOHZudWc4YXRfMjAyMTEwMDRUMTgwMDAwWiBkZWNlbnRyYWxpemVkLmlkZW50aXR5QG0)
+- [Direct Zoom link](https://us02web.zoom.us/j/87409761657?pwd=SXVSUGtVQXUyYzdxbnVvQkNJcXdGQT09)
 
-Contributions can be made by creating pull requests.
-The GitHub interface supports creating pull requests using the Edit (✏) button.
-
-
-## Command Line Usage
-
-Formatted text and HTML versions of the draft can be built using `make`.
-
-```sh
-$ make
-```
-
-Command line usage requires that you have the necessary software installed.  See
-[the instructions](https://github.com/martinthomson/i-d-template/blob/main/doc/SETUP.md).
+Meeting agendas and minutes can be found in [/meetings](https://github.com/decentralized-identity/bbs-signature/tree/main/meetings).
 
