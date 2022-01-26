@@ -56,9 +56,9 @@ This document describes the BBS signature scheme. (FIXME: THE BBS signature sche
 The scheme feature important properties that allow the scheme to be used in applications where privacy and data minimization techniques are desired and/or required:
 
 1. Signatures can be created blinded or un-blinded.
-   
-2. Traditional signature schemes require the entire signature and message to be disclosed during verification. BBS allows a fast and small zero-knowledge signature proof of knowledge to be created from the signature and the public key. This allows the signature holder to selectively reveal any number of signed messages to another entity (none, all, or any number in between).   
-    
+
+2. Traditional signature schemes require the entire signature and message to be disclosed during verification. BBS allows a fast and small zero-knowledge signature proof of knowledge to be created from the signature and the public key. This allows the signature holder to selectively reveal any number of signed messages to another entity (none, all, or any number in between).
+
 A recent emerging use case applies signature schemes in [verifiable credentials](https://www.w3.org/TR/vc-data-model/). One problem with
 using simple signature schemes like ECDSA or ED25519 is that a holder must disclose the entire signed message and signature for verification. Circuit based logic can be applied to verify these in zero-knowledge like SNARKS or Bulletproofs with R1CS but tend to be complicated. BBS on the other hand adds, to verifiable credentials or any other application, the ability to do very efficient zero-knowledge proofs. A holder gains the ability to choose which claims to reveal to a relying party without the need for any additional complicated logic. (FIXME: Informative references missing)
 
@@ -71,107 +71,104 @@ document, are to be interpreted as described in [@!RFC2119].
 ## Terminology
 
 The following terminology is used throughout this document:
-   
+
 SK
 : The secret key for the signature scheme.
-   
+
 PK
 : The public key for the signature scheme.
-     
-DPK
-: The short form of the public key or deterministic public key.
-     
+
 U
 : The set of messages that are blinded from the signer during a blind signing.
-     
+
 K
 : The set of messages that are known to the signer during a blind signing.
-     
+
 L
 : The total number of messages that the signature scheme can sign.
-     
+
 R
 : The set of message indices that are retained or hidden in a signature proof of knowledge.
-     
+
 D
 : The set of message indices that are disclosed in a signature proof of knowledge.
-     
+
 msg
 : The input to be signed by the signature scheme.
-   
+
 h\[i\]
 : The generator corresponding to a given msg.
-   
+
 h0
 : A generator for the blinding value in the signature.
-   
+
 signature
 : The digital signature output.
-   
+
 s'
 : The signature blinding factor held by the signature recipient.
-     
+
 blind\_signature
 : The blind digital signature output.
-   
+
 commitment
 : A pedersen commitment composed of 1 or more messages.
-   
+
 nonce
 : A cryptographic nonce
-   
+
 spk
 : Zero-Knowledge Signature Proof of Knowledge.
-   
+
 nizk
 : A non-interactive zero-knowledge proof from fiat-shamir heuristic.
-   
+
 dst
 : The domain separation tag.
-      
+
 I2OSP
-: As defined by Section 4 of [@!RFC8017] 
+: As defined by Section 4 of [@!RFC8017]
 
 OS2IP
 : As defined by Section 4 of [@!RFC8017].
-   
-a || b 
+
+a || b
 : Denotes the concatenation of octet strings a and b.
-   
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
-   
+
 E1, E2
-: elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. 
-   
+: elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2.
+
 G1, G2
 : subgroups of E1 and E2 (respectively) having prime order r.
-   
+
 GT
 : a subgroup, of prime order r, of the multiplicative group of a field extension.
-     
+
 e
 : G1 x G2 -> GT: a non-degenerate bilinear map.
-   
+
 P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
-   
+
 hash\_to\_curve\_g1(ostr) -> P
 : The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest
 algorithm, once selected apply the isogeny simplified SWU map to compute a point in G1 using the random oracle method. The domain separation tag value is dst.
-   
+
 hash\_to\_curve\_g2(ostr) -> P
 : The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G2 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G2 using the random oracle method. The domain separation tag value is dst.
-     
+
 point\_to\_octets\_min(P) -> ostr
 : returns the canonical representation of the point P as an octet string in compressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)
-     
+
 point\_to\_octets\_norm(P) -> ostr
 : returns the canonical representation of the point P as an octet string in uncompressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)
 
-     
+
 octets\_to\_point(ostr) -> P
 : returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point\_to\_octets.  This operation is also known as deserialization. Consumes either compressed or uncompressed ostr.
-     
+
 subgroup\_check(P) -> VALID or INVALID
 : returns VALID when the point P is an element of the subgroup of order r, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [Bowe19].
 
@@ -182,7 +179,7 @@ subgroup\_check(P) -> VALID or INVALID
 ## Organization of this document
 
 This document is organized as follows:
-   
+
 * The remainder of this section defines terminology and the high-level API.
 
 * Section 2 defines primitive operations used in the BLS signature scheme. These operations MUST NOT be used alone.
@@ -200,11 +197,11 @@ This section defines core operations used by the schemes defined in Section 3. T
 ## Parameters
 
 The core operations in this section depend on several parameters:
-   
+
 * A pairing-friendly elliptic curve, plus associated functionality given in Section 1.4.
-    
+
 * H, a hash function that MUST be a secure cryptographic hash function. For security, H MUST output at least ceil(log2(r)) bits, where r is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve.
-    
+
 * PRF(n): a pseudo-random function similar to [@!RFC4868]. Returns n pseudo randomly generated bytes.
 
 ## KeyGen
@@ -236,14 +233,14 @@ Outputs:
 Parameters:
 
 - key\_info, an optional octect string. if this is not supplied, it MUST default to an empty string.
-    
+
 Definitions:
 
 - HKDF-Extract is as defined in [@!RFC5869], instantiated with hash H.
 - HKDF-Expand is as defined in [@!RFC5869], instantiated with hash H.
 - I2OSP and OS2IP are as defined in [@!RFC8017], Section 4.
 - L is the integer given by ceil((3 \* ceil(log2(r))) / 16).
-- "BBS-SIG-KEYGEN-SALT-" is an ASCII string comprising 20 octets. 
+- "BBS-SIG-KEYGEN-SALT-" is an ASCII string comprising 20 octets.
 
 Procedure:
 
@@ -255,42 +252,17 @@ Procedure:
 
 4. return SK
 
-## SkToDpk
-
-SkToDpk algorithm takes a secret key SK and outputs a corresponding short formed public key.
-
-```
-DPK = SkToDpk(SK)
-```
-
-Inputs:
-
-- SK, a secret integer such that 0 <= SK <= r
-
-Outputs:
-
-- DPK, a public key encoded as an octet string
-
-Procedure:
-
-1. w = SK \* P2
-
-2. DPK = w
-
-3. return point\_to\_octets\_min(DPK)
- 
 ## SkToPk
 
-The SkToPk algorithm takes a secret key SK and the number of messages that can be signed and outputs the corresponding public key PK.
+SkToPk algorithm takes a secret key SK and outputs a corresponding public key.
 
 ```
-PK = SkToPk(Sk, L)
+PK = SkToPk(SK)
 ```
 
 Inputs:
 
 - SK, a secret integer such that 0 <= SK <= r
-- L, an integer, the number of messages to be signed
 
 Outputs:
 
@@ -300,51 +272,14 @@ Procedure:
 
 1. w = SK \* P2
 
-2. h0 = hash\_to\_curve\_g1( w || I2OSP(0, 1) || I2OSP(0, 4) || I2OSP(0, 1) || I2OSP(L, 4) )
+2. PK = w
 
-3. h = \[L\]
-
-4. for i in 0 to L: h\[i\] = hash\_to\_curve\_g1( w || I2OSP(0, 1) || I2OSP(i + 1, 4) || I2OSP(0, 1) || I2OSP(L, 4) )
-
-5. PK = (w, h0, h)
-
-6. return point\_to\_octets\_min(PK)
-
-## DpkToPk
-
-DpkToPk converts the short form of the public key to the long form just like SkToPk.
-   
-```   
-PK = DpkToPk(DPK, L)
-```
-
-Inputs:
-
-- DPK, the short form of the public key
-- L, an integer, the number of messages to be signed
-
-Outputs:
-
-- PK, a public key encoded as an octet string
-
-Procedure:
-
-1. w = octets\_to\_point(DPK)
-
-2. h0 = hash\_to\_curve\_g1( w || I2OSP(0, 1) || I2OSP(0, 4) || I2OSP(0, 1) || I2OSP(L, 4) )
-
-3. h = \[L\]
-
-4. for i in 0 to L: h\[i\] = hash\_to\_curve\_g1( w || I2OSP(0, 1) || I2OSP(i + 1, 4) || I2OSP(0, 1) || I2OSP(L, 4) )
-
-5. PK = (w, h0, h)
-
-6. return point\_to\_octets\_min(PK)
+3. return point\_to\_octets\_min(PK)
 
 ## KeyValidate
 
 KeyValidate checks if the public key is valid.
-   
+
 As an optimization, implementations MAY cache the result of KeyValidate in order to avoid unnecessarily repeating validation for known keys.
 
 ```
@@ -373,7 +308,7 @@ Procedure:
 
 Sign computes a signature from SK, PK, over a vector of messages.
 
-```   
+```
 signature = Sign((msg[i],...,msg[L]), SK, PK)
 ```
 
@@ -381,7 +316,7 @@ Inputs:
 
 - msg\[i\],...,msg\[L\], octet strings
 - SK, a secret key output from KeyGen
-- PK, a public key output from either DpkToPk or SkToPk
+- PK, a public key output from SkToPk
 
 Outputs:
 
@@ -453,7 +388,7 @@ Inputs:
 
 - msg\[1\],...,msg\[U\], octet strings of the messages to be blinded.
 - CGIdxs, vector of unsigned integers. Indices of the generators from the domain parameter h, used for the messages to be blinded.
-    
+
 Outputs:
 
 - s', octet string.
@@ -477,7 +412,7 @@ Procedure:
 
 BlindSign generates a blind signature from a commitment received from a holder, known messages, a secret key, the domain parameter h0 and generators from the domain parameter h. The signer also validates the commitment using the proof of knowledge of committed messages received from the holder and checks that the generators used in the commitment are not also used for the known messages.
 
-``` 
+```
 blind_signature = BlindSign(commitment, (msg[1],...msg[K]), SK, GIdxs, CGIdxs, nizk, nonce)
 ```
 
@@ -561,7 +496,7 @@ Inputs:
 - msg\[1\],...,msg\[U\], octet strings of the blinded messages.
 - CGIdxs, vector of unsigned integers. Indices of the generators from the domain parameter h, used for the commited messages.
 - nonce, octet string.
-    
+
 Outputs:
 
 - nizk, octet string
@@ -627,7 +562,7 @@ spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, nonce)
 
 Inputs:
 
-- PK, octet string in output form from SkToPk, DpkToPk
+- PK, octet string in output form from SkToPk
 - (msg\[1\],...,msg\[L\]), octet strings (messages in input to Sign).
 - RIdxs, vector of unsigned integers (indices of revealed messages).
 - signature, octet string in output form from Sign
@@ -709,7 +644,7 @@ result = SpkVerify(spk, PK, (Rmsg[1],..., Rmsg[R]), RIdxs, nonce)
 Inputs:
 
 - spk, octet string.
-- PK, octet string in output form from SkToPk, DpkToPk.
+- PK, octet string in output form from SkToPk.
 - (Rmsg\[1\], ..., Rmsg\[R\]), octet strings (revealed messages).
 - RIdxs, vector of unsigned integers (indices of revealed messages).
 - nonce, octet string.
@@ -765,15 +700,15 @@ Some existing implementations skip the subgroup\_check invocation in Verify (Sec
 1.  For most pairing-friendly elliptic curves used in practice, the pairing operation e (Section 1.3) is undefined when its input points are not in the prime-order subgroups of E1 and E2. The resulting behavior is unpredictable, and may enable forgeries.
 
 2.  Even if the pairing operation behaves properly on inputs that are outside the correct subgroups, skipping the subgroup check breaks the strong unforgeability property [ADR02].
-       
+
 ## Side channel attacks
 
 Implementations of the signing algorithm SHOULD protect the secret key from side-channel attacks.  One method for protecting against certain side-channel attacks is ensuring that the implementation executes exactly the same sequence of instructions and performs exactly the same memory accesses, for any value of the secret key. In other words, implementations on the underlying pairing-friendly elliptic curve SHOULD run in constant time.
-   
+
 ## Randomness considerations
 
 The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One possibility is to generate IKM from a trusted source of randomness.  Guidelines on constructing such a source are outside the scope of this document.
-   
+
 Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.
 
 BBS signatures are nondeterministic, meaning care must be taken against attacks arising from signing with bad randomness, for example, the nonce reuse attack on ECDSA [HDWH12]. It is recommended that the nonces used in signature proof generation are from a trusted source of randomness.
@@ -787,7 +722,7 @@ When a trusted source of randomness is used, signatures and proofs are much hard
 The security analysis models hash\_to\_point and hash\_pubkey\_to\_point as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!I-D.irtf-cfrg-hash-to-curve].
 
 In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_point.  The domain separation tag used in Section 1.4 is the RECOMMENDED one.
-   
+
 ## Use of Contexts
 
 Contexts can be used to separate uses of the protocol between different protocols (which is very hard to reliably do otherwise) and between different uses within the same protocol. However, the following SHOULD be kept in mind:
@@ -799,7 +734,7 @@ Contexts SHOULD NOT be used opportunistically, as that kind of use is very error
 Contexts are an extra input, which percolate out of APIs; as such, even if the signature scheme supports contexts, those may not be available for use. This problem is compounded by the fact that many times the application is not invoking the signing, verification, and proof functions directly but via some other protocol.
 
 The ZKP protocols use nonces which MUST be different in each context.
-   
+
 ## Choice of Signature Primitive
 
 BBS signatures can be implemented on any pairing-friendly curve. Using BLS12-381 the signature achieves close to 128-bit security, and is the recommended curve at this time.
