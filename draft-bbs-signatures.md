@@ -117,6 +117,9 @@ commitment
 nonce
 : A cryptographic nonce
 
+presentation_message (pm)
+: A message generated and protected by an spk.
+
 spk
 : Zero-Knowledge Signature Proof of Knowledge.
 
@@ -554,10 +557,10 @@ Procedure:
 
 ## SpkGen
 
-A signature proof of knowledge generating algorithm that creates a zero-knowledge proof of knowledge of a signature while selectively disclosing messages from a signature given a vector of messages, a vector of indices of the revealed messages, the signer's public key, and a nonce.
+A signature proof of knowledge generating algorithm that creates a zero-knowledge proof of knowledge of a signature while selectively disclosing messages from a signature given a vector of messages, a vector of indices of the revealed messages, the signer's public key, and a presentation message.
 
 ```
-spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, nonce)
+spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, pm)
 ```
 
 Inputs:
@@ -566,7 +569,7 @@ Inputs:
 - (msg\[1\],...,msg\[L\]), octet strings (messages in input to Sign).
 - RIdxs, vector of unsigned integers (indices of revealed messages).
 - signature, octet string in output form from Sign
-- nonce, octet string
+- pm, octet string
 
 Outputs:
 
@@ -614,7 +617,7 @@ Procedure:
 
 20. C2 = d \* r3\~ + h0 \* s\~ + h\[i1\] \* m\~\[i1\] + ... + h\[iR\] \* m\~\[iR\]
 
-21. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || nonce)
+21. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || pm)
 
 22. e^ = e\~ + c \* e
 
@@ -635,10 +638,10 @@ How a signature is to be encoded is not covered by this document. (TODO perhaps 
 
 ## SpkVerify
 
-SpkVerify checks if a signature proof of knowledge is VALID given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the nonce used in SpkGen.
+SpkVerify checks if a signature proof of knowledge is VALID given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation message used in SpkGen.
 
 ```
-result = SpkVerify(spk, PK, (Rmsg[1],..., Rmsg[R]), RIdxs, nonce)
+result = SpkVerify(spk, PK, (Rmsg[1],..., Rmsg[R]), RIdxs, pm)
 ```
 
 Inputs:
@@ -647,7 +650,7 @@ Inputs:
 - PK, octet string in output form from SkToPk.
 - (Rmsg\[1\], ..., Rmsg\[R\]), octet strings (revealed messages).
 - RIdxs, vector of unsigned integers (indices of revealed messages).
-- nonce, octet string.
+- pm, octet string
 
 Outputs:
 
@@ -671,7 +674,7 @@ Procedure:
 
 8. if X1 != X2 return INVALID
 
-9. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || nonce)
+9. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || pm)
 
 10. T1 = Abar - d
 
