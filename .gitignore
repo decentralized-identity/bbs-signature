@@ -1,0 +1,16 @@
+*.html
+*.pdf
+*.redxml
+*.swp
+*.txt
+*.upload
+*~
+.refcache
+.tags
+.targets.mk
+/*-[0-9][0-9].xml
+archive.json
+draft-bbs-signatures.xml
+lib
+report.xml
+venv/

@@ -20,21 +20,18 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 13th December 2021 - (6pm UTC)
+## Meeting - Monday 8th February 2022 - (6pm UTC)
 
 ### Chair
 
+Tobias Looker
+
 ### Agenda
 
-- IPR reminder, Agenda Review, and Introductions
+- IPR reminder, and Introductions
 - Agenda bashing
 - PR review
-    - [Changes in the handling of reveled message indexes](https://github.com/decentralized-identity/bbs-signature/pull/140)
-    - [Checks for the blind message generators and PoK during signing](https://github.com/decentralized-identity/bbs-signature/pull/17)
-    - [Blind Sign Flow Example](https://github.com/decentralized-identity/bbs-signature/pull/18)
 - Issue Review
-    - #15 - [Generalize the presentation proof nonce](https://github.com/decentralized-identity/bbs-signature/issues/15)
-- Additional Topics
 
 ### Attendees
 
@@ -42,6 +39,8 @@
 
 ## Previous Meetings
 
+- [24th January 2022](./meetings/2022-01-24/agenda.md)
+- [10th January 2022](./meetings/2022-01-01/agenda.md)
 - [15th November 2021](./meetings/2021-11-15/agenda.md)
 - [27th September 2021](./meetings/2021-08-27/agenda.md)
 - [13th September 2021](./meetings/2021-08-13/agenda.md)
