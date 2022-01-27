@@ -118,7 +118,7 @@ nonce
 : A cryptographic nonce
 
 presentation_message (pm)
-: A message generated and protected by an spk.
+: A message generated and protected by the spk.
 
 spk
 : Zero-Knowledge Signature Proof of Knowledge.
