@@ -741,9 +741,7 @@ BBS signatures can be implemented on any pairing-friendly curve. Using BLS12-381
 
 ## Nonce selection
 
-The proofs generated in this specification insures that the key material was applied on the specified nonce. A verifier-specified cryptographically random nonce provides strong protections against replay attacks. In some settings, proofs can be generated in a non-interactive fashion; in this case verifiers MUST be able to verify the uniqueness of the nonce values (provers could use a unique verifier ID combined with a timestamp to help with this).
-
-The proof generation acts a digital signature on the nonce, which could be used to design BBS+ based digital signature mechanisms. In this case, the nonce could be the hash digest of the message to sign, and the resulting proofs (potentially containing disclosed attribute values) would form the signature.
+The signatures and proofs generated in this specification are created using a specified nonce. A verifier-specified cryptographically random nonce provides strong protections against replay attacks. In some settings, proofs can be generated in a non-interactive fashion; in which case verifiers MUST be able to verify the uniqueness of the nonce values.
 
 # IANA Considerations
 
