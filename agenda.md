@@ -20,7 +20,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 24th January 2022 - (6pm UTC)
+## Meeting - Monday 8th February 2022 - (6pm UTC)
 
 ### Chair
 
@@ -33,15 +33,13 @@ Tobias Looker
 - PR review
 - Issue Review
 
-
 ### Attendees
-
 
 ### Notes
 
-
 ## Previous Meetings
 
+- [24th January 2022](./meetings/2022-01-24/agenda.md)
 - [10th January 2022](./meetings/2022-01-01/agenda.md)
 - [15th November 2021](./meetings/2021-11-15/agenda.md)
 - [27th September 2021](./meetings/2021-08-27/agenda.md)
