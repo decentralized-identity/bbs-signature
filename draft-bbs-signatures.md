@@ -714,7 +714,7 @@ The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One
 
 Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.
 
-BBS signatures are nondeterministic, meaning care must be taken against attacks arising from signing with bad randomness, for example, the nonce reuse attack on ECDSA [HDWH12]. It is recommended that the nonces used in signature proof generation are from a trusted source of randomness (see Nonce selection section below).
+BBS signatures are nondeterministic, meaning care must be taken against attacks arising from signing with bad randomness, for example, the nonce reuse attack on ECDSA [HDWH12]. It is RECOMMENDED that the nonces and presentation messages used in this specification are chosen at random from a trusted source of randomness (see "Presentation message section" below for additional considerations).
 
 BlindSign as discussed in 2.10 uses randomness from two parties so care MUST be taken that both sources of randomness are trusted. If one party uses weak randomness, it could compromise the signature.
 
@@ -742,9 +742,9 @@ The ZKP protocols use nonces which MUST be different in each context.
 
 BBS signatures can be implemented on any pairing-friendly curve. Using BLS12-381 the signature achieves close to 128-bit security, and is the recommended curve at this time.
 
-## Nonce selection
+## Presentation message selection
 
-The signatures and proofs generated in this specification are created using a specified nonce. A verifier-specified cryptographically random nonce provides strong protections against replay attacks. In some settings, proofs can be generated in a non-interactive fashion; in which case verifiers MUST be able to verify the uniqueness of the nonce values.
+The signature proofs of knowledge generated in this specification are created using a specified presentation message. A verifier-specified cryptographically random value (e.g., a nonce) provides strong protections against replay attacks, and is RECOMMENDED in most use cases. In some settings, proofs can be generated in a non-interactive fashion, in which case verifiers MUST be able to verify the uniqueness of the presentation message values.
 
 # IANA Considerations
 
