@@ -5,12 +5,15 @@
 
 This repository is home to the "BBS Signature Scheme" work item of the DIF [Applied Cryptography Working Group](https://identity.foundation/working-groups/crypto.html). The goal of this work item is to describe the short group signature scheme of BBS in a manner suitable for standardization.
 
-### Meetings
+## Meetings
 
 Regular meetings are held bi-weekly on Mondays, on the same weeks as the Applied Crypto Working Group call is held.
 
 - [Meeting details](https://calendar.google.com/calendar/event?eid=NXJ2Z29jaGJwcTlraXZnbGNxOHZudWc4YXRfMjAyMTEwMDRUMTgwMDAwWiBkZWNlbnRyYWxpemVkLmlkZW50aXR5QG0)
 - [Direct Zoom link](https://us02web.zoom.us/j/87409761657?pwd=SXVSUGtVQXUyYzdxbnVvQkNJcXdGQT09)
 
-Meeting agendas and minutes can be found in [/meetings](https://github.com/decentralized-identity/bbs-signature/tree/main/meetings).
+Meeting agendas and minutes can be found in [/meetings](https://github.com/decentralized-identity/bbs-signature/tree/main/meetings), the next up and coming meetings agenda can be found in [here](agenda.md).
 
+## Tooling
+
+To assist the development of the specification a set of tooling is co-located in this repository and can be found [here](https://github.com/decentralized-identity/bbs-signature/tree/main/tooling).
