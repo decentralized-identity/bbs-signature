@@ -1,0 +1,13 @@
+[package]
+name = "bbs-signature-generator-demo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bls12_381_plus = "0.5"
+ff = "0.10"
+group = "0.10"
+hex = "0.4"
+rand = { version = "0.8", features = ["std_rng"] }
+sha3 = "0.9"
+structopt = "0.3"
