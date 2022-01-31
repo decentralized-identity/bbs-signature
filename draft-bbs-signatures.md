@@ -265,7 +265,7 @@ PK = SkToPk(SK)
 
 Inputs:
 
-- SK, a secret integer such that 0 <= SK <= r
+- SK, a secret integer such that 0 < SK < r
 
 Outputs:
 
