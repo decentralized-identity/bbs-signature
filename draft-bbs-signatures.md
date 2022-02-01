@@ -50,12 +50,7 @@ BBS is a form of short group digital signature scheme that supports multi-messag
 
 A digital signature scheme is a fundamental cryptographic primitive that is used to provide data integrity and verifiable authenticity in various protocols. The core premise of digital signature technology is built upon asymmetric cryptography where-by the possessor of a private key is able to sign a payload (often revered to as the signer), where anyone in possession of the corresponding public key matching that of the private key is able to verify the signature.
 
-However traditional digital signatures are limited to fixed mode of signing and verifying, that is the entire payload that was signed by a signer must be known by the verifier in-order to validate the digital signature.
-
-This document describes the BBS signature scheme. (FIXME: THE BBS signature scheme? Or A BBS signature schemes? Also: BBS citation needed/informative reference).
-The scheme feature important properties that allow the scheme to be used in applications where privacy and data minimization techniques are desired and/or required:
-
-1. Traditional signature schemes require the entire signature and message to be disclosed during verification. BBS allows a fast and small zero-knowledge signature proof of knowledge to be created from the signature and the public key. This allows the signature holder to selectively reveal any number of signed messages to another entity (none, all, or any number in between).
+However traditional signature schemes require the entire signature and message to be disclosed during verification. BBS allows a fast and small zero-knowledge signature proof of knowledge to be created from the signature and the public key. This allows the signature holder to selectively reveal any number of signed messages to another entity (none, all, or any number in between).
 
 A recent emerging use case applies signature schemes in [verifiable credentials](https://www.w3.org/TR/vc-data-model/). One problem with
 using simple signature schemes like ECDSA or ED25519 is that a holder must disclose the entire signed message and signature for verification. Circuit based logic can be applied to verify these in zero-knowledge like SNARKS or Bulletproofs with R1CS but tend to be complicated. BBS on the other hand adds, to verifiable credentials or any other application, the ability to do very efficient zero-knowledge proofs. A holder gains the ability to choose which claims to reveal to a relying party without the need for any additional complicated logic. (FIXME: Informative references missing)
