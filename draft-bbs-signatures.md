@@ -183,15 +183,11 @@ subgroup\_check(P) -> VALID or INVALID
 
 This document is organized as follows:
 
-* The remainder of this section defines terminology and the high-level API.
+* (#core-operations) defines core operations of the signature scheme.
 
-* Section 2 defines primitive operations used in the BLS signature scheme. These operations MUST NOT be used alone.
+* (#security-considerations) defines security considerations associated to the signature scheme.
 
-* Section 3 defines security considerations.
-
-* Section 4 defines the references.
-
-* Section 5 defines test vectors.
+* (#profiles) defines concrete profiles for the signature scheme.
 
 # Core operations
 
@@ -738,21 +734,17 @@ Contexts are an extra input, which percolate out of APIs; as such, even if the s
 
 The ZKP protocols use nonces which MUST be different in each context.
 
-## Choice of Signature Primitive
+## Choice of underlying curve
 
-BBS signatures can be implemented on any pairing-friendly curve. Using BLS12-381 the signature achieves close to 128-bit security, and is the recommended curve at this time.
+BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a profile for using the BLS12-381 curve in (#profiles) which as a curve currently achieves close to 128-bit security.
 
-# IANA Considerations
-
-This document does not make any requests of IANA.
-
-# Appendix
+# Profiles
 
 ## BLS12-381
 
-BLS12-381
+### Definition
 
-The cipher-suites in Section 4 are based upon the BLS12-381 pairing-friendly elliptic curve.  The following defines the correspondence between the primitives in Section 1.3 and the parameters given in Section 4.2.2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
+The following defines the correspondence between the primitives in (#core-operations) and the parameters given in Section 4.2.2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 * E1, G1: the curve E and its order-r subgroup.
 
@@ -770,10 +762,15 @@ The cipher-suites in Section 4 are based upon the BLS12-381 pairing-friendly ell
 
 * subgroup_check MAY use either the naive check described in Section 1.3 or the optimized check given by [Bowe19].
 
-## Test Vectors
+### Test Vectors
 
 //TODO
 
+# IANA Considerations
+
+This document does not make any requests of IANA.
+
+# Appendix
 
 ## Blind Sign Flow Example
 
