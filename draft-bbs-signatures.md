@@ -42,7 +42,7 @@ organization = ""
 
 .# Abstract
 
-BBS is a digital signature scheme categorized as a form of short group signature that supports several novel properties. Notably the scheme supports signing multiple messages whilst producing a single output digital signature, through this capability the possessor of a signature is able to derive proofs that selectively reveal from the originally signed set of messages, whilst preserving verifiable authenticity and integrity of the messages. Further more these derived proofs are said to be zero-knowledge in nature as they do not reveal the underlying signature, instead proof of knowledge of the signature.
+BBS is a digital signature scheme categorized as a form of short group signature that supports several novel properties. Notably, the scheme supports signing multiple messages whilst producing a single output digital signature. Through this capability, the possessor of a signature is able to derive proofs that selectively reveal subsets of the originally signed set of messages, whilst preserving the verifiable authenticity and integrity of the messages. Furthermore, these derived proofs are said to be zero-knowledge in nature as they do not reveal the underlying signature; instead, what they reveal is a proof of knowledge of the undisclosed signature.
 
 {mainmatter}
 
