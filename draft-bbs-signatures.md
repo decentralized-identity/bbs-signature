@@ -427,7 +427,7 @@ Procedure:
 
 26. for i in RIdxs: m^\[i\] = m\~\[i\] - c \* msg\[i\]
 
-27. spk = ( A', Abar, d, C1, e^, r2^, C2, r3^, s^, c, (m^\[i1\], ..., m^\[iR\]) )
+27. spk = ( A', Abar, d, e^, r2^, r3^, s^, c, (m^\[i1\], ..., m^\[iR\]) )
 
 28. return spk
 
@@ -460,7 +460,7 @@ Procedure:
 
 2. (i1, i2, ..., iR) = RIndxs
 
-3. (A', Abar, d, C1, e^, r2^, C2, r3^, s^, c, (m^\[i1\],...,m^\[iR\])) = spk
+3. (A', Abar, d, e^, r2^, r3^, s^, c, (m^\[i1\],...,m^\[iR\])) = spk
 
 4. (w, h0, h\[1\],...,h\[L\]) = PK
 
@@ -472,23 +472,19 @@ Procedure:
 
 8. if X1 != X2 return INVALID
 
-9. c_v = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || nonce)
+9. T1 = Abar - d
 
-10. if c != c_v return INVALID
+10. T2 = P1 + h\[i1\] \* Rmsg\[1\] + ... + h\[iR\] \* Rmsg\[R\]
 
-11. T1 = Abar - d
+11. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
 
-12. T2 = P1 + h\[i1\] \* Rmsg\[1\] + ... + h\[iR\] \* Rmsg\[R\]
+12. Y2 = d \* r3^ + h0 \* s^ + h\[i1\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
 
-13. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
+13. c_v = H(Abar || A' || h0 || Y1 || d || h0 || h\[i1\] || ... || h\[iR\] || Y2 || nonce)
 
-14. Y2 = d \* r3^ + h0 \* s^ + h\[i1\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
+14. if c != c_v return INVALID
 
-15. if C1 != Y1 return INVALID
-
-16. if C2 != Y2 return INVALID
-
-17. return VALID
+15. return VALID
 
 # Security Considerations
 
