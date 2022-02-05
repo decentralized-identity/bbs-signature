@@ -222,14 +222,21 @@ Definitions:
 - "BBS-SIG-KEYGEN-SALT-" is an ASCII string comprising 20 octets.
 
 Procedure:
+1. salt = "BBS-SIG-KEYGEN-SALT-"
 
-1. PRK = HKDF-Extract("BBS-SIG-KEYGEN-SALT-", IKM || I2OSP(0, 1))
+2. SK = 0
 
-2. OKM = HKDF-Expand(PRK, key\_info || I2OSP(L, 2), L)
+3. while SK == 0:
 
-3. SK = OS2IP(OKM) mod r
+4.     salt = H(salt)
 
-4. return SK
+5.     PRK = HKDF-Extract(salt, IKM || I2OSP(0, 1))
+
+6.     OKM = HKDF-Expand(PRK, key\_info || I2OSP(L, 2), L)
+
+7.     SK = OS2IP(OKM) mod r
+
+8. return SK
 
 ## SkToPk
 
@@ -277,11 +284,13 @@ Procedure:
 
 1. (w, h0, h) = octets\_to\_point(PK)
 
-2. result = subgroup\_check(w) && subgroup\_check(h0)
+2. If w is the identity element, return INVALID
 
-3. for i in 0 to len(h): result &= subgroup\_check(h\[i\])
+3. result = subgroup\_check(w) && subgroup\_check(h0)
 
-4. return result
+4. for i in 0 to len(h): result &= subgroup\_check(h\[i\])
+
+5. return result
 
 ## Sign
 
