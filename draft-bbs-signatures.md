@@ -466,23 +466,23 @@ Procedure:
 
 5. if A' == 1 return INVALID
 
-6. X1 = e(A', w)
+6. T1 = Abar - d
 
-7. X2 = e(Abar, P2)
+7. T2 = P1 + h\[i1\] \* Rmsg\[1\] + ... + h\[iR\] \* Rmsg\[R\]
 
-8. if X1 != X2 return INVALID
+8. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
 
-9. T1 = Abar - d
+9. Y2 = d \* r3^ + h0 \* s^ + h\[i1\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
 
-10. T2 = P1 + h\[i1\] \* Rmsg\[1\] + ... + h\[iR\] \* Rmsg\[R\]
+10. c_v = H(Abar || A' || h0 || Y1 || d || h0 || h\[i1\] || ... || h\[iR\] || Y2 || nonce)
 
-11. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
+11. if c != c_v return INVALID
 
-12. Y2 = d \* r3^ + h0 \* s^ + h\[i1\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
+12. X1 = e(A', w)
 
-13. c_v = H(Abar || A' || h0 || Y1 || d || h0 || h\[i1\] || ... || h\[iR\] || Y2 || nonce)
+13. X2 = e(Abar, P2)
 
-14. if c != c_v return INVALID
+14. if X1 != X2 return INVALID
 
 15. return VALID
 
