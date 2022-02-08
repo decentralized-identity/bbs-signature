@@ -1,9 +1,20 @@
 # The BBS Signature Scheme
 
+This repository is home to multiple internet drafts around the BBS Signature scheme, detailed below:
+
+## BBS Signature Scheme (Core Draft)
+
+This draft defines the core operations, cryptographic structures and overall protocol for the BBS Signature scheme
+
 * [Latest Draft](https://decentralized-identity.github.io/bbs-signature/#go.draft-bbs-signatures.html)
 * [Compare Drafts](https://decentralized-identity.github.io/bbs-signature)
 
-This repository is home to the "BBS Signature Scheme" work item of the DIF [Applied Cryptography Working Group](https://identity.foundation/working-groups/crypto.html). The goal of this work item is to describe the short group signature scheme of BBS in a manner suitable for standardization.
+## Blind Sign BBS Signature Scheme Extension
+
+This draft defines an extension to core draft enabling the ability for blind bbs signatures, including describing the required operations, cryptographic structures and sub-protocol.
+
+* [Latest Draft](https://decentralized-identity.github.io/bbs-signature/#go.draft-blind-bbs-signatures.html)
+* [Compare Drafts](https://decentralized-identity.github.io/bbs-signature)
 
 ## Meetings
 
