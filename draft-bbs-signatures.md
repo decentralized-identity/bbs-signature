@@ -206,7 +206,6 @@ KeyGen takes an optional parameter, key\_info. This parameter MAY be used to der
 
 ```
 SK = KeyGen(IKM)
-```
 
 Inputs:
 
@@ -244,6 +243,7 @@ Procedure:
 7.     SK = OS2IP(OKM) mod r
 
 8. return SK
+```
 
 ## SkToPk
 
@@ -251,7 +251,6 @@ SkToPk algorithm takes a secret key SK and outputs a corresponding public key.
 
 ```
 PK = SkToPk(SK)
-```
 
 Inputs:
 
@@ -268,6 +267,7 @@ Procedure:
 2. PK = w
 
 3. return point\_to\_octets\_min(PK)
+```
 
 ## KeyValidate
 
@@ -277,7 +277,6 @@ As an optimization, implementations MAY cache the result of KeyValidate in order
 
 ```
 result = KeyValidate(PK)
-```
 
 Inputs:
 
@@ -298,6 +297,7 @@ Procedure:
 4. for i in 0 to len(h): result &= subgroup\_check(h\[i\])
 
 5. return result
+```
 
 ## Sign
 
@@ -305,7 +305,6 @@ Sign computes a signature from SK, PK, over a vector of messages.
 
 ```
 signature = Sign((msg[i],...,msg[L]), SK, PK)
-```
 
 Inputs:
 
@@ -332,6 +331,7 @@ Procedure:
 6. signature = (point\_to\_octets\_min(A), e, s)
 
 7. return signature
+```
 
 ## Verify
 
@@ -339,7 +339,6 @@ Verify checks that a signature is valid for the octet string messages under the 
 
 ```
 result = Verify((msg[i],...,msg[L]), signature, PK)
-```
 
 Inputs:
 
@@ -368,6 +367,7 @@ Procedure:
 7. C2 = e(b, P2)
 
 8. return C1 == C2
+```
 
 ## SpkGen
 
@@ -375,7 +375,6 @@ A signature proof of knowledge generating algorithm that creates a zero-knowledg
 
 ```
 spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, pm)
-```
 
 Inputs:
 
@@ -444,6 +443,7 @@ Procedure:
 26. for i in RIdxs: m^\[i\] = m\~\[i\] - c \* msg\[i\]
 
 27. spk = ( A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i1\], ..., m^\[iR\]) )
+```
 
 28. return spk
 
@@ -456,7 +456,6 @@ SpkVerify checks if a signature proof of knowledge is VALID given the proof, the
 
 ```
 result = SpkVerify(spk, PK, (Rmsg[1],..., Rmsg[R]), RIdxs, pm)
-```
 
 Inputs:
 
@@ -503,6 +502,7 @@ Procedure:
 15. if C2 != Y2 return INVALID
 
 16. return VALID
+```
 
 # Security Considerations
 
