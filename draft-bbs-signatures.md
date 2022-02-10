@@ -206,7 +206,6 @@ KeyGen takes an optional parameter, key\_info. This parameter MAY be used to der
 
 ```
 SK = KeyGen(IKM)
-```
 
 Inputs:
 
@@ -218,14 +217,14 @@ Outputs:
 
 Parameters:
 
-- key\_info, an optional octet string. if this is not supplied, it MUST default to an empty string.
+- key_info, an optional octet string. if this is not supplied, it MUST default to an empty string.
 
 Definitions:
 
 - HKDF-Extract is as defined in [@!RFC5869], instantiated with hash H.
 - HKDF-Expand is as defined in [@!RFC5869], instantiated with hash H.
 - I2OSP and OS2IP are as defined in [@!RFC8017], Section 4.
-- L is the integer given by ceil((3 \* ceil(log2(r))) / 16).
+- L is the integer given by ceil((3 * ceil(log2(r))) / 16).
 - "BBS-SIG-KEYGEN-SALT-" is an ASCII string comprising 20 octets.
 
 Procedure:
@@ -239,11 +238,12 @@ Procedure:
 
 5.     PRK = HKDF-Extract(salt, IKM || I2OSP(0, 1))
 
-6.     OKM = HKDF-Expand(PRK, key\_info || I2OSP(L, 2), L)
+6.     OKM = HKDF-Expand(PRK, key_info || I2OSP(L, 2), L)
 
 7.     SK = OS2IP(OKM) mod r
 
 8. return SK
+```
 
 ## SkToPk
 
@@ -251,7 +251,6 @@ SkToPk algorithm takes a secret key SK and outputs a corresponding public key.
 
 ```
 PK = SkToPk(SK)
-```
 
 Inputs:
 
@@ -263,11 +262,12 @@ Outputs:
 
 Procedure:
 
-1. w = SK \* P2
+1. w = SK * P2
 
 2. PK = w
 
-3. return point\_to\_octets\_min(PK)
+3. return point_to_octets_min(PK)
+```
 
 ## KeyValidate
 
@@ -277,7 +277,6 @@ As an optimization, implementations MAY cache the result of KeyValidate in order
 
 ```
 result = KeyValidate(PK)
-```
 
 Inputs:
 
@@ -289,15 +288,16 @@ Outputs:
 
 Procedure:
 
-1. (w, h0, h) = octets\_to\_point(PK)
+1. (w, h0, h) = octets_to_point(PK)
 
 2. If w is the identity element, return INVALID
 
-3. result = subgroup\_check(w) && subgroup\_check(h0)
+3. result = subgroup_check(w) && subgroup_check(h0)
 
-4. for i in 0 to len(h): result &= subgroup\_check(h\[i\])
+4. for i in 0 to len(h): result &= subgroup_check(h[i])
 
 5. return result
+```
 
 ## Sign
 
@@ -305,11 +305,10 @@ Sign computes a signature from SK, PK, over a vector of messages.
 
 ```
 signature = Sign((msg[i],...,msg[L]), SK, PK)
-```
 
 Inputs:
 
-- msg\[i\],...,msg\[L\], octet strings
+- msg[i],...,msg[L], octet strings
 - SK, a secret key output from KeyGen
 - PK, a public key output from SkToPk
 
@@ -319,19 +318,20 @@ Outputs:
 
 Procedure:
 
-1. (w, h0, h) = octets\_to\_point(PK)
+1. (w, h0, h) = octets_to_point(PK)
 
 2. e = H(PRF(8*ceil(log2(r)))) mod r
 
 3. s = H(PRF(8*ceil(log2(r)))) mod r
 
-4. b = P1 + h0 \* s + h\[i\] \* msg\[i\] + ... + h\[n\] \* msg\[L\]
+4. b = P1 + h0 * s + h[i] * msg[i] + ... + h[n] * msg[L]
 
-5. A = b \* (1 / (SK + e))
+5. A = b * (1 / (SK + e))
 
-6. signature = (point\_to\_octets\_min(A), e, s)
+6. signature = (point_to_octets_min(A), e, s)
 
 7. return signature
+```
 
 ## Verify
 
@@ -339,11 +339,10 @@ Verify checks that a signature is valid for the octet string messages under the 
 
 ```
 result = Verify((msg[i],...,msg[L]), signature, PK)
-```
 
 Inputs:
 
-- msg\[i\],...,msg\[L\], octet strings.
+- msg[i],...,msg[L], octet strings.
 - signature, octet string.
 - PK, a public key in the format output by SkToPk.
 
@@ -353,21 +352,22 @@ Outputs:
 
 Procedure:
 
-1. (A, e, s) = octets\_to\_point(signature.A), e, s
+1. (A, e, s) = octets_to_point(signature.A), e, s
 
-2. pub\_key = octets\_to\_point(PK)
+2. pub_key = octets_to_point(PK)
 
-3. if subgroup\_check(A) is INVALID
+3. if subgroup_check(A) is INVALID
 
-4. if KeyValidate(pub\_key) is INVALID
+4. if KeyValidate(pub_key) is INVALID
 
-5. b = P1 + h0 \* s + h\[i\] \* msg\[i\] + ... + h\[n\] \* msg\[L\]
+5. b = P1 + h0 * s + h[i] * msg[i] + ... + h[n] * msg[L]
 
-6. C1 = e(A, w + P2 \* e)
+6. C1 = e(A, w + P2 * e)
 
 7. C2 = e(b, P2)
 
 8. return C1 == C2
+```
 
 ## SpkGen
 
@@ -375,7 +375,6 @@ A signature proof of knowledge generating algorithm that creates a zero-knowledg
 
 ```
 spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, pm)
-```
 
 Inputs:
 
@@ -446,6 +445,7 @@ Procedure:
 27. spk = ( A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i1\], ..., m^\[iR\]) )
 
 28. return spk
+```
 
 How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
 (FIXME: Encoding out of scope OK, but wire format is required for test vectors. Unless this document is not normative.)
@@ -456,7 +456,6 @@ SpkVerify checks if a signature proof of knowledge is VALID given the proof, the
 
 ```
 result = SpkVerify(spk, PK, (Rmsg[1],..., Rmsg[R]), RIdxs, pm)
-```
 
 Inputs:
 
@@ -503,6 +502,7 @@ Procedure:
 15. if C2 != Y2 return INVALID
 
 16. return VALID
+```
 
 # Security Considerations
 
