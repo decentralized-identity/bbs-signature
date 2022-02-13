@@ -468,7 +468,7 @@ The following provides a higher-level description of SpkGen. Let the prover be i
         4.  r3 = r1 ^ -1 mod r
         5.  s' = s - r2 * r3.
   
-  The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key. This also serves to bind the spk to the signer's `Pk`. 
+  The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`. 
 
 - Set the following,
 
