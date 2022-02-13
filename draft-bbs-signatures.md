@@ -450,8 +450,10 @@ Procedure:
 How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
 (FIXME: Encoding out of scope OK, but wire format is required for test vectors. Unless this document is not normative.)
 
-### Alternative Description of SpkGen
-The following provides a higher-level description of SpkGen. Let the prover be in possession of a BBS signature `(A, e, s)` with `A = b * (1/(e + Sk))` where `Sk` the signer's secret key and,
+### Algorithmic Explanation
+The following section provides an explanation of how the Signature Proof Of Knowledge Generation (SpkGen) works. 
+
+Let the prover be in possession of a BBS signature `(A, e, s)` with `A = b * (1/(e + Sk))` where `Sk` the signer's secret key and,
 
     b = P1 + h0 * s + h[1] * msg_1 + ... + h[L] * msg_L
 
