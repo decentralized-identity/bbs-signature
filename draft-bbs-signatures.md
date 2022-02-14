@@ -163,7 +163,7 @@ This document is organized as follows:
 
 * (#security-considerations) defines security considerations associated to the signature scheme.
 
-* (#profiles) defines concrete profiles for the signature scheme.
+* (#ciphersuites) defines concrete ciphersuites for the signature scheme.
 
 # Conventions
 
@@ -555,35 +555,23 @@ The ZKP protocols use nonces which MUST be different in each context.
 
 ## Choice of underlying curve
 
-BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a profile for using the BLS12-381 curve in (#profiles) which as a curve currently achieves close to 128-bit security.
+BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a profile for using the BLS12-381 curve in (#ciphersuites) which as a curve currently achieves close to 128-bit security.
 
-# Profiles
+# Ciphersuites
 
-## BLS12-381
+This section defines the format for a BLS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
-### Definition
+# Ciphersuite Format
 
-The following defines the correspondence between the primitives in (#core-operations) and the parameters given in Section 4.2.2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
+- H: a cryptographic hash function.
 
-* E1, G1: the curve E and its order-r subgroup.
+- hash_to_point: a hash from arbitrary strings to elliptic curve points. hash_to_point MUST be defined in terms of a hash-to-curve suite [@!I-D.irtf-cfrg-hash-to-curve].
 
-* E2, G2: the curve E' and its order-r subgroup.
+The RECOMMENDED hash-to-curve domain separation tag is the ciphersuite ID string defined above.
 
-* GT: the subgroup G\_T.
+# Ciphersuite for BLS12-381
 
-* P1: the point BP.
-
-* P2: the point BP'.
-
-* e: the optimal Ate pairing defined in Appendix A of [@!I-D.irtf-cfrg-pairing-friendly-curves].
-
-* point\_to\_octets and octets\_to\_point use the compressed serialization formats for E1 and E2 defined by [ZCash].
-
-* subgroup_check MAY use either the naive check described in Section 1.3 or the optimized check given by [Bowe19].
-
-### Test Vectors
-
-//TODO
+define things like point_to_octet including an appendix on the ZCash serialization
 
 # IANA Considerations
 
@@ -622,3 +610,4 @@ TODO
 TODO
 
 {backmatter}
+
