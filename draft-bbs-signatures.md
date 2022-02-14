@@ -76,10 +76,10 @@ D
 msg
 : An input message to be signed by the signature scheme.
 
-h\[i\]
+H\[i\]
 : The generator corresponding to a given msg.
 
-h0
+H0
 : A generator for the blinding value in the signature.
 
 signature
@@ -137,11 +137,11 @@ P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
 
 hash\_to\_curve\_g1(ostr) -> P
-: The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest
+: The cryptographic hash function that takes an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest
 algorithm, once selected apply the isogeny simplified SWU map to compute a point in G1 using the random oracle method. The domain separation tag value is dst.
 
 hash\_to\_curve\_g2(ostr) -> P
-: The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G2 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G2 using the random oracle method. The domain separation tag value is dst.
+: The cryptographic hash function that takes an arbitrary octet string input and returns a point in G2 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G2 using the random oracle method. The domain separation tag value is dst.
 
 point\_to\_octets(P) -> ostr
 : returns the canonical representation of the point P as an octet string. This operation is also known as serialization.
@@ -245,7 +245,28 @@ Procedure:
 8. return SK
 ```
 
-### SkToPk
+## MapToScalar
+
+MapToScalar algorithm takes an arbitrary value and maps it to a scalar value. 
+
+Data can be mapped multiple ways depending on how it will be used with other Zero-Knowledge Proofs. For example, it is not useful to hash an integer to a scalar using SHA256 and expect it to work properly with Range Proofs.
+The following is a list of mappings and use cases:
+
+1. **Hashed**: for arbitrary length data fields that will not fit in the base field e.g. images, strings, biometrics, blockchain transaction info. 
+   1. Use [hash\_to\_field](https://www.ietf.org/archive/id/draft-irtf-cfrg-hash-to-curve-13.html#name-hash_to_field-implementatio) with the domain separation tag `BBS_PLUS_BLS12381FQ_XOF:SHAKE-256_`.
+2. **Bytes**: a value that is already in the base field. No mapping metho required.
+3. **Numbers**: for range proofs. The value is zero-centered by take computing the base field modulus `z`=`q` / 3 integer division as the zero center and adding the positive number or substracting the negative number. To support complex numbers like decimal, the number is converted to fixed point arithmetic. The [Q format](https://en.wikipedia.org/wiki/Q_(number_format)) is used for these numbers as Q64.160. This leaves two bytes to avoid numbers greater than `q`. While it does not represent the full breadth of IEEE754 numbers, it does give a considerable resolution -2<sup>63</sup> to 2<sup>63</sup>-2<sup>-160</sup> signed and 0 to 2<sup>64</sup>-2<sup>-160</sup> unsigned or about 48 decimal places of precision. If decimals are rounded to the nearest integer, then Q format is not necessary.
+4. **Null**: Hard coded as 5. Means the value is not included or not used.
+5. **Empty**: Hard coded as 11. Means the value is included but is an empty string or zero bytes. For example, a person does not have a middle name but a value is required to be entered.
+6. **Ignored**: Hard coded as 23. For data fields that were ignored or not answered by the person. This is different than empty where the person's answer is literally nothing vs they chose not to answer it at all.
+
+Small safe primes were used for the last three but can really be any value that is not `0` or `1`.
+
+### Comparing numbers to Null, Empty, Ignored
+
+No DLEQ proof is needed to check for this since the verifier gets to pick the bounds and in theory this could be done but isn't meaningful.
+
+## SkToPk
 
 SkToPk algorithm takes a secret key SK and outputs a corresponding public key.
 
