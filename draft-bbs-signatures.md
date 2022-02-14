@@ -379,7 +379,7 @@ spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, pm)
 Inputs:
 
 - PK, octet string in output form from SkToPk
-- (msg\[1\],...,msg\[L\]), octet strings (messages in input to Sign).
+- (msg[1],...,msg[L]), octet strings (messages in input to Sign).
 - RIdxs, vector of unsigned integers (indices of revealed messages).
 - signature, octet string in output form from Sign
 - pm, octet string
@@ -392,57 +392,57 @@ Procedure:
 
 1. (A, e, s) = signature
 
-2. (w, h0, h\[1\],...,h\[L\]) = PK
+2. (w, h0, h[1],...,h[L]) = PK
 
 3. (i1, i2,..., iR) = RIdxs
 
-4. if subgroup\_check(A) is INVALID abort
+4. if subgroup_check(A) is INVALID abort
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. b = commitment + h0 \* s + h\[1\] \* msg\[1\] + ... + h\[L\] \* msg\[L\]
+6. b = commitment + h0 * s + h[1] * msg[1] + ... + h[L] * msg[L]
 
-7. r1 = H(PRF(8\*ceil(log2(r)))) mod r
+7. r1 = H(PRF(8*ceil(log2(r)))) mod r
 
-8. r2 = H(PRF(8\*ceil(log2(r)))) mod r
+8. r2 = H(PRF(8*ceil(log2(r)))) mod r
 
-9. e\~ = H(PRF(8\*ceil(log2(r)))) mod r
+9. e~ = H(PRF(8*ceil(log2(r)))) mod r
 
-10. r2\~ = H(PRF(8\*ceil(log2(r)))) mod r
+10. r2~ = H(PRF(8*ceil(log2(r)))) mod r
 
-11. r3\~ = H(PRF(8\*ceil(log2(r)))) mod r
+11. r3~ = H(PRF(8*ceil(log2(r)))) mod r
 
-12. s\~ = H(PRF(8\*ceil(log2(r)))) mod r
+12. s~ = H(PRF(8*ceil(log2(r)))) mod r
 
 13. r3 = r1 ^ -1 mod r
 
-14. for i in RIdxs m\~\[i\] = H(PRF(8\*ceil(log2(r)))) mod r
+14. for i in RIdxs m~[i] = H(PRF(8*ceil(log2(r)))) mod r
 
-15. A' = A \* r1
+15. A' = A * r1
 
-16. Abar = A' \* -e + b \* r1
+16. Abar = A' * -e + b * r1
 
-17. d = b \* r1 + h0 \* -r2
+17. d = b * r1 + h0 * -r2
 
-18. s' = s - r2 \* r3
+18. s' = s - r2 * r3
 
-19. C1 = A' \* e\~ + h0 \* r2\~
+19. C1 = A' * e~ + h0 * r2~
 
-20. C2 = d \* r3\~ + h0 \* s\~ + h\[i1\] \* m\~\[i1\] + ... + h\[iR\] \* m\~\[iR\]
+20. C2 = d * r3~ + h0 * s~ + h[i1] * m~[i1] + ... + h[iR] * m~[iR]
 
-21. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || pm)
+21. c = H(Abar || A' || h0 || C1 || d || h0 || h[i1] || ... || h[iR] || C2 || pm)
 
-22. e^ = e\~ + c \* e
+22. e^ = e~ + c * e
 
-23. r2^ = r2\~ - c \* r2
+23. r2^ = r2~ - c * r2
 
-24. r3^ = r3\~ + c \* r3
+24. r3^ = r3~ + c * r3
 
-25. s^ = s\~ - c \* s'
+25. s^ = s~ - c * s'
 
-26. for i in RIdxs: m^\[i\] = m\~\[i\] - c \* msg\[i\]
+26. for i in RIdxs: m^[i] = m~[i] - c * msg[i]
 
-27. spk = ( A', Abar, d, e^, r2^, r3^, s^, c, (m^\[i1\], ..., m^\[iR\]) )
+27. spk = ( A', Abar, d, e^, r2^, r3^, s^, c, (m^[i1], ..., m^[iR]) )
 
 28. return spk
 ```
@@ -461,7 +461,7 @@ Inputs:
 
 - spk, octet string.
 - PK, octet string in output form from SkToPk.
-- (Rmsg\[1\], ..., Rmsg\[R\]), octet strings (revealed messages).
+- (Rmsg[1], ..., Rmsg[R]), octet strings (revealed messages).
 - RIdxs, vector of unsigned integers (indices of revealed messages).
 - pm, octet string
 
@@ -475,21 +475,21 @@ Procedure:
 
 2. (i1, i2, ..., iR) = RIndxs
 
-3. (A', Abar, d, e^, r2^, r3^, s^, c, (m^\[i1\],...,m^\[iR\])) = spk
+3. (A', Abar, d, e^, r2^, r3^, s^, c, (m^[i1],...,m^[iR])) = spk
 
-4. (w, h0, h\[1\],...,h\[L\]) = PK
+4. (w, h0, h[1],...,h[L]) = PK
 
 5. if A' == 1 return INVALID
 
 6. T1 = Abar - d
 
-7. T2 = P1 + h\[i1\] \* Rmsg\[1\] + ... + h\[iR\] \* Rmsg\[R\]
+7. T2 = P1 + h[i1] * Rmsg[1] + ... + h[iR] * Rmsg[R]
 
-8. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
+8. Y1 = A' * e^ + h0 * r2^ + T1 * c
 
-9. Y2 = d \* r3^ + h0 \* s^ + h\[i1\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
+9. Y2 = d * r3^ + h0 * s^ + h[i1] * m^[i1] + ... + h[iR] * m^[iR] - T2 * c
 
-10. c_v = H(Abar || A' || h0 || Y1 || d || h0 || h\[i1\] || ... || h\[iR\] || Y2 || nonce)
+10. c_v = H(Abar || A' || h0 || Y1 || d || h0 || h[i1] || ... || h[iR] || Y2 || nonce)
 
 11. if c != c_v return INVALID
 
