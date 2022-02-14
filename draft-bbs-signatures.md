@@ -159,11 +159,11 @@ subgroup\_check(P) -> VALID or INVALID
 
 This document is organized as follows:
 
-* (#core-operations) defines core operations of the signature scheme.
+* (#scheme-definition) defines the BBS signature scheme including any parameters required to define a concrete ciphersuite.
 
 * (#security-considerations) defines security considerations associated to the signature scheme.
 
-* (#ciphersuites) defines concrete ciphersuites for the signature scheme.
+* (#ciphersuites) defines the format of a ciphersuite alongside a concrete ciphersuite based on the BLS12-381 curve.
 
 # Conventions
 
@@ -561,7 +561,7 @@ BBS signatures can be implemented on any pairing-friendly curve. However care MU
 
 This section defines the format for a BLS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
-# Ciphersuite Format
+## Ciphersuite Format
 
 - H: a cryptographic hash function.
 
@@ -569,7 +569,7 @@ This section defines the format for a BLS ciphersuite. It also gives concrete ci
 
 The RECOMMENDED hash-to-curve domain separation tag is the ciphersuite ID string defined above.
 
-# Ciphersuite for BLS12-381
+## BLS12-381 Ciphersuite
 
 define things like point_to_octet including an appendix on the ZCash serialization
 
