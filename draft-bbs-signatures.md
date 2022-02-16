@@ -447,7 +447,43 @@ Procedure:
 How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
 (FIXME: Encoding out of scope OK, but wire format is required for test vectors. Unless this document is not normative.)
 
+
+#### Algorithmic Explanation
+The following section provides an explanation of how the Signature Proof Of Knowledge Generation (SpkGen) works. 
+
+Let the prover be in possession of a BBS signature `(A, e, s)` with `A = b * (1/(e + Sk))` where `Sk` the signer's secret key and,
+
+    b = P1 + h0 * s + h[1] * msg_1 + ... + h[L] * msg_L
+
+(without loss of generality we assume that the messages and generators are indexed from 0 to L). Let `(i1,...,iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1,...,jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1,...,jU) = [L] \ (i1,...,iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
+
+- Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, r-1], and calculate, 
+
+        1.  A' = A * r1,  
+        2.  Abar = A' * (-e) + b * r1
+        3.  d = b * r1 + h0 * (-r2). 
+  
+  Also set, 
+        
+        4.  r3 = r1 ^ -1 mod r
+        5.  s' = s - r2 * r3.
+  
+  The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`. 
+
+- Set the following,
+
+        1.  T1 = Abar - d
+        2.  T2 = P1 +  h[i1] * msg_i1 + ... + h[iR] * msg_iR
+    
+    Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold, 
+
+        EQ1.  T1 = A' * (-e) + h0 * r2
+        EQ2.  T2 = d * r3 + h0 * (-s') + h[j1] * msg_j1 + ... + h[jU] * msg_jU.
+
+  If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The spk returned is `(A', Abar, d, nizk)`. To validate the spk, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
+
 ### SpkVerify
+
 
 SpkVerify checks if a signature proof of knowledge is VALID given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation message used in SpkGen.
 
