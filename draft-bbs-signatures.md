@@ -249,8 +249,8 @@ Procedure:
 
 MapToScalar algorithm takes an arbitrary value and maps it to a scalar value. 
 
-Data can be mapped multiple ways depending on how it will be used with other Zero-Knowledge Proofs. For example, it is not useful to hash an integer to a scalar using SHA256 and expect it to work properly with Range Proofs.
-The following is a list of mappings and use cases:
+Data to be signed can be mapped multiple ways depending on how it will be used downstream in various Zero-Knowledge Proof protocols. For example to be able to construct a range proof for a signed message, it must have been encoded in a particular way during the signing procedure.
+The following is a list of mappings:
 
 1. **Hashed**: for arbitrary length data fields that will not fit in the base field e.g. images, strings, biometrics, blockchain transaction info. 
    1. Use [hash\_to\_field](https://www.ietf.org/archive/id/draft-irtf-cfrg-hash-to-curve-13.html#name-hash_to_field-implementatio) with the domain separation tag `BBS_PLUS_BLS12381FQ_XOF:SHAKE-256_`.
