@@ -143,14 +143,11 @@ algorithm, once selected apply the isogeny simplified SWU map to compute a point
 hash\_to\_curve\_g2(ostr) -> P
 : The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G2 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G2 using the random oracle method. The domain separation tag value is dst.
 
-point\_to\_octets\_min(P) -> ostr
-: returns the canonical representation of the point P as an octet string in compressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)
-
-point\_to\_octets\_norm(P) -> ostr
-: returns the canonical representation of the point P as an octet string in uncompressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)
+point\_to\_octets(P) -> ostr
+: returns the canonical representation of the point P as an octet string. This operation is also known as serialization.
 
 octets\_to\_point(ostr) -> P
-: returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point\_to\_octets.  This operation is also known as deserialization. Consumes either compressed or uncompressed ostr.
+: returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point\_to\_octets.  This operation is also known as deserialization.
 
 subgroup\_check(P) -> VALID or INVALID
 : returns VALID when the point P is an element of the subgroup of order r, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [Bowe19].
@@ -269,7 +266,7 @@ Procedure:
 
 2. PK = w
 
-3. return point_to_octets_min(PK)
+3. return point_to_octets(PK)
 ```
 
 ### KeyValidate
@@ -331,7 +328,7 @@ Procedure:
 
 5. A = b * (1 / (SK + e))
 
-6. signature = (point_to_octets_min(A), e, s)
+6. signature = (point_to_octets(A), e, s)
 
 7. return signature
 ```
@@ -605,17 +602,28 @@ This section defines the format for a BLS ciphersuite. It also gives concrete ci
 
 - H: a cryptographic hash function.
 
-- hash_to_point: a hash from arbitrary strings to elliptic curve points. hash_to_point MUST be defined in terms of a hash-to-curve suite [@!I-D.irtf-cfrg-hash-to-curve].
+- point_to_octets: a function that returns the canonical representation of the point P as an octet string.
+
+- octets_to_point: a function that returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point_to_octets.
 
 The RECOMMENDED hash-to-curve domain separation tag is the ciphersuite ID string defined above.
 
 ## BLS12-381 Ciphersuite
 
-define things like point_to_octet including an appendix on the ZCash serialization
+H
+: SHAKE-256 as defined in [@!SHA3]
+
+point\_to\_octets
+: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
+
+octets\_to\_point
+: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 # IANA Considerations
 
 This document does not make any requests of IANA.
+
+{backmatter}
 
 # Appendix
 
@@ -649,5 +657,9 @@ TODO
 
 TODO
 
-{backmatter}
-
+<reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-208.pdf">
+ <front>
+   <title>Recommendation for Stateful Hash-Based Signature Schemes</title>
+   <author><organization>NIST</organization></author>
+ </front>
+</reference>
