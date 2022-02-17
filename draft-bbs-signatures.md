@@ -610,7 +610,7 @@ The RECOMMENDED hash-to-curve domain separation tag is the ciphersuite ID string
 
 ## BLS12-381 Ciphersuite
 
-H
+* H
 : SHAKE-256 as defined in [@!SHA3]
 
 point\_to\_octets
