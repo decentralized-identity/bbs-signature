@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es2021",
+      "sourceMap": true,
+      "allowJs": false,
+      "moduleResolution": "node",
+      "strict": true,
+      "declaration": true,
+      "downlevelIteration": true,
+      "baseUrl": ".",
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "outDir": "./bin",
+      "types": ["jest", "node"]
+    },
+    "include": ["./src"]
+  }

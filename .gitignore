@@ -14,3 +14,4 @@ draft-bbs-signatures.xml
 lib
 report.xml
 venv/
+/node_modules

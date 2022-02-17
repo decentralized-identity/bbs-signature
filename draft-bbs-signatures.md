@@ -627,6 +627,32 @@ point\_to\_octets
 octets\_to\_point
 : follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
+### Test Vectors
+
+The following section details a basic set of test vectors that can be used to confirm an implementations correctness
+
+#### Signer Key Pair
+
+All of the test vectors share the following common key pair used to produce the BBS signatures
+
+The private key represented as an octet string encoded in hexadecimal is as follows
+
+{{ $private_key }}
+
+The public key represented as an octet string encoded in hexadecimal is as follows
+
+{{ $public_key }}
+
+#### Valid Single Message Signature
+
+Using the following message represented as an octet string encoded in hexadecimal
+
+{{ $signature-001.messages }}
+
+Along with the signer private key as defined above as inputs into the Sign operations, yeilds the following output signature represented as an octet string encoded in hexadecimal
+
+{{ $signature-001.signature }}
+
 # IANA Considerations
 
 This document does not make any requests of IANA.
