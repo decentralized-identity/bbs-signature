@@ -1,3 +1,6 @@
+import * as keyPair from "./keyPair.json";
+import * as path from "path";
+
 const isObject = (value: unknown) => value && typeof value === "object";
 
 // tslint:disable-next-line:no-var-requires
@@ -29,7 +32,12 @@ export interface SignatureFixture {
 
 const fetchNestedFixtures = <T>(name: string, input: any): ReadonlyArray<T> => {
   if (input.caseName) {
-    return [{ name, value: input } as any];
+    return [
+      {
+        name: path.basename(name).split(".")[0] as string,
+        value: input,
+      } as any,
+    ];
   }
   if (!isObject(input)) {
     return [];
@@ -44,4 +52,12 @@ const fetchNestedFixtures = <T>(name: string, input: any): ReadonlyArray<T> => {
 export const signatureFixtures = fetchNestedFixtures<SignatureFixture>(
   "",
   resolveFixtures("signature")
-);
+).reduce((map, item) => {
+  map = {
+    ...map,
+    [item.name]: item.value,
+  };
+  return map;
+}, {});
+
+export { keyPair };

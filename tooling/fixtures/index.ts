@@ -1,25 +1,31 @@
 import { promises } from "fs";
 import * as path from "path";
-import { signatureFixtures } from "./fetchFixtures";
+import * as fixtures from "./fetchFixtures";
+import get from "lodash.get";
 
-const DRAFT_NAME = "draft-bbs-signatures.md";
+const VARIABLE_REGEX = /^({{ \$)([a-zA-Z|.|\d|\[|\]]*)( }})$/gm;
 
-const PRIVATE_KEY = "{{ $private_key }}";
-const PUBLIC_KEY = "{{ $public_key }}";
+const DRAFT_NAME = "../../draft-bbs-signatures.md";
 
 const main = async () => {
   // Read the text of the draft out
   const filePath = path.join(process.env.PWD as string, DRAFT_NAME);
   let fileContents = (await promises.readFile(filePath)).toString();
 
-  // All of the fixtures share the same key pair so reading the first one is reliable
-  const keyPair = signatureFixtures[0].value.signerKeyPair;
+  const results = Array.from(fileContents.matchAll(VARIABLE_REGEX)).map(
+    (item) => {
+      return { match: item[0], path: item[2] };
+    }
+  );
 
-  // Populate private key variable in the draft
-  fileContents = fileContents.replaceAll(PRIVATE_KEY, keyPair.secretKey);
+  results.forEach((result) => {
+    console.log(result);
+    const value = get(fixtures, result.path);
 
-  // Populate public key variable in the draft
-  fileContents = fileContents.replaceAll(PUBLIC_KEY, keyPair.publicKey);
+    if (value) {
+      fileContents = fileContents.replace(result.match, value);
+    }
+  });
 
   // Write an updated copy of the file
   await promises.writeFile(filePath, fileContents);
