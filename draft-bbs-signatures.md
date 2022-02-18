@@ -328,7 +328,7 @@ Procedure:
 
 5. A = b * (1 / (SK + e))
 
-6. signature = (point_to_octets(A), e, s)
+6. signature = (point_to_octets(A), I2OSP(e, 32), I2OSP(s, 32))
 
 7. return signature
 ```
@@ -352,7 +352,7 @@ Outputs:
 
 Procedure:
 
-1. (A, e, s) = octets_to_point(signature.A), e, s
+1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
 
 2. pub_key = octets_to_point(PK)
 
@@ -390,7 +390,7 @@ Outputs:
 
 Procedure:
 
-1. (A, e, s) = signature
+1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
 
 2. (w, h0, h[1],...,h[L]) = PK
 
