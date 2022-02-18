@@ -433,7 +433,7 @@ Procedure:
 
 13. r3 = r1 ^ -1 mod r
 
-14. for j in (j1, j2,..., jU): m~[j] = H(PRF(8*ceil(log2(r)))) mod r
+14. for j in (j1, j2,..., jU): m~_j = H(PRF(8*ceil(log2(r)))) mod r
 
 15. A' = A * r1
 
@@ -445,7 +445,7 @@ Procedure:
 
 19. C1 = A' * e~ + h0 * r2~
 
-20. C2 = d * r3~ + h0 * s~ + H_j1 * m_j1 + ... + H_jU * m_jU
+20. C2 = d * r3~ + h0 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
 21. c = H(Abar || A' || h0 || C1 || d || h0 || H_i1 || ... || H_iR || C2 || pm)
 
@@ -457,9 +457,9 @@ Procedure:
 
 25. s^ = s~ - c * s'
 
-26. for j in (j1, j2,..., jU): m^[j] = m~[j] - c * msg_j
+26. for j in (j1, j2,..., jU): m^_j = m~_j - c * msg_j
 
-27. spk = ( A', Abar, d, e^, r2^, r3^, s^, c, (m^[j1], ..., m^[jU]))
+27. spk = ( A', Abar, d, e^, r2^, r3^, s^, c, (m^_j1, ..., m^_jU))
 
 28. return spk
 ```
@@ -531,7 +531,7 @@ Procedure:
 
 3. (j1, j2, ..., jU) = [L]\RevealedIndexes
 
-4. (A', Abar, d, e^, r2^, r3^, s^, c, (m^[j1],...,m^[jU])) = spk
+4. (A', Abar, d, e^, r2^, r3^, s^, c, (m^_j1,...,m^_jU)) = spk
 
 5. if A' == 1 return INVALID
 
@@ -541,7 +541,7 @@ Procedure:
 
 8. Y1 = A' * e^ + h0 * r2^ + T1 * c
 
-9. Y2 = d * r3^ + h0 * s^ + H_j1 * m^[j1] + ... + H_jU * m^[jR] - T2 * c
+9. Y2 = d * r3^ + h0 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU - T2 * c
 
 10. c_v = H(Abar || A' || h0 || Y1 || d || h0 || H_i1 || ... || H_iR || Y2 || nonce)
 
