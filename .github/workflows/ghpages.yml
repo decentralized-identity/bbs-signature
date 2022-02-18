@@ -24,15 +24,11 @@ jobs:
 
       - name: "Install yarn dependencies"
         run: yarn install --frozen-lockfile
-        defaults:
-          run:
-            working-directory: ./tooling/fixtures
+        working-directory: ./tooling/fixtures
 
       - name: "Populate fixtures Yarn"
         run: yarn populate-fixtures
-        defaults:
-          run:
-            working-directory: ./tooling/fixtures
+        working-directory: ./tooling/fixtures
 
       - name: "Cache Setup"
         id: cache-setup
