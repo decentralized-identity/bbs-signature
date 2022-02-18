@@ -143,14 +143,11 @@ algorithm, once selected apply the isogeny simplified SWU map to compute a point
 hash\_to\_curve\_g2(ostr) -> P
 : The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G2 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G2 using the random oracle method. The domain separation tag value is dst.
 
-point\_to\_octets\_min(P) -> ostr
-: returns the canonical representation of the point P as an octet string in compressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)
-
-point\_to\_octets\_norm(P) -> ostr
-: returns the canonical representation of the point P as an octet string in uncompressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)
+point\_to\_octets(P) -> ostr
+: returns the canonical representation of the point P as an octet string. This operation is also known as serialization.
 
 octets\_to\_point(ostr) -> P
-: returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point\_to\_octets.  This operation is also known as deserialization. Consumes either compressed or uncompressed ostr.
+: returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point\_to\_octets.  This operation is also known as deserialization.
 
 subgroup\_check(P) -> VALID or INVALID
 : returns VALID when the point P is an element of the subgroup of order r, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [Bowe19].
@@ -269,7 +266,7 @@ Procedure:
 
 2. PK = w
 
-3. return point_to_octets_min(PK)
+3. return point_to_octets(PK)
 ```
 
 ### KeyValidate
@@ -331,7 +328,7 @@ Procedure:
 
 5. A = b * (1 / (SK + e))
 
-6. signature = (point_to_octets_min(A), e, s)
+6. signature = (point_to_octets(A), e, s)
 
 7. return signature
 ```
@@ -455,7 +452,7 @@ How a signature is to be encoded is not covered by this document. (TODO perhaps 
 
 
 #### Algorithmic Explanation
-The following section provides an explanation of how the Signature Proof Of Knowledge Generation (SpkGen) works. 
+The following section provides an explanation of how the Signature Proof Of Knowledge Generation (SpkGen) works.
 
 Let the prover be in possession of a BBS signature `(A, e, s)` with `A = b * (1/(e + Sk))` where `Sk` the signer's secret key and,
 
@@ -463,30 +460,38 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = b * (1/
 
 (without loss of generality we assume that the messages and generators are indexed from 0 to L). Let `(i1,...,iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1,...,jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1,...,jU) = [L] \ (i1,...,iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
 
-- Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, r-1], and calculate, 
+Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, r-1], and calculate,
 
-        1.  A' = A * r1,  
-        2.  Abar = A' * (-e) + b * r1
-        3.  d = b * r1 + h0 * (-r2). 
-  
-  Also set, 
-        
-        4.  r3 = r1 ^ -1 mod r
-        5.  s' = s - r2 * r3.
-  
-  The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`. 
+```
+1.  A' = A * r1,
+2.  Abar = A' * (-e) + b * r1
+3.  d = b * r1 + h0 * (-r2).
+```
 
-- Set the following,
+Also set,
 
-        1.  T1 = Abar - d
-        2.  T2 = P1 +  h[i1] * msg_i1 + ... + h[iR] * msg_iR
-    
-    Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold, 
+```
+4.  r3 = r1 ^ -1 mod r
+5.  s' = s - r2 * r3.
+```
 
-        EQ1.  T1 = A' * (-e) + h0 * r2
-        EQ2.  T2 = d * r3 + h0 * (-s') + h[j1] * msg_j1 + ... + h[jU] * msg_jU.
+The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`.
 
-  If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The spk returned is `(A', Abar, d, nizk)`. To validate the spk, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
+Set the following,
+
+```
+1.  T1 = Abar - d
+2.  T2 = P1 +  h[i1] * msg_i1 + ... + h[iR] * msg_iR
+```
+
+Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold,
+
+```
+EQ1.  T1 = A' * (-e) + h0 * r2
+EQ2.  T2 = d * r3 + h0 * (-s') + h[j1] * msg_j1 + ... + h[jU] * msg_jU.
+```
+
+If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The spk returned is `(A', Abar, d, nizk)`. To validate the spk, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
 
 ### SpkVerify
 
@@ -605,17 +610,28 @@ This section defines the format for a BLS ciphersuite. It also gives concrete ci
 
 - H: a cryptographic hash function.
 
-- hash_to_point: a hash from arbitrary strings to elliptic curve points. hash_to_point MUST be defined in terms of a hash-to-curve suite [@!I-D.irtf-cfrg-hash-to-curve].
+- point_to_octets: a function that returns the canonical representation of the point P as an octet string.
+
+- octets_to_point: a function that returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point_to_octets.
 
 The RECOMMENDED hash-to-curve domain separation tag is the ciphersuite ID string defined above.
 
 ## BLS12-381 Ciphersuite
 
-define things like point_to_octet including an appendix on the ZCash serialization
+H
+: SHAKE-256 as defined in [@!SHA3]
+
+point\_to\_octets
+: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
+
+octets\_to\_point
+: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 # IANA Considerations
 
 This document does not make any requests of IANA.
+
+{backmatter}
 
 # Appendix
 
@@ -649,5 +665,9 @@ TODO
 
 TODO
 
-{backmatter}
-
+<reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-208.pdf">
+ <front>
+   <title>Recommendation for Stateful Hash-Based Signature Schemes</title>
+   <author><organization>NIST</organization></author>
+ </front>
+</reference>
