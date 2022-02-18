@@ -618,13 +618,13 @@ The RECOMMENDED hash-to-curve domain separation tag is the ciphersuite ID string
 
 ## BLS12-381 Ciphersuite
 
-* H
+H
 : SHAKE-256 as defined in [@!SHA3]
 
-* point\_to\_octets
+point\_to\_octets
 : follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
-* octets\_to\_point
+octets\_to\_point
 : follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 # IANA Considerations
