@@ -19,7 +19,6 @@ const main = async () => {
   );
 
   results.forEach((result) => {
-    console.log(result);
     const value = get(fixtures, result.path);
 
     if (value) {
