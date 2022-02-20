@@ -633,6 +633,10 @@ The following section details a basic set of test vectors that can be used to co
 
 **NOTE** All binary data below is represented as octet strings encoded in hexadecimal format
 
+**NOTE** These fixtures are a work in progress and subject to change
+
+Further fixtures are available in (#additional-bls12-381-ciphersuite-test-vectors)
+
 #### Key Pair
 
 Following the procedure defined in (#keygen) with an input IKM value as follows
@@ -724,6 +728,8 @@ TODO
 TODO
 
 ## Additional BLS12-381 Ciphersuite Test Vectors
+
+**NOTE** These fixtures are a work in progress and subject to change
 
 ### Modified Message Signature
 
