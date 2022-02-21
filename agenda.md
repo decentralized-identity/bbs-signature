@@ -20,7 +20,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 8th February 2022 - (6pm UTC)
+## Meeting - Monday 21th February 2022 - (6pm UTC)
 
 ### Chair
 
@@ -32,11 +32,6 @@ Tobias Looker
 - Agenda bashing
 - PR review
 - Issue Review
-    - [Supporting deterministic signatures](https://github.com/decentralized-identity/bbs-signature/issues/43)
-    - [Interop profile for use with BLS12-381](https://github.com/decentralized-identity/bbs-signature/issues/46)
-    - [Message Generator Creation Method](https://github.com/decentralized-identity/bbs-signature/issues/38)
-    - [Holder binding](https://github.com/decentralized-identity/bbs-signature/issues/37)
-    - [Variable and function naming](https://github.com/decentralized-identity/bbs-signature/issues/25)
 
 ### Attendees
 
@@ -44,6 +39,7 @@ Tobias Looker
 
 ## Previous Meetings
 
+- [2nd February 2022](./meetings/2022-02-08/agenda.md)
 - [24th January 2022](./meetings/2022-01-24/agenda.md)
 - [10th January 2022](./meetings/2022-01-01/agenda.md)
 - [15th November 2021](./meetings/2021-11-15/agenda.md)
