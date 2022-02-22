@@ -641,30 +641,41 @@ Further fixtures are available in (#additional-bls12-381-ciphersuite-test-vector
 
 Following the procedure defined in (#keygen) with an input IKM value as follows
 
+```
 {{ $keyPair.seed }}
+```
 
 Outputs the following SK value
 
+```
 {{ $keyPair.keyPair.secretKey }}
+```
 
 Following the procedure defined in (#sktopk) with an input SK value as above produces the following PK value
 
+```
 {{ $keyPair.keyPair.publicKey }}
+```
 
 #### Valid Single Message Signature
 
 Using the following message
 
+```
 {{ $signatureFixtures.signature001.messages[0] }}
+```
 
 Along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
+```
 {{ $signatureFixtures.signature001.signature }}
+```
 
 #### Valid Multi-Message Signature
 
 Using the following messages (**Note** the ordering of the messages MUST be preserved)
 
+```
 {{ $signatureFixtures.signature004.messages[0] }}
 
 {{ $signatureFixtures.signature004.messages[1] }}
@@ -684,10 +695,13 @@ Using the following messages (**Note** the ordering of the messages MUST be pres
 {{ $signatureFixtures.signature004.messages[8] }}
 
 {{ $signatureFixtures.signature004.messages[9] }}
+```
 
 Along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
+```
 {{ $signatureFixtures.signature004.signature }}
+```
 
 # IANA Considerations
 
@@ -735,11 +749,15 @@ TODO
 
 Using the following message
 
+```
 {{ $signatureFixtures.signature002.messages[0] }}
+```
 
 And the following signature
 
+```
 {{ $signatureFixtures.signature002.signature }}
+```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed
 
@@ -747,13 +765,17 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 Using the following messages
 
+```
 {{ $signatureFixtures.signature003.messages[0] }}
 
 {{ $signatureFixtures.signature003.messages[1] }}
+```
 
 And the following signature
 
+```
 {{ $signatureFixtures.signature002.signature }}
+```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed
 
@@ -761,13 +783,17 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 Using the following messages
 
+```
 {{ $signatureFixtures.signature005.messages[0] }}
 
 {{ $signatureFixtures.signature005.messages[1] }}
+```
 
 And the following signature
 
+```
 {{ $signatureFixtures.signature005.signature }}
+```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing
 
@@ -775,6 +801,7 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 Using the following messages
 
+```
 {{ $signatureFixtures.signature006.messages[0] }}
 
 {{ $signatureFixtures.signature006.messages[1] }}
@@ -794,10 +821,13 @@ Using the following messages
 {{ $signatureFixtures.signature006.messages[8] }}
 
 {{ $signatureFixtures.signature006.messages[9] }}
+```
 
 And the following signature
 
+```
 {{ $signatureFixtures.signature006.signature }}
+```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed
 
@@ -805,6 +835,7 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 Using the following messages
 
+```
 {{ $signatureFixtures.signature007.messages[0] }}
 
 {{ $signatureFixtures.signature007.messages[1] }}
@@ -824,10 +855,13 @@ Using the following messages
 {{ $signatureFixtures.signature007.messages[8] }}
 
 {{ $signatureFixtures.signature007.messages[9] }}
+```
 
 And the following signature
 
+```
 {{ $signatureFixtures.signature007.signature }}
+```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct
 
