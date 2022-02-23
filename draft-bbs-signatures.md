@@ -254,7 +254,7 @@ The following is a list of mappings:
 
 1. **Hashed**: for arbitrary length data fields that will not fit in the base field e.g. images, strings, biometrics, blockchain transaction info. 
    1. Use [hash\_to\_field](https://www.ietf.org/archive/id/draft-irtf-cfrg-hash-to-curve-13.html#name-hash_to_field-implementatio) with the domain separation tag `BBS_PLUS_BLS12381FQ_XOF:SHAKE-256_`.
-2. **Bytes**: a value that is already in the base field. No mapping metho required.
+2. **Bytes**: a value that is already in the base field. No mapping method required.
 3. **Numbers**: for range proofs. The value is zero-centered by take computing the base field modulus `z`=`q` / 3 integer division as the zero center and adding the positive number or substracting the negative number. To support complex numbers like decimal, the number is converted to fixed point arithmetic. The [Q format](https://en.wikipedia.org/wiki/Q_(number_format)) is used for these numbers as Q64.160. This leaves two bytes to avoid numbers greater than `q`. While it does not represent the full breadth of IEEE754 numbers, it does give a considerable resolution -2<sup>63</sup> to 2<sup>63</sup>-2<sup>-160</sup> signed and 0 to 2<sup>64</sup>-2<sup>-160</sup> unsigned or about 48 decimal places of precision. If decimals are rounded to the nearest integer, then Q format is not necessary.
 4. **Null**: Hard coded as 5. Means the value is not included or not used.
 5. **Empty**: Hard coded as 11. Means the value is included but is an empty string or zero bytes. For example, a person does not have a middle name but a value is required to be entered.
