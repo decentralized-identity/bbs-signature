@@ -198,7 +198,7 @@ In definition of this signature scheme there are two possible variations based u
 
 ### Messages and generators
 
-Throughout the operations of the signature scheme, each message will be paired with a specific generator (point in G1). Specifically, if a generator `H_1` is raised to the power of `msg_1` during signing, then `H_1` should be raised to the power of `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
+Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is raised to the power of `msg_1` during signing, then `H_1` should be raised to the power of `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
 
 ## Operations
 
