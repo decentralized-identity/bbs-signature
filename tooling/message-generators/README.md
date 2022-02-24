@@ -22,6 +22,8 @@ Run the following to produce the help screen for the CLI tool
 ./target/debug/bbs-signature-generator-demo -h
 ```
 
+*Note* This CLI tool is used to automatically populate the `../fixtures/generators.json` file required by the spec tool which is responsible for automatically populating the spec with the latest fixtures.
+
 # Usage
 
 The CLI accepts two arguments

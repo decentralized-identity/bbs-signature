@@ -693,6 +693,40 @@ The following section details a basic set of test vectors that can be used to co
 
 Further fixtures are available in (#additional-bls12-381-ciphersuite-test-vectors)
 
+#### Message Generators
+
+Following the procedure defined in (#creategenerators) with an input seed value as follows
+
+```
+BBS_SETUP_GENERATOR_IKM_1_0_0\0\0\0 (*TODO confirm this*)
+```
+
+and a length value of `10`
+
+Outputs the following values
+
+```
+{{ $generators[0] }}
+
+{{ $generators[1] }}
+
+{{ $generators[2] }}
+
+{{ $generators[3] }}
+
+{{ $generators[4] }}
+
+{{ $generators[5] }}
+
+{{ $generators[6] }}
+
+{{ $generators[7] }}
+
+{{ $generators[8] }}
+
+{{ $generators[9] }}
+```
+
 #### Key Pair
 
 Following the procedure defined in (#keygen) with an input IKM value as follows
