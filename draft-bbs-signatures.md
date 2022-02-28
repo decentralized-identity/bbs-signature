@@ -144,8 +144,8 @@ q
 P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
 
-hash\_to\_curve\_g2(ostr) -> P
-: The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G2 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G2 using the random oracle method. The domain separation tag value is dst.
+hash\_to\_curve\_g1(ostr) -> P
+: The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G1 using the random oracle method. The domain separation tag value is dst.
 
 point\_to\_octets(P) -> ostr
 : returns the canonical representation of the point P as an octet string. This operation is also known as serialization.
@@ -578,7 +578,7 @@ Procedure:
 
 1. h = XOF(seed)
 
-2. for i in 0 to length: generators &= hash_to_curve_g2(h.read(64), dst)
+2. for i in 0 to length: generators &= hash_to_curve_g1(h.read(64), dst)
 
 3. return generators
 ```
@@ -617,9 +617,9 @@ When a trusted source of randomness is used, signatures and proofs are much hard
 
 The signature proofs of knowledge generated in this specification are created using a specified presentation message. A verifier-specified cryptographically random value (e.g., a nonce) featuring in the presentation message provides strong protections against replay attacks, and is RECOMMENDED in most use cases. In some settings, proofs can be generated in a non-interactive fashion, in which case verifiers MUST be able to verify the uniqueness of the presentation message values.
 
-## Implementing hash\_to\_curve\_g2
+## Implementing hash\_to\_curve\_g1
 
-The security analysis models hash\_to\_curve\_g2 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!I-D.irtf-cfrg-hash-to-curve].
+The security analysis models hash\_to\_curve\_g1 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!I-D.irtf-cfrg-hash-to-curve].
 
 In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_curve.  The domain separation tag used in (#ciphersuites) is the RECOMMENDED one.
 
@@ -656,7 +656,7 @@ a function that returns the point P corresponding to the canonical representatio
 - hash\_to\_curve\_g1:
 a function that meets requirements set out in [@!I-D.irtf-cfrg-hash-to-curve].
 
-- dst: Domain separation tag used in the hash\_to\_curve\_g2 operation
+- dst: Domain separation tag used in the hash\_to\_curve\_g1 operation
 
 ## BLS12-381 Ciphersuite
 
