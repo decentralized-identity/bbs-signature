@@ -9,9 +9,8 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 
 const GLOBAL_SEED: &[u8] =
-    b"Cowards die many times before their deaths; The valiant never taste of death but once.";
-const GLOBAL_DST: &[u8] = b"BBS_SETUP_GENERATOR_IKM_1_0_0\0\0\0";
-const DST: &[u8] = b"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_";
+    b"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED";
+const DST: &[u8] = b"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO";
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -113,7 +112,6 @@ fn write_generators_to_file(generators: &[G1Projective], file_name: String) {
 
 fn make_generators(seed: &[u8], len: usize) -> Vec<G1Projective> {
     let mut reader = Shake256::default()
-        .chain(GLOBAL_DST)
         .chain(seed)
         .finalize_xof();
 
