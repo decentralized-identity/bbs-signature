@@ -145,7 +145,7 @@ P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
 
 hash\_to\_curve\_g1(ostr) -> P
-: The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm. Once selected, apply the isogeny simplified SWU map to compute a point in G1 using the random oracle method. The domain separation tag value is dst.
+: The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
 point\_to\_octets(P) -> ostr
 : returns the canonical representation of the point P as an octet string. This operation is also known as serialization.
