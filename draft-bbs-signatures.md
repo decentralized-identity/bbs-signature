@@ -578,7 +578,7 @@ Procedure:
 
 1. h = XOF(seed)
 
-2. for i in 0 to length: generators &= hash_to_curve_g1(h.read(64), dst)
+2. for i in 0 to length: generators_i = hash_to_curve_g1(h.read(64), dst)
 
 3. return generators
 ```
