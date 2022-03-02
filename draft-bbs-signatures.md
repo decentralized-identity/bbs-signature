@@ -116,6 +116,11 @@ The following notation and primitives are used:
 a || b
 : Denotes the concatenation of octet strings a and b.
 
+I \ J
+: For sets I and J, denotes the difference of the two sets i.e., all the elements of I that do not appear in J, in the same order as they were in I.
+
+\[n\]: Denotes all integers from 1 to n. 
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -189,6 +194,10 @@ The schemes operations defined in (#operations) depend the following parameters:
 ### Subgroup Selection
 
 In definition of this signature scheme there are two possible variations based upon the sub-group selection, namely where public keys are defined in G2 and signatures in G1 OR the opposite where public keys are defined in G1 and signatures in G2. Some pairing cryptography based digital signature schemes such as [@I-D.irtf-cfrg-bls-signature] elect to allow for both variations, because they optimize for different things. However, in the case of this scheme, due to the operations involved in both signature and proof generation being computational in-efficient when performed in G2 and in the pursuit of simplicity, the scheme is limited to a construction where public keys are in G2 and signatures in G1.
+
+### Messages and generators
+
+Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is raised to the power of `msg_1` during signing, then `H_1` should be raised to the power of `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
 
 ## Operations
 
@@ -308,11 +317,12 @@ describes deterministic signing. For threshold signing, XOF can be replaced
 with a PRF due to the insecurity of deterministic threshold signing.
 
 ```
-signature = Sign((msg[i],...,msg[L]), SK, PK)
+signature = Sign(SK, PK, (msg_1,..., msg_L), (H_1,..., H_L))
 
 Inputs:
 
-- msg[i],...,msg[L], octet strings
+- msg_1,...,msg_L, octet strings. Messages to be signed.
+- H_1,..., H_L, points of G1. Generators used to sign the messages.
 - SK, a secret key output from KeyGen
 - PK, a public key output from SkToPk
 
@@ -334,7 +344,7 @@ Procedure:
 
 6. s = OS2IP(r) mod q. If s = 0, go back to step 5.
 
-7. B = P1 + H0 * s + H[i] * msg[i] + ... + H[n] * msg[L]
+7. B = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
 
 8. A = B * (1 / (SK + e))
 
@@ -348,11 +358,12 @@ Procedure:
 Verify checks that a signature is valid for the octet string messages under the public key.
 
 ```
-result = Verify((msg[i],...,msg[L]), signature, PK)
+result = Verify(PK, (msg_1,..., msg_L), (H_1,..., H_L), signature)
 
 Inputs:
 
-- msg[i],...,msg[L], octet strings.
+- msg_1,..., msg_L, octet strings. Messages in input to Sign.
+- H_1,..., H_L, points of G1. The generators in input to Sign.
 - signature, octet string.
 - PK, a public key in the format output by SkToPk.
 
@@ -370,7 +381,7 @@ Procedure:
 
 4. if KeyValidate(pub_key) is INVALID
 
-5. B = P1 + H0 * s + H[i] * msg[i] + ... + H[n] * msg[L]
+5. B = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
 
 6. C1 = e(A, W + P2 * e)
 
@@ -383,14 +394,17 @@ Procedure:
 
 A signature proof of knowledge generating algorithm that creates a zero-knowledge proof of knowledge of a signature while selectively disclosing messages from a signature given a vector of messages, a vector of indices of the revealed messages, the signer's public key, and a presentation message.
 
+If an application chooses to pass the indexes of the generators instead, then it will also need to pass the indexes of the generators corresponding to the revealed messages.
+
 ```
-spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, pm)
+spk = SpkGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signature, pm)
 
 Inputs:
 
 - PK, octet string in output form from SkToPk
-- (msg[1],...,msg[L]), octet strings (messages in input to Sign).
-- RIdxs, vector of unsigned integers (indices of revealed messages).
+- msg_1,..., msg_L, octet strings. Messages in input to Sign.
+- H_1,..., H_L, points of G1. The generators in input to Sign.
+- RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
 - signature, octet string in output form from Sign
 - pm, octet string
 
@@ -402,15 +416,15 @@ Procedure:
 
 1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
 
-2. (W, H0, H[1],...,H[L]) = PK
+2. (i1, i2,..., iR) = RevealedIndexes
 
-3. (i1, i2,..., iR) = RIdxs
+3. (j1, j2,..., jU) = [L] \ RevealedIndexes
 
 4. if subgroup_check(A) is INVALID abort
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. B = P1 + H0 * s + H[1] * msg[1] + ... + H[L] * msg[L]
+6. b = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
 
 7. r1 = HASH(PRF(8*ceil(log2(q)))) mod q
 
@@ -426,7 +440,7 @@ Procedure:
 
 13. r3 = r1 ^ -1 mod q
 
-14. for i in RIdxs m~[i] = HASH(PRF(8*ceil(log2(q)))) mod q
+14. for j in (j1, j2,..., jU): m~_j = HASH(PRF(8*ceil(log2(q)))) mod q
 
 15. A' = A * r1
 
@@ -438,7 +452,7 @@ Procedure:
 
 19. C1 = A' * e~ + H0 * r2~
 
-20. C2 = D * -r3~ + H0 * s~ + H[i1] * m~[i1] + ... + H[iR] * m~[iR]
+20. C2 = D * (-r3~) + H0 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
 21. c = HASH(PK || Abar || A' || D || C1 || C2 || pm)
 
@@ -450,9 +464,9 @@ Procedure:
 
 25. s^ = s~ + c * s'
 
-26. for i in RIdxs: m^[i] = m~[i] + c * msg[i]
+26. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
 
-27. spk = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^[i1], ..., m^[iR]) )
+27. spk = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 
 28. return spk
 ```
@@ -470,11 +484,11 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
 
 (without loss of generality we assume that the messages and generators are indexed from 0 to L). Let `(i1,...,iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1,...,jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1,...,jU) = [L] \ (i1,...,iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
 
-Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, r-1], and calculate,
+- Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, q-1], and calculate,
 
         1.  A' = A * r1,  
         2.  Abar = A' * (-e) + B * r1
-        3.  D = B * r1 + h0 * r2. 
+        3.  D = B * r1 + H0 * r2. 
   
   Also set, 
         
@@ -483,46 +497,32 @@ Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1
   
   The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`. 
 
-Also set,
+- Set the following,
 
         1.  C1 = Abar - D
-        2.  C2 = P1 +  h[i1] * msg_i1 + ... + h[iR] * msg_iR
+        2.  C2 = P1 +  H_i1 * msg_i1 + ... + H_iR * msg_iR
     
-    Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold, 
+  Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold, 
 
-        EQ1.  C1 = A' * (-e) + h0 * r2
-        EQ2.  C2 = D * (-r3) + h0 * s' + h[j1] * msg_j1 + ... + h[jU] * msg_jU.
+        EQ1.  C1 = A' * (-e) - H0 * r2
+        EQ2.  C2 = D * (-r3) + H0 * s' + H_j1 * msg_j1 + ... + H_jU * msg_jU.
 
-Set the following,
-
-```
-1.  T1 = Abar - d
-2.  T2 = P1 +  h[i1] * msg_i1 + ... + h[iR] * msg_iR
-```
-
-Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold,
-
-```
-EQ1.  T1 = A' * (-e) + h0 * r2
-EQ2.  T2 = d * r3 + h0 * (-s') + h[j1] * msg_j1 + ... + h[jU] * msg_jU.
-```
-
-If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The spk returned is `(A', Abar, d, nizk)`. To validate the spk, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
+  If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The spk returned is `(A', Abar, d, nizk)`. To validate the spk, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
 
 ### SpkVerify
-
 
 SpkVerify checks if a signature proof of knowledge is VALID given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation message used in SpkGen.
 
 ```
-result = SpkVerify(spk, PK, (Rmsg[1],..., Rmsg[R]), RIdxs, pm)
+result = SpkVerify(spk, PK, (msg_i1,..., msg_iR), (H_1,..., H_L), RevealedIndexes, pm)
 
 Inputs:
 
 - spk, octet string.
 - PK, octet string in output form from SkToPk.
-- (Rmsg[1], ..., Rmsg[R]), octet strings (revealed messages).
-- RIdxs, vector of unsigned integers (indices of revealed messages).
+- msg_i1,..., msg_iR, octet strings. The revealed messages in input to spkGen.
+- H_1,..., H_L, points of G1. The generators in input to Sign.
+- RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
 - pm, octet string
 
 Outputs:
@@ -533,17 +533,17 @@ Procedure:
 
 1. if KeyValidate(PK) is INVALID
 
-2. (i1, i2, ..., iR) = RIndxs
+2. (i1, i2, ..., iR) = RevealedIndexes
 
-3. (A', Abar, D, c, e^, r2^, r3^, s^, (m^[i1],...,m^[iR])) = spk
+3. (j1, j2, ..., jU) = [L]\RevealedIndexes
 
-4. (W, H0, H[1],...,H[L]) = PK
+4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = spk
 
 5. C1 = (Abar - D) * c + A' * e^ + H0 * r2^ 
 
-6. T = P1 + H[i1] * Rmsg[i1] + ... H[iR] * Rmsg[R]
+6. T = P1 + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-7. C2 = T * c + D * (-r3^) + H0 * s^ + H[i1] * m^[i1] + ... + H[iR] * m^[iR]
+7. C2 = T * c + D * (-r3^) + H0 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
  
 8. cv = HASH(PK || Abar || A' || D || C1 || C2 || pm)
 
