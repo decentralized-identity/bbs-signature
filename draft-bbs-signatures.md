@@ -144,6 +144,9 @@ q
 P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
 
+Identity_G1, Identity_G1
+: The identity element for the G1 and G2 subgroups respectively.
+
 hash\_to\_curve\_g1(ostr) -> P
 : The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
@@ -300,7 +303,7 @@ Procedure:
 
 1. (W, H0, H) = octets_to_point(PK)
 
-2. If W is the identity element, return INVALID
+2. If W == Identity_G2, return INVALID
 
 3. result = subgroup_check(W) && subgroup_check(H0)
 
@@ -470,11 +473,8 @@ Procedure:
 28. return spk
 ```
 
-How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
-(FIXME: Encoding out of scope OK, but wire format is required for test vectors. Unless this document is not normative.)
-
-
 #### Algorithmic Explanation
+
 The following section provides an explanation of how the Signature Proof Of Knowledge Generation (SpkGen) works.
 
 Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/(e + Sk))` where `Sk` the signer's secret key and,
@@ -578,7 +578,15 @@ Procedure:
 
 1. h = XOF(seed)
 
-2. for i in 0 to length: generators_i = hash_to_curve_g1(h.read(64), dst)
+2. for i in 0 to length:
+
+3.    generator_i = Identity_G1
+
+4.    while(generator_i == Identity_G1 || generator_i == P1)
+
+5.        candidate = hash_to_curve_g1(h.read(64), dst)
+
+6.        if candidate not in generators: generator_i = candidate
 
 3. return generators
 ```
