@@ -582,7 +582,7 @@ Procedure:
 
 3.    generator_i = Identity_G1
 
-4.    while(generator_i == Identity_G1 || generator_i == P1)
+4.    while(generator_i == Identity_G1 or generator_i == P1)
 
 5.        candidate = hash_to_curve_g1(h.read(64), dst)
 
