@@ -20,7 +20,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 21th February 2022 - (6pm UTC)
+## Meeting - Monday 7th March 2022 - (6pm UTC)
 
 ### Chair
 
@@ -31,7 +31,14 @@ Tobias Looker
 - IPR reminder, and Introductions
 - Agenda bashing
 - PR review
+    - [Add message mapping to scalar](https://github.com/decentralized-identity/bbs-signature/pull/61)
+    - [Document generator creation procedure](https://github.com/decentralized-identity/bbs-signature/pull/71)
+    - [Auto create message generators](https://github.com/decentralized-identity/bbs-signature/pull/72)
 - Issue Review
+    - [Adding the revealed messages to the challenge to avoid forgery](https://github.com/decentralized-identity/bbs-signature/issues/74)
+    - [Deterministic SPK](https://github.com/decentralized-identity/bbs-signature/issues/73)
+    - [Simpler SpkGen option](https://github.com/decentralized-identity/bbs-signature/issues/70)
+    - [Named message generators](https://github.com/decentralized-identity/bbs-signature/issues/68)
 
 ### Attendees
 
@@ -39,6 +46,7 @@ Tobias Looker
 
 ## Previous Meetings
 
+- [21st February 2022](./meetings/2022-02-21/agenda.md)
 - [2nd February 2022](./meetings/2022-02-08/agenda.md)
 - [24th January 2022](./meetings/2022-01-24/agenda.md)
 - [10th January 2022](./meetings/2022-01-01/agenda.md)

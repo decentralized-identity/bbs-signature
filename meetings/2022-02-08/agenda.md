@@ -27,4 +27,4 @@ Tobias Looker
 
 ### Notes
 
-Reviewed the above PR's and issues
+Reviewed the above PR's
