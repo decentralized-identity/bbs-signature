@@ -591,6 +591,33 @@ Procedure:
 3. return generators
 ```
 
+### MapMessageToScalar
+
+There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the sign, verify, spkGen and spkVerify operations.
+
+#### MapMessageToScalarAsHash
+
+This operation takes an arbitrary message and maps it to a scalar value, by hashing it to a point in the G2 subgroup for the target curve.
+
+```
+result = MapMessageToScalarAsHash(msg, dst)
+
+Inputs:
+
+- msg: octet string.
+- dst: Domain separation tag.
+
+Outputs:
+
+- result: scalar value
+
+Procedure:
+
+1. result = hash_to_curve_g2(msg, dst)
+
+2. return result
+```
+
 # Security Considerations
 
 ## Validating public keys
