@@ -119,7 +119,7 @@ a || b
 I \ J
 : For sets I and J, denotes the difference of the two sets i.e., all the elements of I that do not appear in J, in the same order as they were in I.
 
-\[n\]: Denotes all integers from 1 to n. 
+\[n\]: Denotes all integers from 1 to n.
 
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
@@ -313,7 +313,7 @@ Procedure:
 ### Sign
 
 Sign computes a signature from SK, PK, over a vector of messages. This method
-describes deterministic signing. For threshold signing, XOF can be replaced 
+describes deterministic signing. For threshold signing, XOF can be replaced
 with a PRF due to the insecurity of deterministic threshold signing.
 
 ```
@@ -486,23 +486,23 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
 
 - Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, q-1], and calculate,
 
-        1.  A' = A * r1,  
+        1.  A' = A * r1,
         2.  Abar = A' * (-e) + B * r1
-        3.  D = B * r1 + H0 * r2. 
-  
-  Also set, 
-        
+        3.  D = B * r1 + H0 * r2.
+
+  Also set,
+
         4.  r3 = r1 ^ -1 mod q
         5.  s' = s + r2 * r3.
-  
-  The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`. 
+
+  The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`.
 
 - Set the following,
 
         1.  C1 = Abar - D
         2.  C2 = P1 +  H_i1 * msg_i1 + ... + H_iR * msg_iR
-    
-  Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold, 
+
+  Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold,
 
         EQ1.  C1 = A' * (-e) - H0 * r2
         EQ2.  C2 = D * (-r3) + H0 * s' + H_j1 * msg_j1 + ... + H_jU * msg_jU.
@@ -539,12 +539,12 @@ Procedure:
 
 4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = spk
 
-5. C1 = (Abar - D) * c + A' * e^ + H0 * r2^ 
+5. C1 = (Abar - D) * c + A' * e^ + H0 * r2^
 
 6. T = P1 + H_i1 * msg_i1 + ... H_iR * msg_iR
 
 7. C2 = T * c + D * (-r3^) + H0 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
- 
+
 8. cv = HASH(PK || Abar || A' || D || C1 || C2 || pm)
 
 9. if c != cv return INVALID
@@ -720,6 +720,101 @@ This document does not make any requests of IANA.
 {backmatter}
 
 # Appendix
+
+## BLS12-381 hash_to_curve definition using SHAKE-256
+
+The following defines a hash_to_curve suite [@!I-D.irtf-cfrg-hash-to-curve] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (XOF) of SHAKE-256 as per the guidance defined in section 8.9 of [@!I-D.irtf-cfrg-hash-to-curve].
+
+Note the notation used in the below definitions is sourced from [@!I-D.irtf-cfrg-hash-to-curve].
+
+### BLS12-381 G1
+
+The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
+
+```
+* encoding type: hash_to_curve (Section 3 of [@!I-D.irtf-cfrg-hash-to-curve])
+
+* E: y^2 = x^3 + 4
+
+* p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+
+* m: 1
+
+* k: 128
+
+* expand_message: expand_message_xof (Section 5.4.2 of [@!I-D.irtf-cfrg-hash-to-curve])
+
+* H: SHAKE-256
+
+* L: 64
+
+* f: Simplified SWU for AB == 0 (Section 6.6.3 of [@!I-D.irtf-cfrg-hash-to-curve])
+
+* Z: 11
+
+*  E': y'^2 = x'^3 + A' * x' + B', where
+
+      -  A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aef
+         d881ac98936f8da0e0f97f5cf428082d584c1d
+
+      -  B' = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14f
+         cef35ef55a23215a316ceaa5d1cc48e98e172be0
+
+*  iso_map: the 11-isogeny map from E' to E given in Appendix E.2 of [@!I-D.irtf-cfrg-hash-to-curve]
+
+*  h_eff: 0xd201000000010001
+```
+
+Note that the h_eff values for this suite are copied from that defined for the `BLS12381G1_XMD:SHA-256_SSWU_RO_` suite defined in section 8.8.1 of [@!I-D.irtf-cfrg-hash-to-curve].
+
+An optimized example implementation of the Simplified SWU mapping to the curve E' isogenous to BLS12-381 G1 is given in Appendix F.2 [@!I-D.irtf-cfrg-hash-to-curve].
+
+### BLS12-381 G2
+
+The suite of `BLS12381G2_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
+
+```
+* encoding type: hash_to_curve (Section 3 of [@!I-D.irtf-cfrg-hash-to-curve])
+
+* E: y^2 = x^3 + 4 * (1 + I)
+
+* base field F is GF(p^m), where
+
+  -  p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6
+         b0f6241eabfffeb153ffffb9feffffffffaaab
+
+  -  m: 2
+
+  -  (1, I) is the basis for F, where I^2 + 1 == 0 in F
+
+* k: 128
+
+* expand_message: expand_message_xof (Section 5.4.2 of [@!I-D.irtf-cfrg-hash-to-curve])
+
+* H: SHAKE-256
+
+* L: 64
+
+* f: Simplified SWU for AB == 0 (Section 6.6.3 of [@!I-D.irtf-cfrg-hash-to-curve])
+
+* Z: -(2 + I)
+
+*  E': y'^2 = x'^3 + A' * x' + B', where
+
+      -  A' = 240 * I
+
+      -  B' = 1012 * (1 + I)
+
+*  iso_map: the isogeny map from E' to E given in Appendix E.3 of [@!I-D.irtf-cfrg-hash-to-curve]
+
+*  h_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff0315
+  08ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689
+  f6a359894c0adebbf6b4e8020005aaa95551
+```
+
+Note that the h_eff values for this suite are copied from that defined for the `BLS12381G2_XMD:SHA-256_SSWU_RO_` suite defined in section 8.8.1 of [@!I-D.irtf-cfrg-hash-to-curve].
+
+An optimized example implementation of the Simplified SWU mapping to the curve E' isogenous to BLS12-381 G2 is given in Appendix F.2 [@!I-D.irtf-cfrg-hash-to-curve].
 
 ## Usecases
 
