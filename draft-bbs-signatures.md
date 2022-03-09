@@ -620,9 +620,14 @@ This section defines the format for a BLS ciphersuite. It also gives concrete ci
 
 - H: a cryptographic hash function.
 
-- point_to_octets: a function that returns the canonical representation of the point P as an octet string.
+- point\_to\_octets:
+a function that returns the canonical representation of the point P as an octet string.
 
-- octets_to_point: a function that returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point_to_octets.
+- octets\_to\_point:
+a function that returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point_to_octets.
+
+- hash\_to\_curve\_g1:
+a function that meets requirements set out in [@!I-D.irtf-cfrg-hash-to-curve].
 
 The RECOMMENDED hash-to-curve domain separation tag is the ciphersuite ID string defined above.
 
@@ -636,6 +641,9 @@ point\_to\_octets
 
 octets\_to\_point
 : follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
+
+hash\_to\_curve_g1
+: follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup
 
 ### Test Vectors
 
@@ -721,7 +729,7 @@ This document does not make any requests of IANA.
 
 # Appendix
 
-## BLS12-381 hash_to_curve definition using SHAKE-256
+## BLS12-381 hash\_to\_curve definition using SHAKE-256
 
 The following defines a hash_to_curve suite [@!I-D.irtf-cfrg-hash-to-curve] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (XOF) of SHAKE-256 as per the guidance defined in section 8.9 of [@!I-D.irtf-cfrg-hash-to-curve].
 
