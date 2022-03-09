@@ -597,7 +597,7 @@ There are multiple ways in which messages can be mapped to their respective scal
 
 #### MapMessageToScalarAsHash
 
-This operation takes an arbitrary message and maps it to a scalar value, by hashing it to a point in the G2 subgroup for the target curve.
+This operation takes an arbitrary message and maps it to a scalar value, by hashing it to a point in the G1 subgroup for the target curve.
 
 ```
 result = MapMessageToScalarAsHash(msg, dst)
