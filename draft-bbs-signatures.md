@@ -148,7 +148,7 @@ Identity_G1, Identity_G1
 : The identity element for the G1 and G2 subgroups respectively.
 
 hash\_to\_curve\_g1(ostr) -> P
-: The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
+: A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
 point\_to\_octets(P) -> ostr
 : returns the canonical representation of the point P as an octet string. This operation is also known as serialization.
@@ -629,7 +629,7 @@ The signature proofs of knowledge generated in this specification are created us
 
 The security analysis models hash\_to\_curve\_g1 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!I-D.irtf-cfrg-hash-to-curve].
 
-In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_curve.  The domain separation tag used in (#ciphersuites) is the RECOMMENDED one.
+In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_curve.  Some guidance around defining this can be found in (#ciphersuites).
 
 ## Use of Contexts
 
@@ -662,7 +662,7 @@ a function that returns the canonical representation of the point P as an octet 
 a function that returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point_to_octets.
 
 - hash\_to\_curve\_g1:
-a function that meets requirements set out in [@!I-D.irtf-cfrg-hash-to-curve].
+A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
 - dst: Domain separation tag used in the hash\_to\_curve\_g1 operation
 
