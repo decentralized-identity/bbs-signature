@@ -613,7 +613,7 @@ Outputs:
 
 Procedure:
 
-1. result = hash_to_curve_g2(msg, dst)
+1. result = hash_to_curve_g1(msg, dst)
 
 2. return result
 ```
