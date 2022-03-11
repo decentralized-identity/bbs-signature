@@ -76,6 +76,9 @@ D
 msg
 : An input message to be signed by the signature scheme.
 
+generator
+: A valid point on the selected sub-group of the curve being used that is used to commit a value.
+
 H\[i\]
 : The generator corresponding to a given msg.
 
@@ -141,12 +144,11 @@ q
 P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
 
-hash\_to\_curve\_g1(ostr) -> P
-: The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest
-algorithm, once selected apply the isogeny simplified SWU map to compute a point in G1 using the random oracle method. The domain separation tag value is dst.
+Identity_G1, Identity_G1
+: The identity element for the G1 and G2 subgroups respectively.
 
-hash\_to\_curve\_g2(ostr) -> P
-: The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G2 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G2 using the random oracle method. The domain separation tag value is dst.
+hash\_to\_curve\_g1(ostr) -> P
+: A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
 point\_to\_octets(P) -> ostr
 : returns the canonical representation of the point P as an octet string. This operation is also known as serialization.
@@ -301,7 +303,7 @@ Procedure:
 
 1. (W, H0, H) = octets_to_point(PK)
 
-2. If W is the identity element, return INVALID
+2. If W == Identity_G2, return INVALID
 
 3. result = subgroup_check(W) && subgroup_check(H0)
 
@@ -471,11 +473,8 @@ Procedure:
 28. return spk
 ```
 
-How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
-(FIXME: Encoding out of scope OK, but wire format is required for test vectors. Unless this document is not normative.)
-
-
 #### Algorithmic Explanation
+
 The following section provides an explanation of how the Signature Proof Of Knowledge Generation (SpkGen) works.
 
 Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/(e + Sk))` where `Sk` the signer's secret key and,
@@ -556,6 +555,42 @@ Procedure:
 12. return VALID
 ```
 
+### CreateGenerators
+
+The CreateGenerators operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as sign, verify, spkgen and spkverify.
+
+*Note* The scope in which the seed used below is determined, is still an active conversation in the working group see (#ciphersuites) for the current method being used.
+
+```
+generators = CreateGenerators(dst, seed, length);
+
+Inputs:
+
+dst, octet string - Domain Separation Tag
+seed, octet string
+length, unsigned integer - Number of generators to create from the seed and dst
+
+Outputs:
+
+- generators, an array of generators
+
+Procedure:
+
+1. h = XOF(seed)
+
+2. for i in 0 to length:
+
+3.    generator_i = Identity_G1
+
+4.    while(generator_i == Identity_G1 or generator_i == P1)
+
+5.        candidate = hash_to_curve_g1(h.read(64), dst)
+
+6.        if candidate not in generators: generator_i = candidate
+
+3. return generators
+```
+
 # Security Considerations
 
 ## Validating public keys
@@ -590,11 +625,11 @@ When a trusted source of randomness is used, signatures and proofs are much hard
 
 The signature proofs of knowledge generated in this specification are created using a specified presentation message. A verifier-specified cryptographically random value (e.g., a nonce) featuring in the presentation message provides strong protections against replay attacks, and is RECOMMENDED in most use cases. In some settings, proofs can be generated in a non-interactive fashion, in which case verifiers MUST be able to verify the uniqueness of the presentation message values.
 
-## Implementing hash\_to\_point\_g1 and hash\_to\_point\_g2
+## Implementing hash\_to\_curve\_g1
 
-The security analysis models hash\_to\_point and hash\_pubkey\_to\_point as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!I-D.irtf-cfrg-hash-to-curve].
+The security analysis models hash\_to\_curve\_g1 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!I-D.irtf-cfrg-hash-to-curve].
 
-In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_point.  The domain separation tag used in Section 1.4 is the RECOMMENDED one.
+In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_curve.  Some guidance around defining this can be found in (#ciphersuites).
 
 ## Use of Contexts
 
@@ -627,9 +662,9 @@ a function that returns the canonical representation of the point P as an octet 
 a function that returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point_to_octets.
 
 - hash\_to\_curve\_g1:
-a function that meets requirements set out in [@!I-D.irtf-cfrg-hash-to-curve].
+A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
-The RECOMMENDED hash-to-curve domain separation tag is the ciphersuite ID string defined above.
+- dst: Domain separation tag used in the hash\_to\_curve\_g1 operation
 
 ## BLS12-381 Ciphersuite
 
@@ -644,6 +679,9 @@ octets\_to\_point
 
 hash\_to\_curve_g1
 : follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup
+
+dst
+: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO"
 
 ### Test Vectors
 
