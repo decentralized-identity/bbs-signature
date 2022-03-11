@@ -22,6 +22,14 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v2
 
+      - name: "Install and build message generator CLI"
+        run: cargo build
+        working-directory: ./tooling/message-generators
+
+      - name: "Update the message generators in the fixtures folder"
+        run: ./target/debug/bbs-signature-generator-demo -o file ../fixtures/generators.json
+        working-directory: ./tooling/message-generators
+
       - name: "Install yarn dependencies"
         run: yarn install --frozen-lockfile
         working-directory: ./tooling/fixtures

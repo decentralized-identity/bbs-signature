@@ -11,3 +11,4 @@ hex = "0.4"
 rand = { version = "0.8", features = ["std_rng"] }
 sha3 = "0.9"
 structopt = "0.3"
+serde_json = "1.0.59"

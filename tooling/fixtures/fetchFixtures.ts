@@ -1,4 +1,5 @@
 import * as keyPair from "./keyPair.json";
+import * as generators from "./generators.json";
 import * as path from "path";
 
 const isObject = (value: unknown) => value && typeof value === "object";
@@ -60,4 +61,4 @@ export const signatureFixtures = fetchNestedFixtures<SignatureFixture>(
   return map;
 }, {});
 
-export { keyPair };
+export { keyPair, generators };

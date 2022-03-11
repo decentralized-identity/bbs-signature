@@ -562,12 +562,12 @@ The CreateGenerators operation defines how to create a set of generators that fo
 *Note* The scope in which the seed used below is determined, is still an active conversation in the working group see (#ciphersuites) for the current method being used.
 
 ```
-generators = CreateGenerators(dst, seed, length);
+generators = CreateGenerators(dst, message_generator_seed, length);
 
 Inputs:
 
 dst, octet string - Domain Separation Tag
-seed, octet string
+message_generator_seed, octet string
 length, unsigned integer - Number of generators to create from the seed and dst
 
 Outputs:
@@ -666,6 +666,8 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - dst: Domain separation tag used in the hash\_to\_curve\_g1 operation
 
+- message_generator_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
+
 ## BLS12-381 Ciphersuite
 
 H
@@ -681,7 +683,10 @@ hash\_to\_curve_g1
 : follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup
 
 dst
-: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO"
+: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_"
+
+message_generator_seed
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the (#creategenerators) operation to compute the required set of message generators.
 
 ### Test Vectors
 
@@ -692,6 +697,46 @@ The following section details a basic set of test vectors that can be used to co
 **NOTE** These fixtures are a work in progress and subject to change
 
 Further fixtures are available in (#additional-bls12-381-ciphersuite-test-vectors)
+
+#### Message Generators
+
+Following the procedure defined in (#creategenerators) with an input seed value of
+
+```
+BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED
+```
+
+a dst of
+
+```
+BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_
+```
+
+and a length value of `10`
+
+Outputs the following values
+
+```
+{{ $generators[0] }}
+
+{{ $generators[1] }}
+
+{{ $generators[2] }}
+
+{{ $generators[3] }}
+
+{{ $generators[4] }}
+
+{{ $generators[5] }}
+
+{{ $generators[6] }}
+
+{{ $generators[7] }}
+
+{{ $generators[8] }}
+
+{{ $generators[9] }}
+```
 
 #### Key Pair
 
