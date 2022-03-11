@@ -686,7 +686,7 @@ dst
 : "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_"
 
 message_generator_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the (#creategenerators) operation to compute a set of message generators.
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the (#creategenerators) operation to compute the required set of message generators.
 
 ### Test Vectors
 
@@ -700,10 +700,16 @@ Further fixtures are available in (#additional-bls12-381-ciphersuite-test-vector
 
 #### Message Generators
 
-Following the procedure defined in (#creategenerators) with an input seed value as follows
+Following the procedure defined in (#creategenerators) with an input seed value of
 
 ```
-BBS_SETUP_GENERATOR_IKM_1_0_0\0\0\0 (*TODO confirm this*)
+BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED
+```
+
+a dst of
+
+```
+BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_
 ```
 
 and a length value of `10`

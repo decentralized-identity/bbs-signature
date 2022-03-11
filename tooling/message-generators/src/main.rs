@@ -10,7 +10,7 @@ use std::io::{BufWriter, Write};
 
 const GLOBAL_SEED: &[u8] =
     b"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED";
-const DST: &[u8] = b"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO";
+const DST: &[u8] = b"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_";
 
 #[derive(StructOpt, Debug)]
 struct Opt {
