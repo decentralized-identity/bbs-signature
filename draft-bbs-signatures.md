@@ -683,7 +683,7 @@ hash\_to\_curve_g1
 : follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup
 
 dst
-: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO"
+: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_"
 
 message_generator_seed
 : A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the (#creategenerators) operation to compute a set of message generators.
