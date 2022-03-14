@@ -691,9 +691,9 @@ a function that returns the point P corresponding to the canonical representatio
 - hash\_to\_curve\_g1:
 A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
-- hash\_to\_field: A function that follows the procedure outlined in section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve]
-
 - hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation
+
+- hash\_to\_field: A function that follows the procedure outlined in section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve]
 
 - hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation
 
