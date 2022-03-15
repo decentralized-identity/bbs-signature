@@ -591,6 +591,33 @@ Procedure:
 3. return generators
 ```
 
+### MapMessageToScalar
+
+There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the sign, verify, spkGen and spkVerify operations.
+
+#### MapMessageToScalarAsHash
+
+This operation takes an arbitrary message and maps it to a scalar value, by hashing it to a point in the G1 subgroup for the target curve.
+
+```
+result = MapMessageToScalarAsHash(msg, dst)
+
+Inputs:
+
+- msg: octet string.
+- dst: Domain separation tag; Note this is not defined as a function argument as per [@!I-D.irtf-cfrg-hash-to-curve] instead as a parameter
+
+Outputs:
+
+- result: scalar value
+
+Procedure:
+
+1. result = hash_to_field(msg, 1)
+
+2. return result
+```
+
 # Security Considerations
 
 ## Validating public keys
@@ -664,7 +691,11 @@ a function that returns the point P corresponding to the canonical representatio
 - hash\_to\_curve\_g1:
 A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
-- dst: Domain separation tag used in the hash\_to\_curve\_g1 operation
+- hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation
+
+- hash\_to\_field: A cryptographic hash function that follows the procedure outlined in section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve]
+
+- hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation
 
 - message_generator_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
@@ -682,8 +713,14 @@ octets\_to\_point
 hash\_to\_curve_g1
 : follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup
 
-dst
-: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_"
+hash\_to\_curve\_g1\_dst
+: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO"
+
+hash\_to\_field
+: adopts the required parameters from the suites defined in (#bls12-381-hash-to-curve-definition-using-shake-256) to satisfy those described in section 5.3 [@!I-D.irtf-cfrg-hash-to-curve] along with the defined dst
+
+hash\_to\_field\_dst
+: "BBS_BLS12381FQ_XOF:SHAKE-256_SSWU_RO"
 
 message_generator_seed
 : A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the (#creategenerators) operation to compute the required set of message generators.
