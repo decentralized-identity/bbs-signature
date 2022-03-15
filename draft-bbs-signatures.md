@@ -247,7 +247,7 @@ Procedure:
 
 3. while SK == 0:
 
-4.     salt = H(salt)
+4.     salt = HASH(salt)
 
 5.     PRK = HKDF-Extract(salt, IKM || I2OSP(0, 1))
 
@@ -670,7 +670,10 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 ## BLS12-381 Ciphersuite
 
-H
+HASH
+: SHAKE-256 as defined in [@!SHA3] where the length of bytes read is ceil(log2(q)) bits, where q is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve
+
+XOF
 : SHAKE-256 as defined in [@!SHA3]
 
 point\_to\_octets
