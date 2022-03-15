@@ -597,7 +597,7 @@ There are multiple ways in which messages can be mapped to their respective scal
 
 #### MapMessageToScalarAsHash
 
-This operation takes an input message and maps it to a scalar value for the given curve.
+This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve.
 
 ```
 result = MapMessageToScalarAsHash(msg, dst)
