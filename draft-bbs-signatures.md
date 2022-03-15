@@ -671,7 +671,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 ## BLS12-381 Ciphersuite
 
 HASH
-: SHAKE-256 as defined in [@!SHA3] where the length of bytes read is ceil(log2(q)) bits, where q is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve
+: SHAKE-256 as defined in [@!SHA3] where the length of bytes drawn from it is dependent on the operation (32 bytes when used in the context of the KeyGen operation and 64 bytes when used in the context of SpkGen)
 
 XOF
 : SHAKE-256 as defined in [@!SHA3]
