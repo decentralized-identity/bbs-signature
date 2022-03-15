@@ -653,7 +653,7 @@ This section defines the format for a BLS ciphersuite. It also gives concrete ci
 
 ## Ciphersuite Format
 
-- H: a cryptographic hash function.
+- HASH: a cryptographic hash function.
 
 - point\_to\_octets:
 a function that returns the canonical representation of the point P as an octet string.
