@@ -647,6 +647,12 @@ The ZKP protocols use nonces which MUST be different in each context.
 
 BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a profile for using the BLS12-381 curve in (#ciphersuites) which as a curve currently achieves close to 128-bit security.
 
+## Security against the signer.
+
+The BBS proof, as returned by spkGen, is a zero-knowledge proof-of-knowledge against an honest verifier. This guarantees that two different BBS proofs derived from the same signature will be indifferentiable by a verifier (or a coalition of verifiers). This does not hold against the original signer of the signature, or against a signer/verifier coalition. Specifically, given a proof derived from a BBS signature, the original signer will be able to match the proof to the signature used to derive it. As a result, a signer/ verifier coalition could correlate and track the prover. This also means that a verifier could ask the original signer to reveal the messages that the prover choose to keep undisclosed during a proof generation. Hence, the BBS proof is NOT zero-knowledge against the signer, or against dishonest verifiers cooperating with the signer.
+
+In applications where zero-knowledge is desired even against the signer, the signer MUST NOT keep a copy of the signatures they issued (at least not of the signed messages and the `s` value). This is RECOMMENDED for all applications to alleviate the danger of a leaked signer’s key compromising the secrecy of the messages the prover choose to keep un-disclosed during a proof generation, since any adversary in possession of both the secret key of the signer and the value `s` of the signature could reveal those un-disclosed messages (by calculating `B` as calculated at step 7 of spkGen).
+
 # Ciphersuites
 
 This section defines the format for a BLS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@!I-D.irtf-cfrg-pairing-friendly-curves].
