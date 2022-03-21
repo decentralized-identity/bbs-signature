@@ -591,29 +591,32 @@ Procedure:
 3. return generators
 ```
 
-### MapMessageToScalar
+### MapValueToScalar
 
-There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the sign, verify, spkGen and spkVerify operations.
+There are multiple ways in which an input value can be mapped to a scalar, which is the form required by multiple parameters in the sign, verify, spkGen and spkVerify operations.
 
-#### MapMessageToScalarAsHash
+#### MapValueToScalarAsHash
 
-This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve.
+This operation takes an input value and maps it to a scalar via a cryptographic hash function for the given curve.
 
 ```
-result = MapMessageToScalarAsHash(msg, dst)
+result = MapMessageToScalarAsHash(val)
 
 Inputs:
 
-- msg: octet string.
+- val: octet string.
+
+Parameters:
+
 - dst: Domain separation tag; Note this is not defined as a function argument as per [@!I-D.irtf-cfrg-hash-to-curve] instead as a parameter
 
 Outputs:
 
-- result: scalar value
+- result: scalar based value
 
 Procedure:
 
-1. result = hash_to_field(msg, 1)
+1. result = hash_to_field(val, 1)
 
 2. return result
 ```
