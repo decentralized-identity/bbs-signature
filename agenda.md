@@ -20,7 +20,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 21st March 2022 - (6pm UTC)
+## Meeting - Monday 5th April 2022 - (6pm UTC)
 
 ### Chair
 
@@ -31,9 +31,6 @@ Tobias Looker
 - IPR reminder, and Introductions
 - Agenda bashing
 - PR review
-    - [BBS spk security against the issuer](https://github.com/decentralized-identity/bbs-signature/pull/86)
-    - [Change usages of HASH function to use XOF](https://github.com/decentralized-identity/bbs-signature/pull/84)
-    - [Add message mapping to scalar](https://github.com/decentralized-identity/bbs-signature/pull/61)
 - Issue Review
 
 ### Attendees
@@ -42,6 +39,7 @@ Tobias Looker
 
 ## Previous Meetings
 
+- [21st March 2022](./meetings/2022-03-21/agenda.md)
 - [7th March 2022](./meetings/2022-03-07/agenda.md)
 - [21st February 2022](./meetings/2022-02-21/agenda.md)
 - [2nd February 2022](./meetings/2022-02-08/agenda.md)
