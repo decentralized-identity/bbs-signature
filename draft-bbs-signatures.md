@@ -239,9 +239,9 @@ Procedure:
 
 2. SK = 0
 
-3. while SK == 0:
+3. h = XOF(salt || IKM)
 
-4.     h = XOF(salt || IKM)
+4. while SK == 0:
 
 5.     OKM = h.read(okm_key_gen_byte_length)
 
