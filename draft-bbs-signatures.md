@@ -674,11 +674,9 @@ The ZKP protocols use nonces which MUST be different in each context.
 
 BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a profile for using the BLS12-381 curve in (#ciphersuites) which as a curve currently achieves close to 128-bit security.
 
-## Security against the signer.
+## Security of spkGen
 
-The BBS proof, as returned by spkGen, is a zero-knowledge proof-of-knowledge against an honest verifier. This guarantees that two different BBS proofs derived from the same signature will be indifferentiable by a verifier (or a coalition of verifiers). This does not hold against the original signer of the signature, or against a signer/verifier coalition. Specifically, given a proof derived from a BBS signature, the original signer will be able to match the proof to the signature used to derive it. As a result, a signer/ verifier coalition could correlate and track the prover. This also means that a verifier could ask the original signer to reveal the messages that the prover choose to keep undisclosed during a proof generation. Hence, the BBS proof is NOT zero-knowledge against the signer, or against dishonest verifiers cooperating with the signer.
-
-In applications where zero-knowledge is desired even against the signer, the signer MUST NOT keep a copy of the signatures they issued (at least not of the signed messages and the `s` value). This is RECOMMENDED for all applications to alleviate the danger of a leaked signer’s key compromising the secrecy of the messages the prover choose to keep un-disclosed during a proof generation, since any adversary in possession of both the secret key of the signer and the value `s` of the signature could reveal those un-disclosed messages (by calculating `B` as calculated at step 7 of spkGen).
+The BBS proof, as returned by spkGen, is a zero-knowledge proof-of-knowledge [@CDL16]. This guarantees that no information will be revealed about the signature itself or the undisclosed messages, from the output of spkGen. Note that the security proofs in [@CDL16] work on type 3 pairing setting. This means that G1 should be different from G2 and with no efficient isomorphism between them.
 
 # Ciphersuites
 
@@ -1109,4 +1107,24 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
    <title>Recommendation for Stateful Hash-Based Signature Schemes</title>
    <author><organization>NIST</organization></author>
  </front>
+</reference>
+
+<reference anchor="CDL16" target="https://eprint.iacr.org/2016/663.pdf">
+ <front>
+   <title>Anonymous Attestation Using the Strong Diffie Hellman Assumption Revisited</title>
+   <author initials="J." surname="Camenisch" fullname="Jan Camenisch">
+      <organization>IBM Research</organization>
+    </author>
+    <author initials="M." surname="Drijvers" fullname="Manu Drijvers">
+      <organization>IBM Research</organization>
+      <organization>Department of Computer Science, ETH Zurich</organization>
+    </author>
+    <author initials="A." surname="Lehmann" fullname="Anja Lehmann">
+      <organization>IBM Research</organization>
+    </author>
+    <date year="2016"/>
+ </front>
+ <seriesInfo name="In" value="International Conference on Trust and Trustworthy Computing"/>
+ <seriesInfo name="pages" value="1-20"/>
+ <seriesInfo name="Springer," value="Cham"/>
 </reference>
