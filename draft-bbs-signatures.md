@@ -428,7 +428,7 @@ Procedure:
 
 7.      rand_el = HASH(PRF(8*ceil(log2(q)))) mod q
 
-8.      if rand_el is 0 go back to step 7
+8.      if rand_el = 0, go back to step 7
 
 9. b = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
 
