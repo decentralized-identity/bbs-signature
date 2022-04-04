@@ -424,41 +424,43 @@ Procedure:
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. for rand_el in (r1, r2, e~, r2~, r3~, s~): rand_el = HASH(PRF(8*ceil(log2(q)))) mod q
+6. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
 
-7. for j in (j1, j2,..., jU): m~_j = HASH(PRF(8*ceil(log2(q)))) mod q
+7.      rand_el = HASH(PRF(8*ceil(log2(q)))) mod q
 
-8. b = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
+8.      if rand_el is 0 go back to step 7
 
-9. r3 = r1 ^ -1 mod q
+9. b = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
 
-10. A' = A * r1
+10. r3 = r1 ^ -1 mod q
 
-11. Abar = A' * (-e) + B * r1
+11. A' = A * r1
 
-12. D = B * r1 + h0 * r2
+12. Abar = A' * (-e) + B * r1
 
-13. s' = s + r2 * r3
+13. D = B * r1 + h0 * r2
 
-14. C1 = A' * e~ + H0 * r2~
+14. s' = s + r2 * r3
 
-15. C2 = D * (-r3~) + H0 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+15. C1 = A' * e~ + H0 * r2~
 
-16. c = HASH(PK || Abar || A' || D || C1 || C2 || pm)
+16. C2 = D * (-r3~) + H0 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-17. e^ = e~ + c * e
+17. c = HASH(PK || Abar || A' || D || C1 || C2 || pm)
 
-18. r2^ = r2~ + c * r2
+18. e^ = e~ + c * e
 
-19. r3^ = r3~ + c * r3
+19. r2^ = r2~ + c * r2
 
-20. s^ = s~ + c * s'
+20. r3^ = r3~ + c * r3
 
-21. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+21. s^ = s~ + c * s'
 
-22. spk = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+22. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
 
-23. return spk
+23. spk = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+
+24. return spk
 ```
 
 #### Algorithmic Explanation
