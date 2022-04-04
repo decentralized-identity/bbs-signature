@@ -368,21 +368,19 @@ Procedure:
 
 2. h = XOF(SK  || msg[i] || ... || msg[L])
 
-3. k = h.read(64)
+3. for rand_el in (e, s) do
 
-4. e = OS2IP(k) mod q. If e = 0, go back to step 3.
+4.      rand_el = OS2IP(h.read(64)) mod q.
 
-5. r = h.read(64)
+5.      if rand_el = 0, go back to step 4
 
-6. s = OS2IP(r) mod q. If s = 0, go back to step 5.
+6. B = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
 
-7. B = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
+7. A = B * (1 / (SK + e))
 
-8. A = B * (1 / (SK + e))
+8. signature = (point_to_octets_min(A), e, s)
 
-9. signature = (point_to_octets_min(A), e, s)
-
-10. return signature
+9. return signature
 ```
 
 ### Verify
@@ -456,51 +454,43 @@ Procedure:
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. b = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
+6. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
 
-7. r1 = HASH(PRF(8*ceil(log2(q)))) mod q
+7.      rand_el = HASH(PRF(8*ceil(log2(q)))) mod q
 
-8. r2 = HASH(PRF(8*ceil(log2(q)))) mod q
+8.      if rand_el = 0, go back to step 7
 
-9. e~ = HASH(PRF(8*ceil(log2(q)))) mod q
+9. b = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
 
-10. r2~ = HASH(PRF(8*ceil(log2(q)))) mod q
+10. r3 = r1 ^ -1 mod q
 
-11. r3~ = HASH(PRF(8*ceil(log2(q)))) mod q
+11. A' = A * r1
 
-12. s~ = HASH(PRF(8*ceil(log2(q)))) mod q
+12. Abar = A' * (-e) + B * r1
 
-13. r3 = r1 ^ -1 mod q
+13. D = B * r1 + h0 * r2
 
-14. for j in (j1, j2,..., jU): m~_j = HASH(PRF(8*ceil(log2(q)))) mod q
+14. s' = s + r2 * r3
 
-15. A' = A * r1
+15. C1 = A' * e~ + H0 * r2~
 
-16. Abar = A' * (-e) + B * r1
+16. C2 = D * (-r3~) + H0 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-17. D = B * r1 + h0 * r2
+17. c = HASH(PK || Abar || A' || D || C1 || C2 || pm)
 
-18. s' = s + r2 * r3
+18. e^ = e~ + c * e
 
-19. C1 = A' * e~ + H0 * r2~
+19. r2^ = r2~ + c * r2
 
-20. C2 = D * (-r3~) + H0 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+20. r3^ = r3~ + c * r3
 
-21. c = HASH(PK || Abar || A' || D || C1 || C2 || pm)
+21. s^ = s~ + c * s'
 
-22. e^ = e~ + c * e
+22. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
 
-23. r2^ = r2~ + c * r2
+23. spk = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 
-24. r3^ = r3~ + c * r3
-
-25. s^ = s~ + c * s'
-
-26. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
-
-27. spk = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
-
-28. return spk
+24. return spk
 ```
 
 #### Algorithmic Explanation
