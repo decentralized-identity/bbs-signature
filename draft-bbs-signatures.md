@@ -112,7 +112,7 @@ generator
 H\[i\]
 : The generator corresponding to a given msg.
 
-H0
+H_s
 : A generator for the blinding value in the signature.
 
 signature
@@ -346,17 +346,26 @@ Procedure:
 
 Sign computes a signature from SK, PK, over a vector of messages. This method
 describes deterministic signing. For threshold signing, XOF can be replaced
-with a PRF due to the insecurity of deterministic threshold signing.
+with a PRF due to the insecurity of deterministic threshold signing. 
+
+The method takes as an input a list of the generators (H_s, H_d, H_1, ..., H_L). The first generator from that list (H_s), is used for the blinding value (s) of the signature. The second generator (H_d), is used to sign the signature's domain separation tag (sig_dst), which binds both signature and proof to a specific domain. Finally, the rest of the generators (H_1, ..., H_L), are used for the signed messages.
 
 ```
-signature = Sign(SK, PK, (msg_1,..., msg_L), (H_1,..., H_L))
+signature = Sign(SK, PK, (msg_1,..., msg_L), (H_s, H_d, H_1, ..., H_L))
 
 Inputs:
 
 - msg_1,...,msg_L, octet strings. Messages to be signed.
-- H_1,..., H_L, points of G1. Generators used to sign the messages.
+- H_s, H_d, H_1,..., H_L, points of G1. Generators used to create the signature. H_s is
+                          used for the signature blinding value, H_d for the signature 
+                          domain separation tag and the rest for the signed messages.
 - SK, a secret key output from KeyGen
 - PK, a public key output from SkToPk
+
+Parameters:
+
+- CipherInfo, an optional string containing ciphersuite specific information.
+              If not supplied, it defaults to the empty string.
 
 Outputs:
 
@@ -366,21 +375,23 @@ Procedure:
 
 1. (W, H0, H) = octets_to_point(PK)
 
-2. h = XOF(SK  || msg[i] || ... || msg[L])
+2. sig_dst = HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)
 
-3. for rand_el in (e, s) do
+3. h = XOF(SK  || msg[i] || ... || msg[L])
 
-4.      rand_el = OS2IP(h.read(64)) mod q.
+4. for rand_el in (e, s) do
 
-5.      if rand_el = 0, go back to step 4
+5.      rand_el = OS2IP(h.read(64)) mod q.
 
-6. B = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
+6.      if rand_el = 0, go back to step 4
 
-7. A = B * (1 / (SK + e))
+7. B = P1 + H_s * s + H_d * sig_dst + H_1 * msg_1 + ... + H_L * msg_L
 
-8. signature = (point_to_octets_min(A), e, s)
+8. A = B * (1 / (SK + e))
 
-9. return signature
+9. signature = (point_to_octets_min(A), e, s)
+
+10. return signature
 ```
 
 ### Verify
@@ -388,14 +399,19 @@ Procedure:
 Verify checks that a signature is valid for the octet string messages under the public key.
 
 ```
-result = Verify(PK, (msg_1,..., msg_L), (H_1,..., H_L), signature)
+result = Verify(PK, (msg_1,..., msg_L), (H_s, H_d, H_1,..., H_L), signature)
 
 Inputs:
 
 - msg_1,..., msg_L, octet strings. Messages in input to Sign.
-- H_1,..., H_L, points of G1. The generators in input to Sign.
+- H_s, H_d, H_1,..., H_L, points of G1. The generators in input to Sign.
 - signature, octet string.
 - PK, a public key in the format output by SkToPk.
+
+Parameters:
+
+- CipherInfo, an optional string containing ciphersuite specific information.
+              If not supplied, it defaults to the empty string.
 
 Outputs:
 
@@ -411,13 +427,15 @@ Procedure:
 
 4. if KeyValidate(pub_key) is INVALID
 
-5. B = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
+5. sig_dst = HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)
 
-6. C1 = e(A, W + P2 * e)
+6. B = P1 + H_s * s + H_d * sig_dst + H_1 * msg_1 + ... + H_L * msg_L
 
-7. C2 = e(B, P2)
+7. C1 = e(A, W + P2 * e)
 
-8. return C1 == C2
+8. C2 = e(B, P2)
+
+9. return C1 == C2
 ```
 
 ### SpkGen
@@ -427,16 +445,21 @@ A signature proof of knowledge generating algorithm that creates a zero-knowledg
 If an application chooses to pass the indexes of the generators instead, then it will also need to pass the indexes of the generators corresponding to the revealed messages.
 
 ```
-spk = SpkGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signature, pm)
+spk = SpkGen(PK, (msg_1,..., msg_L), (H_s, H_d, H_1,..., H_L), RevealedIndexes, signature, pm)
 
 Inputs:
 
 - PK, octet string in output form from SkToPk
 - msg_1,..., msg_L, octet strings. Messages in input to Sign.
-- H_1,..., H_L, points of G1. The generators in input to Sign.
+- H_s, H_d, H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
 - signature, octet string in output form from Sign
 - pm, octet string
+
+Parameters:
+
+- CipherInfo, an optional string containing ciphersuite specific information.
+              If not supplied, it defaults to the empty string.
 
 Outputs:
 
@@ -454,43 +477,45 @@ Procedure:
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
+6. sig_dst = HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)
 
-7.      rand_el = HASH(PRF(8*ceil(log2(q)))) mod q
+7. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
 
-8.      if rand_el = 0, go back to step 7
+8.      rand_el = HASH(PRF(8*ceil(log2(q)))) mod q
 
-9. b = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
+9.      if rand_el = 0, go back to step 7
 
-10. r3 = r1 ^ -1 mod q
+10. B = P1 + H_s * s + H_d * sig_dst + H_1 * msg_1 + ... + H_L * msg_L
 
-11. A' = A * r1
+11. r3 = r1 ^ -1 mod q
 
-12. Abar = A' * (-e) + B * r1
+12. A' = A * r1
 
-13. D = B * r1 + h0 * r2
+13. Abar = A' * (-e) + B * r1
 
-14. s' = s + r2 * r3
+14. D = B * r1 + H_s * r2
 
-15. C1 = A' * e~ + H0 * r2~
+15. s' = s + r2 * r3
 
-16. C2 = D * (-r3~) + H0 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+16. C1 = A' * e~ + H_s * r2~
 
-17. c = HASH(PK || Abar || A' || D || C1 || C2 || pm)
+17. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-18. e^ = e~ + c * e
+18. c = HASH(PK || Abar || A' || D || C1 || C2 || pm)
 
-19. r2^ = r2~ + c * r2
+19. e^ = e~ + c * e
 
-20. r3^ = r3~ + c * r3
+20. r2^ = r2~ + c * r2
 
-21. s^ = s~ + c * s'
+21. r3^ = r3~ + c * r3
 
-22. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+22. s^ = s~ + c * s'
 
-23. spk = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+23. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
 
-24. return spk
+24. spk = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+
+25. return spk
 ```
 
 #### Algorithmic Explanation
@@ -533,16 +558,21 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
 SpkVerify checks if a signature proof of knowledge is VALID given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation message used in SpkGen.
 
 ```
-result = SpkVerify(spk, PK, (msg_i1,..., msg_iR), (H_1,..., H_L), RevealedIndexes, pm)
+result = SpkVerify(spk, PK, (msg_i1,..., msg_iR), (H_s, H_d, H_1,..., H_L), RevealedIndexes, pm)
 
 Inputs:
 
 - spk, octet string.
 - PK, octet string in output form from SkToPk.
 - msg_i1,..., msg_iR, octet strings. The revealed messages in input to spkGen.
-- H_1,..., H_L, points of G1. The generators in input to Sign.
+- H_s, H_d, H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
 - pm, octet string
+
+Parameters:
+
+- CipherInfo, an optional string containing ciphersuite specific information.
+              If not supplied, it defaults to the empty string.
 
 Outputs:
 
@@ -558,21 +588,23 @@ Procedure:
 
 4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = spk
 
-5. C1 = (Abar - D) * c + A' * e^ + H0 * r2^
+5. sig_dst = HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)
 
-6. T = P1 + H_i1 * msg_i1 + ... H_iR * msg_iR
+6. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-7. C2 = T * c + D * (-r3^) + H0 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+7. T = P1 + H_s * sig_dst + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-8. cv = HASH(PK || Abar || A' || D || C1 || C2 || pm)
+8. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-9. if c != cv return INVALID
+9. cv = HASH(PK || Abar || A' || D || C1 || C2 || pm)
 
-10. if A' == 1 return INVALID
+10. if c != cv return INVALID
 
-11. if e(A', W) * e(Abar, -P2) != 1 return INVALID
+11. if A' == 1 return INVALID
 
-12. return VALID
+12. if e(A', W) * e(Abar, -P2) != 1 return INVALID
+
+13. return VALID
 ```
 
 ### CreateGenerators
