@@ -95,7 +95,7 @@ PK
 : The public key for the signature scheme.
 
 L
-: The total number of messages that the signature scheme can sign.
+: The total number of signed messages.
 
 R
 : The set of message indices that are retained or hidden in a signature proof of knowledge.
@@ -114,6 +114,9 @@ H\[i\]
 
 H_s
 : A generator for the blinding value in the signature.
+
+H_d
+: A generator for the signature domain separation tag (sig_dst), which binds both signature and proof to a specific domain.
 
 signature
 : The digital signature output.
@@ -229,7 +232,9 @@ In definition of this signature scheme there are two possible variations based u
 
 ### Messages and generators
 
-Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is raised to the power of `msg_1` during signing, then `H_1` should be raised to the power of `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
+Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
+
+Aside from the message generators, the scheme uses two additional generators: `H_s` and `H_d`. The first (`H_s`), is used for the blinding value (`s`) of the signature. The second generator (`H_d`), is used to sign the signature domain separation tag (`sig_dst`), which binds both signature and proof to a specific domain.
 
 ## Operations
 
@@ -348,17 +353,13 @@ Sign computes a signature from SK, PK, over a vector of messages. This method
 describes deterministic signing. For threshold signing, XOF can be replaced
 with a PRF due to the insecurity of deterministic threshold signing. 
 
-The method takes as an input a list of the generators (H_s, H_d, H_1, ..., H_L). The first generator from that list (H_s), is used for the blinding value (s) of the signature. The second generator (H_d), is used to sign the signature's domain separation tag (sig_dst), which binds both signature and proof to a specific domain. Finally, the rest of the generators (H_1, ..., H_L), are used for the signed messages.
-
 ```
-signature = Sign(SK, PK, (msg_1,..., msg_L), (H_s, H_d, H_1, ..., H_L))
+signature = Sign(SK, PK, (msg_1,..., msg_L), (H_1,..., H_L))
 
 Inputs:
 
-- msg_1,...,msg_L, octet strings. Messages to be signed.
-- H_s, H_d, H_1,..., H_L, points of G1. Generators used to create the signature. H_s is
-                          used for the signature blinding value, H_d for the signature 
-                          domain separation tag and the rest for the signed messages.
+- msg_1,..., msg_L, octet strings. Messages to be signed.
+- H_1,..., H_L, points of G1. Generators used to sign the messages.
 - SK, a secret key output from KeyGen
 - PK, a public key output from SkToPk
 
@@ -399,12 +400,12 @@ Procedure:
 Verify checks that a signature is valid for the octet string messages under the public key.
 
 ```
-result = Verify(PK, (msg_1,..., msg_L), (H_s, H_d, H_1,..., H_L), signature)
+result = Verify(PK, (msg_1,..., msg_L), (H_1,..., H_L), signature)
 
 Inputs:
 
 - msg_1,..., msg_L, octet strings. Messages in input to Sign.
-- H_s, H_d, H_1,..., H_L, points of G1. The generators in input to Sign.
+- H_1,..., H_L, points of G1. The generators in input to Sign.
 - signature, octet string.
 - PK, a public key in the format output by SkToPk.
 
@@ -445,13 +446,13 @@ A signature proof of knowledge generating algorithm that creates a zero-knowledg
 If an application chooses to pass the indexes of the generators instead, then it will also need to pass the indexes of the generators corresponding to the revealed messages.
 
 ```
-spk = SpkGen(PK, (msg_1,..., msg_L), (H_s, H_d, H_1,..., H_L), RevealedIndexes, signature, pm)
+spk = SpkGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signature, pm)
 
 Inputs:
 
 - PK, octet string in output form from SkToPk
 - msg_1,..., msg_L, octet strings. Messages in input to Sign.
-- H_s, H_d, H_1,..., H_L, points of G1. The generators in input to Sign.
+- H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
 - signature, octet string in output form from Sign
 - pm, octet string
@@ -558,14 +559,14 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
 SpkVerify checks if a signature proof of knowledge is VALID given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation message used in SpkGen.
 
 ```
-result = SpkVerify(spk, PK, (msg_i1,..., msg_iR), (H_s, H_d, H_1,..., H_L), RevealedIndexes, pm)
+result = SpkVerify(spk, PK, (msg_i1,..., msg_iR), (H_1,..., H_L), RevealedIndexes, pm)
 
 Inputs:
 
 - spk, octet string.
 - PK, octet string in output form from SkToPk.
 - msg_i1,..., msg_iR, octet strings. The revealed messages in input to spkGen.
-- H_s, H_d, H_1,..., H_L, points of G1. The generators in input to Sign.
+- H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
 - pm, octet string
 
@@ -755,6 +756,10 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - message_generator_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
+- blind_value_generator_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message_generator_seed, there are multiple scopes for the blind_value_generator_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
+
+- signature_dst_generator_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message_generator_seed and blind_value_generator_seed. 
+
 ## BLS12-381 Ciphersuite
 
 H
@@ -779,7 +784,13 @@ hash\_to\_field\_dst
 : "BBS_BLS12381FQ_XOF:SHAKE-256_SSWU_RO"
 
 message_generator_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the (#creategenerators) operation to compute the required set of message generators.
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
+
+blind_value_generator_seed
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_BLINDING_VALUE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
+
+signature_dst_generator_seed
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_DST_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 ### Test Vectors
 
