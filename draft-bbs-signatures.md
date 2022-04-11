@@ -367,6 +367,8 @@ Parameters:
 
 - CipherInfo, an optional string containing ciphersuite specific information.
               If not supplied, it defaults to the empty string.
+- H_s, point of G1. The generator for the blinding value of the signature.
+- H_d, point of G1. The generator used to sign the signature domain separation tag.
 
 Outputs:
 
@@ -413,6 +415,8 @@ Parameters:
 
 - CipherInfo, an optional string containing ciphersuite specific information.
               If not supplied, it defaults to the empty string.
+- H_s, point of G1. The generator for the blinding value of the signature.
+- H_d, point of G1. The generator used to sign the signature domain separation tag.
 
 Outputs:
 
@@ -461,6 +465,8 @@ Parameters:
 
 - CipherInfo, an optional string containing ciphersuite specific information.
               If not supplied, it defaults to the empty string.
+- H_s, point of G1. The generator for the blinding value of the signature.
+- H_d, point of G1. The generator used to sign the signature domain separation tag.
 
 Outputs:
 
@@ -574,6 +580,8 @@ Parameters:
 
 - CipherInfo, an optional string containing ciphersuite specific information.
               If not supplied, it defaults to the empty string.
+- H_s, point of G1. The generator for the blinding value of the signature.
+- H_d, point of G1. The generator used to sign the signature domain separation tag.
 
 Outputs:
 
