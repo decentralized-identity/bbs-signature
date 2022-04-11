@@ -218,7 +218,7 @@ The schemes operations defined in (#operations) depend the following parameters:
 
 * A pairing-friendly elliptic curve, plus associated functionality given in Section 1.4.
 
-* HASH, a hash function that MUST be a secure cryptographic hash function. For security, HASH MUST output at least ceil(log2(q)) bits, where q is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve. Each element passed to the hash function (either by itself or concatenated with other elements), must first be transformed to octets by an appropriate method. Specifically, points of G1 or G2 must be converted to octets with `point_to_octets` and the non-negative integers with `I2OSP`. For readability, this document makes these transformations implicitly, but they MUST precede every call to the HASH function.
+* HASH, a hash function that MUST be a secure cryptographic hash function. For security, H MUST output at least ceil(log2(q)) bits, where q is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve.
 
 * XOF, a cryptographically secure extendable-output function like SHAKE128 or SHAKE256. XOF input is an octet string and outputs any desirable amount of bytes using the `.read(int)` method.
 
