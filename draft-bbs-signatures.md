@@ -232,13 +232,13 @@ In definition of this signature scheme there are two possible variations based u
 Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is raised to the power of `msg_1` during signing, then `H_1` should be raised to the power of `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
 
 ### Encoding of elements to be hashed.
-To avoid ubiquities, each element passed to the HASH or the XOF function (either by itself or concatenated with other elements), must first be encoded to an appropriate format, depending on its type. Specifically, 
+To avoid ambiguity, each element passed to the HASH or the XOF function (either by itself or concatenated with other elements), must first be encoded to an appropriate format, depending on its type. Specifically, 
 - Points in G1 or G2 must be encoded using `point_to_octets`.
 - Non-negative integers must be encoded using `I2OSP`. 
 - Scalars must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value binary representation is encoded as an octet string.
 - Octet strings must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value is encoded directly.
 
-After encoding, scalars, non-negative integers, and octet strings MUST be prepended with the length (number of bytes) of their binary representation (after they are encoded). The same is RECOMENDED for points in G1 or G2 as well. To encode the length of the above elements, the length's binary value must be zero-extended to 32 bits. The extended value binary representation is then encoded as an octet string. For example, the string `0x14d` will be encoded as `0x00000002014d`. Similarly, the number `236195248387` will be encoded as `0x0000000536fe557903`. Values larger than 2^32 - 1, MUST be rejected.
+After encoding, scalars, non-negative integers, and octet strings MUST be prepended with the length (number of bytes) of their binary representation (after they are encoded). To encode the length of the above elements, the length's binary value must be zero-extended to 32 bits. The extended value binary representation is then encoded as an octet string. For example, the string `0x14d` will be encoded as `0x00000002014d`. Similarly, the number `236195248387` will be encoded as `0x0000000536fe557903`. Values larger than 2^32 - 1, MUST be rejected.
 
 For readability, this document makes these transformations implicitly, but they MUST precede every call to the HASH or XOF function.
 
