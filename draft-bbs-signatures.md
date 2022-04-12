@@ -113,10 +113,10 @@ H\[i\]
 : The generator corresponding to a given msg.
 
 H_s
-: A generator for the blinding value in the signature.
+: A generator for the blinding value in the signature. H_s is defined by each ciphersuite must always be supplied to the operations listing it as a parameter.
 
 H_d
-: A generator for the signature domain separation tag (sig_dst), which binds both signature and proof to a specific domain.
+: A generator for the signature domain separation tag (sig_dst), which binds both signature and proof to a specific domain. H_d is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.
 
 signature
 : The digital signature output.
@@ -378,23 +378,25 @@ Procedure:
 
 1. (W, H0, H) = octets_to_point(PK)
 
-2. sig_dst = HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)
+2. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)) mod q
 
-3. h = XOF(SK  || msg[i] || ... || msg[L])
+3. if sig_dst is 0, abort
 
-4. for rand_el in (e, s) do
+4. h = XOF(SK  || msg[i] || ... || msg[L])
 
-5.      rand_el = OS2IP(h.read(64)) mod q.
+5. for rand_el in (e, s) do
 
-6.      if rand_el = 0, go back to step 4
+6.      rand_el = OS2IP(h.read(64)) mod q
 
-7. B = P1 + H_s * s + H_d * sig_dst + H_1 * msg_1 + ... + H_L * msg_L
+7.      if rand_el = 0, go back to step 4
 
-8. A = B * (1 / (SK + e))
+8. B = P1 + H_s * s + H_d * sig_dst + H_1 * msg_1 + ... + H_L * msg_L
 
-9. signature = (point_to_octets_min(A), e, s)
+9. A = B * (1 / (SK + e))
 
-10. return signature
+10. signature = (point_to_octets_min(A), e, s)
+
+11. return signature
 ```
 
 ### Verify
@@ -432,7 +434,7 @@ Procedure:
 
 4. if KeyValidate(pub_key) is INVALID
 
-5. sig_dst = HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)
+5. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)) mod q
 
 6. B = P1 + H_s * s + H_d * sig_dst + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -484,7 +486,7 @@ Procedure:
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. sig_dst = HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)
+6. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)) mod q
 
 7. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
 
@@ -597,7 +599,7 @@ Procedure:
 
 4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = spk
 
-5. sig_dst = HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)
+5. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)) mod q
 
 6. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
