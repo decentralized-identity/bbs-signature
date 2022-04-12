@@ -367,6 +367,7 @@ Parameters:
 
 - CipherInfo, an optional string containing ciphersuite specific information.
               If not supplied, it defaults to the empty string.
+- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
 - H_s, point of G1. The generator for the blinding value of the signature.
 - H_d, point of G1. The generator used to sign the signature domain separation tag.
 
@@ -378,7 +379,7 @@ Procedure:
 
 1. (W, H0, H) = octets_to_point(PK)
 
-2. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)) mod q
+2. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || Ciphersuite_ID || CipherInfo)) mod q
 
 3. if sig_dst is 0, abort
 
@@ -417,6 +418,7 @@ Parameters:
 
 - CipherInfo, an optional string containing ciphersuite specific information.
               If not supplied, it defaults to the empty string.
+- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
 - H_s, point of G1. The generator for the blinding value of the signature.
 - H_d, point of G1. The generator used to sign the signature domain separation tag.
 
@@ -434,7 +436,7 @@ Procedure:
 
 4. if KeyValidate(pub_key) is INVALID
 
-5. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)) mod q
+5. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || Ciphersuite_ID || CipherInfo)) mod q
 
 6. B = P1 + H_s * s + H_d * sig_dst + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -467,6 +469,7 @@ Parameters:
 
 - CipherInfo, an optional string containing ciphersuite specific information.
               If not supplied, it defaults to the empty string.
+- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
 - H_s, point of G1. The generator for the blinding value of the signature.
 - H_d, point of G1. The generator used to sign the signature domain separation tag.
 
@@ -486,7 +489,7 @@ Procedure:
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)) mod q
+6. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || Ciphersuite_ID || CipherInfo)) mod q
 
 7. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
 
@@ -582,6 +585,7 @@ Parameters:
 
 - CipherInfo, an optional string containing ciphersuite specific information.
               If not supplied, it defaults to the empty string.
+- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
 - H_s, point of G1. The generator for the blinding value of the signature.
 - H_d, point of G1. The generator used to sign the signature domain separation tag.
 
@@ -599,7 +603,7 @@ Procedure:
 
 4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = spk
 
-5. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || CipherInfo)) mod q
+5. sig_dst = OS2IP(HASH(PK || L || H_s || H_d || H_1 || ... || H_L || Ciphersuite_ID || CipherInfo)) mod q
 
 6. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
