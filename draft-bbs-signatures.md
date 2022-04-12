@@ -238,7 +238,7 @@ To avoid ambiguity, each element passed to the HASH or the XOF function (either 
 - Scalars must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value binary representation is encoded as an octet string.
 - Octet strings must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value is encoded directly.
 
-After encoding, scalars, non-negative integers, and octet strings MUST be prepended with the length (number of bytes) of their binary representation (after they are encoded). To encode the length of the above elements, the length's binary value must be zero-extended to 32 bits. The extended value binary representation is then encoded as an octet string. For example, the string `0x14d` will be encoded as `0x00000002014d`. Similarly, the number `236195248387` will be encoded as `0x0000000536fe557903`. Values larger than 2^32 - 1, MUST be rejected.
+After encoding, scalars and octet strings MUST be prepended with the length (number of bytes) of their binary representation (after they are encoded). To encode the length of the above elements, the length's binary value must be zero-extended to 32 bits. The extended value binary representation is then encoded as an octet string. For example, the string `0x14d` will be encoded as `0x00000002014d`. Similarly, the number `236195248387` will be encoded as `0x0000000536fe557903`. Values larger than 2^32 - 1, MUST be rejected.
 
 For readability, this document makes these transformations implicitly, but they MUST precede every call to the HASH or XOF function.
 
