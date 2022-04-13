@@ -633,9 +633,50 @@ Outputs:
 
 Procedure:
 
-1. result = hash_to_field(msg, 1)
+1. If len(dst) > 255, abort
 
-2. return result
+2. dst_prime = dst || I2OSP(len(dst), 1)
+
+3. msg_prime = msg || I2OSP(64, 2) || dst_prime
+
+4. result = hash_to_scalar(msg_prime, 1)
+
+5. return result
+```
+
+### Hash to scalar
+The following procedure describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod q. This procedure acts as a helper function, and it used internally in various places within the operation described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [spkGen](#spkgen) and [spkVerify](#spkverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+
+The `hash_to_scalar` procedure hashes elements using an extendable-output function (XOF). Applications not wishing to use an XOF may use `hash_to_field` defined in Section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve], combined with `expand_message_xmd` defined in Section 5.4.1 of the same document, in place of `hash_to_scalar`. In that case, every element outputted by `hash_to_field` that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using `hash_to_field`), until they get `n` non-zero elements (for example, if there is only one 0 in the output of `hash_to_field(msg, 2)` one must try to calculate `hash_to_field(msg, 3)` etc.).
+
+```
+result = hash_to_scalar(msg_octets, n)
+
+Inputs:
+
+- msg_octets: octet string. The message to be hashed.
+- n: non-negative integer. The number of scalars to output.
+
+Parameters:
+
+- q: non-negative integer. The prime order of the G_1 and G_2 groups, 
+     defined by the ciphersuite.
+
+Outputs:
+
+- (scalar_1, ..., scalar_n): a list of scalars. A list of non-zero scalars mod q.
+
+Procedure:
+
+1. h = XOF(msg_octets)
+
+2. for i in (1, ..., n):
+
+3.     scalar_i = OS2IP(h.read(64)) mod q
+
+4.     if scalar_i is 0, go back to step 3
+
+5. return (scalar_1, ..., scalar_n)
 ```
 
 # Security Considerations
