@@ -232,13 +232,27 @@ In definition of this signature scheme there are two possible variations based u
 Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is raised to the power of `msg_1` during signing, then `H_1` should be raised to the power of `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
 
 ### Encoding of elements to be hashed.
-To avoid ambiguity, each element passed to the HASH or the XOF function (either by itself or concatenated with other elements), must first be encoded to an appropriate format, depending on its type. Specifically, 
-- Points in G1 or G2 must be encoded using `point_to_octets`.
-- Non-negative integers must be encoded using `I2OSP`. 
-- Scalars must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value binary representation is encoded as an octet string.
+To avoid ambiguity, each element passed to the HASH or the XOF function, either by itself or concatenated with other elements, must first be encoded to an appropriate format, depending on its type. Specifically,
+- Points in G1 or G2 must be encoded using the `point_to_octets` implementation for a particular ciphersuite.
+- Non-negative integers must be encoded using `I2OSP` with an output length of 4 bytes.
+- Scalars must be zero-extended to a fixed length, defined by a particular ciphersuite.
 - Octet strings must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value is encoded directly.
 
-After encoding, scalars and octet strings MUST be prepended with the length (number of bytes) of their binary representation (after they are encoded). To encode the length of the above elements, the length's binary value must be zero-extended to 32 bits. The extended value binary representation is then encoded as an octet string. For example, the string `0x14d` will be encoded as `0x00000002014d`. Similarly, the number `236195248387` will be encoded as `0x0000000536fe557903`. Values larger than 2^32 - 1, MUST be rejected.
+After encoding, octet strings MUST be prepended with a value representing the length of their binary representation in the form of the number of bytes. If the octet string represents a DST, then its length's binary value must be zero-extended to 8 bits. If it is a generic octet string (not representing a DST), its length's binary value must be zero-extended to 32 bits. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x00000002014d`. DSTs with values larger than 2^8 - 1 MUST be rejected. Other octet-strings (not DSTs) and non-negative integers with values larger than 2^32 - 1, MUST also be rejected.
+
+As an example of the above transformations, consider the following. Assume that one wants to hash together the message `"Jane"` and the number `25`. The procedure would be 
+- Calculate octets of the message `"Jane"` and the number `25` as,
+   ```
+   message_octets = 0x4a616e65
+   number_octets = I2OSP(25, 4) = 0x00000019
+   ```
+- Calculate the length of the message binary representation (message_octets) and zero-extent it to 32 bits i.e., `len(message_octets) = 0x00000004`.
+- Prepend the length calculated in the previous step to the message's binary representation and concatenate the result with the octets representing the number `25`, to get the octets to be hashed,
+   ```
+   octets_to_hash = len(message_octets) || message_octets || number_octets =
+                  = 0x000000044a616e6500000019
+   ```
+- hash the result (i.e., `HASH(octets_to_hash)`)
 
 For readability, this document makes these transformations implicitly, but they MUST precede every call to the HASH or XOF function.
 
