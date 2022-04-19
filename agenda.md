@@ -18,7 +18,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 18th April 2022 - (6pm UTC)
+## Meeting - Monday 2nd May 2022 - (6pm UTC)
 
 ### Chair
 
@@ -29,11 +29,7 @@ Tobias Looker
 - IPR reminder, and Introductions
 - Agenda bashing
 - PR review
-    - [Add signature dst](https://github.com/decentralized-identity/bbs-signature/pull/95)
-    - [Encoding for elements to be hashed](https://github.com/decentralized-identity/bbs-signature/pull/97)
-    - [Adding hash-to-scalar function](https://github.com/decentralized-identity/bbs-signature/pull/101)
 - Issue Review
-    - [Handling information that must always be revealed in signature proof](https://github.com/decentralized-identity/bbs-signature/issues/102)
 
 ### Attendees
 
@@ -41,6 +37,7 @@ Tobias Looker
 
 ## Previous Meetings
 
+- [18th April 2022](./meetings/2022-04-18/agenda.md)
 - [5th April 2022](./meetings/2022-04-05/agenda.md)
 - [21st March 2022](./meetings/2022-03-21/agenda.md)
 - [7th March 2022](./meetings/2022-03-07/agenda.md)
