@@ -633,11 +633,11 @@ Outputs:
 
 Procedure:
 
-1. If len(dst) > 2^8 - 1 or len(msg) > 2^32 - 1, abort
+1. If len(dst) > 2^8 - 1 or len(msg) > 2^64 - 1, abort
 
 2. dst_prime = I2OSP(len(dst), 1) || dst
 
-3. msg_prime = I2OSP(len(msg), 4) || msg
+3. msg_prime = I2OSP(len(msg), 8) || msg
 
 4. result = hash_to_scalar(msg_prime || dst_prime, 1)
 
