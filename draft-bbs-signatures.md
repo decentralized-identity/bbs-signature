@@ -52,7 +52,7 @@ A digital signature scheme is a fundamental cryptographic primitive that is used
 
 However, traditional digital signature schemes require both the signature and the entire message to be disclosed during verification, constraining its usage in certain applications.
 
-The BBS Signature scheme provides many new properties however three key ones are:
+The BBS Signature scheme provides multiple unique properties when compared with conventional digital signature schemes, however three key ones are:
 
 **Selective Disclosure** - The scheme allows a signer to sign multiple payloads while still produce a single output signature. An intermediary then possessing the payloads and the signature can generate a proof whereby they can choose which payloads to reveal.
 
