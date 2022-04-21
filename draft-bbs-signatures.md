@@ -26,7 +26,7 @@ initials = "T."
 surname = "Looker"
 fullname = "Tobias Looker"
 #role = "editor"
-organization = "Mattr"
+organization = "MATTR"
   [author.address]
   email = "tobias.looker@mattr.global"
 
@@ -38,6 +38,15 @@ fullname = "Andrew Whitehead"
 organization = ""
   [author.address]
   email = "cywolf@gmail.com"
+
+[[author]]
+initials = "V."
+surname = "Kalos"
+fullname = "Vasileios Kalos"
+#role = "editor"
+organization = "MATTR"
+  [author.address]
+  email = "vasilis.kalos@mattr.global"
 %%%
 
 .# Abstract
@@ -454,7 +463,7 @@ Procedure:
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
+6. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
 
 7.      rand_el = HASH(PRF(8*ceil(log2(q)))) mod q
 
