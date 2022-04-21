@@ -694,7 +694,7 @@ The ZKP protocols use nonces which MUST be different in each context.
 
 ## Choice of underlying curve
 
-BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a ciphersuite for using the BLS12-381 curve in (#ciphersuites) which as a curve currently achieves close to 128-bit security.
+BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a ciphersuite for using the BLS12-381 curve in (#ciphersuites) which as a curve achieves around 117 bits of security according to a recent NCC ZCash cryptography review [@ZCASH-REVIEW].
 
 ## Security of spkGen
 
@@ -1149,4 +1149,11 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
  <seriesInfo name="In" value="International Conference on Trust and Trustworthy Computing"/>
  <seriesInfo name="pages" value="1-20"/>
  <seriesInfo name="Springer," value="Cham"/>
+</reference>
+
+<reference anchor="ZCASH-REVIEW" target="https://research.nccgroup.com/wp-content/uploads/2020/07/NCC_Group_Zcash2018_Public_Report_2019-01-30_v1.3.pdf">
+ <front>
+   <title>Zcash Overwinter Consensus and Sapling Cryptography Review</title>
+   <author><organization>NCC Group</organization></author>
+ </front>
 </reference>
