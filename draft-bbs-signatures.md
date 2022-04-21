@@ -232,7 +232,7 @@ In definition of this signature scheme there are two possible variations based u
 Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is raised to the power of `msg_1` during signing, then `H_1` should be raised to the power of `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
 
 ### Encoding of elements to be hashed.
-To avoid ambiguity, each element passed to the HASH or the XOF function, either by itself or concatenated with other elements, must first be encoded to an appropriate format, depending on its type. Specifically,
+To avoid ambiguity, each element passed to the HASH or the XOF function, including situations when multiple elements are supplied in a concatenated form, must first be encoded to an appropriate format, depending on its type. Specifically,
 - Points in G1 or G2 must be encoded using the `point_to_octets` implementation for a particular ciphersuite.
 - Non-negative integers must be encoded using `I2OSP` with an output length of 8 bytes.
 - Scalars must be zero-extended to a fixed length, defined by a particular ciphersuite.
