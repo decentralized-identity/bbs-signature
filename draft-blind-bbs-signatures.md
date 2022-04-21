@@ -50,12 +50,6 @@ This document defines an extension to the BBS Signature scheme, a form of short 
 
 // TODO
 
-## Notational Conventions
-
-The keywords **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**,
-**SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL**, when they appear in this
-document, are to be interpreted as described in [@!RFC2119].
-
 ## Terminology
 
 All terminology defined by BBS Signature Scheme [TODO add reference] is applicable to this draft
@@ -73,6 +67,16 @@ s'
 
 blind\_signature
 : The blind digital signature output.
+
+## Notation
+
+Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated in BBS Signature Scheme [TODO add reference], originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
+
+# Conventions
+
+The keywords **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**,
+**SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL**, when they appear in this
+document, are to be interpreted as described in [@!RFC2119].
 
 # Overview
 
@@ -112,7 +116,6 @@ The algorithm returns a generated blinding factor that is used to un-blind the s
 
 ```
 (s', commitment) = PreBlindSign((msg[1],...,msg[U]), CGIdxs)
-```
 
 Inputs:
 
@@ -137,6 +140,7 @@ Procedure:
 5. commitment = h0 \* s' + h\[i1\] \* msg\[1\] + ... + Ch\[iU\] \* msg\[U\]
 
 6. return s', commitment
+```
 
 ## BlindSign
 
@@ -144,7 +148,6 @@ BlindSign generates a blind signature from a commitment received from a holder, 
 
 ```
 blind_signature = BlindSign(commitment, (msg[1],...msg[K]), SK, GIdxs, CGIdxs, nizk, nonce)
-```
 
 Inputs:
 
@@ -179,6 +182,7 @@ Procedure:
 8. blind\_signature = (A, e, s'')
 
 9. return blind\_signature
+```
 
 ## UnblindSign
 
@@ -186,7 +190,6 @@ UnblindSign computes the unblinded signature given a blind signature and the hol
 
 ```
 signature = UnblindSign(blind_signature, s')
-```
 
 Inputs:
 
@@ -210,6 +213,7 @@ Procedure:
 5. signature = (A, e, s)
 
 6. return signature
+```
 
 ## BlindMessagesProofGen
 
@@ -217,7 +221,6 @@ BlindMessagesProofGen creates a proof of committed messages zero-knowledge proof
 
 ```
 nizk = BlindMessagesProofGen(commitment, s', (msg[1],...,msg[U]), CGIdxs, nonce)
-```
 
 Inputs:
 
@@ -249,15 +252,15 @@ Procedure:
 
 8. for i in 1 to U: r^\[i\] = r\~\[i\] + c \* msg\[i\]
 
-9. nizk = ( c, s^, r^)
+9. nizk = (c, s^, r^)
+```
 
 ## BlindMessagesProofVerify
 
 BlindMessagesProofVerify checks whether a proof of committed messages zero-knowledge proof is valid.
 
 ```
-  result = BlindMessagesProofVerify(commitment, nizk, CGIdxs, nonce)
-```
+result = BlindMessagesProofVerify(commitment, nizk, CGIdxs, nonce)
 
 Inputs:
 
@@ -281,6 +284,7 @@ Procedure:
 4. c\_v = H(U || U^ || nonce)
 
 5. return c == c\_v
+```
 
 # Security Considerations
 
@@ -290,11 +294,10 @@ Implementers should consider the security considerations of [TODO reference BBS 
 
 This document does not make any requests of IANA.
 
+{backmatter}
+
 # Appendix
 
 ## Test Vectors
 
 //TODO
-
-
-{backmatter}
