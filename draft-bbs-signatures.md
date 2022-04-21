@@ -207,7 +207,7 @@ document, are to be interpreted as described in [@!RFC2119].
 
 # Scheme Definition
 
-This section defines the BBS signature scheme, including the parameters required to define a concrete cipher-suite.
+This section defines the BBS signature scheme, including the parameters required to define a concrete ciphersuite.
 
 ## Parameters
 
@@ -694,7 +694,7 @@ The ZKP protocols use nonces which MUST be different in each context.
 
 ## Choice of underlying curve
 
-BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a profile for using the BLS12-381 curve in (#ciphersuites) which as a curve currently achieves close to 128-bit security.
+BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a ciphersuite for using the BLS12-381 curve in (#ciphersuites) which as a curve currently achieves close to 128-bit security.
 
 ## Security of spkGen
 
@@ -702,7 +702,7 @@ The BBS proof, as returned by spkGen, is a zero-knowledge proof-of-knowledge [@C
 
 # Ciphersuites
 
-This section defines the format for a BLS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@!I-D.irtf-cfrg-pairing-friendly-curves].
+This section defines the format for a BBS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 ## Ciphersuite Format
 
@@ -748,7 +748,7 @@ hash\_to\_field
 hash\_to\_field\_dst
 : "BBS_BLS12381FQ_XOF:SHAKE-256_SSWU_RO"
 
-message_generator_seed
+message\_generator\_seed
 : A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the (#creategenerators) operation to compute the required set of message generators.
 
 ### Test Vectors
