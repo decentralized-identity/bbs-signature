@@ -172,7 +172,7 @@ Procedure:
 
 5. if GIdxs intersection with CGIdxs is not empty abort
 
-6. b = commitment + h0 \* s'' + h\[j1\] \* msg\[1\] + ... + h\[jK\] \* msg\[K\]
+6. b = commitment + P1 + h0 \* s'' + h\[j1\] \* msg\[1\] + ... + h\[jK\] \* msg\[K\]
 
 7. A = b \* (1 / (SK + e))
 
