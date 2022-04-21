@@ -764,6 +764,8 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - message_generator_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
+- hashing_elements_to_scalars: either hash_to_scalar using H (in this case H MUST be an XOF), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+
 ## BLS12-381 Ciphersuite
 
 H
@@ -789,6 +791,9 @@ hash\_to\_field\_dst
 
 message_generator_seed
 : A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the (#creategenerators) operation to compute the required set of message generators.
+
+hashing_elements_to_scalars
+: hash_to_scalar
 
 ### Test Vectors
 
