@@ -52,7 +52,7 @@ This document defines an extension to the BBS Signature scheme, a form of short 
 
 ## Terminology
 
-All terminology defined by BBS Signature Scheme [TODO add reference] is applicable to this draft
+All terminology defined by [@BBS-DRAFT] is applicable to this draft
 
 The following futher terminology is defined by this document:
 
@@ -70,7 +70,7 @@ blind\_signature
 
 ## Notation
 
-Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated in BBS Signature Scheme [TODO add reference], originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
+Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated in [@BBS-DRAFT], originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 # Conventions
 
@@ -288,7 +288,7 @@ Procedure:
 
 # Security Considerations
 
-Implementers should consider the security considerations of [TODO reference BBS Signature Scheme Draft] when implementing this work.
+Implementers should consider the security considerations of [@BBS-DRAFT] when implementing this work.
 
 # IANA Considerations
 
@@ -301,3 +301,20 @@ This document does not make any requests of IANA.
 ## Test Vectors
 
 //TODO
+
+<reference anchor="BBS-DRAFT" target="https://identity.foundation/bbs-signature/draft-bbs-signatures.html">
+ <front>
+   <title>The BBS Signature Scheme</title>
+   <author initials="M." surname="Lodder" fullname="Mike Lodder">
+      <organization>CryptID</organization>
+    </author>
+    <author initials="T." surname="Looker" fullname="Tobias Looker">
+      <organization>MATTR</organization>
+    </author>
+    <author initials="A." surname="Whitehead" fullname="Andrew Whitehead">
+    </author>
+    <author initials="V." surname="Kalos" fullname="Vasileios Kalos">
+      <organization>MATTR</organization>
+    </author>
+ </front>
+</reference>
