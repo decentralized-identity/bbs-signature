@@ -419,7 +419,7 @@ Procedure:
 
 2. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-3. domain = OS2IP(HASH(PK || L || Generators || Ciphersuite_ID || header)) mod q
+3. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
 4. if domain is 0, abort
 
@@ -478,7 +478,7 @@ Procedure:
 
 5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-6. domain = OS2IP(HASH(PK || L || Generators || Ciphersuite_ID || header)) mod q
+6. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
 7. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -533,7 +533,7 @@ Procedure:
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. domain = OS2IP(HASH(PK || L || Generators || Ciphersuite_ID || header)) mod q
+7. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
 8. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
 
@@ -649,7 +649,7 @@ Procedure:
 
 5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-6. domain = OS2IP(HASH(PK || L || Generators || Ciphersuite_ID || header)) mod q
+6. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
 7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
