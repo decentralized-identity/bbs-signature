@@ -417,7 +417,7 @@ Procedure:
 
 1. (W, H0, H) = octets_to_point(PK)
 
-2. Generators =  (H_s || H_d || H_1 || ... || H_L)
+2. generators =  (H_s || H_d || H_1 || ... || H_L)
 
 3. domain = OS2IP(HASH(PK || L || Generators || Ciphersuite_ID || header)) mod q
 
