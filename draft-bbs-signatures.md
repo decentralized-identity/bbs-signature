@@ -476,7 +476,7 @@ Procedure:
 
 4. if KeyValidate(pub_key) is INVALID
 
-5. Generators =  (H_s || H_d || H_1 || ... || H_L)
+5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
 6. domain = OS2IP(HASH(PK || L || Generators || Ciphersuite_ID || header)) mod q
 
@@ -531,15 +531,15 @@ Procedure:
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. Generators =  (H_s || H_d || H_1 || ... || H_L)
+6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
 7. domain = OS2IP(HASH(PK || L || Generators || Ciphersuite_ID || header)) mod q
 
-8. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
+8. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
 
-9.      rand_el = HASH(PRF(8*ceil(log2(q)))) mod q
+9.      element = HASH(PRF(8*ceil(log2(q)))) mod q
 
-10.      if rand_el = 0, go back to step 7
+10.      if element = 0, go back to step 7
 
 11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -647,7 +647,7 @@ Procedure:
 
 4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = spk
 
-5. Generators =  (H_s || H_d || H_1 || ... || H_L)
+5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
 6. domain = OS2IP(HASH(PK || L || Generators || Ciphersuite_ID || header)) mod q
 
