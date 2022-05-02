@@ -646,7 +646,7 @@ Procedure:
 
 ## Validating public keys
 
-It is RECOMMENDED for any operation in (#operations) involving public keys that do not have an explicit invocation to the KeyValidate operation (#KeyValidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation.
+It is RECOMMENDED for any operation in (#operations) involving public keys that do not have an explicit invocation to the KeyValidate operation (#keyvalidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation. An example of where an explicit invocation to the KeyValidate operation (#keyvalidate) is already defined and therefore required is the verify (#verify) operation.
 
 ## Skipping membership checks
 
