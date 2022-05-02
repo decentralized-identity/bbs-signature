@@ -467,11 +467,11 @@ Procedure:
 
 1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
 
-2. W = octets_to_point(PK)
+2. if subgroup_check(A) is INVALID, return INVALID
 
-3. if subgroup_check(A) is INVALID, return INVALID
+3. if KeyValidate(PK) is INVALID, return INVALID
 
-4. if KeyValidate(W) is INVALID, return INVALID
+4. W = octets_to_point(PK)
 
 5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
