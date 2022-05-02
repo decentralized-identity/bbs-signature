@@ -377,9 +377,9 @@ Procedure:
 
 1. W = octets_to_point(PK)
 
-2. If W == Identity_G2, return INVALID
+2. if subgroup_check(A) is INVALID, return INVALID
 
-3. return subgroup_check(W)
+3. If W != Identity_G2, return VALID else return INVALID
 ```
 
 ### Sign
