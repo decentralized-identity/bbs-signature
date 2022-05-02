@@ -401,7 +401,7 @@ Inputs:
 - SK, a secret key output from KeyGen
 - PK, a public key output from SkToPk
 - header, an optional octet string containing context and application specific
-          information. If not supplied, it defaults to the empty string.
+          information. If not supplied, it defaults to an empty string.
 
 Parameters:
 
@@ -454,7 +454,7 @@ Inputs:
 - signature, octet string.
 - PK, a public key in the format output by SkToPk.
 - header, an optional octet string containing context and application specific
-          information. If not supplied, it defaults to the empty string.
+          information. If not supplied, it defaults to an empty string.
 
 Parameters:
 
@@ -506,7 +506,7 @@ Inputs:
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
 - signature, octet string in output form from Sign
 - header, an optional octet string containing context and application specific
-          information. If not supplied, it defaults to the empty string.
+          information. If not supplied, it defaults to an empty string.
 - pm, octet string
 
 Parameters:
@@ -624,7 +624,7 @@ Inputs:
 - H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
 - header, an optional octet string containing context and application specific
-          information. If not supplied, it defaults to the empty string.
+          information. If not supplied, it defaults to an empty string.
 - pm, octet string
 
 Parameters:
