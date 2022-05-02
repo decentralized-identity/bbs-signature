@@ -390,7 +390,7 @@ Procedure:
 
 Sign computes a signature from SK, PK, over a vector of messages. This method
 describes deterministic signing. For threshold signing, XOF can be replaced
-with a PRF due to the insecurity of deterministic threshold signing. 
+with a PRF due to the insecurity of deterministic threshold signing.
 
 ```
 signature = Sign(SK, PK, (msg_1,..., msg_L), (H_1,..., H_L), header)
@@ -536,7 +536,7 @@ Procedure:
 
 7. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-8. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
+8. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
 
 9.      element = HASH(PRF(8*ceil(log2(q)))) mod q
 
@@ -663,7 +663,7 @@ Procedure:
 
 4.    while(generator_i == Identity_G1 or generator_i == P1)
 
-5.        candidate = hash_to_curve_g1(h.read(64), dst)
+5.        candidate = hash_to_curve_g1(h.read(generator_no_of_bytes), dst)
 
 6.        if candidate not in generators: generator_i = candidate
 
@@ -718,7 +718,7 @@ Inputs:
 
 Parameters:
 
-- q: non-negative integer. The prime order of the G_1 and G_2 groups, 
+- q: non-negative integer. The prime order of the G_1 and G_2 groups,
      defined by the ciphersuite.
 
 Outputs:
@@ -815,7 +815,10 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - blind_value_generator_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message_generator_seed, there are multiple scopes for the blind_value_generator_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
-- signature_dst_generator_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message_generator_seed and blind_value_generator_seed. 
+- signature_dst_generator_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message_generator_seed and blind_value_generator_seed.
+
+generator_no_of_bytes
+: Number of bytes to draw from the XOF when creating generators as per the operation documented in (#creategenerators). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
 ## BLS12-381 Ciphersuite
 
@@ -851,6 +854,9 @@ signature_dst_generator_seed
 
 hashing_elements_to_scalars
 : hash_to_scalar
+
+generator_no_of_bytes
+: 64
 
 ### Test Vectors
 
