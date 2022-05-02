@@ -243,6 +243,7 @@ In definition of this signature scheme there are two possible variations based u
 Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is raised to the power of `msg_1` during signing, then `H_1` should be raised to the power of `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
 
 ### Encoding of elements to be hashed.
+
 To avoid ambiguity, each element passed to the HASH or the XOF function, including situations when multiple elements are supplied in a concatenated form, must first be encoded to an appropriate format, depending on its type. Specifically,
 - Points in G1 or G2 must be encoded using the `point_to_octets` implementation for a particular ciphersuite.
 - Non-negative integers must be encoded using `I2OSP` with an output length of 8 bytes.
@@ -251,7 +252,7 @@ To avoid ambiguity, each element passed to the HASH or the XOF function, includi
 
 After encoding, octet strings MUST be prepended with a value representing the length of their binary representation in the form of the number of bytes. If the octet string represents a DST, then its length must be encoded to octets using I2OSP with ouptut length of 1 byte. If it is a generic octet string (not representing a DST), its length must be encoded to octets using I2OSP with ouptut length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. DSTs with length larger than 2^8 - 1 MUST be rejected. Other octet-strings (not DSTs) with length larger than 2^64 - 1, MUST also be rejected.
 
-As an example of the above transformations, consider the following. Assume that one wants to hash together the message `"Jane"` and the number `25`. The procedure would be 
+As an example of the above transformations, consider the following. Assume that one wants to hash together the message `"Jane"` and the number `25`. The procedure would be
 - Calculate octets of the message `"Jane"` and the number `25` as,
    ```
    message_octets = 0x4a616e65
@@ -531,41 +532,6 @@ Procedure:
 24. return spk
 ```
 
-#### Algorithmic Explanation
-
-The following section provides an explanation of how the Signature Proof Of Knowledge Generation (SpkGen) works.
-
-Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/(e + Sk))` where `Sk` the signer's secret key and,
-
-    B = P1 + h0 * s + h[1] * msg_1 + ... + h[L] * msg_L
-
-(without loss of generality we assume that the messages and generators are indexed from 0 to L). Let `(i1,...,iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1,...,jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1,...,jU) = [L] \ (i1,...,iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
-
-- Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, q-1], and calculate,
-
-        1.  A' = A * r1,
-        2.  Abar = A' * (-e) + B * r1
-        3.  D = B * r1 + H0 * r2.
-
-  Also set,
-
-        4.  r3 = r1 ^ -1 mod q
-        5.  s' = s + r2 * r3.
-
-  The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`.
-
-- Set the following,
-
-        1.  C1 = Abar - D
-        2.  C2 = P1 +  H_i1 * msg_i1 + ... + H_iR * msg_iR
-
-  Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold,
-
-        EQ1.  C1 = A' * (-e) - H0 * r2
-        EQ2.  C2 = D * (-r3) + H0 * s' + H_j1 * msg_j1 + ... + H_jU * msg_jU.
-
-  If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The spk returned is `(A', Abar, d, nizk)`. To validate the spk, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
-
 ### SpkVerify
 
 SpkVerify checks if a signature proof of knowledge is valid given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation message used in SpkGen.
@@ -680,15 +646,15 @@ Procedure:
 
 ## Validating public keys
 
-All algorithms in Section 2 that operate on points in public keys require first validating those keys.  For the sign, verify and proof schemes, the use of KeyValidate is REQUIRED.
+It is RECOMMENDED for any operation in (#operations) involving public keys that do not have an explicit invocation to the KeyValidate operation (#keyvalidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation. An example of where an explicit invocation to the KeyValidate operation (#keyvalidate) is already defined and therefore required is the verify (#verify) operation.
 
 ## Skipping membership checks
 
-Some existing implementations skip the subgroup\_check invocation in Verify (Section 2.8), whose purpose is ensuring that the signature is an element of a prime-order subgroup.  This check is REQUIRED of conforming implementations, for two reasons.
+Some existing implementations skip the subgroup\_check invocation in Verify (#verify), whose purpose is ensuring that the signature is an element of a prime-order subgroup.  This check is REQUIRED of conforming implementations, for two reasons.
 
-1.  For most pairing-friendly elliptic curves used in practice, the pairing operation e (Section 1.3) is undefined when its input points are not in the prime-order subgroups of E1 and E2. The resulting behavior is unpredictable, and may enable forgeries.
+1.  For most pairing-friendly elliptic curves used in practice, the pairing operation e (#notation) is undefined when its input points are not in the prime-order subgroups of E1 and E2. The resulting behavior is unpredictable, and may enable forgeries.
 
-2.  Even if the pairing operation behaves properly on inputs that are outside the correct subgroups, skipping the subgroup check breaks the strong unforgeability property [ADR02].
+2.  Even if the pairing operation behaves properly on inputs that are outside the correct subgroups, skipping the subgroup check breaks the strong unforgeability property [@ADR02].
 
 ## Side channel attacks
 
@@ -700,7 +666,7 @@ The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One
 
 Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo q.
 
-BBS signatures are nondeterministic, meaning care must be taken against attacks arising from signing with bad randomness, for example, the nonce reuse attack on ECDSA [HDWH12]. It is RECOMMEDNED that the nonces and presentation messages used in this specification are chosen at random from a trusted source of randomness (see "Presentation message selection" section below for additional considerations).
+BBS proofs (SPK's) are nondeterministic, meaning care must be taken against attacks arising from using bad randomness, for example, the nonce reuse attack on ECDSA [@HDWH12]. It is RECOMMENDED that the presentation messages used in this specification contain a nonce chosen at random from a trusted source of randomness, see the (#presentation-message-selection) for additional considerations.
 
 BlindSign as discussed in 2.10 uses randomness from two parties so care MUST be taken that both sources of randomness are trusted. If one party uses weak randomness, it could compromise the signature.
 
@@ -715,18 +681,6 @@ The signature proofs of knowledge generated in this specification are created us
 The security analysis models hash\_to\_curve\_g1 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!I-D.irtf-cfrg-hash-to-curve].
 
 In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_curve.  Some guidance around defining this can be found in (#ciphersuites).
-
-## Use of Contexts
-
-Contexts can be used to separate uses of the protocol between different protocols (which is very hard to reliably do otherwise) and between different uses within the same protocol. However, the following SHOULD be kept in mind:
-
-The context SHOULD be a constant string specified by the protocol using it. It SHOULD NOT incorporate variable elements from the message itself.
-
-Contexts SHOULD NOT be used opportunistically, as that kind of use is very error prone. If contexts are used, one SHOULD require all signature schemes available for use in that purpose support contexts.
-
-Contexts are an extra input, which percolate out of APIs; as such, even if the signature scheme supports contexts, those may not be available for use. This problem is compounded by the fact that many times the application is not invoking the signing, verification, and proof functions directly but via some other protocol.
-
-The ZKP protocols use nonces which MUST be different in each context.
 
 ## Choice of underlying curve
 
@@ -1160,6 +1114,41 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct
 
+## Signature Proof of Knowledge Algorithmic Explanation
+
+The following section provides an explanation of how the Signature Proof Of Knowledge Generation (SpkGen) works.
+
+Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/(e + Sk))` where `Sk` the signer's secret key and,
+
+    B = P1 + h0 * s + h[1] * msg_1 + ... + h[L] * msg_L
+
+(without loss of generality we assume that the messages and generators are indexed from 0 to L). Let `(i1,...,iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1,...,jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1,...,jU) = [L] \ (i1,...,iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
+
+- Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, q-1], and calculate,
+
+        1.  A' = A * r1,
+        2.  Abar = A' * (-e) + B * r1
+        3.  D = B * r1 + H0 * r2.
+
+  Also set,
+
+        4.  r3 = r1 ^ -1 mod q
+        5.  s' = s + r2 * r3.
+
+  The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`.
+
+- Set the following,
+
+        1.  C1 = Abar - D
+        2.  C2 = P1 +  H_i1 * msg_i1 + ... + H_iR * msg_iR
+
+  Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold,
+
+        EQ1.  C1 = A' * (-e) - H0 * r2
+        EQ2.  C2 = D * (-r3) + H0 * s' + H_j1 * msg_j1 + ... + H_jU * msg_jU.
+
+  If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The spk returned is `(A', Abar, d, nizk)`. To validate the spk, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
+
 <reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-208.pdf">
  <front>
    <title>Recommendation for Stateful Hash-Based Signature Schemes</title>
@@ -1192,4 +1181,43 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
    <title>Zcash Overwinter Consensus and Sapling Cryptography Review</title>
    <author><organization>NCC Group</organization></author>
  </front>
+</reference>
+
+<reference anchor="HDWH12" target="https://www.usenix.org/system/files/conference/usenixsecurity12/sec12-final228.pdf">
+  <front>
+    <title>Mining your Ps and Qs: Detection of widespread weak keys in network devices</title>
+    <author initials="N." surname="Heninger" fullname="Nadia Heninger">
+      <organization>University of California, San Diego</organization>
+    </author>
+    <author initials="Z." surname="Durumeric" fullname="Zakir Durumeric">
+      <organization>The University of Michigan</organization>
+    </author>
+    <author initials="E." surname="Wustrow" fullname="Eric Wustrow">
+      <organization>The University of Michigan</organization>
+    </author>
+    <author initials="J.A." surname="Halderman" fullname="J. Alex Halderman">
+      <organization>The University of Michigan</organization>
+    </author>
+    <date year="2012" month="August"/>
+  </front>
+  <seriesInfo name="In" value="USENIX Security"/>
+  <seriesInfo name="pages" value="205-220"/>
+</reference>
+
+<reference anchor="ADR02" target="https://doi.org/10.1007/3-540-46035-7_6">
+  <front>
+    <title>On the Security of Joint Signature and Encryption</title>
+    <author initials="J. H." surname="An" fullname="Jee Hea An">
+      <organization>SoftMax Inc.</organization>
+    </author>
+    <author initials="Y." surname="Dodis" fullname="Yevgeniy Dodis">
+      <organization>New York University</organization>
+    </author>
+    <author initials="T." surname="Rabin" fullname="Tal Rabin">
+      <organization>IBM T.J. Watson Research Center</organization>
+    </author>
+    <date year="2002" month="April"/>
+  </front>
+  <seriesInfo name="In" value="EUROCRYPT"/>
+  <seriesInfo name="pages" value="83-107"/>
 </reference>
