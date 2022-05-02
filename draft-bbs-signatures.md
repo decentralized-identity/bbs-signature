@@ -379,7 +379,9 @@ Procedure:
 
 2. if subgroup_check(A) is INVALID, return INVALID
 
-3. If W != Identity_G2, return VALID else return INVALID
+3. If W == Identity_G2, return INVALID
+
+4. return VALID
 ```
 
 ### Sign
