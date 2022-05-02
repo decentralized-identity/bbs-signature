@@ -666,7 +666,7 @@ The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One
 
 Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo q.
 
-BBS signatures are nondeterministic, meaning care must be taken against attacks arising from signing with bad randomness, for example, the nonce reuse attack on ECDSA [@HDWH12]. It is RECOMMENDED that the nonces and presentation messages used in this specification are chosen at random from a trusted source of randomness (see "Presentation message selection" section below for additional considerations).
+BBS signatures are nondeterministic, meaning care must be taken against attacks arising from signing with bad randomness, for example, the nonce reuse attack on ECDSA [@HDWH12]. It is RECOMMENDED that the nonces and presentation messages used in this specification are chosen at random from a trusted source of randomness, see the (#presentation-message-selection) for additional considerations.
 
 BlindSign as discussed in 2.10 uses randomness from two parties so care MUST be taken that both sources of randomness are trusted. If one party uses weak randomness, it could compromise the signature.
 
