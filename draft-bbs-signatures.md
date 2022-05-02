@@ -646,7 +646,7 @@ Procedure:
 
 ## Validating public keys
 
-All algorithms in (#operations) that operate on points in public keys require first validating those keys.
+It is RECOMMENDED for any operation in (#operations) involving public keys that do not have an explicit invocation to the KeyValidate operation (#KeyValidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation.
 
 ## Skipping membership checks
 
@@ -681,18 +681,6 @@ The signature proofs of knowledge generated in this specification are created us
 The security analysis models hash\_to\_curve\_g1 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!I-D.irtf-cfrg-hash-to-curve].
 
 In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_curve.  Some guidance around defining this can be found in (#ciphersuites).
-
-## Use of Contexts
-
-Contexts can be used to separate uses of the protocol between different protocols (which is very hard to reliably do otherwise) and between different uses within the same protocol. However, the following SHOULD be kept in mind:
-
-The context SHOULD be a constant string specified by the protocol using it. It SHOULD NOT incorporate variable elements from the message itself.
-
-Contexts SHOULD NOT be used opportunistically, as that kind of use is very error prone. If contexts are used, one SHOULD require all signature schemes available for use in that purpose support contexts.
-
-Contexts are an extra input, which percolate out of APIs; as such, even if the signature scheme supports contexts, those may not be available for use. This problem is compounded by the fact that many times the application is not invoking the signing, verification, and proof functions directly but via some other protocol.
-
-The ZKP protocols use nonces which MUST be different in each context.
 
 ## Choice of underlying curve
 
