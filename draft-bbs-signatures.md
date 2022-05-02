@@ -423,7 +423,7 @@ Procedure:
 
 4. if domain is 0, abort
 
-5. h = XOF(SK  || domain || msg[i] || ... || msg[L])
+5. h = XOF(SK  || domain || msg_1 || ... || msg_L)
 
 6. for element in (e, s) do
 
