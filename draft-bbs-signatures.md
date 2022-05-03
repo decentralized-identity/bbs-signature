@@ -106,7 +106,7 @@ PK
 : The public key for the signature scheme.
 
 L
-: The total number of messages that the signature scheme can sign.
+: The total number of signed messages.
 
 R
 : The set of message indices that are retained or hidden in a signature proof of knowledge.
@@ -123,8 +123,11 @@ generator
 H\[i\]
 : The generator corresponding to a given msg.
 
-H0
-: A generator for the blinding value in the signature.
+H_s
+: A generator for the blinding value in the signature. The value of H_s is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.
+
+H_d
+: A generator for the signature domain, which binds both signature and proof to a specific context. The value of H_d is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.
 
 signature
 : The digital signature output.
@@ -237,7 +240,9 @@ In definition of this signature scheme there are two possible variations based u
 
 ### Messages and generators
 
-Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is raised to the power of `msg_1` during signing, then `H_1` should be raised to the power of `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
+Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
+
+Aside from the message generators, the scheme uses two additional generators: `H_s` and `H_d`. The first (`H_s`), is used for the blinding value (`s`) of the signature. The second generator (`H_d`), is used to sign the signature's domain, which binds both signature and proof to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
 
 ### Encoding of elements to be hashed.
 
@@ -382,17 +387,25 @@ Procedure:
 
 Sign computes a signature from SK, PK, over a vector of messages. This method
 describes deterministic signing. For threshold signing, XOF can be replaced
-with a PRF due to the insecurity of deterministic threshold signing.
+with a PRF due to the insecurity of deterministic threshold signing. 
 
 ```
-signature = Sign(SK, PK, (msg_1,..., msg_L), (H_1,..., H_L))
+signature = Sign(SK, PK, (msg_1,..., msg_L), (H_1,..., H_L), header)
 
 Inputs:
 
-- msg_1,...,msg_L, octet strings. Messages to be signed.
+- msg_1,..., msg_L, octet strings. Messages to be signed.
 - H_1,..., H_L, points of G1. Generators used to sign the messages.
 - SK, a secret key output from KeyGen
 - PK, a public key output from SkToPk
+- header, an optional octet string containing context and application specific
+          information. If not supplied, it defaults to an empty string.
+
+Parameters:
+
+- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
+- H_s, point of G1. The generator for the blinding value of the signature.
+- H_d, point of G1. The generator used to sign the signature domain.
 
 Outputs:
 
@@ -402,21 +415,27 @@ Procedure:
 
 1. (W, H0, H) = octets_to_point(PK)
 
-2. h = XOF(SK  || msg[i] || ... || msg[L])
+2. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-3. for rand_el in (e, s) do
+3. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-4.      rand_el = OS2IP(h.read(64)) mod q.
+4. if domain is 0, abort
 
-5.      if rand_el = 0, go back to step 4
+5. h = XOF(SK  || domain || msg_1 || ... || msg_L)
 
-6. B = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
+6. for element in (e, s) do
 
-7. A = B * (1 / (SK + e))
+7.      element = OS2IP(h.read(64)) mod q
 
-8. signature = (point_to_octets_min(A), e, s)
+8.      if element = 0, go back to step 4
 
-9. return signature
+9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+
+10. A = B * (1 / (SK + e))
+
+11. signature = (point_to_octets_min(A), e, s)
+
+12. return signature
 ```
 
 ### Verify
@@ -424,7 +443,7 @@ Procedure:
 Verify checks that a signature is valid for the octet string messages under the public key.
 
 ```
-result = Verify(PK, (msg_1,..., msg_L), (H_1,..., H_L), signature)
+result = Verify(PK, (msg_1,..., msg_L), (H_1,..., H_L), signature, header)
 
 Inputs:
 
@@ -432,6 +451,14 @@ Inputs:
 - H_1,..., H_L, points of G1. The generators in input to Sign.
 - signature, octet string.
 - PK, a public key in the format output by SkToPk.
+- header, an optional octet string containing context and application specific
+          information. If not supplied, it defaults to an empty string.
+
+Parameters:
+
+- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
+- H_s, point of G1. The generator for the blinding value of the signature.
+- H_d, point of G1. The generator used to sign the signature domain.
 
 Outputs:
 
@@ -447,13 +474,17 @@ Procedure:
 
 4. if KeyValidate(pub_key) is INVALID
 
-5. B = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
+5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-6. C1 = e(A, W + P2 * e)
+6. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-7. C2 = e(B, P2)
+7. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-8. return C1 == C2
+8. C1 = e(A, W + P2 * e)
+
+9. C2 = e(B, P2)
+
+10. return C1 == C2
 ```
 
 ### ProofGen
@@ -463,7 +494,7 @@ A signature proof of knowledge generating algorithm that creates a zero-knowledg
 If an application chooses to pass the indexes of the generators instead, then it will also need to pass the indexes of the generators corresponding to the revealed messages.
 
 ```
-proof = ProofGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signature, ph)
+proof = ProofGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signature, header, ph)
 
 Inputs:
 
@@ -472,7 +503,15 @@ Inputs:
 - H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
 - signature, octet string in output form from Sign
+- header, an optional octet string containing context and application specific
+          information. If not supplied, it defaults to an empty string.
 - ph, octet string
+
+Parameters:
+
+- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
+- H_s, point of G1. The generator for the blinding value of the signature.
+- H_d, point of G1. The generator used to sign the signature domain.
 
 Outputs:
 
@@ -490,43 +529,47 @@ Procedure:
 
 5. if KeyValidate(PK) is INVALID abort
 
-6. for rand_el in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
+6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7.      rand_el = HASH(PRF(8*ceil(log2(q)))) mod q
+7. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-8.      if rand_el = 0, go back to step 7
+8. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU): 
 
-9. b = P1 + H0 * s + H_1 * msg_1 + ... + H_L * msg_L
+9.      element = HASH(PRF(8*ceil(log2(q)))) mod q
 
-10. r3 = r1 ^ -1 mod q
+10.      if element = 0, go back to step 7
 
-11. A' = A * r1
+11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-12. Abar = A' * (-e) + B * r1
+12. r3 = r1 ^ -1 mod q
 
-13. D = B * r1 + h0 * r2
+13. A' = A * r1
 
-14. s' = s + r2 * r3
+14. Abar = A' * (-e) + B * r1
 
-15. C1 = A' * e~ + H0 * r2~
+15. D = B * r1 + H_s * r2
 
-16. C2 = D * (-r3~) + H0 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+16. s' = s + r2 * r3
 
-17. c = HASH(PK || Abar || A' || D || C1 || C2 || ph)
+17. C1 = A' * e~ + H_s * r2~
 
-18. e^ = e~ + c * e
+18. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-19. r2^ = r2~ + c * r2
+19. c = HASH(PK || Abar || A' || D || C1 || C2 || ph)
 
-20. r3^ = r3~ + c * r3
+20. e^ = e~ + c * e
 
-21. s^ = s~ + c * s'
+21. r2^ = r2~ + c * r2
 
-22. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+22. r3^ = r3~ + c * r3
 
-23. proof = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+23. s^ = s~ + c * s'
 
-24. return proof
+24. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+
+25. proof = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+
+26. return proof
 ```
 
 ### ProofVerify
@@ -534,7 +577,7 @@ Procedure:
 ProofVerify checks if a signature proof of knowledge is valid given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation header used in ProofGen.
 
 ```
-result = ProofVerify(proof, PK, (msg_i1,..., msg_iR), (H_1,..., H_L), RevealedIndexes, ph)
+result = ProofVerify(proof, PK, (msg_i1,..., msg_iR), (H_1,..., H_L), RevealedIndexes, header, ph)
 
 Inputs:
 
@@ -543,7 +586,15 @@ Inputs:
 - msg_i1,..., msg_iR, octet strings. The revealed messages in input to ProofGen.
 - H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
+- header, an optional octet string containing context and application specific
+          information. If not supplied, it defaults to an empty string.
 - ph, octet string
+
+Parameters:
+
+- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
+- H_s, point of G1. The generator for the blinding value of the signature.
+- H_d, point of G1. The generator used to sign the signature domain.
 
 Outputs:
 
@@ -559,21 +610,25 @@ Procedure:
 
 4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
 
-5. C1 = (Abar - D) * c + A' * e^ + H0 * r2^
+5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-6. T = P1 + H_i1 * msg_i1 + ... H_iR * msg_iR
+6. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-7. C2 = T * c + D * (-r3^) + H0 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-8. cv = HASH(PK || Abar || A' || D || C1 || C2 || ph)
+8. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-9. if c != cv return INVALID
+9. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-10. if A' == 1 return INVALID
+10. cv = HASH(PK || Abar || A' || D || C1 || C2 || ph)
 
-11. if e(A', W) * e(Abar, -P2) != 1 return INVALID
+11. if c != cv return INVALID
 
-12. return VALID
+12. if A' == 1 return INVALID
+
+13. if e(A', W) * e(Abar, -P2) != 1 return INVALID
+
+14. return VALID
 ```
 
 ### CreateGenerators
@@ -712,6 +767,10 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - message_generator_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
+- blind_value_generator_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message_generator_seed, there are multiple scopes for the blind_value_generator_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
+
+- signature_dst_generator_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message_generator_seed and blind_value_generator_seed. 
+
 ## BLS12-381 Ciphersuite
 
 H
@@ -735,8 +794,14 @@ hash\_to\_field
 hash\_to\_field\_dst
 : "BBS_BLS12381FQ_XOF:SHAKE-256_SSWU_RO"
 
-message\_generator\_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the (#creategenerators) operation to compute the required set of message generators.
+message_generator_seed
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
+
+blind_value_generator_seed
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_BLINDING_VALUE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
+
+signature_dst_generator_seed
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_DST_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 ### Test Vectors
 
