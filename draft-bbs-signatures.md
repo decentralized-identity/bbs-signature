@@ -531,7 +531,7 @@ Procedure:
 
 ### ProofVerify
 
-ProofVerify checks if a signature proof of knowledge is valid given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation message used in ProofGen.
+ProofVerify checks if a signature proof of knowledge is valid given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation header used in ProofGen.
 
 ```
 result = ProofVerify(proof, PK, (msg_i1,..., msg_iR), (H_1,..., H_L), RevealedIndexes, ph)
