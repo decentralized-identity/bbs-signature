@@ -10,7 +10,7 @@
 
 - Before your contribute - [**join DIF**](https://identity.foundation/join) and [sign the WG charter](https://bit.ly/DIF-WG-select1) (both are required!)
 - Time: 6pm UTC, 2pm EDT, 11am PDT
-- [Zoom room](https://us02web.zoom.us/j/87409761657?pwd=SXVSUGtVQXUyYzdxbnVvQkNJcXdGQT09), Meeting ID: 843 0611 0644 , Password: 799969
+- [Zoom room](https://us02web.zoom.us/j/81664389075?pwd=QXVRK0tVZmdsUmVMREdsK21TR2xGZz09), Meeting ID: 843 0611 0644 , Password: 799969
 </details>
 
 ## Meeting Template
