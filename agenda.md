@@ -5,8 +5,6 @@
 
 [WG projects](https://github.com/topics/wg-crypto) | [DIF page](https://identity.foundation/working-groups/crypto.html) | [Recordings](https://docs.google.com/spreadsheets/d/1wgccmMvIImx30qVE9GhRKWWv3vmL2ZyUauuKx3IfRmA/edit#gid=339046779)
 
-(hackmd sync coming soon)
-
 <details>
 <summary> Meeting information - <b>6pm UTC every-other Monday</b></summary>
 
@@ -20,7 +18,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 5th April 2022 - (6pm UTC)
+## Meeting - Monday 9th May 2022 - (6pm UTC)
 
 ### Chair
 
@@ -30,6 +28,7 @@ Tobias Looker
 
 - IPR reminder, and Introductions
 - Agenda bashing
+- Other items
 - PR review
 - Issue Review
 
@@ -39,6 +38,9 @@ Tobias Looker
 
 ## Previous Meetings
 
+- [2nd May 2022](./meetings/2022-05-02/agenda.md)
+- [18th April 2022](./meetings/2022-04-18/agenda.md)
+- [5th April 2022](./meetings/2022-04-05/agenda.md)
 - [21st March 2022](./meetings/2022-03-21/agenda.md)
 - [7th March 2022](./meetings/2022-03-07/agenda.md)
 - [21st February 2022](./meetings/2022-02-21/agenda.md)
