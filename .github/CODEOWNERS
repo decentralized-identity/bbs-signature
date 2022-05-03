@@ -1,3 +1,4 @@
-# Automatically generated CODEOWNERS
-# Regenerate with `make update-codeowners`
-draft-bbs-signatures.md redmike7gmail.com tobias.looker@mattr.global cywolf@gmail.com
+*       @mikelodder7
+*       @tplooker
+*       @andrewwhitehead
+*       @BasileiosKal
