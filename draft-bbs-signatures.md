@@ -136,10 +136,7 @@ nonce
 : A cryptographic nonce
 
 presentation\_message (pm)
-: A message generated and bound to the context of a specific spk.
-
-spk
-: Zero-Knowledge Signature Proof of Knowledge.
+: A message generated and bound to the context of a specific proof.
 
 nizk
 : A non-interactive zero-knowledge proof from fiat-shamir heuristic.
@@ -466,7 +463,7 @@ A signature proof of knowledge generating algorithm that creates a zero-knowledg
 If an application chooses to pass the indexes of the generators instead, then it will also need to pass the indexes of the generators corresponding to the revealed messages.
 
 ```
-spk = ProofGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signature, pm)
+proof = ProofGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signature, pm)
 
 Inputs:
 
@@ -479,7 +476,7 @@ Inputs:
 
 Outputs:
 
-- spk, octet string
+- proof, octet string
 
 Procedure:
 
@@ -527,9 +524,9 @@ Procedure:
 
 22. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
 
-23. spk = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+23. proof = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 
-24. return spk
+24. return proof
 ```
 
 ### ProofVerify
@@ -537,11 +534,11 @@ Procedure:
 ProofVerify checks if a signature proof of knowledge is valid given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation message used in ProofGen.
 
 ```
-result = ProofVerify(spk, PK, (msg_i1,..., msg_iR), (H_1,..., H_L), RevealedIndexes, pm)
+result = ProofVerify(proof, PK, (msg_i1,..., msg_iR), (H_1,..., H_L), RevealedIndexes, pm)
 
 Inputs:
 
-- spk, octet string.
+- proof, octet string.
 - PK, octet string in output form from SkToPk.
 - msg_i1,..., msg_iR, octet strings. The revealed messages in input to ProofGen.
 - H_1,..., H_L, points of G1. The generators in input to Sign.
@@ -560,7 +557,7 @@ Procedure:
 
 3. (j1, j2, ..., jU) = [L]\RevealedIndexes
 
-4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = spk
+4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
 
 5. C1 = (Abar - D) * c + A' * e^ + H0 * r2^
 
@@ -666,7 +663,7 @@ The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One
 
 Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo q.
 
-BBS proofs (SPK's) are nondeterministic, meaning care must be taken against attacks arising from using bad randomness, for example, the nonce reuse attack on ECDSA [@HDWH12]. It is RECOMMENDED that the presentation messages used in this specification contain a nonce chosen at random from a trusted source of randomness, see the (#presentation-message-selection) for additional considerations.
+BBS proofs are nondeterministic, meaning care must be taken against attacks arising from using bad randomness, for example, the nonce reuse attack on ECDSA [@HDWH12]. It is RECOMMENDED that the presentation messages used in this specification contain a nonce chosen at random from a trusted source of randomness, see the (#presentation-message-selection) for additional considerations.
 
 BlindSign as discussed in 2.10 uses randomness from two parties so care MUST be taken that both sources of randomness are trusted. If one party uses weak randomness, it could compromise the signature.
 
@@ -1135,7 +1132,7 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
         4.  r3 = r1 ^ -1 mod q
         5.  s' = s + r2 * r3.
 
-  The values `(A', Abar, d)` will be part of the spk and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the spk to the signer's `Pk`.
+  The values `(A', Abar, d)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the proof to the signer's `Pk`.
 
 - Set the following,
 
@@ -1147,7 +1144,7 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
         EQ1.  C1 = A' * (-e) - H0 * r2
         EQ2.  C2 = D * (-r3) + H0 * s' + H_j1 * msg_j1 + ... + H_jU * msg_jU.
 
-  If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The spk returned is `(A', Abar, d, nizk)`. To validate the spk, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
+  If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The proof returned is `(A', Abar, d, nizk)`. To validate the proof, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
 
 <reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-208.pdf">
  <front>
