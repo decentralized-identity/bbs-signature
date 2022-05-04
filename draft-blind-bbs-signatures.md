@@ -42,7 +42,7 @@ organization = ""
 
 .# Abstract
 
-This document defines an extension to the BBS Signature scheme, a form of short group digital signature scheme that supports multi-message signing that produces a single output digital signature. To enable blind signing capabilites which in the most general sense provide the ability for a signer to blindly sign a set of messages.
+This document defines an extension to the BBS Signature scheme, a form of short group digital signature scheme that supports multi-message signing that produces a single output digital signature. To enable blind signing capabilities which in the most general sense provide the ability for a signer to blindly sign a set of messages.
 
 {mainmatter}
 
@@ -54,7 +54,7 @@ This document defines an extension to the BBS Signature scheme, a form of short 
 
 All terminology defined by [@BBS-DRAFT] is applicable to this draft
 
-The following futher terminology is defined by this document:
+The following further terminology is defined by this document:
 
 U
 : The set of messages that are blinded from the signer during a blind signing.
@@ -131,7 +131,7 @@ Procedure:
 
 1. (i1,...,iU) = CGIdxs
 
-2. s' = H(PRF(8 \* ceil(log2(r)))) mod r
+2. s' = HASH(PRF(8 \* ceil(log2(r)))) mod r
 
 3. if subgroup\_check(h0) is INVALID abort
 
@@ -167,9 +167,9 @@ Procedure:
 
 1. (j1, ..., jK) = GIdxs
 
-2. e = H(PRF(8 \* ceil(log2(r)))) mod r
+2. e = HASH(PRF(8 \* ceil(log2(r)))) mod r
 
-3. s'' = H(PRF(8 \* ceil(log2(r)))) mod r
+3. s'' = HASH(PRF(8 \* ceil(log2(r)))) mod r
 
 4. if BlindMessagesProofVerify(commitment, nizk, CGIdxs, nonce) is INVALID abort
 
@@ -240,13 +240,13 @@ Procedure:
 
 2. r\~ = \[U\]
 
-3. s\~ = H(PRF(8 \* ceil(log2(r)))) mod r
+3. s\~ = HASH(PRF(8 \* ceil(log2(r)))) mod r
 
-4. for i in 1 to U: r\~\[i\] = H(PRF(8 \* ceil(log2(r)))) mod r
+4. for i in 1 to U: r\~\[i\] = HASH(PRF(8 \* ceil(log2(r)))) mod r
 
 5. U~ = h0 \* s\~ + h\[i1\] \* r\~\[1\] + ... + h\[iU\] \* r\~\[U\]
 
-6. c = H(commitment || U\~ || nonce)
+6. c = HASH(commitment || U\~ || nonce)
 
 7. s^ = s\~ + c \* s'
 
@@ -281,7 +281,7 @@ Procedure:
 
 3. U^ = commitment \* -c + h0 \* s^ + h\[i1\] \* r^\[1\] + ... + h\[iU\] \* r^\[U\]
 
-4. c\_v = H(U || U^ || nonce)
+4. c\_v = HASH(U || U^ || nonce)
 
 5. return c == c\_v
 ```
