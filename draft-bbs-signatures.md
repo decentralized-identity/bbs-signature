@@ -298,8 +298,8 @@ Parameters:
 
 Definitions:
 
-- HKDF-Extract is as defined in [@!RFC5869], instantiated with hash HASH.
-- HKDF-Expand is as defined in [@!RFC5869], instantiated with hash HASH.
+- HKDF-Extract is as defined in [@!RFC5869], instantiated with hash function HASH.
+- HKDF-Expand is as defined in [@!RFC5869], instantiated with hash function HASH.
 - I2OSP and OS2IP are as defined in [@!RFC8017], Section 4.
 - L is the integer given by ceil((3 * ceil(log2(q))) / 16).
 - INITSALT is the octet string "0x4242532d5349472d4b455947454e2d53414c542d", obtained by taking the UTF-8 representation of the ASCII string "BBS-SIG-KEYGEN-SALT-".
