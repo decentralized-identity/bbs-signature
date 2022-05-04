@@ -242,6 +242,7 @@ Throughout the operations of this signature scheme, each message that is signed 
 ### Encoding of elements to be hashed.
 
 To avoid ambiguity, each element passed to the HASH or the XOF function, including situations when multiple elements are supplied in a concatenated form, must first be encoded to an appropriate format, depending on its type. Specifically,
+
 - Points in G1 or G2 must be encoded using the `point_to_octets` implementation for a particular ciphersuite.
 - Non-negative integers must be encoded using `I2OSP` with an output length of 8 bytes.
 - Scalars must be zero-extended to a fixed length, defined by a particular ciphersuite.
@@ -250,6 +251,7 @@ To avoid ambiguity, each element passed to the HASH or the XOF function, includi
 After encoding, octet strings MUST be prepended with a value representing the length of their binary representation in the form of the number of bytes. If the octet string represents a DST, then its length must be encoded to octets using I2OSP with ouptut length of 1 byte. If it is a generic octet string (not representing a DST), its length must be encoded to octets using I2OSP with ouptut length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. DSTs with length larger than 2^8 - 1 MUST be rejected. Other octet-strings (not DSTs) with length larger than 2^64 - 1, MUST also be rejected.
 
 As an example of the above transformations, consider the following. Assume that one wants to hash together the message `"Jane"` and the number `25`. The procedure would be
+
 - Calculate octets of the message `"Jane"` and the number `25` as,
    ```
    message_octets = 0x4a616e65
@@ -333,11 +335,11 @@ PK = SkToPk(SK)
 
 Inputs:
 
-- SK, a secret integer such that 0 < SK < q
+- SK, a secret integer such that 0 < SK < q.
 
 Outputs:
 
-- PK, a public key encoded as an octet string
+- PK, a public key encoded as an octet string.
 
 Procedure:
 
@@ -363,7 +365,7 @@ Inputs:
 
 Outputs:
 
-- result, either VALID or INVALID
+- result, either VALID or INVALID.
 
 Procedure:
 
@@ -391,12 +393,12 @@ Inputs:
 
 - msg_1,...,msg_L, octet strings. Messages to be signed.
 - H_1,..., H_L, points of G1. Generators used to sign the messages.
-- SK, a secret key output from KeyGen
-- PK, a public key output from SkToPk
+- SK, a secret key output from KeyGen.
+- PK, a public key output from SkToPk.
 
 Outputs:
 
-- signature, an octet string
+- signature, an octet string.
 
 Procedure:
 
@@ -467,16 +469,16 @@ proof = ProofGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signat
 
 Inputs:
 
-- PK, octet string in output form from SkToPk
+- PK, octet string in output form from SkToPk.
 - msg_1,..., msg_L, octet strings. Messages in input to Sign.
 - H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
-- signature, octet string in output form from Sign
-- ph, octet string
+- signature, octet string in output form from Sign.
+- ph, octet string.
 
 Outputs:
 
-- proof, octet string
+- proof, octet string.
 
 Procedure:
 
@@ -587,13 +589,13 @@ generators = CreateGenerators(dst, message_generator_seed, length);
 
 Inputs:
 
-dst, octet string - Domain Separation Tag
-message_generator_seed, octet string
-length, unsigned integer - Number of generators to create from the seed and dst
+- dst, octet string. Domain Separation Tag.
+- message_generator_seed, octet string.
+- length, unsigned integer. Number of generators to create from the seed and dst.
 
 Outputs:
 
-- generators, an array of generators
+- generators, an array of generators.
 
 Procedure:
 
@@ -626,11 +628,11 @@ result = MapMessageToScalarAsHash(msg, dst)
 Inputs:
 
 - msg: octet string.
-- dst: Domain separation tag; Note this is not defined as a function argument as per [@!I-D.irtf-cfrg-hash-to-curve] instead as a parameter
+- dst: Domain separation tag; note this is not defined as a function argument as per [@!I-D.irtf-cfrg-hash-to-curve] instead as a parameter.
 
 Outputs:
 
-- result: scalar value
+- result: scalar value.
 
 Procedure:
 
