@@ -534,45 +534,47 @@ Procedure:
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
+7. revealed_msgs = (msg_i1 || msg_i2 || ... || msg_iR)
 
-8. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
+8. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-9.      element = HASH(PRF(8*ceil(log2(q)))) mod q
+9. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
 
-10.      if element = 0, go back to step 7
+10.      element = HASH(PRF(8*ceil(log2(q)))) mod q
 
-11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+11.      if element = 0, go back to step 7
 
-12. r3 = r1 ^ -1 mod q
+12. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-13. A' = A * r1
+13. r3 = r1 ^ -1 mod q
 
-14. Abar = A' * (-e) + B * r1
+14. A' = A * r1
 
-15. D = B * r1 + H_s * r2
+15. Abar = A' * (-e) + B * r1
 
-16. s' = s + r2 * r3
+16. D = B * r1 + H_s * r2
 
-17. C1 = A' * e~ + H_s * r2~
+17. s' = s + r2 * r3
 
-18. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+18. C1 = A' * e~ + H_s * r2~
 
-19. c = HASH(PK || Abar || A' || D || C1 || C2 || ph)
+19. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-20. e^ = e~ + c * e
+20. c = HASH(PK || Abar || A' || D || C1 || C2 || domain || revealed_msgs || ph)
 
-21. r2^ = r2~ + c * r2
+21. e^ = e~ + c * e
 
-22. r3^ = r3~ + c * r3
+22. r2^ = r2~ + c * r2
 
-23. s^ = s~ + c * s'
+23. r3^ = r3~ + c * r3
 
-24. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+24. s^ = s~ + c * s'
 
-25. proof = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+25. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
 
-26. return proof
+26. proof = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+
+27. return proof
 ```
 
 ### ProofVerify
@@ -615,23 +617,25 @@ Procedure:
 
 5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-6. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
+6. revealed_msgs = (msg_i1 || msg_i2 || ... || msg_iR)
 
-7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+7. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-8. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+8. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-9. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+9. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-10. cv = HASH(PK || Abar || A' || D || C1 || C2 || ph)
+10. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-11. if c != cv return INVALID
+11. cv = HASH(PK || Abar || A' || D || C1 || C2 || domain || revealed_msgs || ph)
 
-12. if A' == 1 return INVALID
+12. if c != cv return INVALID
 
-13. if e(A', W) * e(Abar, -P2) != 1 return INVALID
+13. if A' == 1 return INVALID
 
-14. return VALID
+14. if e(A', W) * e(Abar, -P2) != 1 return INVALID
+
+15. return VALID
 ```
 
 ### CreateGenerators
