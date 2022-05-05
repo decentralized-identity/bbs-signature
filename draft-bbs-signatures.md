@@ -375,15 +375,11 @@ Outputs:
 
 Procedure:
 
-1. (W, H0, H) = octets_to_point(PK)
+1. W = octets_to_point(PK)
 
 2. If W == Identity_G2, return INVALID
 
-3. result = subgroup_check(W) && subgroup_check(H0)
-
-4. for i in 0 to len(H): result &= subgroup_check(H[i])
-
-5. return result
+3. return subgroup_check(W)
 ```
 
 ### Sign
@@ -416,7 +412,7 @@ Outputs:
 
 Procedure:
 
-1. (W, H0, H) = octets_to_point(PK)
+1. W = octets_to_point(PK)
 
 2. generators =  (H_s || H_d || H_1 || ... || H_L)
 
@@ -471,11 +467,11 @@ Procedure:
 
 1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
 
-2. pub_key = octets_to_point(PK)
+2. W = octets_to_point(PK)
 
-3. if subgroup_check(A) is INVALID
+3. if subgroup_check(A) is INVALID, return INVALID
 
-4. if KeyValidate(pub_key) is INVALID
+4. if KeyValidate(W) is INVALID, return INVALID
 
 5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
@@ -518,7 +514,7 @@ Parameters:
 
 Outputs:
 
-- proof, octet string.
+- proof, octet string; or INVALID.
 
 Procedure:
 
@@ -528,9 +524,9 @@ Procedure:
 
 3. (j1, j2,..., jU) = [L] \ RevealedIndexes
 
-4. if subgroup_check(A) is INVALID abort
+4. if subgroup_check(A) is INVALID, return INVALID
 
-5. if KeyValidate(PK) is INVALID abort
+5. if KeyValidate(PK) is INVALID, return INVALID
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
@@ -605,7 +601,7 @@ Outputs:
 
 Procedure:
 
-1. if KeyValidate(PK) is INVALID
+1. if KeyValidate(PK) is INVALID, return INVALID
 
 2. (i1, i2, ..., iR) = RevealedIndexes
 
@@ -625,11 +621,11 @@ Procedure:
 
 10. cv = HASH(PK || Abar || A' || D || C1 || C2 || ph)
 
-11. if c != cv return INVALID
+11. if c != cv, return INVALID
 
-12. if A' == 1 return INVALID
+12. if A' == 1, return INVALID
 
-13. if e(A', W) * e(Abar, -P2) != 1 return INVALID
+13. if e(A', W) * e(Abar, -P2) != 1, return INVALID
 
 14. return VALID
 ```
