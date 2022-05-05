@@ -428,7 +428,7 @@ Procedure:
 
 6. for element in (e, s) do
 
-7.      element = OS2IP(h.read(xof_no_drawn_of_bytes)) mod q
+7.      element = OS2IP(h.read(xof_no_of_bytes_drawn)) mod q
 
 8.      if element = 0, go back to step 4
 
@@ -663,7 +663,7 @@ Procedure:
 
 4.    while(generator_i == Identity_G1 or generator_i == P1)
 
-5.        candidate = hash_to_curve_g1(h.read(xof_no_drawn_of_bytes), dst)
+5.        candidate = hash_to_curve_g1(h.read(xof_no_of_bytes_drawn), dst)
 
 6.        if candidate not in generators: generator_i = candidate
 
@@ -817,7 +817,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - signature_dst_generator_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message_generator_seed and blind_value_generator_seed.
 
-- xof_no_drawn_of_bytes: Number of bytes to draw from the XOF when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
+- xof_no_of_bytes_drawn: Number of bytes to draw from the XOF when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
 ## BLS12-381 Ciphersuite
 
@@ -854,7 +854,7 @@ signature_dst_generator_seed
 hashing_elements_to_scalars
 : hash_to_scalar
 
-xof_no_drawn_of_bytes
+xof_no_of_bytes_drawn
 : 64
 
 ### Test Vectors
