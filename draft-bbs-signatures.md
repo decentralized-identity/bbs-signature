@@ -692,9 +692,50 @@ Outputs:
 
 Procedure:
 
-1. result = hash_to_field(msg, 1)
+1. If len(dst) > 2^8 - 1 or len(msg) > 2^64 - 1, abort
 
-2. return result
+2. dst_prime = I2OSP(len(dst), 1) || dst
+
+3. msg_prime = I2OSP(len(msg), 8) || msg
+
+4. result = hash_to_scalar(msg_prime || dst_prime, 1)
+
+5. return result
+```
+
+### Hash to scalar
+This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod q. This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [spkGen](#spkgen) and [spkVerify](#spkverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+
+The `hash_to_scalar` procedure hashes elements using an extendable-output function (XOF). Applications not wishing to use an XOF may use `hash_to_field` defined in Section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve], combined with `expand_message_xmd` defined in Section 5.4.1 of the same document, in place of `hash_to_scalar`. In that case, every element outputted by `hash_to_field` that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using `hash_to_field`), until they get `n` non-zero elements (for example, if there is only one 0 in the output of `hash_to_field(msg, 2)` one must try to calculate `hash_to_field(msg, 3)` etc.).
+
+```
+result = hash_to_scalar(msg_octets, n)
+
+Inputs:
+
+- msg_octets: octet string. The message to be hashed.
+- n: non-negative integer. The number of scalars to output.
+
+Parameters:
+
+- q: non-negative integer. The prime order of the G_1 and G_2 groups, 
+     defined by the ciphersuite.
+
+Outputs:
+
+- (scalar_1, ..., scalar_n): a list of scalars. A list of non-zero scalars mod q.
+
+Procedure:
+
+1. h = XOF(msg_octets)
+
+2. for i in (1, ..., n):
+
+3.     scalar_i = OS2IP(h.read(64)) mod q
+
+4.     if scalar_i is 0, go back to step 3
+
+5. return (scalar_1, ..., scalar_n)
 ```
 
 # Security Considerations
@@ -768,6 +809,8 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation
 
+- hashing_elements_to_scalars: either hash_to_scalar using H (in this case H MUST be an XOF), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+
 - message_generator_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
 - blind_value_generator_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message_generator_seed, there are multiple scopes for the blind_value_generator_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
@@ -805,6 +848,9 @@ blind_value_generator_seed
 
 signature_dst_generator_seed
 : A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_DST_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
+
+hashing_elements_to_scalars
+: hash_to_scalar
 
 ### Test Vectors
 
