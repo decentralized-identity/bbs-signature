@@ -560,7 +560,7 @@ Procedure:
 
 19. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-20. c = HASH(PK || Abar || A' || D || C1 || C2 || domain || revealed_msgs || ph)
+20. c = HASH(Abar || A' || D || C1 || C2 || R || revealed_msgs || domain || ph)
 
 21. e^ = e~ + c * e
 
@@ -627,7 +627,7 @@ Procedure:
 
 10. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-11. cv = HASH(PK || Abar || A' || D || C1 || C2 || domain || revealed_msgs || ph)
+11. cv = HASH(Abar || A' || D || C1 || C2 || R || revealed_msgs || domain || ph)
 
 12. if c != cv return INVALID
 
