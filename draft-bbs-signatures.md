@@ -428,7 +428,7 @@ Procedure:
 
 6. for element in (e, s) do
 
-7.      element = OS2IP(h.read(xof_no_drawn_of_bytes)) mod q.
+7.      element = OS2IP(h.read(xof_no_drawn_of_bytes)) mod q
 
 8.      if element = 0, go back to step 4
 
