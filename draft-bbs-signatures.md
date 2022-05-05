@@ -252,6 +252,7 @@ To avoid ambiguity, each element passed to the HASH or the XOF function, includi
 - Non-negative integers must be encoded using `I2OSP` with an output length of 8 bytes.
 - Scalars must be zero-extended to a fixed length, defined by a particular ciphersuite.
 - Octet strings must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value is encoded directly.
+- ASCII strings must be transformed into octet strings using UTF-8 encoding.
 
 After encoding, octet strings MUST be prepended with a value representing the length of their binary representation in the form of the number of bytes. If the octet string represents a DST, then its length must be encoded to octets using I2OSP with ouptut length of 1 byte. If it is a generic octet string (not representing a DST), its length must be encoded to octets using I2OSP with ouptut length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. DSTs with length larger than 2^8 - 1 MUST be rejected. Other octet-strings (not DSTs) with length larger than 2^64 - 1, MUST also be rejected.
 
@@ -309,7 +310,7 @@ Definitions:
 - HKDF-Expand is as defined in [@!RFC5869], instantiated with hash function HASH.
 - I2OSP and OS2IP are as defined in [@!RFC8017], Section 4.
 - L is the integer given by ceil((3 * ceil(log2(q))) / 16).
-- INITSALT is the octet string "0x4242532d5349472d4b455947454e2d53414c542d", obtained by taking the UTF-8 representation of the ASCII string "BBS-SIG-KEYGEN-SALT-".
+- INITSALT is the ASCII string "BBS-SIG-KEYGEN-SALT-".
 
 Procedure:
 1. salt = INITSALT
