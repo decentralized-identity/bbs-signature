@@ -574,7 +574,7 @@ Procedure:
 
 ### ProofVerify
 
-This operation checks that a proof is valid for a header, vector of revealed messages (along side their corresponding originally index position when signed) and presentation header against a public key (PK).
+This operation checks that a proof is valid for a header, vector of revealed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
 ```
 result = ProofVerify(PK, proof, ph, header, (msg_i1,..., msg_iR), RevealedIndexes, (H_1,..., H_L))
