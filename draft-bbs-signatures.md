@@ -720,7 +720,7 @@ Parameters:
 
 Outputs:
 
-- (scalar_1, ..., scalar_n) (REQUIRED), a list of scalars. A list of non-zero scalars mod q.
+- (scalar_1, ..., scalar_n), a list of scalars. A list of non-zero scalars mod q.
 
 Procedure:
 
