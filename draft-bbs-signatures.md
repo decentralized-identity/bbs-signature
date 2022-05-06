@@ -843,13 +843,13 @@ hash\_to\_field\_dst
 : "BBS_BLS12381FQ_XOF:SHAKE-256_SSWU_RO"
 
 message\_generator\_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_message\_generator\_seed" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
 
 blind\_value\_generator\_seed
 : A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_BLINDING_VALUE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
 
 signature\_dst\_generator\_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_signature\_dst\_generator\_seed" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
+: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_DST_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 hashing\_elements\_to\_scalars
 : hash_to_scalar
@@ -872,7 +872,7 @@ Further fixtures are available in (#additional-bls12-381-ciphersuite-test-vector
 Following the procedure defined in (#creategenerators) with an input seed value of
 
 ```
-BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_message\_generator\_seed
+BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED
 ```
 
 a dst of
