@@ -270,7 +270,7 @@ As an example of the above transformations, consider the following. Assume that 
 
 For readability, this document makes these transformations implicitly, but they MUST precede every call to the hash or xof function.
 
-Optional input/parameters to operations that feature in a call to a HASH or XOF function, that are not supplied to the operation should be omitted from the call, for example if X is an optional input/parameter whilst A and B are required then the procedural step of `HASH(A || X || B)` MUST be evaluated to `HASH(A || B)`.
+Optional input/parameters to operations that feature in a call to a HASH or XOF function, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `HASH(A || X || B)` MUST be evaluated to `HASH(A || "" || B)`.
 
 ## Operations
 
