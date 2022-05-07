@@ -428,7 +428,7 @@ Procedure:
 
 6. for element in (e, s) do
 
-7.      element = OS2IP(h.read(xof\_no\_of\_bytes)) mod q
+7.      element = OS2IP(h.read(xof_no_of_bytes)) mod q
 
 8.      if element = 0, go back to step 4
 
@@ -641,12 +641,12 @@ The CreateGenerators operation defines how to create a set of generators that fo
 *Note* The scope in which the seed used below is determined, is still an active conversation in the working group see (#ciphersuites) for the current method being used.
 
 ```
-generators = CreateGenerators(dst, message\_generator\_seed, length);
+generators = CreateGenerators(dst, message_generator_seed, length);
 
 Inputs:
 
 - dst, octet string. Domain Separation Tag.
-- message\_generator\_seed, octet string.
+- message_generator_seed, octet string.
 - length, unsigned integer. Number of generators to create from the seed and dst.
 
 Outputs:
@@ -663,7 +663,7 @@ Procedure:
 
 4.    while(generator_i == Identity_G1 or generator_i == P1)
 
-5.        candidate = hash_to_curve_g1(h.read(xof\_no\_of\_bytes), dst)
+5.        candidate = hash_to_curve_g1(h.read(xof_no_of_bytes), dst)
 
 6.        if candidate not in generators: generator_i = candidate
 
