@@ -295,10 +295,6 @@ Inputs:
 
 - IKM (REQUIRED), a secret octet string. See requirements above.
 
-Outputs:
-
-- SK, a uniformly random integer such that 0 < SK < q.
-
 Parameters:
 
 - key_info (OPTIONAL), an octet string. if this is not supplied, it MUST default to an empty string.
@@ -311,7 +307,12 @@ Definitions:
 - L is the integer given by ceil((3 * ceil(log2(q))) / 16).
 - INITSALT is the ASCII string "BBS-SIG-KEYGEN-SALT-".
 
+Outputs:
+
+- SK, a uniformly random integer such that 0 < SK < q.
+
 Procedure:
+
 1. salt = INITSALT
 
 2. SK = 0
@@ -406,6 +407,10 @@ Parameters:
 - H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
 - H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
 
+Definitions:
+
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L)
+
 Outputs:
 
 - signature, an octet string.
@@ -460,6 +465,10 @@ Parameters:
 - H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
 - H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
 
+Definitions:
+
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L)
+
 Outputs:
 
 - result, either VALID or INVALID.
@@ -513,6 +522,11 @@ Parameters:
 - Ciphersuite_ID (REQUIRED), octet string. The unique ID of the ciphersuite.
 - H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
 - H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
+
+Definitions:
+
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L)
+- R, is the non-negative integer representing the number of revealed messages e.g length(RevealedIndexes)
 
 Outputs:
 
@@ -596,6 +610,11 @@ Parameters:
 - H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
 - H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
 
+Definitions:
+
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L)
+- R, is the non-negative integer representing the number of revealed messages e.g length(RevealedIndexes)
+
 Outputs:
 
 - result, either VALID or INVALID.
@@ -642,9 +661,21 @@ generators = CreateGenerators(dst, message_generator_seed, length);
 
 Inputs:
 
+<<<<<<< HEAD
 - dst (REQUIRED), octet string. Domain Separation Tag.
 - message_generator_seed (REQUIRED), octet string.
 - length (REQUIRED), unsigned integer. Number of generators to create from the seed and dst.
+=======
+<<<<<<< Updated upstream
+- dst, octet string. Domain Separation Tag.
+- message_generator_seed, octet string.
+- length, unsigned integer. Number of generators to create from the seed and dst.
+=======
+- dst, octet string - Domain Separation Tag
+- message_generator_seed, octet string
+- length, unsigned integer - Number of generators to create from the seed and dst
+>>>>>>> Stashed changes
+>>>>>>> d9d7126... add missing definitions
 
 Outputs:
 
