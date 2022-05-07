@@ -388,7 +388,7 @@ Procedure:
 
 ### Sign
 
-This operation computes a deterministic signature from a secret key (SK), over a header and a vector of messages.
+This operation computes a deterministic signature from a secret key (SK) and optionally over a header and a vector of messages.
 
 ```
 signature = Sign(SK, PK, header, (msg_1,..., msg_L), (H_1,..., H_L))
@@ -409,7 +409,7 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L)
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L). Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -467,7 +467,7 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L)
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L).Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -525,8 +525,9 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L)
-- R, is the non-negative integer representing the number of revealed messages e.g length(RevealedIndexes)
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L).Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed messages e.g length(RevealedIndexes).
+Note if no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
 
 Outputs:
 
@@ -612,8 +613,9 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L)
-- R, is the non-negative integer representing the number of revealed messages e.g length(RevealedIndexes)
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L).Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed messages e.g length(RevealedIndexes).
+Note if no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
 
 Outputs:
 
