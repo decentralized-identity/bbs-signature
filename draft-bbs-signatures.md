@@ -413,7 +413,7 @@ Definitions:
 
 Outputs:
 
-- signature, an octet string.
+- signature, a signature encoded as an octet string.
 
 Procedure:
 
@@ -704,7 +704,7 @@ Inputs:
 
 Outputs:
 
-- result: scalar value.
+- result, a scalar value.
 
 Procedure:
 
@@ -740,7 +740,7 @@ Parameters:
 
 Outputs:
 
-- (scalar_1, ..., scalar_n), a list of scalars. A list of non-zero scalars mod q.
+- (scalar_1, ..., scalar_n), a list of non-zero scalars mod q.
 
 Procedure:
 
