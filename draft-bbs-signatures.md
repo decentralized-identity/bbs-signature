@@ -661,21 +661,9 @@ generators = CreateGenerators(dst, message_generator_seed, length);
 
 Inputs:
 
-<<<<<<< HEAD
 - dst (REQUIRED), octet string. Domain Separation Tag.
 - message_generator_seed (REQUIRED), octet string.
 - length (REQUIRED), unsigned integer. Number of generators to create from the seed and dst.
-=======
-<<<<<<< Updated upstream
-- dst, octet string. Domain Separation Tag.
-- message_generator_seed, octet string.
-- length, unsigned integer. Number of generators to create from the seed and dst.
-=======
-- dst, octet string - Domain Separation Tag
-- message_generator_seed, octet string
-- length, unsigned integer - Number of generators to create from the seed and dst
->>>>>>> Stashed changes
->>>>>>> d9d7126... add missing definitions
 
 Outputs:
 
