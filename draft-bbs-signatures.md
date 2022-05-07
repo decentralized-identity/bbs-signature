@@ -390,11 +390,12 @@ Procedure:
 This operation computes a deterministic signature from a secret key (SK), over a header and a vector of messages.
 
 ```
-signature = Sign(SK, header, (msg_1,..., msg_L), (H_1,..., H_L))
+signature = Sign(SK, PK, header, (msg_1,..., msg_L), (H_1,..., H_L))
 
 Inputs:
 
 - SK (REQUIRED), an octet string of the form outputted by the KeyGen operation.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation provided the above SK as input.
 - header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
 - msg_1,..., msg_L (OPTIONAL), a vector of octet strings. Application specific messages.
 - H_1,..., H_L (OPTIONAL), points of G1. Generators used to commit each message.
@@ -415,27 +416,27 @@ Procedure:
 
 2. if W is INVALID, abort
 
-3. generators =  (H_s || H_d || H_1 || ... || H_L)
+2. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-4. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+3. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-5. if domain is 0, abort
+4. if domain is 0, abort
 
-6. h = xof(SK  || domain || msg_1 || ... || msg_L)
+5. h = xof(SK  || domain || msg_1 || ... || msg_L)
 
-7. for element in (e, s) do
+6. for element in (e, s) do
 
-8.      element = OS2IP(h.read(xof_no_of_bytes)) mod q
+7.      element = OS2IP(h.read(xof_no_of_bytes)) mod q
 
-9.      if element = 0, go back to step 4
+8.      if element = 0, go back to step 4
 
-10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-11. A = B * (1 / (SK + e))
+10. A = B * (1 / (SK + e))
 
-12. signature = (point_to_octets_min(A), e, s)
+11. signature = (point_to_octets_min(A), e, s)
 
-13. return signature
+12. return signature
 ```
 
 ### Verify
