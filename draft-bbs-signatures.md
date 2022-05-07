@@ -379,11 +379,11 @@ Procedure:
 
 2. if W is INVALID, return INVALID
 
-2. if subgroup_check(A) is INVALID, return INVALID
+3. if subgroup_check(A) is INVALID, return INVALID
 
-3. If W == Identity_G2, return INVALID
+4. If W == Identity_G2, return INVALID
 
-4. return VALID
+5. return VALID
 ```
 
 ### Sign
