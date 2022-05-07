@@ -500,7 +500,7 @@ Procedure:
 
 ### ProofGen
 
-This operation computes a zero-knowledge, proof of knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header (see [Presentation header selection](#presentation-header-selection) for more details).
+This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header (see [Presentation header selection](#presentation-header-selection) for more details).
 
 If an application chooses to pass the indexes of the generators instead, then it will also need to pass the indexes of the generators corresponding to the revealed messages.
 
