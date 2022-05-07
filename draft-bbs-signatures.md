@@ -809,15 +809,15 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation
 
-- hashing_elements_to_scalars: either hash_to_scalar using H (in this case H MUST be an XOF), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+- hashing\_elements\_to\_scalars: either hash_to_scalar using H (in this case H MUST be an XOF), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
 
-- message_generator_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
+- message\_generator\_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
-- blind_value_generator_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message_generator_seed, there are multiple scopes for the blind_value_generator_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
+- blind\_value\_generator\_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message\_generator\_seed, there are multiple scopes for the blind\_value\_generator\_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
-- signature_dst_generator_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message_generator_seed and blind_value_generator_seed.
+- signature\_dst\_generator\_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message\_generator\_seed and blind\_value\_generator\_seed.
 
-- xof_no_of_bytes: Number of bytes to draw from the XOF when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
+- xof\_no\_of\_bytes: Number of bytes to draw from the XOF when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
 ## BLS12-381 Ciphersuite
 
@@ -842,19 +842,19 @@ hash\_to\_field
 hash\_to\_field\_dst
 : "BBS_BLS12381FQ_XOF:SHAKE-256_SSWU_RO"
 
-message_generator_seed
+message\_generator\_seed
 : A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
 
-blind_value_generator_seed
+blind\_value\_generator\_seed
 : A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_BLINDING_VALUE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
 
-signature_dst_generator_seed
+signature\_dst\_generator\_seed
 : A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_DST_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
-hashing_elements_to_scalars
+hashing\_elements\_to\_scalars
 : hash_to_scalar
 
-xof_no_of_bytes
+xof\_no\_of\_bytes
 : 64
 
 ### Test Vectors
