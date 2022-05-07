@@ -397,7 +397,7 @@ Inputs:
 - SK (REQUIRED), an octet string of the form outputted by the KeyGen operation.
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation provided the above SK as input.
 - header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
-- msg_1,..., msg_L (OPTIONAL), a vector of octet strings. Application specific messages.
+- msg_1,..., msg_L (OPTIONAL), a vector of octet strings.
 - H_1,..., H_L (OPTIONAL), points of G1. Generators used to commit each message.
 
 Parameters:
@@ -451,7 +451,7 @@ Inputs:
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - signature (REQUIRED), an octet string of the form outputted by the Sign operation.
 - header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
-- msg_1,..., msg_L (OPTIONAL), an optional vector of octet strings. Application specific messages.
+- msg_1,..., msg_L (OPTIONAL), an optional vector of octet strings.
 - H_1,..., H_L (OPTIONAL), points of G1. Generators used to commit each message.
 
 Parameters:
