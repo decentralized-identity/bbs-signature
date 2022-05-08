@@ -774,21 +774,25 @@ Parameters:
 
 Outputs:
 
-- A map comprised of the underlying signature components `A` `e` and `s`, OR INVALID
+- A map comprised of the underlying signature components `A` `e` and `s`, OR the result INVALID
 
 Procedure:
 
-1. if len(signature_octets) != octet_point_length + len(e) + len(s), return INVALID // TODO
+1. if len(signature_octets) != (octet_point_length + 2 * xof_no_of_bytes), return INVALID
 
-2. a_octets = signature_octets[0..octet_point_length - 1]
+2. a_octets = signature_octets[0..(octet_point_length - 1)]
 
 3. A = octets_to_point(a_octets)
 
-Check A in otherways here should I be calling IsValidPoint?
+4. if A is INVALID, return INVALID // TODO Check A in other ways here should we be calling IsValidPoint?
 
-4. if A is INVALID, return INVALID
+5. index = octet_point_length
 
-5.
+5. e = OS2IP(signature_octets[index..(index + xof_no_of_bytes - 1])) mod q
+
+6. index += xof_no_of_bytes
+
+6. s = OS2IP(signature_octets[index..(index + xof_no_of_bytes - 1)]) mod q
 
 6. return (A, e, s)
 ```
@@ -816,12 +820,11 @@ Procedure:
 
 1. a_octets = point_to_octets(A)
 
-2. e_octets = I2OSP(e)
+2. e_octets = I2OSP(e, xof_no_of_bytes)
 
-3. s_octets = I2OSP(s)
+3. s_octets = I2OSP(s, xof_no_of_bytes)
 
-4. return [ ...a_octets, ...e_octets, ...s_octets ]
-// TODO document the spread operation??
+4. return [ ...a_octets, ...e_octets, ...s_octets ] // TODO document the spread operation??
 ```
 
 # Security Considerations
