@@ -505,6 +505,7 @@ Inputs:
 - msg_1,..., msg_L, octet strings. Messages in input to Sign.
 - H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
+                   RevealedIndexes MUST be ordered from the lowest to the highest value.
 - signature, octet string in output form from Sign.
 - header, an optional octet string containing context and application specific
           information. If not supplied, it defaults to an empty string.
@@ -591,6 +592,7 @@ Inputs:
 - msg_i1,..., msg_iR, octet strings. The revealed messages in input to ProofGen.
 - H_1,..., H_L, points of G1. The generators in input to Sign.
 - RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
+                   RevealedIndexes MUST be ordered from the lowest to the highest value.
 - header, an optional octet string containing context and application specific
           information. If not supplied, it defaults to an empty string.
 - ph, octet string
