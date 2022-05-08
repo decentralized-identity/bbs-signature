@@ -129,9 +129,6 @@ H_d
 signature
 : The digital signature output.
 
-commitment
-: A pedersen commitment composed of 1 or more messages.
-
 nonce
 : A cryptographic nonce
 
@@ -159,8 +156,6 @@ a || b
 
 I \ J
 : For sets I and J, denotes the difference of the two sets i.e., all the elements of I that do not appear in J, in the same order as they were in I.
-
-\[n\]: Denotes all integers from 1 to n.
 
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
