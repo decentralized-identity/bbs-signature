@@ -157,6 +157,9 @@ a || b
 I \\ J
 : For sets I and J, denotes the difference of the two sets i.e., all the elements of I that do not appear in J, in the same order as they were in I.
 
+X\[a..b\]
+: Denotes a slice of the array `X` containing all elements from index `a` until `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -434,7 +437,7 @@ Procedure:
 
 11. A = B * (1 / (SK + e))
 
-12. signature = (point_to_octets_min(A), e, s)
+12. signature = signature_to_octets(A, e, s)
 
 13. return signature
 ```
@@ -470,27 +473,29 @@ Outputs:
 
 Procedure:
 
-1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
+1. signature_result = octets_to_signature(signature)
 
-2. if A is INVALID return INVALID
+2. if signature_result is INVALID, return INVALID
 
-3. if subgroup_check(A) is INVALID, return INVALID
+3. (A, e, s) = signature_result
 
-4. if KeyValidate(PK) is INVALID, return INVALID
+4. pub_key = octets_to_point(PK)
 
-5. W = octets_to_point(PK)
+5. if subgroup_check(A) is INVALID
 
-6. generators =  (H_s || H_d || H_1 || ... || H_L)
+6. if KeyValidate(pub_key) is INVALID
 
-7. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+7. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+8. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-9. C1 = e(A, W + P2 * e)
+9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-10. C2 = e(B, P2)
+10. C1 = e(A, W + P2 * e)
 
-11. return C1 == C2
+11. C2 = e(B, P2)
+
+12. return C1 == C2
 ```
 
 ### ProofGen
@@ -529,57 +534,61 @@ Outputs:
 
 Procedure:
 
-1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
+1. signature_result = octets_to_signature(signature)
 
-2. (i1, i2,..., iR) = RevealedIndexes
+2. if signature_result is INVALID, return INVALID
 
-3. (j1, j2,..., jU) = [L] \ RevealedIndexes
+3. (A, e, s) = signature_result
 
-4. if subgroup_check(A) is INVALID, return INVALID
+4. (i1, i2,..., iR) = RevealedIndexes
 
-5. if KeyValidate(PK) is INVALID, return INVALID
+5. (j1, j2,..., jU) = [L] \ RevealedIndexes
 
-6. generators =  (H_s || H_d || H_1 || ... || H_L)
+6. if subgroup_check(A) is INVALID, return INVALID
 
-7. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+7. if KeyValidate(PK) is INVALID abort
 
-8. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
+8. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-9.      element = hash(PRF(8*ceil(log2(q)))) mod q
+9. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-10.      if element = 0, go back to step 7
+10. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
 
-11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+11.      element = hash(PRF(8*ceil(log2(q)))) mod q
 
-12. r3 = r1 ^ -1 mod q
+12.      if element = 0, go back to step 7
 
-13. A' = A * r1
+13. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-14. Abar = A' * (-e) + B * r1
+14. r3 = r1 ^ -1 mod q
 
-15. D = B * r1 + H_s * r2
+15. A' = A * r1
 
-16. s' = s + r2 * r3
+16. Abar = A' * (-e) + B * r1
 
-17. C1 = A' * e~ + H_s * r2~
+17. D = B * r1 + H_s * r2
 
-18. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+18. s' = s + r2 * r3
 
-19. c = hash(PK || Abar || A' || D || C1 || C2 || ph)
+19. C1 = A' * e~ + H_s * r2~
 
-20. e^ = e~ + c * e
+20. c = hash(PK || Abar || A' || D || C1 || C2 || ph)
 
-21. r2^ = r2~ + c * r2
+21. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-22. r3^ = r3~ + c * r3
+22. e^ = e~ + c * e
 
-23. s^ = s~ + c * s'
+23. r2^ = r2~ + c * r2
 
-24. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+24. r3^ = r3~ + c * r3
 
-25. proof = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+25. s^ = s~ + c * s'
 
-26. return proof
+26. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+
+27. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+
+28. return proof
 ```
 
 ### ProofVerify
@@ -746,6 +755,73 @@ Procedure:
 4.     if scalar_i is 0, go back to step 3
 
 5. return (scalar_1, ..., scalar_n)
+```
+
+### OctetsToSignature
+
+This operation describes how to decode an octet string, validate it and return the underlying components that make up the signature.
+
+```
+(A, e, s) = octets_to_signature(signature_octets)
+
+Inputs:
+
+- signature_octets, octet string.
+
+Parameters:
+
+- octet_point_length, the length in bytes of the octet string output by the point_to_octets function
+
+Outputs:
+
+- A map comprised of the underlying signature components `A` `e` and `s`, OR INVALID
+
+Procedure:
+
+1. if len(signature_octets) != octet_point_length + len(e) + len(s), return INVALID // TODO
+
+2. a_octets = signature_octets[0..octet_point_length - 1]
+
+3. A = octets_to_point(a_octets)
+
+Check A in otherways here should I be calling IsValidPoint?
+
+4. if A is INVALID, return INVALID
+
+5.
+
+6. return (A, e, s)
+```
+
+### SignatureToOctets
+
+This operation describes how to encode a signature to an octet string.
+
+```
+signature_octets = signature_to_octets(A, e, s)
+
+Inputs:
+
+- A,
+- e,
+- s,
+
+Outputs:
+
+- signature_octets, octet string.
+
+Procedure:
+
+// Assume point is valid e and s non zero?
+
+1. a_octets = point_to_octets(A)
+
+2. e_octets = I2OSP(e)
+
+3. s_octets = I2OSP(s)
+
+4. return [ ...a_octets, ...e_octets, ...s_octets ]
+// TODO document the spread operation??
 ```
 
 # Security Considerations
