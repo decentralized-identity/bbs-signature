@@ -388,7 +388,7 @@ Procedure:
 
 ### Sign
 
-This operation computes a deterministic signature from a secret key (SK) and optionally over a header and a vector of messages.
+This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages.
 
 ```
 signature = Sign(SK, PK, header, (msg_1,..., msg_L), (H_1,..., H_L))
