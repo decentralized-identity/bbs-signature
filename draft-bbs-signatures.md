@@ -120,9 +120,6 @@ msg
 generator
 : A valid point on the selected sub-group of the curve being used that is used to commit a value.
 
-H\[i\]
-: The generator corresponding to a given msg.
-
 H_s
 : A generator for the blinding value in the signature. The value of H_s is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.
 
