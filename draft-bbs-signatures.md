@@ -190,7 +190,7 @@ octets\_to\_point(ostr) -> P
 : returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point\_to\_octets.  This operation is also known as deserialization.
 
 subgroup\_check(P) -> VALID or INVALID
-: returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [Bowe19].
+: returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [@Bowe19].
 
 ## Organization of this document
 
@@ -218,7 +218,7 @@ The schemes operations defined in (#operations) depend the following parameters:
 
 * A pairing-friendly elliptic curve, plus associated functionality given in Section 1.4.
 
-* hash, a hash function that MUST be a secure cryptographic hash function. For security, hash MUST output at least ceil(log2(q)) bits, where q is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve. See [encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
+* hash, a hash function that MUST be a secure cryptographic hash function. For security, hash MUST output at least `ceil(log2(q))` bits, where q is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve. See [encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
 
 * xof, a cryptographically secure extendable-output function like SHAKE128 or SHAKE256. xof outputs any desirable amount of bytes using the `.read(int)` method. See [Encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
 
@@ -495,7 +495,7 @@ Procedure:
 
 ### ProofGen
 
-This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header (see [Presentation header selection](#presentation-header-selection) for more details).
+This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [presentation header selection](#presentation-header-selection) for more details.
 
 If an application chooses to pass the indexes of the generators instead, then it will also need to pass the indexes of the generators corresponding to the revealed messages.
 
@@ -647,9 +647,7 @@ Procedure:
 
 ### CreateGenerators
 
-The CreateGenerators operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as sign, verify, ProofGen and ProofVerify.
-
-*Note* The scope in which the seed used below is determined, is still an active conversation in the working group see (#ciphersuites) for the current method being used.
+The CreateGenerators operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as Sign, Verify, ProofGen and ProofVerify.
 
 ```
 generators = CreateGenerators(dst, message_generator_seed, length);
@@ -683,7 +681,7 @@ Procedure:
 
 ### MapMessageToScalar
 
-There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the sign, verify, ProofGen and ProofVerify operations.
+There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the Sign, Verify, ProofGen and ProofVerify operations.
 
 #### MapMessageToScalarAsHash
 
@@ -846,25 +844,25 @@ hash\_to\_curve_g1
 : follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup
 
 hash\_to\_curve\_g1\_dst
-: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO"
+: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO"
 
 hash\_to\_field
 : adopts the required parameters from the suites defined in (#bls12-381-hash-to-curve-definition-using-shake-256) to satisfy those described in section 5.3 [@!I-D.irtf-cfrg-hash-to-curve] along with the defined dst
 
 hash\_to\_field\_dst
-: "BBS_BLS12381FQ_XOF:SHAKE-256_SSWU_RO"
+: "BBS\_BLS12381FQ\_XOF:SHAKE-256\_SSWU\_RO"
 
 message\_generator\_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
+: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
 
 blind\_value\_generator\_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_BLINDING_VALUE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
+: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_BLINDING\_VALUE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
 
 signature\_dst\_generator\_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_DST_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
+: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_DST\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 hashing\_elements\_to\_scalars
-: hash_to_scalar
+: hash\_to\_scalar
 
 xof\_no\_of\_bytes
 : 64
@@ -1276,6 +1274,16 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
         EQ2.  C2 = D * (-r3) + H0 * s' + H_j1 * msg_j1 + ... + H_jU * msg_jU.
 
   If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The proof returned is `(A', Abar, d, nizk)`. To validate the proof, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
+
+<reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
+  <front>
+    <title>Faster subgroup checks for BLS12-381</title>
+    <author initials="S." surname="Bowe" fullname="Sean Bowe">
+      <organization>Electric Coin Company</organization>
+    </author>
+    <date year="2019" month="July"/>
+  </front>
+</reference>
 
 <reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-208.pdf">
  <front>
