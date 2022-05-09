@@ -418,11 +418,11 @@ Procedure:
 
 3. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-3. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+4. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
 
 5. if domain is 0, abort
 
-5. h = xof(SK  || domain || msg_1 || ... || msg_L)
+6. h = xof(SK  || domain || msg_1 || ... || msg_L)
 
 7. for element in (e, s) do
 
