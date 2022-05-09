@@ -51,7 +51,7 @@ organization = "MATTR"
 
 .# Abstract
 
-BBS is a digital signature scheme categorized as a form of short group signature that supports several novel properties. Notably, the scheme supports signing multiple messages whilst producing a single output digital signature. Through this capability, the possessor of a signature is able to derive proofs that selectively disclose subsets of the originally signed set of messages, whilst preserving the verifiable authenticity and integrity of the messages. Furthermore, these derived proofs are said to be zero-knowledge in nature as they do not reveal the underlying signature; instead, what they reveal is a proof of knowledge of the undisclosed signature.
+BBS is a digital signature scheme categorized as a form of short group signature that supports several unique properties. Notably, the scheme supports signing multiple messages whilst producing a single output digital signature. Through this capability, the possessor of a signature is able to derive proofs that selectively disclose subsets of the originally signed set of messages, whilst preserving the verifiable authenticity and integrity of the messages. Furthermore, these derived proofs are said to be zero-knowledge in nature as they do not reveal the underlying signature; instead, what they reveal is a proof of knowledge of the undisclosed signature.
 
 {mainmatter}
 
@@ -129,9 +129,6 @@ H_d
 signature
 : The digital signature output.
 
-commitment
-: A pedersen commitment composed of 1 or more messages.
-
 nonce
 : A cryptographic nonce
 
@@ -157,10 +154,8 @@ The following notation and primitives are used:
 a || b
 : Denotes the concatenation of octet strings a and b.
 
-I \ J
+I \\ J
 : For sets I and J, denotes the difference of the two sets i.e., all the elements of I that do not appear in J, in the same order as they were in I.
-
-\[n\]: Denotes all integers from 1 to n.
 
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
@@ -195,7 +190,7 @@ octets\_to\_point(ostr) -> P
 : returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point\_to\_octets.  This operation is also known as deserialization.
 
 subgroup\_check(P) -> VALID or INVALID
-: returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [Bowe19].
+: returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [@Bowe19].
 
 ## Organization of this document
 
@@ -223,7 +218,7 @@ The schemes operations defined in (#operations) depend the following parameters:
 
 * A pairing-friendly elliptic curve, plus associated functionality given in Section 1.4.
 
-* hash, a hash function that MUST be a secure cryptographic hash function. For security, hash MUST output at least ceil(log2(q)) bits, where q is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve. See [Encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
+* hash, a hash function that MUST be a secure cryptographic hash function. For security, hash MUST output at least `ceil(log2(q))` bits, where q is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve. See [encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
 
 * xof, a cryptographically secure extendable-output function like SHAKE128 or SHAKE256. xof outputs any desirable amount of bytes using the `.read(int)` method. See [Encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
 
@@ -270,11 +265,13 @@ As an example of the above transformations, consider the following. Assume that 
 
 For readability, this document makes these transformations implicitly, but they MUST precede every call to the hash or xof function.
 
+Optional input/parameters to operations that feature in a call to a HASH or XOF function, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `HASH(A || X || B)` MUST be evaluated to `HASH(A || "" || B)`.
+
 ## Operations
 
 ### KeyGen
 
-The KeyGen algorithm generates a secret key SK deterministically from a secret octet string IKM.
+This operation generates a secret key (SK) deterministically from a secret octet string (IKM).
 
 KeyGen uses an HKDF [@!RFC5869] instantiated with the hash function hash.
 
@@ -291,15 +288,11 @@ SK = KeyGen(IKM)
 
 Inputs:
 
-- IKM, a secret octet string. See requirements above.
-
-Outputs:
-
-- SK, a uniformly random integer such that 0 < SK < q.
+- IKM (REQUIRED), a secret octet string. See requirements above.
 
 Parameters:
 
-- key_info, an optional octet string. if this is not supplied, it MUST default to an empty string.
+- key_info (OPTIONAL), an octet string. if this is not supplied, it MUST default to an empty string.
 
 Definitions:
 
@@ -309,7 +302,12 @@ Definitions:
 - L is the integer given by ceil((3 * ceil(log2(q))) / 16).
 - INITSALT is the ASCII string "BBS-SIG-KEYGEN-SALT-".
 
+Outputs:
+
+- SK, a uniformly random integer such that 0 < SK < q.
+
 Procedure:
+
 1. salt = INITSALT
 
 2. SK = 0
@@ -327,18 +325,18 @@ Procedure:
 8. return SK
 ```
 
-**Note** This operation is the RECOMMENDED way of generating secret keys, but its use is not required for compatibility, and implementations MAY use a different KeyGen procedure.  For security, such an alternative KeyGen procedure MUST output SK that is statistically close to uniformly random in the range 1 <= SK < r.
+**Note** This operation is the RECOMMENDED way of generating a secret key, but its use is not required for compatibility, and implementations MAY use a different KeyGen procedure. For security, such an alternative MUST output a secret key that is statistically close to uniformly random in the range 1 <= SK < r.
 
 ### SkToPk
 
-SkToPk algorithm takes a secret key SK and outputs a corresponding public key.
+This operation takes a secret key (SK) and outputs a corresponding public key (PK).
 
 ```
 PK = SkToPk(SK)
 
 Inputs:
 
-- SK, a secret integer such that 0 < SK < q.
+- SK (REQUIRED), a secret integer such that 0 < SK < q.
 
 Outputs:
 
@@ -355,16 +353,16 @@ Procedure:
 
 ### KeyValidate
 
-KeyValidate checks if the public key is valid.
+This operation checks if a public key is valid.
 
-As an optimization, implementations MAY cache the result of KeyValidate in order to avoid unnecessarily repeating validation for known keys.
+As an optimization, implementations MAY cache the result of KeyValidate in order to avoid unnecessarily repeating validation for known public keys.
 
 ```
 result = KeyValidate(PK)
 
 Inputs:
 
-- PK, a public key in the format output by SkToPk.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 
 Outputs:
 
@@ -385,31 +383,32 @@ Procedure:
 
 ### Sign
 
-Sign computes a signature from SK, PK, over a vector of messages. This method
-describes deterministic signing. For threshold signing, xof can be replaced
-with a PRF due to the insecurity of deterministic threshold signing.
+This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages.
 
 ```
-signature = Sign(SK, PK, (msg_1,..., msg_L), (H_1,..., H_L), header)
+signature = Sign(SK, PK, header, (msg_1,..., msg_L), (H_1,..., H_L))
 
 Inputs:
 
-- msg_1,..., msg_L, octet strings. Messages to be signed.
-- H_1,..., H_L, points of G1. Generators used to sign the messages.
-- SK, a secret key output from KeyGen.
-- PK, a public key output from SkToPk.
-- header, an optional octet string containing context and application specific
-          information. If not supplied, it defaults to an empty string.
+- SK (REQUIRED), an octet string of the form outputted by the KeyGen operation.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation provided the above SK as input.
+- header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- msg_1,..., msg_L (OPTIONAL), a vector of octet strings.
+- H_1,..., H_L (OPTIONAL), points of G1. Generators used to commit each message.
 
 Parameters:
 
-- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
-- H_s, point of G1. The generator for the blinding value of the signature.
-- H_d, point of G1. The generator used to sign the signature domain.
+- Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
+- H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
+- H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
+
+Definitions:
+
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L).  Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
-- signature, an octet string.
+- signature, a signature encoded as an octet string.
 
 Procedure:
 
@@ -419,11 +418,11 @@ Procedure:
 
 3. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-4. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+3. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
 
 5. if domain is 0, abort
 
-6. h = xof(SK  || domain || msg_1 || ... || msg_L)
+5. h = xof(SK  || domain || msg_1 || ... || msg_L)
 
 7. for element in (e, s) do
 
@@ -442,25 +441,28 @@ Procedure:
 
 ### Verify
 
-Verify checks that a signature is valid for the octet string messages under the public key.
+This operation checks that a signature is valid for a given header and vector of messages against a supplied public key (PK).
 
 ```
-result = Verify(PK, (msg_1,..., msg_L), (H_1,..., H_L), signature, header)
+result = Verify(PK, signature, header, (msg_1,..., msg_L), (H_1,..., H_L))
 
 Inputs:
 
-- msg_1,..., msg_L, octet strings. Messages in input to Sign.
-- H_1,..., H_L, points of G1. The generators in input to Sign.
-- signature, octet string.
-- PK, a public key in the format output by SkToPk.
-- header, an optional octet string containing context and application specific
-          information. If not supplied, it defaults to an empty string.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
+- signature (REQUIRED), an octet string of the form outputted by the Sign operation.
+- header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- msg_1,..., msg_L (OPTIONAL), an optional vector of octet strings.
+- H_1,..., H_L (OPTIONAL), points of G1. Generators used to commit each message.
 
 Parameters:
 
-- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
-- H_s, point of G1. The generator for the blinding value of the signature.
-- H_d, point of G1. The generator used to sign the signature domain.
+- Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
+- H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
+- H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
+
+Definitions:
+
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L). Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -493,29 +495,33 @@ Procedure:
 
 ### ProofGen
 
-A signature proof of knowledge generating algorithm that creates a zero-knowledge proof of knowledge of a signature while selectively disclosing messages from a signature given a vector of messages, a vector of indices of the revealed messages, the signer's public key, and a presentation header (see [Presentation header selection](#presentation-header-selection) for more details).
+This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [presentation header selection](#presentation-header-selection) for more details.
 
 If an application chooses to pass the indexes of the generators instead, then it will also need to pass the indexes of the generators corresponding to the revealed messages.
 
 ```
-proof = ProofGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signature, header, ph)
+proof = ProofGen(PK, signature, header, ph, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes)
 
 Inputs:
 
-- PK, octet string in output form from SkToPk.
-- msg_1,..., msg_L, octet strings. Messages in input to Sign.
-- H_1,..., H_L, points of G1. The generators in input to Sign.
-- RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
-- signature, octet string in output form from Sign.
-- header, an optional octet string containing context and application specific
-          information. If not supplied, it defaults to an empty string.
-- ph, octet string.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
+- signature (REQUIRED), an octet string of the form outputted by the Sign operation.
+- header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- ph (OPTIONAL), octet string.
+- msg_1,..., msg_L (OPTIONAL), octet strings. Messages in input to Sign.
+- H_1,..., H_L (OPTIONAL), points of G1. The generators in input to Sign.
+- RevealedIndexes (OPTIONAL), vector of unsigned integers. Indexes of revealed messages.
 
 Parameters:
 
-- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
-- H_s, point of G1. The generator for the blinding value of the signature.
-- H_d, point of G1. The generator used to sign the signature domain.
+- Ciphersuite_ID (REQUIRED), octet string. The unique ID of the ciphersuite.
+- H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
+- H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
+
+Definitions:
+
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L). Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed messages e.g length(RevealedIndexes). Note if no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
 
 Outputs:
 
@@ -578,27 +584,31 @@ Procedure:
 
 ### ProofVerify
 
-ProofVerify checks if a signature proof of knowledge is valid given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation header used in ProofGen.
+This operation checks that a proof is valid for a header, vector of revealed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
 ```
-result = ProofVerify(proof, PK, (msg_i1,..., msg_iR), (H_1,..., H_L), RevealedIndexes, header, ph)
+result = ProofVerify(PK, proof, ph, header, (msg_i1,..., msg_iR), RevealedIndexes, (H_1,..., H_L))
 
 Inputs:
 
-- proof, octet string.
-- PK, octet string in output form from SkToPk.
-- msg_i1,..., msg_iR, octet strings. The revealed messages in input to ProofGen.
-- H_1,..., H_L, points of G1. The generators in input to Sign.
-- RevealedIndexes, vector of unsigned integers. Indexes of revealed messages.
-- header, an optional octet string containing context and application specific
-          information. If not supplied, it defaults to an empty string.
-- ph, octet string
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
+- proof (REQUIRED), an octet string of the form outputted by the ProofGen operation.
+- ph (REQUIRED), octet string.
+- header (OPTIONAL), an optional octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- msg_i1,..., msg_iR (OPTIONAL), octet strings. The revealed messages in input to ProofGen.
+- RevealedIndexes (OPTIONAL), vector of unsigned integers. Indexes of revealed messages.
+- H_1,..., H_L (OPTIONAL), points of G1. The generators in input to Sign.
 
 Parameters:
 
-- Ciphersuite_ID, octet string. The unique ID of the ciphersuite.
-- H_s, point of G1. The generator for the blinding value of the signature.
-- H_d, point of G1. The generator used to sign the signature domain.
+- Ciphersuite_ID (REQUIRED), octet string. The unique ID of the ciphersuite.
+- H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
+- H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
+
+Definitions:
+
+- L, is the non-negative integer representing the number of messages to be signed e.g length(msg_1,...,msg_L). Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed messages e.g length(RevealedIndexes). Note if no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
 
 Outputs:
 
@@ -637,18 +647,16 @@ Procedure:
 
 ### CreateGenerators
 
-The CreateGenerators operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as sign, verify, ProofGen and ProofVerify.
-
-*Note* The scope in which the seed used below is determined, is still an active conversation in the working group see (#ciphersuites) for the current method being used.
+The CreateGenerators operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as Sign, Verify, ProofGen and ProofVerify.
 
 ```
 generators = CreateGenerators(dst, message_generator_seed, length);
 
 Inputs:
 
-- dst, octet string. Domain Separation Tag.
-- message_generator_seed, octet string.
-- length, unsigned integer. Number of generators to create from the seed and dst.
+- dst (REQUIRED), octet string. Domain Separation Tag.
+- message_generator_seed (REQUIRED), octet string.
+- length (REQUIRED), unsigned integer. Number of generators to create from the seed and dst.
 
 Outputs:
 
@@ -668,12 +676,12 @@ Procedure:
 
 6.        if candidate not in generators: generator_i = candidate
 
-3. return generators
+7. return generators
 ```
 
 ### MapMessageToScalar
 
-There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the sign, verify, ProofGen and ProofVerify operations.
+There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the Sign, Verify, ProofGen and ProofVerify operations.
 
 #### MapMessageToScalarAsHash
 
@@ -684,12 +692,12 @@ result = MapMessageToScalarAsHash(msg, dst)
 
 Inputs:
 
-- msg: octet string.
-- dst: Domain separation tag; note this is not defined as a function argument as per [@!I-D.irtf-cfrg-hash-to-curve] instead as a parameter.
+- msg (REQUIRED), octet string.
+- dst (REQUIRED), octet string. Domain separation tag; note this is not defined as a function argument as per [@!I-D.irtf-cfrg-hash-to-curve] instead as a parameter.
 
 Outputs:
 
-- result: scalar value.
+- result, a scalar value.
 
 Procedure:
 
@@ -705,6 +713,7 @@ Procedure:
 ```
 
 ### Hash to scalar
+
 This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod q. This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [spkGen](#spkgen) and [spkVerify](#spkverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
 The `hash_to_scalar` procedure hashes elements using an extendable-output function (xof). Applications not wishing to use an xof may use `hash_to_field` defined in Section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve], combined with `expand_message_xmd` defined in Section 5.4.1 of the same document, in place of `hash_to_scalar`. In that case, every element outputted by `hash_to_field` that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using `hash_to_field`), until they get `n` non-zero elements (for example, if there is only one 0 in the output of `hash_to_field(msg, 2)` one must try to calculate `hash_to_field(msg, 3)` etc.).
@@ -714,17 +723,17 @@ result = hash_to_scalar(msg_octets, n)
 
 Inputs:
 
-- msg_octets: octet string. The message to be hashed.
-- n: non-negative integer. The number of scalars to output.
+- msg_octets (REQUIRED), octet string. The message to be hashed.
+- n (REQUIRED), non-negative integer. The number of scalars to output.
 
 Parameters:
 
-- q: non-negative integer. The prime order of the G_1 and G_2 groups,
+- q (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups,
      defined by the ciphersuite.
 
 Outputs:
 
-- (scalar_1, ..., scalar_n): a list of scalars. A list of non-zero scalars mod q.
+- (scalar_1, ..., scalar_n), a list of non-zero scalars mod q.
 
 Procedure:
 
@@ -783,7 +792,7 @@ In addition, ciphersuites MUST specify unique domain separation tags for hash\_t
 
 BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a ciphersuite for using the BLS12-381 curve in (#ciphersuites) which as a curve achieves around 117 bits of security according to a recent NCC ZCash cryptography review [@ZCASH-REVIEW].
 
-## Security of Proofs generated by ProofGen
+## Security of proofs generated by ProofGen
 
 The proof, as returned by ProofGen, is a zero-knowledge proof-of-knowledge [@CDL16]. This guarantees that no information will be revealed about the signature itself or the undisclosed messages, from the output of ProofGen. Note that the security proofs in [@CDL16] work on type 3 pairing setting. This means that G1 should be different from G2 and with no efficient isomorphism between them.
 
@@ -835,25 +844,25 @@ hash\_to\_curve_g1
 : follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup
 
 hash\_to\_curve\_g1\_dst
-: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO"
+: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO"
 
 hash\_to\_field
 : adopts the required parameters from the suites defined in (#bls12-381-hash-to-curve-definition-using-shake-256) to satisfy those described in section 5.3 [@!I-D.irtf-cfrg-hash-to-curve] along with the defined dst
 
 hash\_to\_field\_dst
-: "BBS_BLS12381FQ_XOF:SHAKE-256_SSWU_RO"
+: "BBS\_BLS12381FQ\_XOF:SHAKE-256\_SSWU\_RO"
 
 message\_generator\_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
+: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
 
 blind\_value\_generator\_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_BLINDING_VALUE_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
+: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_BLINDING\_VALUE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
 
 signature\_dst\_generator\_seed
-: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIGNATURE_DST_GENERATOR_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
+: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_DST\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 hashing\_elements\_to\_scalars
-: hash_to_scalar
+: hash\_to\_scalar
 
 xof\_no\_of\_bytes
 : 64
@@ -1265,6 +1274,16 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
         EQ2.  C2 = D * (-r3) + H0 * s' + H_j1 * msg_j1 + ... + H_jU * msg_jU.
 
   If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The proof returned is `(A', Abar, d, nizk)`. To validate the proof, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
+
+<reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
+  <front>
+    <title>Faster subgroup checks for BLS12-381</title>
+    <author initials="S." surname="Bowe" fullname="Sean Bowe">
+      <organization>Electric Coin Company</organization>
+    </author>
+    <date year="2019" month="July"/>
+  </front>
+</reference>
 
 <reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-208.pdf">
  <front>
