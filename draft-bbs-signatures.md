@@ -120,9 +120,6 @@ msg
 generator
 : A valid point on the selected sub-group of the curve being used that is used to commit a value.
 
-H\[i\]
-: The generator corresponding to a given msg.
-
 H_s
 : A generator for the blinding value in the signature. The value of H_s is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.
 
@@ -375,15 +372,15 @@ Outputs:
 
 Procedure:
 
-1. (W, H0, H) = octets_to_point(PK)
+1. W = octets_to_point(PK)
 
-2. If W == Identity_G2, return INVALID
+2. if W is INVALID, return INVALID
 
-3. result = subgroup_check(W) && subgroup_check(H0)
+3. if subgroup_check(A) is INVALID, return INVALID
 
-4. for i in 0 to len(H): result &= subgroup_check(H[i])
+4. If W == Identity_G2, return INVALID
 
-5. return result
+5. return VALID
 ```
 
 ### Sign
@@ -416,29 +413,31 @@ Outputs:
 
 Procedure:
 
-1. (W, H0, H) = octets_to_point(PK)
+1. W = octets_to_point(PK)
 
-2. generators =  (H_s || H_d || H_1 || ... || H_L)
+2. if W is INVALID, abort
 
-3. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
+3. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-4. if domain is 0, abort
+4. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-5. h = XOF(SK  || domain || msg_1 || ... || msg_L)
+5. if domain is 0, abort
 
-6. for element in (e, s) do
+6. h = XOF(SK  || domain || msg_1 || ... || msg_L)
 
-7.      element = OS2IP(h.read(xof_no_of_bytes)) mod q
+7. for element in (e, s) do
 
-8.      if element = 0, go back to step 4
+8.      element = OS2IP(h.read(xof_no_of_bytes)) mod q
 
-9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+9.      if element = 0, go back to step 4
 
-10. A = B * (1 / (SK + e))
+10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-11. signature = (point_to_octets_min(A), e, s)
+11. A = B * (1 / (SK + e))
 
-12. return signature
+12. signature = (point_to_octets_min(A), e, s)
+
+13. return signature
 ```
 
 ### Verify
@@ -471,23 +470,25 @@ Procedure:
 
 1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
 
-2. pub_key = octets_to_point(PK)
+2. if A is INVALID return INVALID
 
-3. if subgroup_check(A) is INVALID
+3. if subgroup_check(A) is INVALID, return INVALID
 
-4. if KeyValidate(pub_key) is INVALID
+4. if KeyValidate(PK) is INVALID, return INVALID
 
-5. generators =  (H_s || H_d || H_1 || ... || H_L)
+5. W = octets_to_point(PK)
 
-6. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
+6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+7. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-8. C1 = e(A, W + P2 * e)
+8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-9. C2 = e(B, P2)
+9. C1 = e(A, W + P2 * e)
 
-10. return C1 == C2
+10. C2 = e(B, P2)
+
+11. return C1 == C2
 ```
 
 ### ProofGen
@@ -518,7 +519,7 @@ Parameters:
 
 Outputs:
 
-- proof, octet string.
+- proof, octet string; or INVALID.
 
 Procedure:
 
@@ -528,9 +529,9 @@ Procedure:
 
 3. (j1, j2,..., jU) = [L] \ RevealedIndexes
 
-4. if subgroup_check(A) is INVALID abort
+4. if subgroup_check(A) is INVALID, return INVALID
 
-5. if KeyValidate(PK) is INVALID abort
+5. if KeyValidate(PK) is INVALID, return INVALID
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
@@ -605,7 +606,7 @@ Outputs:
 
 Procedure:
 
-1. if KeyValidate(PK) is INVALID
+1. if KeyValidate(PK) is INVALID, return INVALID
 
 2. (i1, i2, ..., iR) = RevealedIndexes
 
@@ -625,11 +626,11 @@ Procedure:
 
 10. cv = HASH(PK || Abar || A' || D || C1 || C2 || ph)
 
-11. if c != cv return INVALID
+11. if c != cv, return INVALID
 
-12. if A' == 1 return INVALID
+12. if A' == 1, return INVALID
 
-13. if e(A', W) * e(Abar, -P2) != 1 return INVALID
+13. if e(A', W) * e(Abar, -P2) != 1, return INVALID
 
 14. return VALID
 ```
