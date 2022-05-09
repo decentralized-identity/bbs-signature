@@ -416,27 +416,27 @@ Procedure:
 
 2. if W is INVALID, abort
 
-2. generators =  (H_s || H_d || H_1 || ... || H_L)
+3. generators =  (H_s || H_d || H_1 || ... || H_L)
 
 3. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-4. if domain is 0, abort
+5. if domain is 0, abort
 
 5. h = xof(SK  || domain || msg_1 || ... || msg_L)
 
-6. for element in (e, s) do
+7. for element in (e, s) do
 
-7.      element = OS2IP(h.read(xof_no_of_bytes)) mod q
+8.      element = OS2IP(h.read(xof_no_of_bytes)) mod q
 
-8.      if element = 0, go back to step 4
+9.      if element = 0, go back to step 4
 
-9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-10. A = B * (1 / (SK + e))
+11. A = B * (1 / (SK + e))
 
-11. signature = (point_to_octets_min(A), e, s)
+12. signature = (point_to_octets_min(A), e, s)
 
-12. return signature
+13. return signature
 ```
 
 ### Verify
@@ -676,7 +676,7 @@ Procedure:
 
 6.        if candidate not in generators: generator_i = candidate
 
-3. return generators
+7. return generators
 ```
 
 ### MapMessageToScalar
