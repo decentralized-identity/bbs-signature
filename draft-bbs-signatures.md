@@ -542,7 +542,7 @@ Procedure:
 
 5. (A, e, s) = signature_result
 
-6. if KeyValidate(PK) is INVALID abort
+6. if KeyValidate(PK) is INVALID, return INVALID
 
 7. generators =  (H_s || H_d || H_1 || ... || H_L)
 
