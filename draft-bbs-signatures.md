@@ -479,23 +479,21 @@ Procedure:
 
 3. (A, e, s) = signature_result
 
-4. pub_key = octets_to_point(PK)
+4. if KeyValidate(PK) is INVALID, return INVALID
 
-5. if subgroup_check(A) is INVALID
+5. W = octets_to_point(PK)
 
-6. if KeyValidate(pub_key) is INVALID
+6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. generators =  (H_s || H_d || H_1 || ... || H_L)
+7. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-8. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
+8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+9. C1 = e(A, W + P2 * e)
 
-10. C1 = e(A, W + P2 * e)
+10. C2 = e(B, P2)
 
-11. C2 = e(B, P2)
-
-12. return C1 == C2
+11. return C1 == C2
 ```
 
 ### ProofGen
@@ -788,11 +786,11 @@ Procedure:
 
 5. index = octet_point_length
 
-5. e = OS2IP(signature_octets[index..(index + scalar_length - 1])) mod q
+5. e = OS2IP(signature_octets[index..(index + scalar_length - 1]))
 
 6. index += scalar_length
 
-6. s = OS2IP(signature_octets[index..(index + scalar_length - 1)]) mod q
+6. s = OS2IP(signature_octets[index..(index + scalar_length - 1)])
 
 6. return (A, e, s)
 ```
