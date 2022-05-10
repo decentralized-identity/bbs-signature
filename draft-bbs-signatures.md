@@ -435,7 +435,7 @@ Procedure:
 
 10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-11. A = B * (1 / (SK + e))
+11. A = B * (1 / (SK + e)) // Check A or B?
 
 12. signature = signature_to_octets(A, e, s)
 
@@ -766,7 +766,7 @@ This operation describes how to decode an octet string, validate it and return t
 
 Inputs:
 
-- signature_octets, octet string.
+- signature_octets (REQUIRED), octet string.
 
 Parameters:
 
@@ -778,21 +778,21 @@ Outputs:
 
 Procedure:
 
-1. if len(signature_octets) != (octet_point_length + 2 * xof_no_of_bytes), return INVALID
+1. if len(signature_octets) != (octet_point_length + 2 * scalar_length), return INVALID
 
 2. a_octets = signature_octets[0..(octet_point_length - 1)]
 
 3. A = octets_to_point(a_octets)
 
-4. if A is INVALID, return INVALID // TODO Check A in other ways here should we be calling IsValidPoint?
+4. if A is INVALID, return INVALID
 
 5. index = octet_point_length
 
-5. e = OS2IP(signature_octets[index..(index + xof_no_of_bytes - 1])) mod q
+5. e = OS2IP(signature_octets[index..(index + scalar_length - 1])) mod q
 
-6. index += xof_no_of_bytes
+6. index += scalar_length
 
-6. s = OS2IP(signature_octets[index..(index + xof_no_of_bytes - 1)]) mod q
+6. s = OS2IP(signature_octets[index..(index + scalar_length - 1)]) mod q
 
 6. return (A, e, s)
 ```
@@ -801,14 +801,17 @@ Procedure:
 
 This operation describes how to encode a signature to an octet string.
 
+*Note* this operation deliberately does not perform the relevant checks on the inputs `A` `e` and `s`
+because its assumed these are done prior to its invocation, e.g as is the case with the Sign operation.
+
 ```
 signature_octets = signature_to_octets(A, e, s)
 
 Inputs:
 
-- A,
-- e,
-- s,
+- A (REQUIRED), a valid point // TODO need to qualify this more?
+- e (REQUIRED), a non-negative integer representing a valid scalar value
+- s (REQUIRED), a non-negative integer representing a valid scalar value
 
 Outputs:
 
@@ -816,15 +819,13 @@ Outputs:
 
 Procedure:
 
-// Assume point is valid e and s non zero?
-
 1. a_octets = point_to_octets(A)
 
-2. e_octets = I2OSP(e, xof_no_of_bytes)
+2. e_octets = I2OSP(e, scalar_length)
 
-3. s_octets = I2OSP(s, xof_no_of_bytes)
+3. s_octets = I2OSP(s, scalar_length)
 
-4. return [ ...a_octets, ...e_octets, ...s_octets ] // TODO document the spread operation??
+4. return (a_octets || e_octets || s_octets)
 ```
 
 # Security Considerations
@@ -908,6 +909,8 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
+- scalar\_length: Number of bytes required to represent a scalar value as an octet string. It is RECOMMENDED this value be set to `ceil(log2(q)/8)`.
+
 ## BLS12-381 Ciphersuite
 
 hash
@@ -941,10 +944,13 @@ signature\_dst\_generator\_seed
 : A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_DST\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 hashing\_elements\_to\_scalars
-: hash\_to\_scalar
+: hash\_to\_scalar.
 
 xof\_no\_of\_bytes
-: 64
+: 64.
+
+scalar\_length
+: 32, based on the RECOMMENDED approach of `ceil(log2(q)/8)`.
 
 ### Test Vectors
 
