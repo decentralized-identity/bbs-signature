@@ -534,13 +534,13 @@ Procedure:
 
 1. signature_result = octets_to_signature(signature)
 
-2. if signature_result is INVALID, return INVALID
+2. (i1, i2,..., iR) = RevealedIndexes
 
-3. (A, e, s) = signature_result
+3. (j1, j2,..., jU) = [L] \ RevealedIndexes
 
-4. (i1, i2,..., iR) = RevealedIndexes
+4. if signature_result is INVALID, return INVALID
 
-5. (j1, j2,..., jU) = [L] \ RevealedIndexes
+5. (A, e, s) = signature_result
 
 6. if KeyValidate(PK) is INVALID abort
 
