@@ -568,9 +568,9 @@ Procedure:
 
 18. C1 = A' * e~ + H_s * r2~
 
-19. c = hash(PK || Abar || A' || D || C1 || C2 || ph)
+19. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-20. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+20. c = hash(PK || Abar || A' || D || C1 || C2 || ph)
 
 21. e^ = e~ + c * e
 
