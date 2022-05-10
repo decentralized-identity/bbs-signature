@@ -485,7 +485,7 @@ Procedure:
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. domain = OS2IP(HASH(PK || L || generators || Ciphersuite_ID || header)) mod q
+7. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
 
 8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -542,51 +542,49 @@ Procedure:
 
 5. (j1, j2,..., jU) = [L] \ RevealedIndexes
 
-6. if subgroup_check(A) is INVALID, return INVALID
+6. if KeyValidate(PK) is INVALID abort
 
-7. if KeyValidate(PK) is INVALID abort
+7. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-8. generators =  (H_s || H_d || H_1 || ... || H_L)
+8. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-9. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+9. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
 
-10. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
+10.      element = hash(PRF(8*ceil(log2(q)))) mod q
 
-11.      element = hash(PRF(8*ceil(log2(q)))) mod q
+11.      if element = 0, go back to step 7
 
-12.      if element = 0, go back to step 7
+12. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-13. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+13. r3 = r1 ^ -1 mod q
 
-14. r3 = r1 ^ -1 mod q
+14. A' = A * r1
 
-15. A' = A * r1
+15. Abar = A' * (-e) + B * r1
 
-16. Abar = A' * (-e) + B * r1
+16. D = B * r1 + H_s * r2
 
-17. D = B * r1 + H_s * r2
+17. s' = s + r2 * r3
 
-18. s' = s + r2 * r3
+18. C1 = A' * e~ + H_s * r2~
 
-19. C1 = A' * e~ + H_s * r2~
+19. c = hash(PK || Abar || A' || D || C1 || C2 || ph)
 
-20. c = hash(PK || Abar || A' || D || C1 || C2 || ph)
+20. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-21. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+21. e^ = e~ + c * e
 
-22. e^ = e~ + c * e
+22. r2^ = r2~ + c * r2
 
-23. r2^ = r2~ + c * r2
+23. r3^ = r3~ + c * r3
 
-24. r3^ = r3~ + c * r3
+24. s^ = s~ + c * s'
 
-25. s^ = s~ + c * s'
+25. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
 
-26. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+26. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 
-27. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
-
-28. return proof
+27. return proof
 ```
 
 ### ProofVerify
