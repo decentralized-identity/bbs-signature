@@ -780,6 +780,8 @@ Procedure:
 
 4. if A is INVALID, return INVALID
 
+5. if A == Identity_G1, return INVALID
+
 5. index = octet_point_length
 
 6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1]))
@@ -807,7 +809,7 @@ signature_octets = signature_to_octets(A, e, s)
 
 Inputs:
 
-- A (REQUIRED), a valid point in the G1 subgroup.
+- A (REQUIRED), a valid point in the G1 subgroup which cannot be the identity point.
 - e (REQUIRED), a non-negative integer representing a valid scalar value with the range of 0 < e < q.
 - s (REQUIRED), a non-negative integer representing a valid scalar value with the range of 0 < e < q.
 
@@ -891,11 +893,11 @@ a function that returns the point P corresponding to the canonical representatio
 - hash\_to\_curve\_g1:
 A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
-- hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation
+- hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation.
 
-- hash\_to\_field: A cryptographic hash function that follows the procedure outlined in section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve]
+- hash\_to\_field: A cryptographic hash function that follows the procedure outlined in section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve].
 
-- hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation
+- hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation.
 
 - hashing\_elements\_to\_scalars: either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
 
@@ -914,7 +916,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 ## BLS12-381 Ciphersuite
 
 hash
-: SHAKE-256 as defined in [@!SHA3]
+: SHAKE-256 as defined in [@!SHA3].
 
 point\_to\_octets
 : follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
@@ -923,16 +925,16 @@ octets\_to\_point
 : follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 hash\_to\_curve_g1
-: follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup
+: follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
 hash\_to\_curve\_g1\_dst
-: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO"
+: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO".
 
 hash\_to\_field
-: adopts the required parameters from the suites defined in (#bls12-381-hash-to-curve-definition-using-shake-256) to satisfy those described in section 5.3 [@!I-D.irtf-cfrg-hash-to-curve] along with the defined dst
+: adopts the required parameters from the suites defined in (#bls12-381-hash-to-curve-definition-using-shake-256) to satisfy those described in section 5.3 [@!I-D.irtf-cfrg-hash-to-curve] along with the defined dst.
 
 hash\_to\_field\_dst
-: "BBS\_BLS12381FQ\_XOF:SHAKE-256\_SSWU\_RO"
+: "BBS\_BLS12381FQ\_XOF:SHAKE-256\_SSWU\_RO".
 
 message\_generator\_seed
 : A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
