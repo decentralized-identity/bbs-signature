@@ -766,7 +766,9 @@ Inputs:
 
 Outputs:
 
-- A map comprised of the underlying signature components `A` `e` and `s`, OR the result INVALID
+- A, a valid point in the G1 subgroup.
+- e, a non-negative integer representing a valid scalar value with the range of 0 < e < q.
+- s, a non-negative integer representing a valid scalar value with the range of 0 < e < q.
 
 Procedure:
 
@@ -780,13 +782,17 @@ Procedure:
 
 5. index = octet_point_length
 
-5. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1]))
+6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1]))
 
-6. index += octet_scalar_length
+7. if e <= 0 OR e >= q, return INVALID
 
-6. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+8. index += octet_scalar_length
 
-6. return (A, e, s)
+9. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+
+10. if s <= 0 OR s >= q, return INVALID
+
+11. return (A, e, s)
 ```
 
 ### SignatureToOctets
