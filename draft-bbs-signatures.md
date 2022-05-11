@@ -762,7 +762,7 @@ This operation describes how to decode an octet string, validate it and return t
 
 Inputs:
 
-- signature_octets (REQUIRED), octet string.
+- signature_octets (REQUIRED), octet string of the form output from signature_to_octets operation
 
 Parameters:
 
