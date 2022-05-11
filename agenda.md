@@ -18,7 +18,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 9th May 2022 - (6pm UTC)
+## Meeting - Monday 16th May 2022 - (6pm UTC)
 
 ### Chair
 
@@ -29,14 +29,7 @@ Tobias Looker
 - IPR reminder, and Introductions
 - Agenda bashing
 - Other items
-    - BoF Session IETF 114
-    - Prototype implementation (Christian?)
-    - Agree timeline for implementers draft
-    - Other implementation status
 - PR review
-    - [Editorial pass](https://github.com/decentralized-identity/bbs-signature/pull/129)
-    - [Adding revealed messages to challenge hash](https://github.com/decentralized-identity/bbs-signature/pull/128)
-    - [Update KeyValidate Operation](https://github.com/decentralized-identity/bbs-signature/pull/115)
 - Issue Review
 
 ### Attendees
@@ -45,6 +38,7 @@ Tobias Looker
 
 ## Previous Meetings
 
+- [9th May 2022](./meetings/2022-05-09/agenda.md)
 - [2nd May 2022](./meetings/2022-05-02/agenda.md)
 - [18th April 2022](./meetings/2022-04-18/agenda.md)
 - [5th April 2022](./meetings/2022-04-05/agenda.md)
