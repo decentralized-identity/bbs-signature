@@ -435,11 +435,11 @@ Procedure:
 
 10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-11. A = B * (1 / (SK + e)) // Check A or B?
+11. A = B * (1 / (SK + e))
 
 12. signature_octets = signature_to_octets(A, e, s)
 
-13. return signature
+13. return signature_octets
 ```
 
 ### Verify
@@ -762,11 +762,7 @@ This operation describes how to decode an octet string, validate it and return t
 
 Inputs:
 
-- signature_octets (REQUIRED), octet string of the form output from signature_to_octets operation
-
-Parameters:
-
-- octet_point_length, the length in bytes of the octet string output by the point_to_octets function
+- signature_octets (REQUIRED), octet string of the form output from signature_to_octets operation.
 
 Outputs:
 
@@ -774,7 +770,7 @@ Outputs:
 
 Procedure:
 
-1. if len(signature_octets) != (octet_point_length + 2 * scalar_length), return INVALID
+1. if len(signature_octets) != (octet_point_length + 2 * octet_scalar_length), return INVALID
 
 2. a_octets = signature_octets[0..(octet_point_length - 1)]
 
@@ -784,11 +780,11 @@ Procedure:
 
 5. index = octet_point_length
 
-5. e = OS2IP(signature_octets[index..(index + scalar_length - 1]))
+5. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1]))
 
-6. index += scalar_length
+6. index += octet_scalar_length
 
-6. s = OS2IP(signature_octets[index..(index + scalar_length - 1)])
+6. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
 
 6. return (A, e, s)
 ```
@@ -805,9 +801,9 @@ signature_octets = signature_to_octets(A, e, s)
 
 Inputs:
 
-- A (REQUIRED), a valid point // TODO need to qualify this more?
-- e (REQUIRED), a non-negative integer representing a valid scalar value
-- s (REQUIRED), a non-negative integer representing a valid scalar value
+- A (REQUIRED), a valid point in the G1 subgroup.
+- e (REQUIRED), a non-negative integer representing a valid scalar value with the range of 0 < e < q.
+- s (REQUIRED), a non-negative integer representing a valid scalar value with the range of 0 < e < q.
 
 Outputs:
 
@@ -817,9 +813,9 @@ Procedure:
 
 1. A_octets = point_to_octets(A)
 
-2. e_octets = I2OSP(e, scalar_length)
+2. e_octets = I2OSP(e, octet_scalar_length)
 
-3. s_octets = I2OSP(s, scalar_length)
+3. s_octets = I2OSP(s, octet_scalar_length)
 
 4. return (a_octets || e_octets || s_octets)
 ```
@@ -905,7 +901,9 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
-- scalar\_length: Number of bytes required to represent a scalar value as an octet string. It is RECOMMENDED this value be set to `ceil(log2(q)/8)`.
+- octet\_scalar\_length: Number of bytes to represent a scalar value encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(q)/8)`.
+
+- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the point_to_octets function. It is RECOMMENDED that this value is set to `ceil(log(p)/8)`.
 
 ## BLS12-381 Ciphersuite
 
@@ -945,8 +943,11 @@ hashing\_elements\_to\_scalars
 xof\_no\_of\_bytes
 : 64.
 
-scalar\_length
+octet\_scalar\_length
 : 32, based on the RECOMMENDED approach of `ceil(log2(q)/8)`.
+
+octet\_point\_length
+: 48, based on the RECOMMENDED approach of `ceil(log(q)/8)`.
 
 ### Test Vectors
 
