@@ -815,7 +815,7 @@ Outputs:
 
 Procedure:
 
-1. a_octets = point_to_octets(A)
+1. A_octets = point_to_octets(A)
 
 2. e_octets = I2OSP(e, scalar_length)
 
