@@ -437,7 +437,7 @@ Procedure:
 
 11. A = B * (1 / (SK + e)) // Check A or B?
 
-12. signature = signature_to_octets(A, e, s)
+12. signature_octets = signature_to_octets(A, e, s)
 
 13. return signature
 ```
