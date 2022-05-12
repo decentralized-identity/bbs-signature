@@ -158,7 +158,7 @@ I \\ J
 : For sets I and J, denotes the difference of the two sets i.e., all the elements of I that do not appear in J, in the same order as they were in I.
 
 X\[a..b\]
-: Denotes a slice of the array `X` containing all elements from index `a` until `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
+: Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
