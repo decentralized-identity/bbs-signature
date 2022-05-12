@@ -157,6 +157,9 @@ a || b
 I \\ J
 : For sets I and J, denotes the difference of the two sets i.e., all the elements of I that do not appear in J, in the same order as they were in I.
 
+X\[a..b\]
+: Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -434,9 +437,9 @@ Procedure:
 
 11. A = B * (1 / (SK + e))
 
-12. signature = (point_to_octets_min(A), e, s)
+12. signature_octets = signature_to_octets(A, e, s)
 
-13. return signature
+13. return signature_octets
 ```
 
 ### Verify
@@ -470,11 +473,11 @@ Outputs:
 
 Procedure:
 
-1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
+1. signature_result = octets_to_signature(signature)
 
-2. if A is INVALID return INVALID
+2. if signature_result is INVALID, return INVALID
 
-3. if subgroup_check(A) is INVALID, return INVALID
+3. (A, e, s) = signature_result
 
 4. if KeyValidate(PK) is INVALID, return INVALID
 
@@ -529,57 +532,59 @@ Outputs:
 
 Procedure:
 
-1. (A, e, s) = (octets_to_point(signature.A), OS2IP(signature.e), OS2IP(signature.s))
+1. signature_result = octets_to_signature(signature)
 
 2. (i1, i2,..., iR) = RevealedIndexes
 
 3. (j1, j2,..., jU) = [L] \ RevealedIndexes
 
-4. if subgroup_check(A) is INVALID, return INVALID
+4. if signature_result is INVALID, return INVALID
 
-5. if KeyValidate(PK) is INVALID, return INVALID
+5. (A, e, s) = signature_result
 
-6. generators =  (H_s || H_d || H_1 || ... || H_L)
+6. if KeyValidate(PK) is INVALID, return INVALID
 
-7. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+7. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-8. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
+8. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
 
-9.      element = hash(PRF(8*ceil(log2(q)))) mod q
+9. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
 
-10.      if element = 0, go back to step 7
+10.      element = hash(PRF(8*ceil(log2(q)))) mod q
 
-11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+11.      if element = 0, go back to step 7
 
-12. r3 = r1 ^ -1 mod q
+12. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-13. A' = A * r1
+13. r3 = r1 ^ -1 mod q
 
-14. Abar = A' * (-e) + B * r1
+14. A' = A * r1
 
-15. D = B * r1 + H_s * r2
+15. Abar = A' * (-e) + B * r1
 
-16. s' = s + r2 * r3
+16. D = B * r1 + H_s * r2
 
-17. C1 = A' * e~ + H_s * r2~
+17. s' = s + r2 * r3
 
-18. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+18. C1 = A' * e~ + H_s * r2~
 
-19. c = hash(PK || Abar || A' || D || C1 || C2 || ph)
+19. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-20. e^ = e~ + c * e
+20. c = hash(PK || Abar || A' || D || C1 || C2 || ph)
 
-21. r2^ = r2~ + c * r2
+21. e^ = e~ + c * e
 
-22. r3^ = r3~ + c * r3
+22. r2^ = r2~ + c * r2
 
-23. s^ = s~ + c * s'
+23. r3^ = r3~ + c * r3
 
-24. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+24. s^ = s~ + c * s'
 
-25. proof = ( A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+25. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
 
-26. return proof
+26. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+
+27. return proof
 ```
 
 ### ProofVerify
@@ -748,6 +753,81 @@ Procedure:
 5. return (scalar_1, ..., scalar_n)
 ```
 
+### OctetsToSignature
+
+This operation describes how to decode an octet string, validate it and return the underlying components that make up the signature.
+
+```
+(A, e, s) = octets_to_signature(signature_octets)
+
+Inputs:
+
+- signature_octets (REQUIRED), octet string of the form output from signature_to_octets operation.
+
+Outputs:
+
+- A, a valid point in the G1 subgroup which is not equal to the identity point.
+- e, an integer representing a valid scalar value within the range of 0 < e < q.
+- s, an integer representing a valid scalar value within the range of 0 < e < q.
+
+Procedure:
+
+1. if len(signature_octets) != (octet_point_length + 2 * octet_scalar_length), return INVALID
+
+2. a_octets = signature_octets[0..(octet_point_length - 1)]
+
+3. A = octets_to_point(a_octets)
+
+4. if A is INVALID, return INVALID
+
+5. if A == Identity_G1, return INVALID
+
+5. index = octet_point_length
+
+6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+
+7. if e = 0 OR e >= q, return INVALID
+
+8. index += octet_scalar_length
+
+9. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+
+10. if s = 0 OR s >= q, return INVALID
+
+11. return (A, e, s)
+```
+
+### SignatureToOctets
+
+This operation describes how to encode a signature to an octet string.
+
+*Note* this operation deliberately does not perform the relevant checks on the inputs `A` `e` and `s`
+because its assumed these are done prior to its invocation, e.g as is the case with the Sign operation.
+
+```
+signature_octets = signature_to_octets(A, e, s)
+
+Inputs:
+
+- A (REQUIRED), a valid point in the G1 subgroup which is not equal to the identity point.
+- e (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < q.
+- s (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < q.
+
+Outputs:
+
+- signature_octets, octet string.
+
+Procedure:
+
+1. A_octets = point_to_octets(A)
+
+2. e_octets = I2OSP(e, octet_scalar_length)
+
+3. s_octets = I2OSP(s, octet_scalar_length)
+
+4. return (a_octets || e_octets || s_octets)
+```
+
 # Security Considerations
 
 ## Validating public keys
@@ -813,11 +893,11 @@ a function that returns the point P corresponding to the canonical representatio
 - hash\_to\_curve\_g1:
 A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
-- hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation
+- hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation.
 
-- hash\_to\_field: A cryptographic hash function that follows the procedure outlined in section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve]
+- hash\_to\_field: A cryptographic hash function that follows the procedure outlined in section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve].
 
-- hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation
+- hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation.
 
 - hashing\_elements\_to\_scalars: either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
 
@@ -829,10 +909,14 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
+- octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod q, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(q)/8)`.
+
+- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the point_to_octets function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
+
 ## BLS12-381 Ciphersuite
 
 hash
-: SHAKE-256 as defined in [@!SHA3]
+: SHAKE-256 as defined in [@!SHA3].
 
 point\_to\_octets
 : follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
@@ -841,16 +925,16 @@ octets\_to\_point
 : follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 hash\_to\_curve_g1
-: follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup
+: follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
 hash\_to\_curve\_g1\_dst
-: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO"
+: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO".
 
 hash\_to\_field
-: adopts the required parameters from the suites defined in (#bls12-381-hash-to-curve-definition-using-shake-256) to satisfy those described in section 5.3 [@!I-D.irtf-cfrg-hash-to-curve] along with the defined dst
+: adopts the required parameters from the suites defined in (#bls12-381-hash-to-curve-definition-using-shake-256) to satisfy those described in section 5.3 [@!I-D.irtf-cfrg-hash-to-curve] along with the defined dst.
 
 hash\_to\_field\_dst
-: "BBS\_BLS12381FQ\_XOF:SHAKE-256\_SSWU\_RO"
+: "BBS\_BLS12381FQ\_XOF:SHAKE-256\_SSWU\_RO".
 
 message\_generator\_seed
 : A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
@@ -862,10 +946,16 @@ signature\_dst\_generator\_seed
 : A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_DST\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 hashing\_elements\_to\_scalars
-: hash\_to\_scalar
+: hash\_to\_scalar.
 
 xof\_no\_of\_bytes
-: 64
+: 64.
+
+octet\_scalar\_length
+: 32, based on the RECOMMENDED approach of `ceil(log2(q)/8)`.
+
+octet\_point\_length
+: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
 ### Test Vectors
 
