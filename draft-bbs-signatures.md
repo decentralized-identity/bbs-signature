@@ -810,8 +810,8 @@ signature_octets = signature_to_octets(A, e, s)
 Inputs:
 
 - A (REQUIRED), a valid point in the G1 subgroup which is not equal to the identity point.
-- e (REQUIRED), a non-negative integer representing a valid scalar value with the range of 0 < e < q.
-- s (REQUIRED), a non-negative integer representing a valid scalar value with the range of 0 < e < q.
+- e (REQUIRED), an integer representing a valid scalar value with the range of 0 < e < q.
+- s (REQUIRED), an integer representing a valid scalar value with the range of 0 < e < q.
 
 Outputs:
 
