@@ -514,7 +514,7 @@ Inputs:
 
 Parameters:
 
-- Ciphersuite_ID (REQUIRED), octet string. The unique ID of the ciphersuite.
+- Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
 - H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
 - H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
 
@@ -601,7 +601,7 @@ Inputs:
 
 Parameters:
 
-- Ciphersuite_ID (REQUIRED), octet string. The unique ID of the ciphersuite.
+- Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
 - H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
 - H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
 
