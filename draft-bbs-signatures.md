@@ -784,15 +784,15 @@ Procedure:
 
 5. index = octet_point_length
 
-6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1]))
+6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
 
-7. if e <= 0 OR e >= q, return INVALID
+7. if e >= q, return INVALID
 
 8. index += octet_scalar_length
 
 9. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
 
-10. if s <= 0 OR s >= q, return INVALID
+10. if s >= q, return INVALID
 
 11. return (A, e, s)
 ```
