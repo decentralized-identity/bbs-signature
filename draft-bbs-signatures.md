@@ -767,8 +767,8 @@ Inputs:
 Outputs:
 
 - A, a valid point in the G1 subgroup which is not equal to the identity point.
-- e, a non-negative integer representing a valid scalar value with the range of 0 < e < q.
-- s, a non-negative integer representing a valid scalar value with the range of 0 < e < q.
+- e, an integer representing a valid scalar value with the range of 0 < e < q.
+- s, an integer representing a valid scalar value with the range of 0 < e < q.
 
 Procedure:
 
@@ -786,13 +786,13 @@ Procedure:
 
 6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
 
-7. if e >= q, return INVALID
+7. if e = 0 OR e >= q, return INVALID
 
 8. index += octet_scalar_length
 
 9. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
 
-10. if s >= q, return INVALID
+10. if s = 0 OR s >= q, return INVALID
 
 11. return (A, e, s)
 ```
@@ -909,7 +909,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
-- octet\_scalar\_length: Number of bytes to represent a scalar value encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(q)/8)`.
+- octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod q, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(q)/8)`.
 
 - octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the point_to_octets function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
 
