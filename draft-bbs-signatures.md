@@ -911,7 +911,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - octet\_scalar\_length: Number of bytes to represent a scalar value encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(q)/8)`.
 
-- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the point_to_octets function. It is RECOMMENDED that this value is set to `ceil(log(p)/8)`.
+- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the point_to_octets function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
 
 ## BLS12-381 Ciphersuite
 
@@ -955,7 +955,7 @@ octet\_scalar\_length
 : 32, based on the RECOMMENDED approach of `ceil(log2(q)/8)`.
 
 octet\_point\_length
-: 48, based on the RECOMMENDED approach of `ceil(log(q)/8)`.
+: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
 ### Test Vectors
 
