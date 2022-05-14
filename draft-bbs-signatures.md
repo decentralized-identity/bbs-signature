@@ -174,7 +174,7 @@ GT
 e
 : G1 x G2 -> GT: a non-degenerate bilinear map.
 
-q
+r
 : The prime order of the G1 and G2 subgroups.
 
 P1, P2
@@ -221,7 +221,7 @@ The schemes operations defined in (#operations) depend the following parameters:
 
 * A pairing-friendly elliptic curve, plus associated functionality given in Section 1.4.
 
-* hash, a hash function that MUST be a secure cryptographic hash function. For security, hash MUST output at least `ceil(log2(q))` bits, where q is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve. See [encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
+* hash, a hash function that MUST be a secure cryptographic hash function. For security, hash MUST output at least `ceil(log2(r))` bits, where r is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve. See [encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
 
 * xof, a cryptographically secure extendable-output function like SHAKE128 or SHAKE256. xof outputs any desirable amount of bytes using the `.read(int)` method. See [Encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
 
@@ -302,12 +302,12 @@ Definitions:
 - HKDF-Extract is as defined in [@!RFC5869], instantiated with hash function hash.
 - HKDF-Expand is as defined in [@!RFC5869], instantiated with hash function hash.
 - I2OSP and OS2IP are as defined in [@!RFC8017], Section 4.
-- L is the integer given by ceil((3 * ceil(log2(q))) / 16).
+- L is the integer given by ceil((3 * ceil(log2(r))) / 16).
 - INITSALT is the ASCII string "BBS-SIG-KEYGEN-SALT-".
 
 Outputs:
 
-- SK, a uniformly random integer such that 0 < SK < q.
+- SK, a uniformly random integer such that 0 < SK < r.
 
 Procedure:
 
@@ -323,7 +323,7 @@ Procedure:
 
 6.     OKM = HKDF-Expand(PRK, key_info || I2OSP(L, 2), L)
 
-7.     SK = OS2IP(OKM) mod q
+7.     SK = OS2IP(OKM) mod r
 
 8. return SK
 ```
@@ -339,7 +339,7 @@ PK = SkToPk(SK)
 
 Inputs:
 
-- SK (REQUIRED), a secret integer such that 0 < SK < q.
+- SK (REQUIRED), a secret integer such that 0 < SK < r.
 
 Outputs:
 
@@ -421,7 +421,7 @@ Procedure:
 
 3. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-4. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+4. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
 
 5. if domain is 0, abort
 
@@ -429,7 +429,7 @@ Procedure:
 
 7. for element in (e, s) do
 
-8.      element = OS2IP(h.read(xof_no_of_bytes)) mod q
+8.      element = OS2IP(h.read(xof_no_of_bytes)) mod r
 
 9.      if element = 0, go back to step 4
 
@@ -485,7 +485,7 @@ Procedure:
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+7. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
 
 8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -546,17 +546,17 @@ Procedure:
 
 7. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-8. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+8. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
 
 9. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
 
-10.      element = hash(PRF(8*ceil(log2(q)))) mod q
+10.      element = hash(PRF(8*ceil(log2(r)))) mod r
 
 11.      if element = 0, go back to step 7
 
 12. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-13. r3 = r1 ^ -1 mod q
+13. r3 = r1 ^ -1 mod r
 
 14. A' = A * r1
 
@@ -631,7 +631,7 @@ Procedure:
 
 5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-6. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod q
+6. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
 
 7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
@@ -719,7 +719,7 @@ Procedure:
 
 ### Hash to scalar
 
-This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod q. This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r. This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
 The `hash_to_scalar` procedure hashes elements using an extendable-output function (xof). Applications not wishing to use an xof may use `hash_to_field` defined in Section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve], combined with `expand_message_xmd` defined in Section 5.4.1 of the same document, in place of `hash_to_scalar`. In that case, every element outputted by `hash_to_field` that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using `hash_to_field`), until they get `n` non-zero elements (for example, if there is only one 0 in the output of `hash_to_field(msg, 2)` one must try to calculate `hash_to_field(msg, 3)` etc.).
 
@@ -733,12 +733,12 @@ Inputs:
 
 Parameters:
 
-- q (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups,
+- r (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups,
      defined by the ciphersuite.
 
 Outputs:
 
-- (scalar_1, ..., scalar_n), a list of non-zero scalars mod q.
+- (scalar_1, ..., scalar_n), a list of non-zero scalars mod r.
 
 Procedure:
 
@@ -746,7 +746,7 @@ Procedure:
 
 2. for i in (1, ..., n):
 
-3.     scalar_i = OS2IP(h.read(64)) mod q
+3.     scalar_i = OS2IP(h.read(64)) mod r
 
 4.     if scalar_i is 0, go back to step 3
 
@@ -767,8 +767,8 @@ Inputs:
 Outputs:
 
 - A, a valid point in the G1 subgroup which is not equal to the identity point.
-- e, an integer representing a valid scalar value within the range of 0 < e < q.
-- s, an integer representing a valid scalar value within the range of 0 < e < q.
+- e, an integer representing a valid scalar value within the range of 0 < e < r.
+- s, an integer representing a valid scalar value within the range of 0 < e < r.
 
 Procedure:
 
@@ -786,13 +786,13 @@ Procedure:
 
 6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
 
-7. if e = 0 OR e >= q, return INVALID
+7. if e = 0 OR e >= r, return INVALID
 
 8. index += octet_scalar_length
 
 9. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
 
-10. if s = 0 OR s >= q, return INVALID
+10. if s = 0 OR s >= r, return INVALID
 
 11. return (A, e, s)
 ```
@@ -810,8 +810,8 @@ signature_octets = signature_to_octets(A, e, s)
 Inputs:
 
 - A (REQUIRED), a valid point in the G1 subgroup which is not equal to the identity point.
-- e (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < q.
-- s (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < q.
+- e (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < r.
+- s (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < r.
 
 Outputs:
 
@@ -850,7 +850,7 @@ Implementations of the signing algorithm SHOULD protect the secret key from side
 
 The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One possibility is to generate IKM from a trusted source of randomness.  Guidelines on constructing such a source are outside the scope of this document.
 
-Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo q.
+Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.
 
 BBS proofs are nondeterministic, meaning care must be taken against attacks arising from using bad randomness, for example, the nonce reuse attack on ECDSA [@HDWH12]. It is RECOMMENDED that the presentation header used in this specification contain a nonce chosen at random from a trusted source of randomness, see the (#presentation-header-selection) for additional considerations.
 
@@ -909,7 +909,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
-- octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod q, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(q)/8)`.
+- octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
 
 - octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the point_to_octets function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
 
@@ -952,7 +952,7 @@ xof\_no\_of\_bytes
 : 64.
 
 octet\_scalar\_length
-: 32, based on the RECOMMENDED approach of `ceil(log2(q)/8)`.
+: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
 octet\_point\_length
 : 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
@@ -1340,7 +1340,7 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
 
 (without loss of generality we assume that the messages and generators are indexed from 0 to L). Let `(i1,...,iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1,...,jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1,...,jU) = [L] \ (i1,...,iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
 
-- Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, q-1], and calculate,
+- Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, r-1], and calculate,
 
         1.  A' = A * r1,
         2.  Abar = A' * (-e) + B * r1
@@ -1348,7 +1348,7 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
 
   Also set,
 
-        4.  r3 = r1 ^ -1 mod q
+        4.  r3 = r1 ^ -1 mod r
         5.  s' = s + r2 * r3.
 
   The values `(A', Abar, d)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the proof to the signer's `Pk`.
