@@ -651,10 +651,10 @@ Parameters:
 
 Definitions:
 
-- R, is the non-negative integer representing the number of revealed messages e.g
+- R, is the non-negative integer representing the number of revealed messages e.g.,
      length([(H_i1, msg_i1), ..., (H_iR, msg_iR)]). If no revealed messages are
      supplied as an input to this operation, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of non-revealed messages e.g
+- U, is the non-negative integer representing the number of non-revealed messages e.g.,
      length([H_h1, ..., H_hU]). If there are no un-revealed messages, the value of U 
      MUST evaluate to zero (0).
 - L = R + U, the total number of originally signed messages.
