@@ -394,15 +394,9 @@ signature = Sign(SK, PK, header, [(H_1, msg_1),..., (H_L, msg_L)])
 Inputs:
 
 - SK (REQUIRED), an octet string of the form outputted by the KeyGen operation.
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation 
-     provided the above SK as input.
-- header (OPTIONAL), an octet string containing context and application specific 
-     information. If not supplied, it defaults to an empty string.
-- [(H_1, msg_1),..., (H_L, msg_L)] (OPTIONAL), a list of generators and message pairs 
-     corresponding to messages to be signed. Generators must be G1 points, and the 
-     messages must be non-zero scalars mod r. If not supplied, it will default to the 
-     empty array ("[]"). The list MUST be ordered based on the index of the 
-     generators.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation provided the above SK as input.
+- header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- [(H_1, msg_1),..., (H_L, msg_L)] (OPTIONAL), a list of generators and message pairs corresponding to messages to be signed. Generators must be G1 points, and the messages must be non-zero scalars mod r. If not supplied, it will default to the empty array ("[]"). The list MUST be ordered based on the index of the generators.
 
 Parameters:
 
@@ -412,9 +406,7 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed
-     e.g., length([(H_1, msg_1),..., (H_L, msg_L)]).  Note if no messages are supplied 
-     as an input to this operation, the value of L MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of messages to be signed e.g., length([(H_1, msg_1),..., (H_L, msg_L)]).  Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -460,13 +452,8 @@ Inputs:
 
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - signature (REQUIRED), an octet string of the form outputted by the Sign operation.
-- header (OPTIONAL), an octet string containing context and application specific 
-     information. If not supplied, it defaults to an empty string.
-- [(H_1, msg_1),..., (H_L, msg_L)] (OPTIONAL), a list of generators and message pairs 
-     corresponding to messages to signed messages. Generators must be G1 points, and 
-     the messages must be non-zero scalars mod r. If not supplied, it will default to 
-     the empty array ("[]"). The list MUST be ordered based on the index of the 
-     generators.
+- header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- [(H_1, msg_1),..., (H_L, msg_L)] (OPTIONAL), a list of generators and message pairs corresponding to messages to signed messages. Generators must be G1 points, and the messages must be non-zero scalars mod r. If not supplied, it will default to the empty array ("[]"). The list MUST be ordered based on the index of the generators.
 
 Parameters:
 
@@ -476,9 +463,7 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed 
-     e.g., length([(H_1, msg_1),..., (H_L, msg_L)]). Note if no messages are supplied 
-     as an input to this operation, the value of L MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of messages to be signed e.g., length([(H_1, msg_1),..., (H_L, msg_L)]). Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -513,7 +498,7 @@ Procedure:
 
 This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [presentation header selection](#presentation-header-selection) for more details. 
 
-The generators and messages are supplied as pairs in two different lists: the first list containing (generator, message) pairs containing messages that will be revealed, and the second list containing (generator, message) pairs corresponding to the signed messages that will be kept hidden. The union of those two lists MUST equal the list of (generator, message) pairs supplied to Sign (i.e., the second list MUST contain all (generator, message) pairs corresponding to signed messages that do not appear in the first list). This means that, although the two lists are not required (i.e., one can elect to not reveal any message etc.), both lists cannot be empty at the same time, assuming that the original list supplied to the Sign operation was also non-empty (if that's the case, then both lists must be empty)
+The generators and messages are supplied as pairs, along with a Boolean variable indicating if that message will be revealed or not. The generators and messages MUST be the ones supplied to the Sign operation.
 
 ```
 proof = ProofGen(PK, signature, header, ph,
@@ -523,19 +508,9 @@ Inputs:
 
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - signature (REQUIRED), an octet string of the form outputted by the Sign operation.
-- header (OPTIONAL), an octet string containing context and application specific
-     information. If not supplied, it defaults to an empty string.
+- header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
 - ph (OPTIONAL), octet string.
-- [(H_i1, msg_i1), ..., (H_iR, msg_iR)] (OPTIONAL), a list of generators and message 
-     pairs corresponding to messages to be revealed. Generators must be G1 points, 
-     and the messages must be non-zero scalars mod r. If not supplied, it will 
-     default to the empty array ("[]"). The list MUST be ordered based on the index 
-     of the generators.
-- [(H_h1, msg_h1), ..., (H_hU, msg_hU)] (OPTIONAL), a list of generators and messages 
-     pairs corresponding to un-revealed messages. Generators must be G1 points, 
-     and the messages must be non-zero scalars mod r. If not supplied, it will 
-     default to the empty array ("[]"). The list MUST be ordered based on the index 
-     of the generators.
+- [(H_1, msg_1, revealed_1), ..., (H_L, msg_L, revealed_L)] (OPTIONAL), a list of tuples consisting by a generator, the message and a variable indicating if the message will be revealed or not. Generators must be G1 points, messages must be non-zero scalars mod r and the variable indicating if that message will be revealed must be boolean. If not supplied, the list will default to the empty array ("[]"). The list MUST be ordered based on the index of the generators.
 
 Parameters:
 
@@ -545,22 +520,9 @@ Parameters:
 
 Definitions:
 
-- R = revealed_1 + ... + revealed_L
-- U = L - R
-- R, is the non-negative integer representing the number of revealed messages e.g.,
-     length([(H_i1, msg_i1), ..., (H_iR, msg_iR)]). If no revealed messages are
-     supplied as an input to this operation, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of un-revealed messages
-     e.g., length([(H_h1, msg_h1), ..., (H_hU, msg_hU)]). If no non-revealed messages  
-     are supplied as an input to this operation, the value of U MUST evaluate to zero (0).
-- L = R + U, the total number of originally signed messages.
-- [(H_1, msg_1), ..., (H_L, msg_L)], is the concatenation of the list 
-     [(H_i1, msg_i1), ..., (H_iR, msg_iR)] (the input list corresponding to revealed
-     messages) and the list [(H_h1, msg_h1), ..., (H_hU, msg_hU)] (the input list
-     corresponding to un-revealed messages). The two lists MUST have an empty 
-     intersection and their union MUST equal [(H_1, msg_1) ..., (H_L, msg_L)] (the
-     list in input to Sign). The resulting list MUST be ordered based on the index of 
-     the generators.
+- L, is the non-negative integer representing the number of signed messages e.g., length([(H_1, msg_1, revealed_1), ..., (H_L, msg_L, revealed_L)]). Note if no messages are signed, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed messages e.g., R = revealed_1 + revealed_2 + ... + revealed_L. If no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of un-revealed messages e.g., U = L-R. If no non-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
 
 Outputs:
 
@@ -568,13 +530,11 @@ Outputs:
 
 Procedure:
 
-
-
 1. signature_result = octets_to_signature(signature)
 
-2. (i1, i2,..., iR) = RevealedIndexes
+2. [(H_i1, msg_i1), ..., (H_iR, msg_iR)] = [(H_i, msg_i), if revealed_i = 1]
 
-3. (j1, j2,..., jU) = [L] \ RevealedIndexes
+3. [(H_j1, msg_j1), ..., (H_jU, msg_jU)] = [(H_j, msg_j), if revealed_j = 0]
 
 4. if signature_result is INVALID, return INVALID
 
@@ -638,17 +598,10 @@ Inputs:
 
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - proof (REQUIRED), an octet string of the form outputted by the ProofGen operation.
-- header (OPTIONAL), an optional octet string containing context and application 
-     specific information. If not supplied, it defaults to an empty string.
+- header (OPTIONAL), an optional octet string containing context and application specific information. If not supplied, it defaults to an empty string.
 - ph (OPTIONAL), octet string.
-- [(H_i1, msg_i1), ..., (H_iR, msg_iR)] (OPTIONAL), a list of generators and message 
-     pairs corresponding to revealed messages. Generators must be G1 points, and the 
-     messages must be non-zero scalars mod r. If not supplied, it will default to the 
-     empty array ("[]"). The list MUST be ordered based on the index of the 
-     generators.
-- [H_h1, ..., H_hU] (OPTIONAL), a list of points in G1. Generators corresponding to 
-     un-revealed messages. If not supplied, the list will default to the empty 
-     array ("[]"). The list MUST be ordered based on the index of the generators.
+- [(H_1, revealed_1), ..., (H_L, revealed_L)] (OPTIONAL), a list of generators and Boolean pairs indicating if the generator corresponds to a revealed message or not. Generators must be G1 points. If not supplied, the list will default to the empty array ("[]"). The list MUST be ordered based on the index of the generators.
+- [msg_i1, ..., msg_iR] (OPTIONAL), a list of non-zero scalars mod r, corresponding to the revealed messages. If not supplied, the list will default to the empty array ("[]"). The messages MUST be on the same order as when supplied to Sign.
 
 Parameters:
 
@@ -658,20 +611,9 @@ Parameters:
 
 Definitions:
 
-- R, is the non-negative integer representing the number of revealed messages e.g.,
-     length([(H_i1, msg_i1), ..., (H_iR, msg_iR)]). If no revealed messages are
-     supplied as an input to this operation, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of un-revealed messages e.g.,
-     length([H_h1, ..., H_hU]). If there are no un-revealed messages, the value of U 
-     MUST evaluate to zero (0).
-- L = R + U, the total number of originally signed messages.
-- [H_1, ..., H_L], is the concatenation of the list [H_i1, ..., H_iR] (the list of 
-     generators corresponding to revealed messages) and the list [H_h1, ..., H_hU] 
-     (the input generators list corresponding to un-revealed messages). The two lists 
-     MUST have an empty intersection and their union MUST equal [H_1 ..., H_L] (the 
-     list of generators appearing in the input to Sign list with the (generator, 
-     message) pairs). The resulting list MUST be ordered based on the index of the 
-     generators.
+- L, is the non-negative integer representing the number of signed messages e.g., length([(H_1, revealed_1), ..., (H_L, revealed_L)]). Note if no messages are signed, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed messages e.g., R = revealed_1 + revealed_2 + ... + revealed_L. If no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of un-revealed messages e.g., U = L-R. If no non-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
 
 Outputs:
 
@@ -682,31 +624,33 @@ Procedure:
 
 1. if KeyValidate(PK) is INVALID, return INVALID
 
-2. (i1, i2, ..., iR) = RevealedIndexes
+2. [H_i1, ..., H_iR] = [H_i, if revealed_i = 1]
 
-3. (j1, j2, ..., jU) = [L]\RevealedIndexes
+3. [H_j1, ..., H_jU] = [H_j, if revealed_j = 0]
 
-4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
+4. If length([msg_i1, ..., msg_iR]) not equal to R, abort
 
-5. generators =  (H_s || H_d || H_1 || ... || H_L)
+5. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
 
-6. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
+6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+7. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
 
-8. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+8. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-9. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+9. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-10. cv = hash(PK || Abar || A' || D || C1 || C2 || ph)
+10. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-11. if c != cv, return INVALID
+11. cv = hash(PK || Abar || A' || D || C1 || C2 || ph)
 
-12. if A' == 1, return INVALID
+12. if c != cv, return INVALID
 
-13. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+13. if A' == 1, return INVALID
 
-14. return VALID
+14. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+
+15. return VALID
 ```
 
 ### CreateGenerators
