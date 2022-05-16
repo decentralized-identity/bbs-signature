@@ -533,7 +533,7 @@ Inputs:
      default to the empty array ("[]"). The list MUST be ordered based on the index 
      of the generators.
 - [(H_h1, msg_h1), ..., (H_hU, msg_hU)] (OPTIONAL), a list of generators and messages 
-     pairs corresponding to messages to be kept hidden. Generators must be G1 points, 
+     pairs corresponding to un-revealed messages. Generators must be G1 points, 
      and the messages must be non-zero scalars mod q. If not supplied, it will 
      default to the empty array ("[]"). The list MUST be ordered based on the index 
      of the generators.
@@ -549,9 +549,9 @@ Definitions:
 - R, is the non-negative integer representing the number of revealed messages e.g.,
      length([(H_i1, msg_i1), ..., (H_iR, msg_iR)]). If no revealed messages are
      supplied as an input to this operation, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of non-revealed messages e.g.,
-     length([(H_h1, msg_h1), ..., (H_hU, msg_hU)]). If no non-revealed messages are 
-     supplied as an input to this operation, the value of U MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of un-revealed messages 
+     e.g., length([(H_h1, msg_h1), ..., (H_hU, msg_hU)]). If no non-revealed messages  
+     are supplied as an input to this operation, the value of U MUST evaluate to zero (0).
 - L = R + U, the total number of originally signed messages.
 - [(H_1, msg_1), ..., (H_L, msg_L)], is the concatenation of the list 
      [(H_i1, msg_i1), ..., (H_iR, msg_iR)] (the input list corresponding to revealed
@@ -640,7 +640,7 @@ Inputs:
      empty array ("[]"). The list MUST be ordered based on the index of the 
      generators.
 - [H_h1, ..., H_hU] (OPTIONAL), a list of points in G1. Generators corresponding to 
-     messages to be kept hidden. If not supplied, the list will default to the empty 
+     un-revealed messages. If not supplied, the list will default to the empty 
      array ("[]"). The list MUST be ordered based on the index of the generators.
 
 Parameters:
@@ -654,7 +654,7 @@ Definitions:
 - R, is the non-negative integer representing the number of revealed messages e.g.,
      length([(H_i1, msg_i1), ..., (H_iR, msg_iR)]). If no revealed messages are
      supplied as an input to this operation, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of non-revealed messages e.g.,
+- U, is the non-negative integer representing the number of un-revealed messages e.g.,
      length([H_h1, ..., H_hU]). If there are no un-revealed messages, the value of U 
      MUST evaluate to zero (0).
 - L = R + U, the total number of originally signed messages.
