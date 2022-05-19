@@ -548,7 +548,7 @@ Procedure:
 
 9. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
 
-10. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(8*ceil(log2(q))), U)
+10. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
 
 11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
