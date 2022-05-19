@@ -546,7 +546,7 @@ Procedure:
 
 8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-9. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(q))), 6)
+9. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
 
 10. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(8*ceil(log2(q))), U)
 
