@@ -552,7 +552,7 @@ Procedure:
 
 11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-12. r3 = r1 ^ -1 mod q
+12. r3 = r1 ^ -1 mod r
 
 13. A' = A * r1
 
