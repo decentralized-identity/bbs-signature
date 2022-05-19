@@ -190,7 +190,7 @@ point\_to\_octets_g1(P) -> ostr, point\_to\_octets_g2(P) -> ostr
 : returns the canonical representation of the point P for the respective subgroup as an octet string. This operation is also known as serialization.
 
 octets\_to\_point_g1(ostr) -> P, octets\_to\_point_g2(ostr) -> P
-: returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_G* function.  This operation is also known as deserialization.
+: returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g* function.  This operation is also known as deserialization.
 
 subgroup\_check(P) -> VALID or INVALID
 : returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [@Bowe19].
