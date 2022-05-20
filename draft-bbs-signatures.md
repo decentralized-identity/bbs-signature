@@ -882,6 +882,22 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 
 ## Ciphersuite Format
 
+### Ciphersuite ID
+
+The following section defines the format of the unique identifier for the ciphersuite denoted `Ciphersuite_ID`. The REQUIRED format for this string is
+
+```
+  "BBS_" || H2C_SUITE_ID || ADD_INFO
+```
+
+  *  Strings in double quotes are ASCII-encoded literals.
+
+  *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
+
+  *  ADD\_INFO is an optional string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII characters between 0x21 and 0x7e (inclusive), and MUST end with an underscore (0x5f), other than the last character the string MUST not contain any other underscores (0x5f).
+
+### Additional Parameters
+
 - hash: a cryptographic hash function.
 
 - point\_to\_octets_g1:
@@ -920,6 +936,9 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 - octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
 
 ## BLS12-381 Ciphersuite
+
+Ciphersuite\_ID
+: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
 
 hash
 : SHAKE-256 as defined in [@!SHA3].
