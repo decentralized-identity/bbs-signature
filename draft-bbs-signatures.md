@@ -375,7 +375,7 @@ Procedure:
 
 2. if W is INVALID, return INVALID
 
-3. if subgroup_check(A) is INVALID, return INVALID
+3. if subgroup_check(W) is INVALID, return INVALID
 
 4. If W == Identity_G2, return INVALID
 
