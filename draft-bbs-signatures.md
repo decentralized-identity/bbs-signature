@@ -243,7 +243,7 @@ Aside from the message generators, the scheme uses two additional generators: `H
 
 To avoid ambiguity, each element passed to the hash or the xof function, including situations when multiple elements are supplied in a concatenated form, must first be encoded to an appropriate format, depending on its type. Specifically,
 
-- Points in G1 or G2 must be encoded using the `point_to_octets` implementation for a particular ciphersuite.
+- Points in G1 or G2 must be encoded using the `point_to_octets_g*` implementation for a particular ciphersuite.
 - Non-negative integers must be encoded using `I2OSP` with an output length of 8 bytes.
 - Scalars must be zero-extended to a fixed length, defined by a particular ciphersuite.
 - Octet strings must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value is encoded directly.
@@ -351,7 +351,7 @@ Procedure:
 
 2. PK = W
 
-3. return point_to_octets(PK)
+3. return point_to_octets_g2(PK)
 ```
 
 ### KeyValidate
@@ -819,7 +819,7 @@ Outputs:
 
 Procedure:
 
-1. A_octets = point_to_octets(A)
+1. A_octets = point_to_octets_g1(A)
 
 2. e_octets = I2OSP(e, octet_scalar_length)
 
@@ -891,10 +891,10 @@ a function that returns the canonical representation of the point P for the G1 s
 a function that returns the canonical representation of the point P for the G2 subgroup as an octet string.
 
 - octets\_to\_point_g1:
-a function that returns the point P in the subgroup G1 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point_to_octets.
+a function that returns the point P in the subgroup G1 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g1`.
 
 - octets\_to\_point_g2:
-a function that returns the point P in the subgroup G2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point_to_octets.
+a function that returns the point P in the subgroup G2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g2`.
 
 - hash\_to\_curve\_g1:
 A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
@@ -917,7 +917,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
 
-- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the point_to_octets function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
+- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
 
 ## BLS12-381 Ciphersuite
 
