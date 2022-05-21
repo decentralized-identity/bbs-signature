@@ -726,7 +726,8 @@ This document defines two different hash_to_scalar operations
 1. `hash_to_scalar_xof`, is the more performant option which makes use of an extendable output function, making it ideal for use with functions like SHAKE256 or SHKAE128.
 2. `hash_to_scalar_xmd`, is less performant in comparison, but does not require an extendable output function, making it more suitable for use with hash functions like SHA2 or SHA3.
 
-#### hash\_to\_scalar\_xof
+#### hash_to_scalar_xof
+
 The `hash_to_scalar_xof` function takes as an input the message to be hashed and a non-negative integer inticating the number of non-zero scalars to be returned.
 
 ```
@@ -763,7 +764,7 @@ Procedure:
 7. return (scalar_1, ..., scalar_n)
 ```
 
-#### hash\_to\_scalar\_xmd
+#### hash_to_scalar_xmd
 
 Implementations not wishing to use the more performant `hash_to_scalar_xof` operation, can elect to use `hash_to_scalar_xmd`. The `hash_to_scalar_xmd` is based on the `expand_message_xmd` function defined in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve], with the addition of checking if the resulting scalar is 0.
 
