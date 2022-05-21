@@ -193,6 +193,9 @@ octets\_to\_point_g1(ostr) -> P, octets\_to\_point_g2(ostr) -> P
 subgroup\_check(P) -> VALID or INVALID
 : returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [@Bowe19].
 
+substr(str, sbegin, slen) -> Octet String
+: A function returning a substring of the octet string `str` of length `slen`, begining from `sbegin`, as defined in Section 4 of [@!I-D.irtf-cfrg-hash-to-curve].
+
 ## Organization of this document
 
 This document is organized as follows:
@@ -715,14 +718,19 @@ Procedure:
 5. return result
 ```
 
-### Hash to scalar
+### Hashing to scalaras
 
-This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r. This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
-The `hash_to_scalar` procedure hashes elements using an extendable-output function (xof). Applications not wishing to use an xof may use `hash_to_field` defined in Section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve], combined with `expand_message_xmd` defined in Section 5.4.1 of the same document, in place of `hash_to_scalar`. In that case, every element outputted by `hash_to_field` that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using `hash_to_field`), until they get `n` non-zero elements (for example, if there is only one 0 in the output of `hash_to_field(msg, 2)` one must try to calculate `hash_to_field(msg, 3)` etc.).
+This document defines two different hash_to_scalar operations
+1. `hash_to_scalar_xof`, is the more performant option which makes use of an extendable output function, making it ideal for use with functions like SHAKE256 or SHKAE128.
+2. `hash_to_scalar_xmd`, is less performant in comparison, but does not require an extendable output function, making it more suitable for use with hash functions like SHA2 or SHA3.
+
+#### hash\_to\_scalar\_xof
+The `hash_to_scalar_xof` function takes as an input the message to be hashed and a non-negative integer inticating the number of non-zero scalars to be returned.
 
 ```
-result = hash_to_scalar(msg_octets, n)
+result = hash_to_scalar_xof(msg_octets, n, dst)
 
 Inputs:
 
@@ -731,8 +739,8 @@ Inputs:
 
 Parameters:
 
-- r (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups,
-     defined by the ciphersuite.
+- r (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups, defined by the ciphersuite.
+- expand_no_of_bytes (REQUIRED), non-negative integer. The number of bytes to read from the xof function, defined by the ciphersuite.
 
 Outputs:
 
@@ -740,15 +748,72 @@ Outputs:
 
 Procedure:
 
-1. h = xof(msg_octets)
+1. dst_prime = (I2OSP(len(dst), 1) || dst)
 
-2. for i in (1, ..., n):
+2. msg_prime = (I2OSP(len(msg), 8) || msg)
 
-3.     scalar_i = OS2IP(h.read(64)) mod r
+3. h = xof(msg_prime || dst_prime || I2OSP(0, 1) || I2OSP(n, 8))
 
-4.     if scalar_i is 0, go back to step 3
+4. for i in (1, ..., n):
 
-5. return (scalar_1, ..., scalar_n)
+5.     scalar_i = OS2IP(h.read(expand_no_of_bytes)) mod r 
+
+6.     if scalar_i is 0, go back to step 3
+
+7. return (scalar_1, ..., scalar_n)
+```
+
+#### hash\_to\_scalar\_xmd
+
+Implementations not wishing to use the more performant `hash_to_scalar_xof` operation, can elect to use `hash_to_scalar_xmd`. The `hash_to_scalar_xmd` is based on the `expand_message_xmd` function defined in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve], with the addition of checking if the resulting scalar is 0.
+
+```
+result = hash_to_scalar_xmd(msg_octets, n, dst)
+
+Inputs:
+- msg_octets (REQUIRED), octet string. The message to be hashed.
+- n (REQUIRED), non-negative integer. The number of scalars to output.
+
+Parameters:
+
+- r (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups, defined by the ciphersuite.
+- expand_no_of_bytes (REQUIRED), non-negative integer. The number of bytes that the expand_message_xmd function will return, defined by the ciphersuite.
+- b_in_bytes (REQUIRED), b / 8 for b the output size of H in bits. For example, for b = 256, b_in_bytes = 32.
+- s_in_bytes (REQUIRED), the input block size of H, measured in bytes. For example, for SHA-256, s_in_bytes = 64.
+
+Procedure:
+
+1. ell = ceil(expand_no_of_bytes / b_in_bytes)
+
+2. dst_prime = dst || I2OSP(len(dst), 1)
+
+3. Z_pad = I2OSP(0, s_in_bytes)
+
+4. msg = (msg_octets || I2OSP(0, 1) || I2OSP(n, 8))
+
+5. msg_prime = Z_pad || msg || I2OSP(expand_no_of_bytes, 2) || I2OSP(0, 1) || dst_prime
+
+6. b_0 = H(msg_prime)
+
+7. b_1 = H(b_0 || I2OSP(1, 1) || dst_prime)
+
+8. k = 2
+
+9. for i in (1, ..., n)
+
+10.     for j in (2, ..., ell)
+
+11.          b_k = hash(b_0 STR_XOR b_(k-1) || I2OSP(k, 1) || dst_prime)
+
+12.          k += 1
+
+13.     h_i = substr((b_(k-ell) || ... || b_(k-1)), 0, expand_no_of_bytes)
+
+14.     scalar_i = OS2IP(h_i) mod r
+
+15.     if scalar_i is 0 mod r, go back to step 11.
+
+16. return scalar_1, ..., scalar_n
 ```
 
 ### OctetsToSignature
@@ -927,7 +992,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - signature\_dst\_generator\_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message\_generator\_seed and blind\_value\_generator\_seed.
 
-- xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
+- expand\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
 - octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
 
@@ -975,7 +1040,7 @@ signature\_dst\_generator\_seed
 : A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_DST\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 hashing\_elements\_to\_scalars
-: hash\_to\_scalar.
+: hash\_to\_scalar\_xof.
 
 xof\_no\_of\_bytes
 : 64.
