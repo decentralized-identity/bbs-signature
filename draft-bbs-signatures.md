@@ -440,7 +440,7 @@ Procedure:
 13. return signature_octets
 ```
 
-**Note** When computing step 11 of the above procedure there is a small probability that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 11, and or `A != Identity_G1` after step 11 to prevent the production of invalid signatures.
+**Note** When computing step 11 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 11, and or `A != Identity_G1` after step 11 to prevent the production of invalid signatures.
 
 ### Verify
 
