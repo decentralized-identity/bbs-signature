@@ -430,7 +430,7 @@ Procedure:
 
 7. for element in (e, s) do
 
-8.      element = OS2IP(h.read(xof_no_of_bytes)) mod r
+8.      element = OS2IP(h.read(expand_length)) mod r
 
 9.      if element = 0, go back to step 4
 
@@ -678,7 +678,7 @@ Procedure:
 
 4.    while(generator_i == Identity_G1 or generator_i == P1)
 
-5.        candidate = hash_to_curve_g1(h.read(xof_no_of_bytes), dst)
+5.        candidate = hash_to_curve_g1(h.read(expand_length), dst)
 
 6.        if candidate not in generators: generator_i = candidate
 
@@ -731,7 +731,7 @@ This document defines two different hash_to_scalar operations
 The `hash_to_scalar_xof` function takes as an input the message to be hashed and a non-negative integer inticating the number of non-zero scalars to be returned.
 
 ```
-result = hash_to_scalar_xof(msg_octets, n, dst)
+result = hash_to_scalar_xof(msg_octets, n)
 
 Inputs:
 
@@ -741,7 +741,8 @@ Inputs:
 Parameters:
 
 - r (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups, defined by the ciphersuite.
-- expand_no_of_bytes (REQUIRED), non-negative integer. The number of bytes to read from the xof function, defined by the ciphersuite.
+- expand_length (REQUIRED), non-negative integer. The number of bytes to read from the xof function, defined by the ciphersuite.
+- dst (REQUIRED), octet string. Domain separation tag.
 
 Outputs:
 
@@ -757,7 +758,7 @@ Procedure:
 
 4. for i in (1, ..., n):
 
-5.     scalar_i = OS2IP(h.read(expand_no_of_bytes)) mod r 
+5.     scalar_i = OS2IP(h.read(expand_length)) mod r
 
 6.     if scalar_i is 0, go back to step 3
 
@@ -769,7 +770,7 @@ Procedure:
 Implementations not wishing to use the more performant `hash_to_scalar_xof` operation, can elect to use `hash_to_scalar_xmd`. The `hash_to_scalar_xmd` is based on the `expand_message_xmd` function defined in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve], with the addition of checking if the resulting scalar is 0.
 
 ```
-result = hash_to_scalar_xmd(msg_octets, n, dst)
+result = hash_to_scalar_xmd(msg_octets, n)
 
 Inputs:
 - msg_octets (REQUIRED), octet string. The message to be hashed.
@@ -778,13 +779,14 @@ Inputs:
 Parameters:
 
 - r (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups, defined by the ciphersuite.
-- expand_no_of_bytes (REQUIRED), non-negative integer. The number of bytes that the expand_message_xmd function will return, defined by the ciphersuite.
+- expand_length (REQUIRED), non-negative integer. The number of bytes that the expand_message_xmd function will return, defined by the ciphersuite.
 - b_in_bytes (REQUIRED), b / 8 for b the output size of H in bits. For example, for b = 256, b_in_bytes = 32.
 - s_in_bytes (REQUIRED), the input block size of H, measured in bytes. For example, for SHA-256, s_in_bytes = 64.
+- dst (REQUIRED), octet string. Domain separation tag.
 
 Procedure:
 
-1. ell = ceil(expand_no_of_bytes / b_in_bytes)
+1. ell = ceil(expand_length / b_in_bytes)
 
 2. dst_prime = dst || I2OSP(len(dst), 1)
 
@@ -792,29 +794,31 @@ Procedure:
 
 4. msg = (msg_octets || I2OSP(0, 1) || I2OSP(n, 8))
 
-5. msg_prime = Z_pad || msg || I2OSP(expand_no_of_bytes, 2) || I2OSP(0, 1) || dst_prime
+5. exp_l_bytes = I2OSP(expand_length, 2)
 
-6. b_0 = H(msg_prime)
+6. msg_prime = (Z_pad || msg || exp_l_bytes || I2OSP(0, 1) || dst_prime)
 
-7. b_1 = H(b_0 || I2OSP(1, 1) || dst_prime)
+7. b_0 = H(msg_prime)
 
-8. k = 2
+8. b_1 = H(b_0 || I2OSP(1, 1) || dst_prime)
 
-9. for i in (1, ..., n)
+9. k = 2
 
-10.     for j in (2, ..., ell)
+10. for i in (1, ..., n)
 
-11.          b_k = hash(b_0 STR_XOR b_(k-1) || I2OSP(k, 1) || dst_prime)
+11.     for j in (2, ..., ell)
 
-12.          k += 1
+12.          b_k = hash(b_0 STR_XOR b_(k-1) || I2OSP(k, 1) || dst_prime)
 
-13.     h_i = substr((b_(k-ell) || ... || b_(k-1)), 0, expand_no_of_bytes)
+13.          k += 1
 
-14.     scalar_i = OS2IP(h_i) mod r
+14.     h_i = substr((b_(k-ell) || ... || b_(k-1)), 0, expand_length)
 
-15.     if scalar_i is 0 mod r, go back to step 11.
+15.     scalar_i = OS2IP(h_i) mod r
 
-16. return scalar_1, ..., scalar_n
+16.     if scalar_i is 0 mod r, go back to step 11.
+
+17. return scalar_1, ..., scalar_n
 ```
 
 ### OctetsToSignature
@@ -985,7 +989,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation.
 
-- hashing\_elements\_to\_scalars: either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+- hash\_to\_scalars: either `hash_to_scalar_xof` using hash (in this case hash MUST be an xof), or `hash_to_scalar_xmd`.
 
 - message\_generator\_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
@@ -993,7 +997,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 
 - signature\_dst\_generator\_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message\_generator\_seed and blind\_value\_generator\_seed.
 
-- expand\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
+- expand\_length: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
 - octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
 
@@ -1043,7 +1047,7 @@ signature\_dst\_generator\_seed
 hashing\_elements\_to\_scalars
 : hash\_to\_scalar\_xof.
 
-xof\_no\_of\_bytes
+expand\_length
 : 64.
 
 octet\_scalar\_length
