@@ -421,21 +421,15 @@ Procedure:
 
 4. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-5. h = xof(SK  || domain || msg_1 || ... || msg_L)
+5. (e, s) = hash_to_scalar((SK  || domain || msg_1 || ... || msg_L), 2)
 
-6. for element in (e, s) do
+6. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-7.      element = OS2IP(h.read(xof_no_of_bytes)) mod r
+7. A = B * (1 / (SK + e))
 
-8.      if element = 0, go back to step 4
+8. signature_octets = signature_to_octets(A, e, s)
 
-9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
-
-10. A = B * (1 / (SK + e))
-
-11. signature_octets = signature_to_octets(A, e, s)
-
-12. return signature_octets
+9. return signature_octets
 ```
 
 ### Verify
