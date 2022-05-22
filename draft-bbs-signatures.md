@@ -638,7 +638,7 @@ Procedure:
    to the revealed messages) in the same order.
 
 3. Let msg_i1, ..., msg_iR be the second elements from the
-   (H_i, revMsg_i) tuples for which rev_i is non NULL (i.e., the
+   (H_i, revMsg_i) tuples for which revMsg_i is non NULL (i.e., the
    revealed messages) in the same order.
 
 4. if KeyValidate(PK) is INVALID, return INVALID
