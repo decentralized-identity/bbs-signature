@@ -235,7 +235,7 @@ In definition of this signature scheme there are two possible variations based u
 
 ### Messages and generators
 
-Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
+Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations as well (signature verification, proof generation and proof verification).
 
 Aside from the message generators, the scheme uses two additional generators: `H_s` and `H_d`. The first (`H_s`), is used for the blinding value (`s`) of the signature. The second generator (`H_d`), is used to sign the signature's domain, which binds both signature and proof to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
 
@@ -389,7 +389,7 @@ Procedure:
 This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages.
 
 ```
-signature = Sign(SK, PK, header, [(H_1, msg_1),..., (H_L, msg_L)])
+signature = Sign(SK, PK, header, [(H_1, msg_1), ..., (H_L, msg_L)])
 
 Inputs:
 
@@ -453,7 +453,7 @@ Inputs:
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - signature (REQUIRED), an octet string of the form outputted by the Sign operation.
 - header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
-- [(H_1, msg_1),..., (H_L, msg_L)] (OPTIONAL), a list of generators and message pairs corresponding to messages to signed messages. Generators must be G1 points, and the messages must be non-zero scalars mod r. If not supplied, it will default to the empty array ("[]"). The list MUST be ordered based on the index of the generators.
+- [(H_1, msg_1),..., (H_L, msg_L)] (OPTIONAL), a list of generators and message pairs corresponding to signed messages. Generators must be G1 points, and the messages must be non-zero scalars mod r. If not supplied, it will default to the empty array ("[]").
 
 Parameters:
 
@@ -496,9 +496,9 @@ Procedure:
 
 ### ProofGen
 
-This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [presentation header selection](#presentation-header-selection) for more details. 
+This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [presentation header selection](#presentation-header-selection) for more details.
 
-The generators and messages are supplied as pairs, along with a Boolean variable indicating if that message will be revealed or not. The generators and messages MUST be the ones supplied to the Sign operation.
+The generators and messages are supplied as pairs, along with a boolean variable indicating if that message will be revealed or not. The generators and messages must be the same as the ones supplied to [Sign](#sign) and must be in the same order. For example if `[(H_1, msg_1), (H_2, msg_2), (H_3, msg_3)]` was supplied to [Sign](#sign), and the prover wants to reveal only `msg_1` and `msg_3`, the list that must be supplied to ProofGen is `[(H_1, msg_1, true), (H_2, msg_2, false), (H_3, msg_3, true)]` (in that order, otherwise the proof will not validate).
 
 ```
 proof = ProofGen(PK, signature, header, ph,
@@ -510,7 +510,7 @@ Inputs:
 - signature (REQUIRED), an octet string of the form outputted by the Sign operation.
 - header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
 - ph (OPTIONAL), octet string.
-- [(H_1, msg_1, revealed_1), ..., (H_L, msg_L, revealed_L)] (OPTIONAL), a list of tuples consisting by a generator, the message and a variable indicating if the message will be revealed or not. Generators must be G1 points, messages must be non-zero scalars mod r and the variable indicating if that message will be revealed must be boolean. If not supplied, the list will default to the empty array ("[]"). The list MUST be ordered based on the index of the generators.
+- [(H_1, msg_1, revealed_1), ..., (H_L, msg_L, revealed_L)] (OPTIONAL), a list of tuples consisting by a generator, the message and a boolean value indicating if the message will be revealed or not. Generators must be G1 points and messages must be non-zero scalars mod r. If not supplied, the list will default to the empty array ("[]"). The list must have the same order as the (generator, message) pairs had when supplied to Sign.
 
 Parameters:
 
@@ -530,11 +530,17 @@ Outputs:
 
 Procedure:
 
-1. signature_result = octets_to_signature(signature)
+1. Let (H_i1, msg_i1), ..., (H_iR, msg_iR) be the pairs containing the
+   first 2 elements from the (H_i, msg_i, revealed_i) tuples for which
+   it holds that revealed_i = true (i.e., the (generator, message) pairs
+   corresponding to the revealed messages) in the same order.
 
-2. [(H_i1, msg_i1), ..., (H_iR, msg_iR)] = [(H_i, msg_i), if revealed_i = 1]
+2. Let (H_j1, msg_j1), ..., (H_jU, msg_jU) be the pairs containing the
+   first 2 elements from the (H_i, msg_i, revealed_i) tuples for which
+   it holds that revealed_i = false (i.e., the (generator, message)
+   pairs corresponding to the un-revealed messages) in the same order.
 
-3. [(H_j1, msg_j1), ..., (H_jU, msg_jU)] = [(H_j, msg_j), if revealed_j = 0]
+3. signature_result = octets_to_signature(signature)
 
 4. if signature_result is INVALID, return INVALID
 
@@ -587,12 +593,15 @@ Procedure:
 
 ### ProofVerify
 
-This operation checks that a proof is valid for a header, vector of revealed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
+This operation checks that a proof is valid for a header, vector of generators and revealed messages, and presentation header against a public key (PK).
+
+The generators and messages are supplied as a list of pairs (`H_i`, `revMsg_i`) of a generator and a variable `revMsg_i` that can be either `NULL`, if the (ith) message corresponding to the generator `H_i` is un-revealed, or `msg_i`, the (revealed) message corresponding to the generator `H_i`. The pairs must be sorted based on the order their first element (i.e., the generators) had when supplied as part of the (generator, message) tuples in [Sign](#sign) (or correspondingly the order they had when supplied as (generator, message, revealed_i) tuples in [ProofGen](#proofgen)).
+
+For example if the list `[(H_1, msg_1), (H_1, msg_2), (H_3, msg_3)]` was supplied to [Sign](#sign), and the proof only reveals the first and the third message (i.e., the list `[(H_1, msg_1, true), (H_2, msg_2, false), (H_3, msg_3, true)]` was supplied to [ProofGen](#proofgen)), the list that must be supplied to ProofVerify is `[(H_1, msg_1), (H_2, NULL), (H_3, msg_3)]` in that order (otherwise the proof will not be validated).
 
 ```
 result = ProofVerify(PK, proof, header, ph,
-                      [(H_1, revealed_1), ..., (H_L, revealed_L)],
-                      [msg_i1, ..., msg_iR])
+                     [(H_1, revMsg_1), ..., (H_L, revMsg_L)])
 
 Inputs:
 
@@ -600,8 +609,7 @@ Inputs:
 - proof (REQUIRED), an octet string of the form outputted by the ProofGen operation.
 - header (OPTIONAL), an optional octet string containing context and application specific information. If not supplied, it defaults to an empty string.
 - ph (OPTIONAL), octet string.
-- [(H_1, revealed_1), ..., (H_L, revealed_L)] (OPTIONAL), a list of generators and Boolean pairs indicating if the generator corresponds to a revealed message or not. Generators must be G1 points. If not supplied, the list will default to the empty array ("[]"). The list MUST be ordered based on the index of the generators.
-- [msg_i1, ..., msg_iR] (OPTIONAL), a list of non-zero scalars mod r, corresponding to the revealed messages. If not supplied, the list will default to the empty array ("[]"). The messages MUST be on the same order as when supplied to Sign.
+- [(H_1, revMsg_1), ..., (H_L, revMsg_L)] (OPTIONAL), a list of pairs containing a generator and either a non-zero scalar mod r, if the message corresponding to that generator is revealed, or NULL, if the message corresponding to that generator is un-revealed. If not supplied, the list will default to the empty array ("[]"). The list must have the same order as the (generator, message) pairs had when supplied to Sign.
 
 Parameters:
 
@@ -611,9 +619,9 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of signed messages e.g., length([(H_1, revealed_1), ..., (H_L, revealed_L)]). Note if no messages are signed, the value of L MUST evaluate to zero (0).
-- R, is the non-negative integer representing the number of revealed messages e.g., R = revealed_1 + revealed_2 + ... + revealed_L. If no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of un-revealed messages e.g., U = L-R. If no non-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of signed messages e.g., length([(H_1, revMsg_1), ..., (H_L, revMsg_1)]). If no messages are signed, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed messages e.g., R is the number of non NULL revMsg_i values. If no messages are revealed by the proof, the value of R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of un-revealed messages e.g., U = L-R. If no un-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
 
 Outputs:
 
@@ -621,14 +629,19 @@ Outputs:
 
 Procedure:
 
+1. Let H_i1, ..., H_iR, be the first elements from the (H_i, revMsg_i)
+   tuples for which revMsg_i is not NULL (i.e., the generators
+   corresponding to the revealed messages) in the same order.
 
-1. if KeyValidate(PK) is INVALID, return INVALID
+2. Let H_j1, ..., H_jU, be the first elements from the (H_i, revMsg_i)
+   tuples for which revMsg_i = NULL (i.e., the generators corresponding
+   to the revealed messages) in the same order.
 
-2. [H_i1, ..., H_iR] = [H_i, if revealed_i = 1]
+3. Let msg_i1, ..., msg_iR be the second elements from the
+   (H_i, revMsg_i) tuples for which rev_i is non NULL (i.e., the
+   revealed messages) in the same order.
 
-3. [H_j1, ..., H_jU] = [H_j, if revealed_j = 0]
-
-4. If length([msg_i1, ..., msg_iR]) not equal to R, abort
+4. if KeyValidate(PK) is INVALID, return INVALID
 
 5. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
 
