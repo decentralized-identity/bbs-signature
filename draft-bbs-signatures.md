@@ -653,7 +653,7 @@ Procedure:
 ### CreateGenerators
 
 The CreateGenerators operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as Sign, Verify, ProofGen and ProofVerify.
-It is used to compute the set of message generators (H), the signature blinding value generator (H_s), and the signature domain separation tag generator (H_d).
+It is used to compute the set of message generators (`H_1`, `H_2`, etc.,), the signature blinding value generator (`H_s`), and the signature domain generator (`H_d`).
 
 ```
 generators = CreateGenerators(dst, seed, length);
