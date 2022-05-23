@@ -419,25 +419,17 @@ Procedure:
 
 3. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-4. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
+4. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-5. if domain is 0, abort
+5. (e, s) = hash_to_scalar((SK  || domain || msg_1 || ... || msg_L), 2)
 
-6. h = xof(SK  || domain || msg_1 || ... || msg_L)
+6. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-7. for element in (e, s) do
+7. A = B * (1 / (SK + e))
 
-8.      element = OS2IP(h.read(xof_no_of_bytes)) mod r
+8. signature_octets = signature_to_octets(A, e, s)
 
-9.      if element = 0, go back to step 4
-
-10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
-
-11. A = B * (1 / (SK + e))
-
-12. signature_octets = signature_to_octets(A, e, s)
-
-13. return signature_octets
+9. return signature_octets
 ```
 
 **Note** When computing step 11 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 11, and or `A != Identity_G1` after step 11 to prevent the production of invalid signatures.
@@ -485,7 +477,7 @@ Procedure:
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
+7. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
 8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -546,45 +538,43 @@ Procedure:
 
 7. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-8. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
+8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-9. for element in (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU):
+9. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
 
-10.      element = hash(PRF(8*ceil(log2(r)))) mod r
+10. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
 
-11.      if element = 0, go back to step 7
+11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-12. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+12. r3 = r1 ^ -1 mod r
 
-13. r3 = r1 ^ -1 mod r
+13. A' = A * r1
 
-14. A' = A * r1
+14. Abar = A' * (-e) + B * r1
 
-15. Abar = A' * (-e) + B * r1
+15. D = B * r1 + H_s * r2
 
-16. D = B * r1 + H_s * r2
+16. s' = s + r2 * r3
 
-17. s' = s + r2 * r3
+17. C1 = A' * e~ + H_s * r2~
 
-18. C1 = A' * e~ + H_s * r2~
+18. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-19. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+19. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-20. c = hash(PK || Abar || A' || D || C1 || C2 || ph)
+20. e^ = e~ + c * e
 
-21. e^ = e~ + c * e
+21. r2^ = r2~ + c * r2
 
-22. r2^ = r2~ + c * r2
+22. r3^ = r3~ + c * r3
 
-23. r3^ = r3~ + c * r3
+23. s^ = s~ + c * s'
 
-24. s^ = s~ + c * s'
+24. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
 
-25. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 
-26. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
-
-27. return proof
+26. return proof
 ```
 
 ### ProofVerify
@@ -631,7 +621,7 @@ Procedure:
 
 5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-6. domain = OS2IP(hash(PK || L || generators || Ciphersuite_ID || header)) mod r
+6. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
 7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
@@ -639,7 +629,7 @@ Procedure:
 
 9. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-10. cv = hash(PK || Abar || A' || D || C1 || C2 || ph)
+10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
 11. if c != cv, return INVALID
 
