@@ -406,7 +406,7 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed e.g., length([(H_1, msg_1),..., (H_L, msg_L)]).  Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of messages to be signed i.e., length([(H_1, msg_1),..., (H_L, msg_L)]).  Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -463,7 +463,7 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed e.g., length([(H_1, msg_1),..., (H_L, msg_L)]). Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of messages to be signed i.e., length([(H_1, msg_1),..., (H_L, msg_L)]). Note if no messages are supplied as an input to this operation, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -520,9 +520,9 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of signed messages e.g., length([(H_1, msg_1, revealed_1), ..., (H_L, msg_L, revealed_L)]). Note if no messages are signed, the value of L MUST evaluate to zero (0).
-- R, is the non-negative integer representing the number of revealed messages e.g., R = revealed_1 + revealed_2 + ... + revealed_L. If no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of un-revealed messages e.g., U = L-R. If no non-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of signed messages i.e., length([(H_1, msg_1, revealed_1), ..., (H_L, msg_L, revealed_L)]). Note if no messages are signed, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed messages i.e., R is the number of the boolean values: revealed_1, ..., revealed_L, that are "true". If no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of un-revealed messages i.e., U = L-R. If no non-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
 
 Outputs:
 
@@ -619,9 +619,9 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of signed messages e.g., length([(H_1, revMsg_1), ..., (H_L, revMsg_1)]). If no messages are signed, the value of L MUST evaluate to zero (0).
-- R, is the non-negative integer representing the number of revealed messages e.g., R is the number of non NULL revMsg_i values. If no messages are revealed by the proof, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of un-revealed messages e.g., U = L-R. If no un-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of signed messages i.e., length([(H_1, revMsg_1), ..., (H_L, revMsg_1)]). If no messages are signed, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed messages i.e., R is the number of non NULL revMsg_i values. If no messages are revealed by the proof, the value of R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of un-revealed messages i.e., U = L-R. If no un-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
 
 Outputs:
 
