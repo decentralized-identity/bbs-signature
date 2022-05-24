@@ -73,20 +73,43 @@ Below is a basic diagram describing the main entities involved in using the sche
 
 !---
 ~~~ ascii-art
-  (1) sign                                       (3) ProofGen                                        (5) ProofVerify
-  +-----                                         +-----                                               +-----
-  |    |                                         |    |                                               |    |
-  |    |                                         |    |                                               |    |
-  |   \ /                                        |   \ /                                              |   \ /
-+----------+                                   +-----------+                                        +-----------+
-|          |                                   |           |                                        |           |
-|          |                                   |           |                                        |           |
-|          |                                   |           |                                        |           |
-|  Signer  |---(2)* Send signature + msgs----->|  Holder/  |---(4)* Send proof + revealed msgs----->| Verifier  |
-|          |                                   |  Prover   |                                        |           |
-|          |                                   |           |                                        |           |
-|          |                                   |           |                                        |           |
-+----------+                                   +-----------+                                        +-----------+
+  (1) sign                                      (3) ProofGen
+   +-----                                         +-----
+   |    |                                         |    |
+   |    |                                         |    |
+   |   \ /                                        |   \ /
++----------+                                   +-----------+
+|          |                                   |           |
+|          |                                   |           |
+|          |                                   |           |
+|  Signer  |---(2)* Send signature + msgs----->|  Holder/  |
+|          |                                   |  Prover   |
+|          |                                   |           |
+|          |                                   |           |
++----------+                                   +-----------+
+                                                     |
+                                                     |
+                                                     |
+                                      (4)* Send proof + revealed msgs
+                                                     |
+                                                     |
+                                                    \ /
+                                               +-----------+
+                                               |           |
+                                               |           |
+                                               |           |
+                                               | Verifier  |
+                                               |           |
+                                               |           |
+                                               |           |
+                                               +-----------+
+                                                  |   / \
+                                                  |    |
+                                                  |    |
+                                                  +-----
+                                             (5) ProofVerify
+
+
 ~~~
 !---
 Figure: Basic diagram capturing the main entities involved in using the scheme
@@ -887,8 +910,21 @@ The following section defines the format of the unique identifier for the cipher
   *  ADD\_INFO is an optional string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII characters between 0x21 and 0x7e (inclusive), and MUST end with an underscore (0x5f), other than the last character the string MUST not contain any other underscores (0x5f).
 
 ### Additional Parameters
+The parameters that each ciphersuite needs to define are generally divided into four main categories; the basic parameters (a hash function, the hash_to_scalar operation etc.,), the serialization operations (point_to_octets_g1 etc.,), the hash_to_curve parameters (the hash_to_curve dst etc.,) and the generator seeds (the message generator seed etc.,). See below for more details.
+
+**Basic Parameters**:
 
 - hash: a cryptographic hash function.
+
+- xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
+
+- octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
+
+- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
+
+- hashing\_elements\_to\_scalars: either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+
+**Serialization functions**:
 
 - point\_to\_octets_g1:
 a function that returns the canonical representation of the point P for the G1 subgroup as an octet string.
@@ -902,81 +938,61 @@ a function that returns the point P in the subgroup G1 corresponding to the cano
 - octets\_to\_point_g2:
 a function that returns the point P in the subgroup G2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g2`.
 
+**Hash to curve parameters**:
+
 - hash\_to\_curve\_g1:
 A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
 - hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation.
 
-- hash\_to\_field: A cryptographic hash function that follows the procedure outlined in section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve].
-
-- hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation.
-
-- hashing\_elements\_to\_scalars: either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+**Generator Seeds**:
 
 - message\_generator\_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
 - blind\_value\_generator\_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message\_generator\_seed, there are multiple scopes for the blind\_value\_generator\_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
-- signature\_dst\_generator\_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message\_generator\_seed and blind\_value\_generator\_seed.
-
-- xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
-
-- octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
-
-- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
+- sig\_domain\_generator\_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message\_generator\_seed and blind\_value\_generator\_seed.
 
 ## BLS12-381 Ciphersuite
+The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hashtocurve-definition-using-shake-256), which also makes use of the SHKA-256 function.
 
-Ciphersuite\_ID
-: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
+**Basic Parameters**:
 
-hash
-: SHAKE-256 as defined in [@!SHA3].
+- Ciphersuite\_ID: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
 
-point\_to\_octets_g1
-: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
+- hash: SHAKE-256 as defined in [@!SHA3].
 
-point\_to\_octets_g2
-: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup, using compression (i.e., setting C\_bit = 1).
+- xof\_no\_of\_bytes: 64.
 
-octets\_to\_point_g1
-: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
+- octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
-octets\_to\_point_g2
-: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
+- octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
-hash\_to\_curve_g1
-: follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
+- hashing\_elements\_to\_scalars: hash\_to\_scalar.
 
-hash\_to\_curve\_g1\_dst
-: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO".
+**Serialization functions**:
 
-hash\_to\_field
-: adopts the required parameters from the suites defined in (#bls12-381-hash-to-curve-definition-using-shake-256) to satisfy those described in section 5.3 [@!I-D.irtf-cfrg-hash-to-curve] along with the defined dst.
+- point\_to\_octets_g1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
 
-hash\_to\_field\_dst
-: "BBS\_BLS12381FQ\_XOF:SHAKE-256\_SSWU\_RO".
+- point\_to\_octets_g2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup, using compression (i.e., setting C\_bit = 1).
 
-message\_generator\_seed
-: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
+- octets\_to\_point_g1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
 
-blind\_value\_generator\_seed
-: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_BLINDING\_VALUE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
+- octets\_to\_point_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
 
-signature\_dst\_generator\_seed
-: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_DST\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
+**Hash to curve parameters**:
 
-hashing\_elements\_to\_scalars
-: hash\_to\_scalar.
+- hash\_to\_curve_g1: follows the suite defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
-xof\_no\_of\_bytes
-: 64.
+- hash\_to\_curve\_g1\_dst: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO".
 
-octet\_scalar\_length
-: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
+**Generator Seeds**:
 
-octet\_point\_length
-: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
+- message\_generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
+
+- blind\_value\_generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIG\_BLINDING\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
+
+- sig\_domain\_generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIG\_DOMAIN\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 ### Test Vectors
 
@@ -1396,9 +1412,9 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
   </front>
 </reference>
 
-<reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-208.pdf">
+<reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf">
  <front>
-   <title>Recommendation for Stateful Hash-Based Signature Schemes</title>
+   <title>SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions</title>
    <author><organization>NIST</organization></author>
  </front>
 </reference>
