@@ -964,7 +964,7 @@ Procedure:
 // Scalar Serialization.
 6. for scalar in (c, e^, r2^, r3^, s^, m^_j1, ..., m^_jU):
 
-7.     scalar_octets = I2OSP(scalar_oct, octet_scalar_length)
+7.     scalar_octets = I2OSP(scalar, octet_scalar_length)
 
 8.     proof_octets = proof_octets || scalar_octets
 
