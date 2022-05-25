@@ -732,7 +732,7 @@ Inputs:
 
 Parameters:
 
-- r (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups, defined by the ciphersuite.
+- r (REQUIRED), non-negative integer. The prime order of the G1 and G2 groups, defined by the ciphersuite.
 - expand_length (REQUIRED), non-negative integer. The number of bytes to read from the xof function, defined by the ciphersuite.
 - dst (REQUIRED), octet string. Domain separation tag.
 
