@@ -865,8 +865,8 @@ Inputs:
 
 Parameters:
 
-- r (REQUIRED), non-negative integer. The prime order of the G_1 and
-                G_2 groups, defined by the ciphersuite.
+- r (REQUIRED), non-negative integer. The prime order of the G1 and
+                G2 groups, defined by the ciphersuite.
 - octet_scalar_length (REQUIRED), non-negative integer. The length of
                                   a scalar octet representation, defined
                                   by the ciphersuite.
