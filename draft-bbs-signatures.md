@@ -181,6 +181,9 @@ I \\ J
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
+(a, ..., b)
+: For integers a and b, with a <= b, denotes the ascending ordered list of all integers between a and b inclusive (i.e., the integers "i" such that a <= i <= b).
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -847,20 +850,20 @@ Procedure:
 
 ### OctetsToProof
 
-The `octets_to_proof` operations describes how to parse an octet string representation of a proof, validate it and return the underlying components.
+This operation describes how to decode an octet string representing a proof, validate it and return the underlying components that make up the proof value.
 
 The proof value outputted by this operation consists of the following components, in that order:
 
 1. Three (3) valid points of the G1 subgroup, each of which must not equal the identity point.
 2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive.
-3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof message commitments.
+3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof message commitments. This set can be empty (i.e., "()").
 
 ```
 proof = octets_to_proof(proof_octets)
 
 Inputs:
 
-- proof_octets (REQUIRED), octet string of the form output from
+- proof_octets (REQUIRED), octet string of the form outputted from the
                            proof_to_octets operation.
 
 Parameters:
@@ -887,7 +890,7 @@ Procedure:
 // Points (i.e., (A', Abar, D) in ProofGen) de-serialization.
 3. index = 0
 
-4. for i in (0, 2):
+4. for i in (0, ..., 2):
 
 5.     end_index = index + octet_point_length - 1
 
@@ -915,9 +918,11 @@ Procedure:
 
 16. if index is not equal to length(proof_octets), return INVALID
 
-17. msg_commitments = (s_5, ..., s_(k-1))
+17. Let msg_commitments be an empty set (i.e., msg_commitments = ())
 
-18. return (A_0, A_1, A_2, s_0, s_1, s_2, s_3, s_4, msg_commitments)
+18. If j > 5, set msg_commitments = (s_5, ..., s_(j-1))
+
+19. return (A_0, A_1, A_2, s_0, s_1, s_2, s_3, s_4, msg_commitments)
 ```
 
 ### ProofToOctets
@@ -950,7 +955,7 @@ Outputs:
 
 Procedure:
 
-1. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU)) = proof
+1. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1, ..., m^_U)) = proof
 
 2. Let proof_octets be an empty octet string.
 
@@ -962,7 +967,7 @@ Procedure:
 5.     proof_octets = proof_octets || point_octets
 
 // Scalar Serialization.
-6. for scalar in (c, e^, r2^, r3^, s^, m^_j1, ..., m^_jU):
+6. for scalar in (c, e^, r2^, r3^, s^, m^_1, ..., m^_U):
 
 7.     scalar_octets = I2OSP(scalar, octet_scalar_length)
 
