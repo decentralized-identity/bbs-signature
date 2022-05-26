@@ -853,7 +853,7 @@ The proof value outputted by this operation consists of the following components
 
 1. Three (3) valid points of the G1 subgroup, each of which must not equal the identity point.
 2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive.
-3. A number of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof message commitments.
+3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof message commitments.
 
 ```
 proof = octets_to_proof(proof_octets)
