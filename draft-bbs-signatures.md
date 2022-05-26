@@ -233,7 +233,7 @@ In definition of this signature scheme there are two possible variations based u
 
 ### Messages and generators
 
-Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations as well (signature verification, proof generation and proof verification).
+Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations (signature verification, proof generation and proof verification).
 
 Aside from the message generators, the scheme uses two additional generators: `H_s` and `H_d`. The first (`H_s`), is used for the blinding value (`s`) of the signature. The second generator (`H_d`), is used to sign the signature's domain, which binds both signature and proof to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
 
