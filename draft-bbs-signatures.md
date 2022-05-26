@@ -739,7 +739,7 @@ This operation describes how to hash an arbitrary octet string to `n` scalar val
 
 This document defines two different hash_to_scalar operations
 1. `hash_to_scalar_xof`, is the more performant option which makes use of an extendable output function, making it ideal for use with functions like SHAKE256 or SHAKE128.
-2. `hash_to_scalar_xmd`, is less performant in comparison, but does not require an extendable output function, making it more suitable for use with hash functions like SHA2 or SHA3.
+2. `hash_to_scalar_xmd`, is less performant in comparison, requires a fixed length output function like SHA2 or SHA3.
 
 #### hash_to_scalar_xof
 
