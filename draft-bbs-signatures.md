@@ -181,6 +181,9 @@ I \\ J
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
+strxor(octet_str_1, octet_str_2)
+: The bitwise XOR of two octet strings of equal length, as defined in Section 4 of [@!I-D.irtf-cfrg-hash-to-curve].
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -215,9 +218,6 @@ octets\_to\_point_g1(ostr) -> P, octets\_to\_point_g2(ostr) -> P
 
 subgroup\_check(P) -> VALID or INVALID
 : returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [@Bowe19].
-
-substr(str, sbegin, slen) -> Octet String
-: A function returning a substring of the octet string `str` of length `slen`, begining from `sbegin`, as defined in Section 4 of [@!I-D.irtf-cfrg-hash-to-curve].
 
 ## Organization of this document
 
@@ -738,7 +738,7 @@ Procedure:
 This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
 This document defines two different hash_to_scalar operations
-1. `hash_to_scalar_xof`, is the more performant option which makes use of an extendable output function, making it ideal for use with functions like SHAKE256 or SHKAE128.
+1. `hash_to_scalar_xof`, is the more performant option which makes use of an extendable output function, making it ideal for use with functions like SHAKE256 or SHAKE128.
 2. `hash_to_scalar_xmd`, is less performant in comparison, but does not require an extendable output function, making it more suitable for use with hash functions like SHA2 or SHA3.
 
 #### hash_to_scalar_xof
@@ -793,8 +793,8 @@ Inputs:
 
 Parameters:
 
-- r (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups, defined by the ciphersuite.
-- expand_length (REQUIRED), non-negative integer. The number of bytes that the expand_message_xmd function will return, defined by the ciphersuite.
+- r (REQUIRED), non-negative integer. The prime order of the G1 and G2 groups, defined by the ciphersuite.
+- expand_length (REQUIRED), non-negative integer. The number of bytes required to compute each scalar, defined by the ciphersuite.
 - b_in_bytes (REQUIRED), b / 8 for b the output size of H in bits. For example, for b = 256, b_in_bytes = 32.
 - s_in_bytes (REQUIRED), the input block size of H, measured in bytes. For example, for SHA-256, s_in_bytes = 64.
 - dst (REQUIRED), octet string. Domain separation tag.
@@ -823,17 +823,19 @@ Procedure:
 
 11.     for j in (2, ..., ell)
 
-12.          b_k = hash(b_0 STR_XOR b_(k-1) || I2OSP(k, 1) || dst_prime)
+12.         b_k = hash(strxor(b_0, b_(k-1)) || I2OSP(k, 1) || dst_prime)
 
-13.          k += 1
+13.         k += 1
 
-14.     h_i = substr((b_(k-ell) || ... || b_(k-1)), 0, expand_length)
+14.     total_bytes = (b_(k-ell) || ... || b_(k-1))
 
-15.     scalar_i = OS2IP(h_i) mod r
+15.     h_i = total_bytes[0..expand_length]
 
-16.     if scalar_i is 0 mod r, go back to step 11.
+16.     scalar_i = OS2IP(h_i) mod r
 
-17. return scalar_1, ..., scalar_n
+17.     if scalar_i is 0 mod r, go back to step 11.
+
+18. return scalar_1, ..., scalar_n
 ```
 
 ### OctetsToSignature
@@ -1014,7 +1016,7 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
 - hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation.
-- 
+
 **Generator Seeds**:
 
 - message\_generator\_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
