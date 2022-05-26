@@ -954,7 +954,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 - sig\_domain\_generator\_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message\_generator\_seed and blind\_value\_generator\_seed.
 
 ## BLS12-381 Ciphersuite
-The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hashtocurve-definition-using-shake-256), which also makes use of the SHKA-256 function.
+The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hashtocurve-definition-using-shake-256), which also makes use of the SHAKE-256 function.
 
 **Basic Parameters**:
 
@@ -1120,7 +1120,7 @@ This document does not make any requests of IANA.
 
 ## BLS12-381 hash\_to\_curve definition using SHAKE-256
 
-The following defines a hash_to_curve suite [@!I-D.irtf-cfrg-hash-to-curve] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (xof) of SHAKE-256 as per the guidance defined in section 8.9 of [@!I-D.irtf-cfrg-hash-to-curve].
+The following defines a hash\_to\_curve suite [@!I-D.irtf-cfrg-hash-to-curve] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (xof) of SHAKE-256 as per the guidance defined in section 8.9 of [@!I-D.irtf-cfrg-hash-to-curve].
 
 Note the notation used in the below definitions is sourced from [@!I-D.irtf-cfrg-hash-to-curve].
 
