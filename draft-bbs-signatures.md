@@ -952,7 +952,7 @@ Procedure:
 
 1. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU)) = proof
 
-2. Let proof_octets be the empty octet string.
+2. Let proof_octets be an empty octet string.
 
 // Points Serialization.
 3. for point in (A', Abar, D):
