@@ -926,7 +926,7 @@ This operation describes how to encode a proof, as computed at step 25 in [Proof
 
 The inputed proof value must consist of the following components, in that order:
 
-1. Three (3) valid points of the G1 subgroup, different from the identity point of G1 (i.e., `A', Abar, D`, in ProofGen)
+1. Three (3) valid compressed points of the G1 subgroup, different from the identity point of G1 (i.e., `A', Abar, D`, in ProofGen)
 2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive (i.e., `c, e^, r2^, r3^, s^`, in ProofGen).
 3. A number of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof messages (i.e., `m^_j1, ..., m^_jU`, in ProofGen, where U the number of un-revealed messages).
 
