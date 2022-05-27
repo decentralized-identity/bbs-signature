@@ -1116,15 +1116,13 @@ This document does not make any requests of IANA.
 
 {backmatter}
 
-# Appendix
-
-## BLS12-381 hash\_to\_curve definition using SHAKE-256
+# BLS12-381 hash\_to\_curve definition using SHAKE-256
 
 The following defines a hash_to_curve suite [@!I-D.irtf-cfrg-hash-to-curve] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (xof) of SHAKE-256 as per the guidance defined in section 8.9 of [@!I-D.irtf-cfrg-hash-to-curve].
 
 Note the notation used in the below definitions is sourced from [@!I-D.irtf-cfrg-hash-to-curve].
 
-### BLS12-381 G1
+## BLS12-381 G1
 
 The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
 
@@ -1166,7 +1164,7 @@ Note that the h_eff values for this suite are copied from that defined for the `
 
 An optimized example implementation of the Simplified SWU mapping to the curve E' isogenous to BLS12-381 G1 is given in Appendix F.2 [@!I-D.irtf-cfrg-hash-to-curve].
 
-### BLS12-381 G2
+## BLS12-381 G2
 
 The suite of `BLS12381G2_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
 
@@ -1213,9 +1211,9 @@ Note that the h_eff values for this suite are copied from that defined for the `
 
 An optimized example implementation of the Simplified SWU mapping to the curve E' isogenous to BLS12-381 G2 is given in Appendix F.2 [@!I-D.irtf-cfrg-hash-to-curve].
 
-## Usecases
+# Usecases
 
-### Non-correlating Security Token
+## Non-correlating Security Token
 
 In the most general sense BBS signatures can be used in any application where a cryptographically secured token is required but correlation caused by usage of the token is un-desirable.
 
@@ -1223,7 +1221,7 @@ For example in protocols like OAuth2.0 the most commonly used form of the access
 
 BBS Signatures due to their unique properties removes this source of correlation but maintains the same set of guarantees required by a resource server to validate an access token back to its relevant authority (note that an approach to signing JSON tokens with BBS that may be of relevance is the [JWP](https://json-web-proofs.github.io/json-web-proofs/draft-jmiller-json-web-proof.html) format and serialization). In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they derive a unique proof from the original access token and include that in the request instead, thus removing this vector of correlation.
 
-### Improved Bearer Security Token
+## Improved Bearer Security Token
 
 Bearer based security tokens such as JWT based access tokens used in the OAuth2.0 protocol are a highly popular format for expressing authorization grants. However their usage has several security limitations. Notably a bearer based authorization scheme often has to rely on a secure transport between the authorized party (client) and the resource server to mitigate the potential for a MITM attack or a malicious interception of the access token. The scheme also has to assume a degree of trust in the resource server it is presenting an access token to, particularly when the access token grants more than just access to the target resource server, because in a bearer based authorization scheme, anyone who possesses the access token has authority to what it grants. Bearer based access tokens also suffer from the threat of replay attacks.
 
@@ -1231,23 +1229,23 @@ Improved schemes around authorization protocols often involve adding a layer of 
 
 BBS Signatures ofter an alternative model that solves the same problems that proof of cryptographic key possession schemes do for bearer based schemes, but in a way that doesn't introduce new up-front protocol complexity. In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they derive a unique proof from the original access token and include that in the request instead. Because the access token is not shared in a request to a resource server, attacks such as MITM are mitigated. A resource server also obtains the ability to detect a replay attack by ensuring the proof presented is unique.
 
-### Hardware Attestations
+## Hardware Attestations
 
 TODO
 
-### Selectively Disclosure Enabled Identity Assertions
+## Selectively Disclosure Enabled Identity Assertions
 
 TODO
 
-### Privacy preserving bound signatures
+## Privacy preserving bound signatures
 
 TODO
 
-## Additional BLS12-381 Ciphersuite Test Vectors
+# Additional BLS12-381 Ciphersuite Test Vectors
 
 **NOTE** These fixtures are a work in progress and subject to change
 
-### Modified Message Signature
+## Modified Message Signature
 
 Using the following message
 
@@ -1263,7 +1261,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed
 
-### Extra Unsigned Message Signature
+## Extra Unsigned Message Signature
 
 Using the following messages
 
@@ -1281,7 +1279,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed
 
-### Missing Message Signature
+## Missing Message Signature
 
 Using the following messages
 
@@ -1299,7 +1297,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing
 
-### Reordered Message Signature
+## Reordered Message Signature
 
 Using the following messages
 
@@ -1333,7 +1331,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed
 
-### Wrong Public Key Signature
+## Wrong Public Key Signature
 
 Using the following messages
 
@@ -1367,7 +1365,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct
 
-## Proof Generation and Verification Algorithmic Explanation
+# Proof Generation and Verification Algorithmic Explanation
 
 The following section provides an explanation of how the ProofGen and ProofVerify operations work.
 
