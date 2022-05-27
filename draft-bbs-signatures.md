@@ -387,24 +387,36 @@ Procedure:
 This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages.
 
 ```
-signature = Sign(SK, PK, header, [(H_1, msg_1), ..., (H_L, msg_L)])
+signature = Sign(SK, PK, header, to_sign)
 
 Inputs:
 
-- SK (REQUIRED), an octet string of the form outputted by the KeyGen operation.
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation provided the above SK as input.
-- header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
-- [(H_1, msg_1),..., (H_L, msg_L)] (OPTIONAL), a list of generator and message pairs. Generators must be G1 points, and the messages must be non-zero scalars mod r. If not supplied, the list will default to the empty array ("[]").
+- SK (REQUIRED), an octet string of the form outputted by the KeyGen
+                 operation.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk
+                 operation provided the above SK as input.
+- header (OPTIONAL), an octet string containing context and application
+                     specific information. If not supplied, it defaults
+                     to an empty string.
+- to_sign (OPTIONAL), a list of (generator, message) pairs. Generators
+                      must be G1 points, and the messages must be
+                      non-zero scalars mod r. If not supplied, will
+                      default to the empty array ("[]").
+
 
 Parameters:
 
-- Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
-- H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
-- H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
+- Ciphersuite_ID (REQUIRED), ASCII string. The unique ciphersuite ID.
+- H_s (REQUIRED), point of G1. The generator for the blinding value of
+                  the signature.
+- H_d (REQUIRED), point of G1. The generator used to sign the signature
+                  domain.
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed i.e., length([(H_1, msg_1),..., (H_L, msg_L)]).  Note, if the list of generator and message pairs is not supplied as an input to this operation, the value of L MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of messages
+     to be signed i.e., L = length(to_sign). Note, if the to_sign list
+     is not supplied, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -412,23 +424,25 @@ Outputs:
 
 Procedure:
 
-1. W = octets_to_point_g2(PK)
+1. [(H_1, msg_1), ..., (H_L, msg_L)] = to_sign
 
-2. if W is INVALID, abort
+2. W = octets_to_point_g2(PK)
 
-3. generators =  (H_s || H_d || H_1 || ... || H_L)
+3. if W is INVALID, abort
 
-4. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+4. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-5. (e, s) = hash_to_scalar((SK  || domain || msg_1 || ... || msg_L), 2)
+5. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-6. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+6. (e, s) = hash_to_scalar((SK  || domain || msg_1 || ... || msg_L), 2)
 
-7. A = B * (1 / (SK + e))
+7. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-8. signature_octets = signature_to_octets(A, e, s)
+8. A = B * (1 / (SK + e))
 
-9. return signature_octets
+9. signature_octets = signature_to_octets(A, e, s)
+
+10. return signature_octets
 ```
 
 **Note** When computing step 11 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 11, and or `A != Identity_G1` after step 11 to prevent the production of invalid signatures.
@@ -438,24 +452,35 @@ Procedure:
 This operation checks that a signature is valid for a given header and vector of messages against a supplied public key (PK).
 
 ```
-result = Verify(PK, signature, header, [(H_1, msg_1),..., (H_L, msg_L)])
+result = Verify(PK, signature, header, signed)
 
 Inputs:
 
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
-- signature (REQUIRED), an octet string of the form outputted by the Sign operation.
-- header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
-- [(H_1, msg_1),..., (H_L, msg_L)] (OPTIONAL), a list of generator and message pairs. Generators must be G1 points, and the messages must be non-zero scalars mod r. If not supplied, the list will default to the empty array ("[]"). The list MUST have the same order as when supplied to Sign.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk
+                 operation.
+- signature (REQUIRED), an octet string of the form outputted by the
+                        Sign operation.
+- header (OPTIONAL), an octet string containing context and application
+                     specific information. If not supplied, it defaults
+                     to an empty string.
+- signed (OPTIONAL), a list of generator and message pairs. Generators
+                     must be G1 points, and the messages must be
+                     non-zero scalars mod r. If not supplied, will
+                     default to the empty array ("[]").
 
 Parameters:
 
-- Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
-- H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
-- H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
+- Ciphersuite_ID (REQUIRED), ASCII string. The unique ciphersuite ID.
+- H_s (REQUIRED), point of G1. The generator for the blinding value of
+                  the signature.
+- H_d (REQUIRED), point of G1. The generator used to sign the signature
+                  domain.
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to be signed i.e., length([(H_1, msg_1),..., (H_L, msg_L)]). Note, if the list of generator and message pairs is not supplied as an input to this operation, the value of L MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of signed
+     messages i.e., length(signed). Note, if signed is not supplied as
+     an input, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -463,60 +488,77 @@ Outputs:
 
 Procedure:
 
-1. signature_result = octets_to_signature(signature)
+1. [(H_1, msg_1), ..., (H_L, msg_L)] = signed
 
-2. if signature_result is INVALID, return INVALID
+2. signature_result = octets_to_signature(signature)
 
-3. (A, e, s) = signature_result
+3. if signature_result is INVALID, return INVALID
 
-4. if KeyValidate(PK) is INVALID, return INVALID
+4. (A, e, s) = signature_result
 
-5. W = octets_to_point_g2(PK)
+5. if KeyValidate(PK) is INVALID, return INVALID
 
-6. generators =  (H_s || H_d || H_1 || ... || H_L)
+6. W = octets_to_point_g2(PK)
 
-7. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+7. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-9. C1 = e(A, W + P2 * e)
+9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-10. C2 = e(B, P2)
+10. C1 = e(A, W + P2 * e)
 
-11. return C1 == C2
+11. C2 = e(B, P2)
+
+12. return C1 == C2
 ```
 
 ### ProofGen
 
 This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [presentation header selection](#presentation-header-selection) for more details.
 
-The generators and messages are supplied as tuples, along with a boolean variable indicating if that message will be revealed or not, i.e., tuples of the form `(H_i, msg_i, revealed_i)`. The generator `H_i` must be a point on G1 (see [Messages and Generators](#messages-and-generators)), the message `msg_i` must be a non-zero scalar mod r representing a signed message and `revealed_i` must be a boolean variable. The tuples must be sorted based on the order their two first elements (i.e., the generator and message) had when supplied to [Sign](#sign). If the list is not supplied, it will default to the empty array ("[]").
+The generators and messages are supplied as a list of pairs (called `signed`) of the form `(H_i, msg_i)`. The generator `H_i` must be a point on G1 (see [Messages and Generators](#messages-and-generators)) and the message `msg_i` must be a non-zero scalar mod r representing a signed message. The list of pairs MUST be the same and in the same order as the `to_sign` list that was supplied to [Sign](#sign), when creating the signature that will be inputted in this operation. To indicate which messages will be revealed by the resulting proof, the operation takes as an input a list of at most `length(signed)`, integers (`revealedIndexes`) in ascending order, representing the indexes of the (generator, message) pairs containing the messages that will be revealed. Each of those indexes MUST be non-negative integers, in the range from 1 to L, where L the total number of signed messages (i.e., `L = length(signed)`). If one of the `signed` or `revealedIndexes` lists is not supplied, it will default to the empty array ("[]").
 
-For example if `[(H_1, msg_1), (H_2, msg_2), (H_3, msg_3)]` was supplied to [Sign](#sign), and the prover wants to reveal only `msg_1` and `msg_3`, the list that must be supplied to ProofGen is `[(H_1, msg_1, true), (H_2, msg_2, false), (H_3, msg_3, true)]` (in that order, otherwise the proof will not validate).
+For example if `[(H_1, msg_1), (H_2, msg_2), (H_3, msg_3)]` was supplied to [Sign](#sign), and the prover wants to reveal only `msg_1` and `msg_3`, the two lists that must be supplied to ProofGen are the list: `signed = [(H_1, msg_1), (H_2, msg_2), (H_3, msg_3)]` (in that order, otherwise the proof will not validate) and the list: `revealedIndexes = [1, 3]`.
 
 ```
-proof = ProofGen(PK, signature, header, ph,
-             [(H_1, msg_1, revealed_1), ..., (H_L, msg_L, revealed_L)])
+proof = ProofGen(PK, signature, header, ph, signed, revealedIndexes)
 
 Inputs:
 
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
-- signature (REQUIRED), an octet string of the form outputted by the Sign operation.
-- header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk
+                 operation.
+- signature (REQUIRED), an octet string of the form outputted by the
+                        Sign operation.
+- header (OPTIONAL), an octet string containing application specific
+                     information. If not supplied, it defaults to an
+                     empty string.
 - ph (OPTIONAL), octet string.
-- [(H_1, msg_1, revealed_1), ..., (H_L, msg_L, revealed_L)] (OPTIONAL), a list of tuples containing a generator (point on G1), a non-zero scalar mod r representing a message, and a boolean value indicating if the message will be revealed or not (see above for requirements)
+- signed (OPTIONAL), a list of tuples containing a generator (point on
+                     G1), a non-zero scalar mod r representing a message
+                     (see above for requirements).
+- revealedIndexes (OPTIONAL), a list of distinct integers, in the range
+                              1 to length(signed), in ascending order
+                              (see above for requirements).
 
 Parameters:
 
-- Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
-- H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
-- H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
+- Ciphersuite_ID (REQUIRED), ASCII string. The unique ciphersuite ID.
+- H_s (REQUIRED), point of G1. The generator for the blinding value of
+                  the signature.
+- H_d (REQUIRED), point of G1. The generator used to sign the signature
+                  domain.
 
 Definitions:
 
-- L, is the non-negative integer representing the number of signed messages i.e., length([(H_1, msg_1, revealed_1), ..., (H_L, msg_L, revealed_L)]). Note if the list of (generator, message boolean) tuples is not supplied, the value of L MUST evaluate to zero (0).
-- R, is the non-negative integer representing the number of revealed messages i.e., R is the number of the boolean values: revealed_1, ..., revealed_L, that are "true". If no revealed messages are supplied as an input to this operation, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of un-revealed messages i.e., U = L-R. If no un-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of signed
+     messages i.e., L = length(signed). Note, if signed is not supplied
+     as an input, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed
+     messages i.e., R = length(revealedIndexes). If revealedIndexes is
+     not supplied as an input, the value of R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of un-revealed
+     messages i.e., U = L - R.
 
 Outputs:
 
@@ -524,98 +566,115 @@ Outputs:
 
 Procedure:
 
-1. Let (H_i1, msg_i1), ..., (H_iR, msg_iR), be the pairs containing the
-   first 2 elements from the tuples (H_i, msg_i, revealed_i),
-   i = 1, ..., L, for which it holds that revealed_i = true, in the same
-   order (i.e., the (generator, message) pairs corresponding to the
-   revealed messages).
+1. if length(revealedIndexes) > L, return INVALID
 
-2. Let (H_j1, msg_j1), ..., (H_jU, msg_jU), be the pairs containing the
-   first 2 elements from the tuples (H_i, msg_i, revealed_i),
-   i = 1, ..., L, for which it holds that revealed_i = false, (i.e., the
-   (generator, message) pairs corresponding to the
-   un-revealed messages).
+2. [i1, ..., iR] = revealedIndexes
 
-3. signature_result = octets_to_signature(signature)
+3. [j1, ..., jU] = (1, ..., L) \ revealedIndexes
 
-4. if signature_result is INVALID, return INVALID
+4. (H_i1, msg_i1), ..., (H_iR, msg_iR) = signed[i1], ..., signed[iR]
 
-5. (A, e, s) = signature_result
+5. (H_j1, msg_j1), ..., (H_jU, msg_jU) = signed[j1], ..., signed[jU]
 
-6. if KeyValidate(PK) is INVALID, return INVALID
+6. signature_result = octets_to_signature(signature)
 
-7. generators =  (H_s || H_d || H_1 || ... || H_L)
+7. if signature_result is INVALID, return INVALID
 
-8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+8. (A, e, s) = signature_result
 
-9. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
+9. if KeyValidate(PK) is INVALID, return INVALID
 
-10. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
+10. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+11. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-12. r3 = r1 ^ -1 mod r
+12. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
 
-13. A' = A * r1
+13. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
 
-14. Abar = A' * (-e) + B * r1
+14. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-15. D = B * r1 + H_s * r2
+15. r3 = r1 ^ -1 mod r
 
-16. s' = s + r2 * r3
+16. A' = A * r1
 
-17. C1 = A' * e~ + H_s * r2~
+17. Abar = A' * (-e) + B * r1
 
-18. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+18. D = B * r1 + H_s * r2
 
-19. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+19. s' = s + r2 * r3
 
-20. e^ = e~ + c * e
+20. C1 = A' * e~ + H_s * r2~
 
-21. r2^ = r2~ + c * r2
+21. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-22. r3^ = r3~ + c * r3
+22. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-23. s^ = s~ + c * s'
+23. e^ = e~ + c * e
 
-24. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+24. r2^ = r2~ + c * r2
 
-25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+25. r3^ = r3~ + c * r3
 
-26. return proof
+26. s^ = s~ + c * s'
+
+27. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+
+28. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+
+29. return proof
 ```
 
 ### ProofVerify
 
 This operation checks that a proof is valid for a header, vector of generators, revealed messages, and presentation header against a public key (PK).
 
-The generators and messages are supplied as a list of pairs of the form (`H_i`, `revMsg_i`), containing a generator `H_i` (point in G1, see [Messages and Generators](#messages-and-generators)) and a variable `revMsg_i` that can be either `NULL`, if the (ith) message corresponding to the generator `H_i` is un-revealed, or `msg_i`, a non-zero scalar mod r representing the (revealed) message corresponding to the generator `H_i`. The pairs must be sorted based on the order their first element (i.e., the generator) had when supplied as part of the (generator, message) tuples in [Sign](#sign) (or correspondingly the order they had when supplied as (generator, message, revealed_i) tuples in [ProofGen](#proofgen)). If the list is not supplied, it will default to the empty array ("[]").
+The generators are supplied as a list (called `generators`) of points in G1. The generators MUST be the same as the ones supplied to the [Sign](#sign) operation, as part of the (generator, message) pairs of the `to_sign` input list. The generators list MUST also be sorted based on the order that the (generator, message) pairs had in that list. More specifically, if the list `to_sign = [(H_1, msg_1), (H_2, msg_2), ..., (H_L, msg_L)]` was supplied to the Sign operation as input, then the generators list supplied as input to ProoVerify MUST equal `[H_1, H_2, ..., H_L]`, in that order.
 
-For example if the list `[(H_1, msg_1), (H_1, msg_2), (H_3, msg_3)]` was supplied to [Sign](#sign), and the proof only reveals the first and the third message (i.e., the list `[(H_1, msg_1, true), (H_2, msg_2, false), (H_3, msg_3, true)]` was supplied to [ProofGen](#proofgen)), the list that must be supplied to ProofVerify is `[(H_1, msg_1), (H_2, NULL), (H_3, msg_3)]` in that order (otherwise the proof will not be validated).
+The revealed messages are supplied as a list of at most `length(generators)` pairs, of the form (revealed_message, index), containing a non-zero scalar mod r, representing a (revealed) message, and an integer in the 1 to L range, representing the index that the (generator, message) pair containing the revealed_message had in the `to_sign` list. The list MUST be sorted based on the (ascending) order of the indexes. If the list is not supplied, it will default to the empty array ("[]").
+
+For example, if the list `to_sign = [(H_1, msg_1), (H_2, msg_2), (H_3, msg_3)]` was supplied to the Sign operation, and the proof only reveals the first and the third message (i.e., the list `revealedIndexes = [1, 3]` was supplied to [ProofGen](#proofgen)), the lists that must be supplied to ProofVerify are `generators = [H_1, H_2, H_3]` (in that order, otherwise the proof will not be validated) and `revealedMsgs = [(msg_1, 1), (msg_3, 3)]`.
 
 ```
-result = ProofVerify(PK, proof, header, ph,
-                     [(H_1, revMsg_1), ..., (H_L, revMsg_L)])
+result = ProofVerify(PK, proof, header, ph, generators, revealedMsgs)
 
 Inputs:
 
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
-- proof (REQUIRED), an octet string of the form outputted by the ProofGen operation.
-- header (OPTIONAL), an optional octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk
+                 operation.
+- proof (REQUIRED), an octet string of the form outputted by the
+                    ProofGen operation.
+- header (OPTIONAL), an optional octet string containing context and
+                     application specific information. If not supplied,
+                     it defaults to an empty string.
 - ph (OPTIONAL), octet string.
-- [(H_1, revMsg_1), ..., (H_L, revMsg_L)] (OPTIONAL), a list of pairs containing a generator (point in G1) and either a non-zero scalar mod r or NULL (see above for requirements).
+- generators (OPTIONAL), a list of generators (points in G1). (see above
+                         for requirements).
+- revealedMsgs (OPTIONAL), a list of pairs containing a non-zero scalar
+                     mod r representing a revealed message and an
+                     integer representing the index of that message to
+                     the original signed list. Each index MUST be in the
+                     1 to length(generators) range (see above for
+                     requirements).
 
 Parameters:
 
-- Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
-- H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
-- H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
+- Ciphersuite_ID (REQUIRED), ASCII string. The unique ciphersuite ID.
+- H_s (REQUIRED), point of G1. The generator for the blinding value of
+                  the signature.
+- H_d (REQUIRED), point of G1. The generator used to sign the signature
+                  domain.
 
 Definitions:
 
-- L, is the non-negative integer representing the number of signed messages i.e., length([(H_1, revMsg_1), ..., (H_L, revMsg_1)]). Note, if the input list of (H_i, revMsg_i) pairs is not supplied as an input to this operation, the value of L MUST evaluate to zero (0).
-- R, is the non-negative integer representing the number of revealed messages i.e., R is the number of non NULL revMsg_i values. If no messages are revealed by the proof, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of un-revealed messages i.e., U = L-R. If no un-revealed messages are supplied as an input to this operation (i.e., if R = L), the value of U MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of signed
+     messages i.e., length(revealed). Note, if revealed is not supplied
+     as an input, the value of L MUST evaluate to zero (0).
+- R, is the non-negative integer representing the number of revealed
+     messages i.e., R = length(revealedMsgs). If revealedMsgs is not
+     suplied as an input, the value of R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of un-revealed
+     messages i.e., U = L - R.
 
 Outputs:
 
@@ -623,39 +682,39 @@ Outputs:
 
 Procedure:
 
-1. Let (H_i1, msg_i1), ..., (H_iR, msg_iR), be the the tuples
-   (H_i, revMsg_i), i = 1, ..., L, for which revMsg_i is not NULL, in
-   the same order (i.e., the (generator, message) pairs corresponding
-   to the revealed messages).
+1. if length(revealedMsgs) > L, return INVALID
 
-2. Let H_j1, ..., H_jU, be the first elements from the tuples
-   (H_i, revMsg_i), i = 1, ..., L, for which revMsg_i = NULL, in the
-   same order (i.e., the generators corresponding to the un-revealed
-   messages).
+2. (msg_i1, i1), ..., (msg_iR, iR) = revealedMsgs
 
-3. if KeyValidate(PK) is INVALID, return INVALID
+3. [j1, ..., jU] = (1, ..., L) \ [i1, ..., iR]
 
-4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
+4. H_i1, ..., H_iR = generators[i1], ..., generators[iR]
 
-5. generators =  (H_s || H_d || H_1 || ... || H_L)
+5. H_j1, ..., H_jU = generators[j1], ..., generators[jU]
 
-6. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+6. if KeyValidate(PK) is INVALID, return INVALID
 
-7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+7. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
 
-8. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+8. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-9. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+9. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+10. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-11. if c != cv, return INVALID
+11. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-12. if A' == 1, return INVALID
+12. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-13. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+13. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-14. return VALID
+14. if c != cv, return INVALID
+
+15. if A' == 1, return INVALID
+
+16. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+
+17. return VALID
 ```
 
 ### CreateGenerators
