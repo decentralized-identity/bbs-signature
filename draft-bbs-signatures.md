@@ -181,6 +181,9 @@ I \\ J
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
+strxor(octet_str_1, octet_str_2)
+: The bitwise XOR of two octet strings of equal length, as defined in Section 4 of [@!I-D.irtf-cfrg-hash-to-curve].
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -597,7 +600,7 @@ Procedure:
 
 25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 
-26. return proof_to_octets(proof)
+26. return proof
 ```
 
 ### ProofVerify
@@ -640,31 +643,27 @@ Procedure:
 
 3. (j1, j2, ..., jU) = [L]\RevealedIndexes
 
-4. proof_value = octets_to_proof(proof)
+4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
 
-5. if proof_value is INVALID, return INVALID
+5. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-6. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_value
+6. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-7. generators =  (H_s || H_d || H_1 || ... || H_L)
+7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+8. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-9. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+9. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-10. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-11. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+11. if c != cv, return INVALID
 
-12. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+12. if A' == 1, return INVALID
 
-13. if c != cv, return INVALID
+13. if e(A', W) * e(Abar, -P2) != 1, return INVALID
 
-14. if A' == 1, return INVALID
-
-15. if e(A', W) * e(Abar, -P2) != 1, return INVALID
-
-16. return VALID
+14. return VALID
 ```
 
 ### CreateGenerators
@@ -736,15 +735,16 @@ Procedure:
 
 ### Hashing to scalars
 
-This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
-This document defines two different hash_to_scalar operations
-1. `hash_to_scalar_xof`, is the more performant option which makes use of an extendable output function, making it ideal for use with functions like SHAKE256 or SHAKE128.
+This document defines two different operations for hashing inputs into scalar values. The first one, making use of a more modern extendable output function, and the second one, making use of the more established fixed-output hash functions. More specifically, the operations defined are the following.
+
+1. `hash_to_scalar_xof`, is the more performant option, which makes use of an extendable output function, like SHAKE-256 or SHAKE-128.
 2. `hash_to_scalar_xmd`, is less performant in comparison, requires a fixed length output function like SHA2 or SHA3.
 
 #### hash_to_scalar_xof
 
-The `hash_to_scalar_xof` function takes as an input the message to be hashed and a non-negative integer inticating the number of non-zero scalars to be returned.
+The `hash_to_scalar_xof` function takes as an input the message to be hashed and a non-negative integer indicating the number of non-zero scalars to be returned. The operation can be implemented using an extendable output function (xof), like one from the SHAKE family of functions [@!SHA3]. The xof function MUST provide at least `k` bits of collision resistance (where `k` the security level of the ciphersuite) and be indifferentiable from a random oracle under reasonable assumption.
 
 ```
 result = hash_to_scalar_xof(msg_octets, n)
@@ -752,12 +752,16 @@ result = hash_to_scalar_xof(msg_octets, n)
 Inputs:
 
 - msg_octets (REQUIRED), octet string. The message to be hashed.
-- n (REQUIRED), non-negative integer. The number of scalars to output.
+- n (REQUIRED), an integer greater or equal to 1. The number of scalars
+                to output.
 
 Parameters:
 
-- r (REQUIRED), non-negative integer. The prime order of the G1 and G2 groups, defined by the ciphersuite.
-- expand_length (REQUIRED), non-negative integer. The number of bytes to read from the xof function, defined by the ciphersuite.
+- r (REQUIRED), non-negative integer. The prime order of the G1 and G2
+                groups, defined by the ciphersuite.
+- expand_length (REQUIRED), non-negative integer. The number of bytes to
+                            read from the xof function, defined by the
+                            ciphersuite.
 - dst (REQUIRED), octet string. Domain separation tag.
 
 Outputs:
@@ -766,77 +770,87 @@ Outputs:
 
 Procedure:
 
-1. dst_prime = (I2OSP(len(dst), 1) || dst)
+1. dst_prime = (dst || I2OSP(len(dst), 1))
 
-2. msg_prime = (I2OSP(len(msg), 8) || msg)
+2. msg = (msg_octets || I2OSP(n, 8))
 
-3. h = xof(msg_prime || dst_prime || I2OSP(0, 1) || I2OSP(n, 8))
+3. ex_l_octets = I2OSP(expand_length, 2)
 
-4. for i in (1, ..., n):
+4. h = xof(msg || ex_l_octets || dst_prime)
 
-5.     scalar_i = OS2IP(h.read(expand_length)) mod r
+5. for i in (1, ..., n):
 
-6.     if scalar_i is 0, go back to step 3
+6.     scalar_i = OS2IP(h.read(expand_length)) mod r
 
-7. return (scalar_1, ..., scalar_n)
+7.     if scalar_i is 0, go back to step 6
+
+8. return (scalar_1, ..., scalar_n)
 ```
 
 #### hash_to_scalar_xmd
 
-Implementations not wishing to use the more performant `hash_to_scalar_xof` operation, can elect to use `hash_to_scalar_xmd`. The `hash_to_scalar_xmd` is based on the `expand_message_xmd` function defined in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve], with the addition of checking if the resulting scalar is 0.
+Implementations not wishing to use the more performant `hash_to_scalar_xof` operation, can elect to use `hash_to_scalar_xmd`. The `hash_to_scalar_xmd` is based on the `expand_message_xmd` function defined in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve] and as such, can be implimented using a hash function with a fixed output length like SHA-256 or SHA-512 (in contrast `hash_to_scalar_xof`, requires an extentable output hash function). The hash function used to impliment this operation MUST comfort to the requirements detailed in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve].
 
 ```
 result = hash_to_scalar_xmd(msg_octets, n)
 
 Inputs:
 - msg_octets (REQUIRED), octet string. The message to be hashed.
-- n (REQUIRED), non-negative integer. The number of scalars to output.
+- n (REQUIRED), an integer greater or equal to 1. The number of scalars
+                to output.
 
 Parameters:
 
-- r (REQUIRED), non-negative integer. The prime order of the G1 and G2 groups, defined by the ciphersuite.
-- expand_length (REQUIRED), non-negative integer. The number of bytes required to compute each scalar, defined by the ciphersuite.
-- b_in_bytes (REQUIRED), b / 8 for b the output size of H in bits. For example, for b = 256, b_in_bytes = 32.
-- s_in_bytes (REQUIRED), the input block size of H, measured in bytes. For example, for SHA-256, s_in_bytes = 64.
+- r (REQUIRED), non-negative integer. The prime order of the G1 and G2
+                groups, defined by the ciphersuite.
+- expand_length (REQUIRED), non-negative integer. The number of bytes
+                            required to compute each scalar, defined by
+                            the ciphersuite.
+- b (REQUIRED), non-negative integer. The output size of the hash
+                function in bits. For example, for SHA-256, b = 256.
+- s (REQUIRED), non-negative integer. The input block size of the hash
+                function in bits. For example, for SHA-256, s = 512.
 - dst (REQUIRED), octet string. Domain separation tag.
 
 Procedure:
 
-1. ell = ceil(expand_length / b_in_bytes)
+1. Set b_in_bytes = b/8 and s_in_bytes = s/8
 
-2. dst_prime = dst || I2OSP(len(dst), 1)
+2. ell = ceil(expand_length / b_in_bytes)
 
-3. Z_pad = I2OSP(0, s_in_bytes)
+3. dst_prime = dst || I2OSP(len(dst), 1)
 
-4. msg = (msg_octets || I2OSP(0, 1) || I2OSP(n, 8))
+4. Z_pad = I2OSP(0, s_in_bytes)
 
-5. exp_l_bytes = I2OSP(expand_length, 2)
+5. msg = (msg_octets || I2OSP(n, 8))
 
-6. msg_prime = (Z_pad || msg || exp_l_bytes || I2OSP(0, 1) || dst_prime)
+6. ex_l_octets = I2OSP(expand_length, 2)
 
-7. b_0 = H(msg_prime)
+7. msg_prime = (Z_pad || msg || ex_l_octets || I2OSP(0, 1) || dst_prime)
 
-8. b_1 = H(b_0 || I2OSP(1, 1) || dst_prime)
+8. b_0 = H(msg_prime)
 
-9. k = 2
+9. b_1 = H(b_0 || I2OSP(1, 1) || dst_prime)
 
-10. for i in (1, ..., n)
+10. k = 2
 
-11.     for j in (2, ..., ell)
+11. for i in (1, ..., n)
 
-12.         b_k = hash(strxor(b_0, b_(k-1)) || I2OSP(k, 1) || dst_prime)
+12.     for j in (2, ..., ell)
 
-13.         k += 1
+13.         b_k = hash(strxor(b_0, b_(k-1)) || I2OSP(k, 1) || dst_prime)
 
-14.     total_bytes = (b_(k-ell) || ... || b_(k-1))
+14.         k += 1
 
-15.     h_i = total_bytes[0..expand_length]
+15.     total_bytes = (b_(k-ell) || ... || b_(k-1))
 
-16.     scalar_i = OS2IP(h_i) mod r
+16.     h_i = total_bytes[0..expand_length]
 
-17.     if scalar_i is 0 mod r, go back to step 11.
+17.     scalar_i = OS2IP(h_i) mod r
 
-18. return scalar_1, ..., scalar_n
+18.     if scalar_i is 0 mod r, go back to step 12.
+
+19. return scalar_1, ..., scalar_n
 ```
 
 ### OctetsToSignature
@@ -914,134 +928,6 @@ Procedure:
 4. return (a_octets || e_octets || s_octets)
 ```
 
-### OctetsToProof
-
-This operation describes how to decode an octet string representing a proof, validate it and return the underlying components that make up the proof value.
-
-The proof value outputted by this operation consists of the following components, in that order:
-
-1. Three (3) valid points of the G1 subgroup, each of which must not equal the identity point.
-2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive.
-3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof message commitments. This set can be empty (i.e., "()").
-
-```
-proof = octets_to_proof(proof_octets)
-
-Inputs:
-
-- proof_octets (REQUIRED), octet string of the form outputted from the
-                           proof_to_octets operation.
-
-Parameters:
-
-- r (REQUIRED), non-negative integer. The prime order of the G1 and
-                G2 groups, defined by the ciphersuite.
-- octet_scalar_length (REQUIRED), non-negative integer. The length of
-                                  a scalar octet representation, defined
-                                  by the ciphersuite.
-- octet_point_length (REQUIRED), non-negative integer. The length of
-                                 a point in G1 octet representation,
-                                 defined by the ciphersuite.
-
-Outputs:
-
-- proof, a proof value in the form described above or INVALID
-
-Procedure:
-
-1. proof_len_floor = 3 * octet_point_length + 5 * octet_scalar_length
-
-2. if length(proof_octets) < proof_len_floor, return INVALID
-
-// Points (i.e., (A', Abar, D) in ProofGen) de-serialization.
-3. index = 0
-
-4. for i in (0, ..., 2):
-
-5.     end_index = index + octet_point_length - 1
-
-6.     A_i = octets_to_point_g1(proof_octets[index..end_index])
-
-7.     if A_i is INVALID or Identity_G1, return INVALID
-
-8.     index += octet_point_length
-
-// Scalars (i.e., (c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU)) in
-// ProofGen) de-serialization.
-9. j = 0
-
-10. while index < length(proof_octets):
-
-11.     end_index = index + octet_scalar_length - 1
-
-12.     s_j = OS2IP(proof_octets[index..end_index])
-
-13.     if s_j = 0 or if s_j >= r, return INVALID
-
-14.     index += octet_scalar_length
-
-15.     j += 1
-
-16. if index is not equal to length(proof_octets), return INVALID
-
-17. Let msg_commitments be an empty set (i.e., msg_commitments = ())
-
-18. If j > 5, set msg_commitments = (s_5, ..., s_(j-1))
-
-19. return (A_0, A_1, A_2, s_0, s_1, s_2, s_3, s_4, msg_commitments)
-```
-
-### ProofToOctets
-
-This operation describes how to encode a proof, as computed at step 25 in [ProofGen](#proofgen), to an octet string. The input to the operation MUST be a valid proof.
-
-The inputed proof value must consist of the following components, in that order:
-
-1. Three (3) valid compressed points of the G1 subgroup, different from the identity point of G1 (i.e., `A', Abar, D`, in ProofGen)
-2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive (i.e., `c, e^, r2^, r3^, s^`, in ProofGen).
-3. A number of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof messages (i.e., `m^_j1, ..., m^_jU`, in ProofGen, where U the number of un-revealed messages).
-
-```
-proof_octets = proof_to_octets(proof)
-
-Inputs:
-
-- proof (REQUIRED), a BBS proof in the form calculated by ProofGen in
-                    step 25 (see above).
-
-Parameters:
-
-- octet_scalar_length (REQUIRED), non-negative integer. The length of
-                                  a scalar octet representation, defined
-                                  by the ciphersuite.
-
-Outputs:
-
-- proof_octets, octet string.
-
-Procedure:
-
-1. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1, ..., m^_U)) = proof
-
-2. Let proof_octets be an empty octet string.
-
-// Points Serialization.
-3. for point in (A', Abar, D):
-
-4.     point_octets = point_to_octets_g1(point)
-
-5.     proof_octets = proof_octets || point_octets
-
-// Scalar Serialization.
-6. for scalar in (c, e^, r2^, r3^, s^, m^_1, ..., m^_U):
-
-7.     scalar_octets = I2OSP(scalar, octet_scalar_length)
-
-8.     proof_octets = proof_octets || scalar_octets
-
-9. return proof_octets
-```
-
 # Security Considerations
 
 ## Validating public keys
@@ -1117,7 +1003,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - hash: a cryptographic hash function.
 
-- expand\_length: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
+- expand\_length: Number of bytes to expand a message that will be hashed to a scalar (see [Hashing to Scalars](#hashing-to-scalars)) or to a point in G1 (i.e., a generator, see [Create Generators](#creategenerators)). It is RECOMMENDED that this value is set to one greater or equal to `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
 - octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
 
