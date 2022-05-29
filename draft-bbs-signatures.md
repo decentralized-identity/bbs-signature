@@ -201,7 +201,7 @@ r
 P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
 
-Identity\_G1, Identity\_G1
+Identity\_G1, Identity\_G2
 : The identity element for the G1 and G2 subgroups respectively.
 
 hash\_to\_curve\_g1(ostr) -> P
@@ -455,7 +455,7 @@ Procedure:
 9. return signature_octets
 ```
 
-**Note** When computing step 11 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 11, and or `A != Identity_G1` after step 11 to prevent the production of invalid signatures.
+**Note** When computing step 7 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 7, and or `A != Identity_G1` after step 7 to prevent the production of invalid signatures.
 
 ### Verify
 
