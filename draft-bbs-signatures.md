@@ -256,11 +256,11 @@ In definition of this signature scheme there are two possible variations based u
 
 ### Messages and generators
 
-Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list `H`. Applications for efficiency can elect to pass the indexes of those generators to the list `H` instead. Care must be taken for the correct generator to be raised to the correct message in that case.
+Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations as well (signature verification, proof generation and proof verification). In practice this means that the ordering of the selectively-revealed messages is critical when these are passed as input to this scheme's operations.
 
-Aside from the message generators, the scheme uses two additional generators: `H_s` and `H_d`. The first (`H_s`), is used for the blinding value (`s`) of the signature. The second generator (`H_d`), is used to sign the signature's domain, which binds both signature and proof to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
+Aside from the message generators, the scheme uses two additional generators: `H_s` and `H_d`. The first (`H_s`), is used for the blinding value (`s`) of the signature. The second generator (`H_d`), is used to sign the signature's domain, which binds both signature and its derived proofs to a specific context, and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed).
 
-### Encoding of elements to be hashed.
+### Encoding of elements to be hashed
 
 To avoid ambiguity, each element passed to the hash or the xof function, including situations when multiple elements are supplied in a concatenated form, must first be encoded to an appropriate format, depending on its type. Specifically,
 
@@ -290,6 +290,63 @@ As an example of the above transformations, consider the following. Assume that 
 For readability, this document makes these transformations implicitly, but they MUST precede every call to the hash or xof function.
 
 Optional input/parameters to operations that feature in a call to a HASH or XOF function, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `HASH(A || X || B)` MUST be evaluated to `HASH(A || "" || B)`.
+
+## Generator point computation
+
+The `compute_generators` function defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as Sign, Verify, ProofGen and ProofVerify. It takes one input, the maximum number of selectively revealed messages, which determines the number of generator points to create. The result is a sequence beginning with the `H_s` and `H_d` generators, followed by each of the `H_i` message generators.
+
+This document defines one implementation of this method, `compute_generators_xof`, which uses [@!I-D.irtf-cfrg-hash-to-curve] with an extensible-output hash function to generate a sequence of points with a uniformly random distribution from a seed value and DST.
+
+Each generator creation method must define a unique `GENERATORS_ID` identifier which is incorporated into the ciphersuite ID.
+
+### Security Considerations
+
+TODO
+
+### compute\_generators\_xof
+
+```
+generators = compute_generators_xof(maxMessageCount);
+
+Parameters:
+
+- hash_to_curve_g1: A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve]. The expand_message method MUST be expand_message_xof, and hash MUST be the same as xof.
+- generator_xof, an extensible-output cryptographic hash function.
+- generator_dst, octet string. The domain separation tag.
+- generator_seed, octet string. A unique seed value for the generator point sequence.
+
+Inputs:
+
+- maxMessageCount (REQUIRED), non-negative integer. The maximum number of selectively-revealed messages to be supported.
+
+Outputs:
+
+- generators, an array of generator points of length `maxMessageCount + 2`.
+
+Procedure:
+
+1. h = generator_xof(generator_seed)
+
+2. length = maxMessageCount + 2
+
+3. for i in 1 to length:
+
+4.    generator_i = Identity_G1
+
+5.    while(generator_i == Identity_G1 or generator_i == P1)
+
+6.        candidate = hash_to_curve_g1(h.read(xof_no_of_bytes), generator_dst)
+
+7.        if candidate not in generators: generator_i = candidate
+
+8. return generators
+```
+
+The `GENERATORS_ID` value for the `compute_generators_xof` generator creation method is assembled using the components of the Suite ID for `hash_to_curve_g1` per the suite naming conventions of [@!I-D.irtf-cfrg-hash-to-curve], excluding the `CURVE_ID` component. The format of the string is:
+
+```
+	HASH_ID || "_" || MAP_ID || "_" || ENC_VAR
+```
 
 ## Operations
 
@@ -663,40 +720,6 @@ Procedure:
 14. return VALID
 ```
 
-### CreateGenerators
-
-The CreateGenerators operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as Sign, Verify, ProofGen and ProofVerify.
-
-```
-generators = CreateGenerators(dst, message_generator_seed, length);
-
-Inputs:
-
-- dst (REQUIRED), octet string. Domain Separation Tag.
-- message_generator_seed (REQUIRED), octet string.
-- length (REQUIRED), unsigned integer. Number of generators to create from the seed and dst.
-
-Outputs:
-
-- generators, an array of generators.
-
-Procedure:
-
-1. h = xof(seed)
-
-2. for i in 0 to length:
-
-3.    generator_i = Identity_G1
-
-4.    while(generator_i == Identity_G1 or generator_i == P1)
-
-5.        candidate = hash_to_curve_g1(h.read(xof_no_of_bytes), dst)
-
-6.        if candidate not in generators: generator_i = candidate
-
-7. return generators
-```
-
 ### MapMessageToScalar
 
 There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the Sign, Verify, ProofGen and ProofVerify operations.
@@ -900,16 +923,19 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 The following section defines the format of the unique identifier for the ciphersuite denoted `Ciphersuite_ID`. The REQUIRED format for this string is
 
 ```
-  "BBS_" || H2C_SUITE_ID || ADD_INFO
+  "BBS_" || CURVE_ID || "_" || GENERATORS_ID || "_" || ADD_INFO
 ```
 
   *  Strings in double quotes are ASCII-encoded literals.
 
-  *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
+  *  CURVE\_ID is the human readable identifier for the target elliptic curve.
+
+  *  GENERATORS\_ID is the human readable identifier for the generator computation method.
 
   *  ADD\_INFO is an optional string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII characters between 0x21 and 0x7e (inclusive), and MUST end with an underscore (0x5f), other than the last character the string MUST not contain any other underscores (0x5f).
 
 ### Additional Parameters
+
 The parameters that each ciphersuite needs to define are generally divided into four main categories; the basic parameters (a hash function, the hash_to_scalar operation etc.,), the serialization operations (point_to_octets_g1 etc.,), the hash_to_curve parameters (the hash_to_curve dst etc.,) and the generator seeds (the message generator seed etc.,). See below for more details.
 
 **Basic Parameters**:
@@ -922,7 +948,9 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
 
-- hashing\_elements\_to\_scalars: either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+- hashing\_elements\_to\_scalars: Either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+
+- computing\_generators: The generator computation method. The only method defined in this document is `compute_generators_xof`.
 
 **Serialization functions**:
 
@@ -938,22 +966,19 @@ a function that returns the point P in the subgroup G1 corresponding to the cano
 - octets\_to\_point_g2:
 a function that returns the point P in the subgroup G2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g2`.
 
-**Hash to curve parameters**:
+**Generator computation parameters**:
 
 - hash\_to\_curve\_g1:
 A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
-- hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation.
+- generator\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation.
 
-**Generator Seeds**:
+- generator\_seed: The seed used to compute the generators which form part of the public parameters used by the BBS signature scheme. Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); a signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
-- message\_generator\_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
-
-- blind\_value\_generator\_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message\_generator\_seed, there are multiple scopes for the blind\_value\_generator\_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
-
-- sig\_domain\_generator\_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message\_generator\_seed and blind\_value\_generator\_seed.
+- generator\_xof: The extensible-output cryptographic hash function used in generator computation.
 
 ## BLS12-381 Ciphersuite
+
 The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hashtocurve-definition-using-shake-256), which also makes use of the SHAKE-256 function.
 
 **Basic Parameters**:
@@ -970,6 +995,8 @@ The following ciphersuite is based on the BLS12-381 elliptic curve defined in Se
 
 - hashing\_elements\_to\_scalars: hash\_to\_scalar.
 
+- computing\_generators: compute\_generators\_xof.
+
 **Serialization functions**:
 
 - point\_to\_octets_g1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
@@ -980,19 +1007,15 @@ The following ciphersuite is based on the BLS12-381 elliptic curve defined in Se
 
 - octets\_to\_point_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
 
-**Hash to curve parameters**:
+**Generator computation parameters**:
 
 - hash\_to\_curve_g1: follows the suite defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
-- hash\_to\_curve\_g1\_dst: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO".
+- generator\_seed: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_GENERATOR\_SEED".
 
-**Generator Seeds**:
+- generator\_dst: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
 
-- message\_generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
-
-- blind\_value\_generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIG\_BLINDING\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
-
-- sig\_domain\_generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIG\_DOMAIN\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
+- generator\_xof: SHAKE-256
 
 ### Test Vectors
 
