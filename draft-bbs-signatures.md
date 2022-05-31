@@ -942,7 +942,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - hash: a cryptographic hash function.
 
-- xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
+- xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#generator-point-computation) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
 - octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
 
@@ -1029,7 +1029,7 @@ Further fixtures are available in (#additional-bls12-381-ciphersuite-test-vector
 
 #### Message Generators
 
-Following the procedure defined in (#creategenerators) with an input seed value of
+Following the procedure defined in (#generator-point-computation) with an input seed value of
 
 ```
 BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED
