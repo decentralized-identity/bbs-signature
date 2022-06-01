@@ -181,6 +181,9 @@ I \\ J
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
+range(a, b)
+: For integers a and b, with a <= b, denotes the ascending ordered list of all integers between a and b inclusive (i.e., the integers "i" such that a <= i <= b).
+
 strxor(octet_str_1, octet_str_2)
 : The bitwise XOR of two octet strings of equal length, as defined in Section 4 of [@!I-D.irtf-cfrg-hash-to-curve].
 
@@ -778,7 +781,7 @@ Procedure:
 
 4. h = xof(msg || ex_l_octets || dst_prime)
 
-5. for i in (1, ..., n):
+5. for i in range(1, n):
 
 6.     scalar_i = OS2IP(h.read(expand_length)) mod r
 
@@ -806,11 +809,11 @@ Parameters:
 - expand_length (REQUIRED), non-negative integer. The number of bytes
                             required to compute each scalar, defined by
                             the ciphersuite.
+- dst (REQUIRED), octet string. Domain separation tag.
 - b (REQUIRED), non-negative integer. The output size of the hash
                 function in bits. For example, for SHA-256, b = 256.
 - s (REQUIRED), non-negative integer. The input block size of the hash
                 function in bits. For example, for SHA-256, s = 512.
-- dst (REQUIRED), octet string. Domain separation tag.
 
 Procedure:
 
@@ -834,9 +837,9 @@ Procedure:
 
 10. k = 2
 
-11. for i in (1, ..., n)
+11. for i in range(1, n):
 
-12.     for j in (2, ..., ell)
+12.     for _ in range(2, ell):
 
 13.         b_k = hash(strxor(b_0, b_(k-1)) || I2OSP(k, 1) || dst_prime)
 
