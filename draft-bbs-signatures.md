@@ -923,7 +923,7 @@ Procedure:
 
 15.     j += 1
 
-16. if index is not equal to length(proof_octets), return INVALID
+16. if index != length(proof_octets), return INVALID
 
 17. Let msg_commitments be an empty set (i.e., msg_commitments = ())
 
