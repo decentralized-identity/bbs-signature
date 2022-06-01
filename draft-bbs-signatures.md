@@ -181,7 +181,7 @@ I \\ J
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
-(a, ..., b)
+range(a, b)
 : For integers a and b, with a <= b, denotes the ascending ordered list of all integers between a and b inclusive (i.e., the integers "i" such that a <= i <= b).
 
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
@@ -778,43 +778,49 @@ Procedure:
 This operation describes how to decode an octet string, validate it and return the underlying components that make up the signature.
 
 ```
-(A, e, s) = octets_to_signature(signature_octets)
+signature = octets_to_signature(signature_octets)
 
 Inputs:
 
-- signature_octets (REQUIRED), octet string of the form output from signature_to_octets operation.
+- signature_octets (REQUIRED), octet string of the form output from
+                               signature_to_octets operation.
 
 Outputs:
 
-- A, a valid point in the G1 subgroup which is not equal to the identity point.
-- e, an integer representing a valid scalar value within the range of 0 < e < r.
-- s, an integer representing a valid scalar value within the range of 0 < e < r.
+signature, a signature in the form (A, e, s), where A is a point in G1
+           and e and s are non-zero scalars mod r.
 
 Procedure:
 
-1. if len(signature_octets) != (octet_point_length + 2 * octet_scalar_length), return INVALID
+1. expected_len = octet_point_length + 2 * octet_scalar_length
 
-2. a_octets = signature_octets[0..(octet_point_length - 1)]
+2. if len(signature_octets) != expected_len, return INVALID
 
-3. A = octets_to_point_g1(a_octets)
+3. a_octets = signature_octets[0..(octet_point_length - 1)]
 
-4. if A is INVALID, return INVALID
+4. A = octets_to_point_g1(a_octets)
 
-5. if A == Identity_G1, return INVALID
+5. if A is INVALID, return INVALID
 
-5. index = octet_point_length
+6. if A == Identity_G1, return INVALID
 
-6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+7. index = octet_point_length
 
-7. if e = 0 OR e >= r, return INVALID
+8. end_index = index + octet_scalar_length - 1
 
-8. index += octet_scalar_length
+9. e = OS2IP(signature_octets[index..end_index])
 
-9. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+10. if e = 0 OR e >= r, return INVALID
 
-10. if s = 0 OR s >= r, return INVALID
+11. index += octet_scalar_length
 
-11. return (A, e, s)
+12. end_index = index + octet_scalar_length - 1
+
+13. s = OS2IP(signature_octets[index..end_index])
+
+14. if s = 0 OR s >= r, return INVALID
+
+15. return (A, e, s)
 ```
 
 ### SignatureToOctets
@@ -825,13 +831,12 @@ This operation describes how to encode a signature to an octet string.
 because its assumed these are done prior to its invocation, e.g as is the case with the Sign operation.
 
 ```
-signature_octets = signature_to_octets(A, e, s)
+signature_octets = signature_to_octets(signature)
 
 Inputs:
 
-- A (REQUIRED), a valid point in the G1 subgroup which is not equal to the identity point.
-- e (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < r.
-- s (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < r.
+- signature (REQUIRED), a valid signature, in the form (A, e, s), where
+                        A a point in G1 and e, s non-zero scalars mod r.
 
 Outputs:
 
@@ -839,13 +844,15 @@ Outputs:
 
 Procedure:
 
-1. A_octets = point_to_octets_g1(A)
+1. (A, e, s) = signature
 
-2. e_octets = I2OSP(e, octet_scalar_length)
+2. A_octets = point_to_octets_g1(A)
 
-3. s_octets = I2OSP(s, octet_scalar_length)
+3. e_octets = I2OSP(e, octet_scalar_length)
 
-4. return (a_octets || e_octets || s_octets)
+4. s_octets = I2OSP(s, octet_scalar_length)
+
+5. return (a_octets || e_octets || s_octets)
 ```
 
 ### OctetsToProof
@@ -890,7 +897,7 @@ Procedure:
 // Points (i.e., (A', Abar, D) in ProofGen) de-serialization.
 3. index = 0
 
-4. for i in (0, ..., 2):
+4. for i in range(0, 2):
 
 5.     end_index = index + octet_point_length - 1
 
