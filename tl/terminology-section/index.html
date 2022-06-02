@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>decentralized-identity/bbs-signature tl/terminology-section preview</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <style type="text/css">/*<![CDATA[*/
+      body { font-family: "Helvetica Neue","Open Sans", Helvetica, Calibri,sans-serif; }
+      h1, h2, td { font-family: "Helvetica Neue", "Roboto Condensed", "Open Sans", Helvetica, Calibri, sans-serif; }
+      h1 { font-size: 20px; } h2 { font-size: 16px; }
+      table { margin: 5px 10px; border-collapse: collapse; }
+      th, td { font-weight: normal; text-align: left; padding: 2px 5px; }
+      a:link { color: #000; } a:visited { color: #00a; }
+    /*]]>*/</style>
+  </head>
+  <body>
+    <h1>Editor's drafts for tl/terminology-section branch of <a href="https://github.com/decentralized-identity/bbs-signature/tree/tl/terminology-section">decentralized-identity/bbs-signature</a></h1>
+    <p>View <a href="issues.html">saved issues</a>, or the latest GitHub <a href="https://github.com/decentralized-identity/bbs-signature/issues">issues</a> and <a href="https://github.com/decentralized-identity/bbs-signature/pulls">pull requests</a> in the <a href="https://github.com/decentralized-identity/bbs-signature">repo</a>.</p>
+    <table id="branch-tl/terminology-section">
+      <tr>
+        <td><a href="./draft-blind-bbs-signatures.html" class="html draft-blind-bbs-signatures"></a></td>
+        <td><a href="./draft-blind-bbs-signatures.txt" class="txt draft-blind-bbs-signatures">plain text</a></td>
+        <td><a href="https://www.ietf.org/rfcdiff?url1=https://decentralized-identity.github.io/bbs-signature/draft-blind-bbs-signatures.txt&amp;url2=https://decentralized-identity.github.io/bbs-signature/tl/terminology-section/draft-blind-bbs-signatures.txt">diff with main</a></td>
+      </tr>
+      <tr>
+        <td><a href="./draft-bbs-signatures.html" class="html draft-bbs-signatures"></a></td>
+        <td><a href="./draft-bbs-signatures.txt" class="txt draft-bbs-signatures">plain text</a></td>
+        <td><a href="https://www.ietf.org/rfcdiff?url1=https://decentralized-identity.github.io/bbs-signature/draft-bbs-signatures.txt&amp;url2=https://decentralized-identity.github.io/bbs-signature/tl/terminology-section/draft-bbs-signatures.txt">diff with main</a></td>
+      </tr>
+    </table>
+    <script>
+// @licstart
+//  Any copyright is dedicated to the Public Domain.
+//  http://creativecommons.org/publicdomain/zero/1.0/
+// @licend
+window.onload = function() {
+  var referrer_branch = 'main';
+  // e.g., "https://github.com/user/repo/tree/main"
+  var chunks = document.referrer.split("/");
+  if (chunks[2] === 'github.com' && chunks[5] === 'tree') {
+    referrer_branch = chunks[6];
+  }
+  let branch = document.querySelector('#branch-' + referrer_branch);
+  let h = document.location.hash.substring(1);
+  if (h === 'show') {
+    document.location.hash = '#' + branch.id;
+  } else if (branch && h.startsWith('go')) {
+    let e = branch.querySelector(h.substring(2));
+    if (e && e.href) {
+      document.location = e.href;
+    }
+  }
+};
+    </script>
+  </body>
+</html>

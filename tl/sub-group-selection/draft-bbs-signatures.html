@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en" class="Individual-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>The BBS Signature Scheme</title>
+<meta content="Mike Lodder" name="author">
+<meta content="Tobias Looker" name="author">
+<meta content="Andrew Whitehead" name="author">
+<meta content="
+       BBS is a digital signature scheme categorized as a form of short group signature that supports several novel properties. Notably, the scheme supports signing multiple messages whilst producing a single output digital signature. Through this capability, the possessor of a signature is able to derive proofs that selectively reveal subsets of the originally signed set of messages, whilst preserving the verifiable authenticity and integrity of the messages. Furthermore, these derived proofs are said to be zero-knowledge in nature as they do not reveal the underlying signature; instead, what they reveal is a proof of knowledge of the undisclosed signature. 
+    " name="description">
+<meta content="xml2rfc 3.12.1" name="generator">
+<meta content="draft-bbs-signatures" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.12.1
+    Python 3.9.7
+    appdirs 1.4.4
+    ConfigArgParse 1.3
+    google-i18n-address 2.5.0
+    html5lib 1.1
+    intervaltree 3.1.0
+    Jinja2 2.11.3
+    kitchen 1.2.6
+    lxml 4.6.5
+    pycountry 20.7.3
+    pyflakes 2.3.1
+    PyYAML 5.4.1
+    requests 2.26.0
+    setuptools 52.0.0
+    six 1.16.0
+-->
+<link href="draft-bbs-signatures.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Lora Bold'), local('Lora-Bold'), url('https://martinthomson.github.io/rfc-css/fonts/lora-bold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Cabin Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Oxygen Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  color-scheme: light dark;
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  --font-mono: 'Oxygen Mono', monospace;
+  scrollbar-color: #bbb #eee;
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Cabin Condensed", sans-serif;
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+h1#title {
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1#title, h1#rfcnum {
+  margin: 1.5em 0 0.2em;
+}
+h1#rfcnum + h1#title {
+  margin: 0.2em 0;
+}
+
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+}
+#abstract+p {
+  font-size: 18px;
+  line-height: 24px;
+}
+#abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 16px;
+  line-height: 0;
+}
+
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+/* font-family isn't space-separated, but =~ will have to do */
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+}
+ol ol, ul ul, ol ul, ul ol {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+ul.compact, .ulCompact,
+ol.compact, .olCompact {
+  line-height: 100%;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl > dd {
+  margin-bottom: .8em;
+  min-height: 1.3em;
+}
+dl.compact > dd, .dlCompact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+dd.break {
+  display: none;
+}
+
+/* links */
+a, a[href].selfRef:hover {
+  text-decoration: none;
+}
+a[href].selfRef {
+  color: var(--text-color);
+}
+a[href] {
+  color: var(--link-color);
+}
+a[href]:hover {
+  text-decoration: underline;
+}
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
+}
+a.xref {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px var(--font-mono);
+}
+tt, code {
+  /* changing the font for inline elements leads to different ascender
+     and descender heights; as we want to retain baseline alignment,
+     remove leading to avoid altering the final height of lines */
+  line-height: 0;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+}
+@media screen {
+  pre, svg {
+    display: inline-block;
+    overflow-x: auto;
+  }
+  pre {
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  svg {
+    max-width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  pre + .pilcrow, svg + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  margin: 1em 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+}
+table.right {
+  margin-left: auto;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.left {
+  margin-right: auto;
+}
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+tr:nth-child(2n) > td {
+  background-color: var(--background-color);
+}
+tr:nth-child(2n+1) > td {
+  background-color: var(--highlight-color);
+}
+thead+tbody > tr:nth-child(2n) > td {
+  background-color: var(--highlight-color);
+}
+thead+tbody > tr:nth-child(2n+1) > td {
+  background-color: var(--background-color);
+}
+table caption {
+  margin: 0;
+  padding: 3px 0 3px 1em;
+}
+table p {
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+}
+a.pilcrow[href] { color: var(--pilcrow-weak); }
+a.pilcrow[href]:hover { text-decoration: none; }
+@media not print {
+  :hover > a.pilcrow {
+    opacity: 1;
+  }
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
+    background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+}
+
+.role {
+  font-variant: all-small-caps;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 8em;
+}
+#identifiers dt {
+  width: var(--identifier-width);
+  margin: 0;
+  clear: left;
+  float: left;
+  text-align: right;
+}
+#identifiers dd {
+  margin: 0 0 0 calc(1em + var(--identifier-width));
+  min-width: 5em;
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+#toc nav ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+#toc nav li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+#toc a.xref {
+  white-space: normal;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dd {
+  margin-left: 8em;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+#rfc\.index\.index + ul {
+  margin-left: 0;
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses > section {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #authors-addresses > section > h2 {
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
+}
+
+.rfcEditorRemove p:first-of-type {
+  font-style: italic;
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+  }
+  #toc.active {
+      opacity: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 2px 0 2px 6px;
+    padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
+    min-width: 190px;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 8px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    background-color: var(--background-color);
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+  #toc.active nav {
+    display: block;
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin-top: 2px;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 2em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  #toc nav > ul  {
+    margin-bottom: 2em;
+  }
+  #toc ul {
+    margin: 0 0 0 4px;
+    font-size: var(--small-font-size);
+  }
+  #toc ul p, #toc ul li {
+    margin: 2px 0;
+    line-height: 22px;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Changes introduced to fix issues found during implementation */
+
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin: 8px 0.5em 0;
+}
+
+/* Fix the dl styling to match the RFC 7992 attributes */
+dl > dt,
+dl.dlParallel > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+
+/* Provide styling for table cell text alignment */
+table .text-left, table .text-left {
+  text-align: left;
+}
+table .text-center, table .text-center {
+  text-align: center;
+}
+table .text-right, table .text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 20em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  dd {
+    page-break-before: avoid;
+  }
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+/* Tweak the bcp14 keyword presentation */
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+/* Dark mode. */
+@media (prefers-color-scheme: dark) {
+:root {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+/* Trick: a prefix match works because only black and white are allowed */
+svg [stroke="black"], svg [stroke^="#000"] {
+  stroke: var(--text-color);
+}
+svg [stroke="white"], svg [stroke^="#fff"] {
+  stroke: var(--background-color);
+}
+svg [fill="black"], svg [fill^="#000"], svg :not([fill]) {
+  fill: var(--text-color);
+}
+svg [stroke="fill"], svg [fill^="#fff"] {
+  fill: var(--background-color);
+}
+}
+</style>
+
+</head>
+<body>
+<table class="ears">
+<thead><tr>
+<td class="left"></td>
+<td class="center">The BBS Signature Scheme</td>
+<td class="right">February 2022</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Lodder, et al.</td>
+<td class="center">Informational</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">none</dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">M. Lodder</div>
+<div class="org">CryptID</div>
+</div>
+<div class="author">
+      <div class="author-name">T. Looker</div>
+<div class="org">Mattr</div>
+</div>
+<div class="author">
+      <div class="author-name">A. Whitehead</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">The BBS Signature Scheme</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">BBS is a digital signature scheme categorized as a form of short group signature that supports several novel properties. Notably, the scheme supports signing multiple messages whilst producing a single output digital signature. Through this capability, the possessor of a signature is able to derive proofs that selectively reveal subsets of the originally signed set of messages, whilst preserving the verifiable authenticity and integrity of the messages. Furthermore, these derived proofs are said to be zero-knowledge in nature as they do not reveal the underlying signature; instead, what they reveal is a proof of knowledge of the undisclosed signature.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-discussion-venues">
+<a href="#name-discussion-venues" class="section-name selfRef">Discussion Venues</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">Source for this draft and an issue tracker can be found at
+    <span><a href="https://github.com/decentralized-identity/bbs-signature">https://github.com/decentralized-identity/bbs-signature</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+</section>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction" class="xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="xref">1.1</a>.  <a href="#name-terminology" class="xref">Terminology</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="xref">1.2</a>.  <a href="#name-notation" class="xref">Notation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
+                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="xref">1.3</a>.  <a href="#name-organization-of-this-docume" class="xref">Organization of this document</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="xref">2</a>.  <a href="#name-conventions" class="xref">Conventions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-scheme-definition" class="xref">Scheme Definition</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="xref">3.1</a>.  <a href="#name-parameters" class="xref">Parameters</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="xref">3.2</a>.  <a href="#name-considerations" class="xref">Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2.2.1">
+                    <p id="section-toc.1-1.3.2.2.2.1.1"><a href="#section-3.2.1" class="xref">3.2.1</a>.  <a href="#name-subgroup-selection" class="xref">Subgroup Selection</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="xref">3.3</a>.  <a href="#name-operations" class="xref">Operations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.1">
+                    <p id="section-toc.1-1.3.2.3.2.1.1"><a href="#section-3.3.1" class="xref">3.3.1</a>.  <a href="#name-keygen" class="xref">KeyGen</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.2">
+                    <p id="section-toc.1-1.3.2.3.2.2.1"><a href="#section-3.3.2" class="xref">3.3.2</a>.  <a href="#name-sktopk" class="xref">SkToPk</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.3">
+                    <p id="section-toc.1-1.3.2.3.2.3.1"><a href="#section-3.3.3" class="xref">3.3.3</a>.  <a href="#name-keyvalidate" class="xref">KeyValidate</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.4">
+                    <p id="section-toc.1-1.3.2.3.2.4.1"><a href="#section-3.3.4" class="xref">3.3.4</a>.  <a href="#name-sign" class="xref">Sign</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.5">
+                    <p id="section-toc.1-1.3.2.3.2.5.1"><a href="#section-3.3.5" class="xref">3.3.5</a>.  <a href="#name-verify" class="xref">Verify</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.6">
+                    <p id="section-toc.1-1.3.2.3.2.6.1"><a href="#section-3.3.6" class="xref">3.3.6</a>.  <a href="#name-spkgen" class="xref">SpkGen</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3.2.7">
+                    <p id="section-toc.1-1.3.2.3.2.7.1"><a href="#section-3.3.7" class="xref">3.3.7</a>.  <a href="#name-spkverify" class="xref">SpkVerify</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-security-considerations" class="xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="xref">4.1</a>.  <a href="#name-validating-public-keys" class="xref">Validating public keys</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="xref">4.2</a>.  <a href="#name-skipping-membership-checks" class="xref">Skipping membership checks</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="xref">4.3</a>.  <a href="#name-side-channel-attacks" class="xref">Side channel attacks</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="xref">4.4</a>.  <a href="#name-randomness-considerations" class="xref">Randomness considerations</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="xref">4.5</a>.  <a href="#name-presentation-message-select" class="xref">Presentation message selection</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.6">
+                <p id="section-toc.1-1.4.2.6.1"><a href="#section-4.6" class="xref">4.6</a>.  <a href="#name-implementing-hash_to_point_" class="xref">Implementing hash_to_point_g1 and hash_to_point_g2</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.7">
+                <p id="section-toc.1-1.4.2.7.1"><a href="#section-4.7" class="xref">4.7</a>.  <a href="#name-use-of-contexts" class="xref">Use of Contexts</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.8">
+                <p id="section-toc.1-1.4.2.8.1"><a href="#section-4.8" class="xref">4.8</a>.  <a href="#name-choice-of-underlying-curve" class="xref">Choice of underlying curve</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-ciphersuites" class="xref">Ciphersuites</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-ciphersuite-format" class="xref">Ciphersuite Format</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-bls12-381-ciphersuite" class="xref">BLS12-381 Ciphersuite</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-iana-considerations" class="xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-appendix" class="xref">Appendix</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="xref">7.1</a>.  <a href="#name-usecases" class="xref">Usecases</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1.2.1">
+                    <p id="section-toc.1-1.7.2.1.2.1.1"><a href="#section-7.1.1" class="xref">7.1.1</a>.  <a href="#name-non-correlating-security-to" class="xref">Non-correlating Security Token</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1.2.2">
+                    <p id="section-toc.1-1.7.2.1.2.2.1"><a href="#section-7.1.2" class="xref">7.1.2</a>.  <a href="#name-improved-bearer-security-to" class="xref">Improved Bearer Security Token</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1.2.3">
+                    <p id="section-toc.1-1.7.2.1.2.3.1"><a href="#section-7.1.3" class="xref">7.1.3</a>.  <a href="#name-hardware-attestations" class="xref">Hardware Attestations</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1.2.4">
+                    <p id="section-toc.1-1.7.2.1.2.4.1"><a href="#section-7.1.4" class="xref">7.1.4</a>.  <a href="#name-selectively-disclosure-enab" class="xref">Selectively Disclosure Enabled Identity Assertions</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1.2.5">
+                    <p id="section-toc.1-1.7.2.1.2.5.1"><a href="#section-7.1.5" class="xref">7.1.5</a>.  <a href="#name-privacy-preserving-bound-si" class="xref">Privacy preserving bound signatures</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-normative-references" class="xref">Normative References</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-informative-references" class="xref">Informative References</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">A digital signature scheme is a fundamental cryptographic primitive that is used to provide data integrity and verifiable authenticity in various protocols. The core premise of digital signature technology is built upon asymmetric cryptography where-by the possessor of a private key is able to sign a message, where anyone in possession of the corresponding public key matching that of the private key is able to verify the signature.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">However, traditional digital signature schemes require both the signature and the entire message to be disclosed during verification, constraining its usage in certain applications.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">The BBS Signature scheme on the other hand allows a party to sign multiple messages and produce a single output signature.This then allows the possessor a signature to derive proofs from it that selectively reveal from the originally signed set of messages, whilst continuing to retain the underlying core properties of a digital signature which are verifiable authenticity and integrity of the revealed messages back to the original signer. Futhermore these derived proofs are said to be zero-knowledge in nature as they do not reveal the underlying signature, instead the generated proof is considered a proof of knowledge of the signature which is beneficial for applications where revealing the underlying signature can cause undesirable correlation.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<div id="terminology">
+<section id="section-1.1">
+        <h3 id="name-terminology">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
+        </h3>
+<p id="section-1.1-1">The following terminology is used throughout this document:<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-1.1-2">
+          <dt id="section-1.1-2.1">SK</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.2">The secret key for the signature scheme.<a href="#section-1.1-2.2" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.3">PK</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.4">The public key for the signature scheme.<a href="#section-1.1-2.4" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.5">L</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.6">The total number of messages that the signature scheme can sign.<a href="#section-1.1-2.6" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.7">R</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.8">The set of message indices that are retained or hidden in a signature proof of knowledge.<a href="#section-1.1-2.8" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.9">D</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.10">The set of message indices that are disclosed in a signature proof of knowledge.<a href="#section-1.1-2.10" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.11">msg</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.12">An input message to be signed by the signature scheme.<a href="#section-1.1-2.12" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.13">h[i]</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.14">The generator corresponding to a given msg.<a href="#section-1.1-2.14" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.15">h0</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.16">A generator for the blinding value in the signature.<a href="#section-1.1-2.16" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.17">signature</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.18">The digital signature output.<a href="#section-1.1-2.18" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.19">commitment</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.20">A pedersen commitment composed of 1 or more messages.<a href="#section-1.1-2.20" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.21">nonce</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.22">A cryptographic nonce<a href="#section-1.1-2.22" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.23">presentation_message (pm)</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.24">A message generated and bound to the context of a specific spk.<a href="#section-1.1-2.24" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.25">spk</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.26">Zero-Knowledge Signature Proof of Knowledge.<a href="#section-1.1-2.26" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.27">nizk</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.28">A non-interactive zero-knowledge proof from fiat-shamir heuristic.<a href="#section-1.1-2.28" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.29">dst</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.30">The domain separation tag.<a href="#section-1.1-2.30" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.31">I2OSP</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.32">As defined by Section 4 of <span>[<a href="#RFC8017" class="xref">RFC8017</a>]</span><a href="#section-1.1-2.32" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.1-2.33">OS2IP</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.34">As defined by Section 4 of <span>[<a href="#RFC8017" class="xref">RFC8017</a>]</span>.<a href="#section-1.1-2.34" class="pilcrow">¶</a>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="notation">
+<section id="section-1.2">
+        <h3 id="name-notation">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-notation" class="section-name selfRef">Notation</a>
+        </h3>
+<p id="section-1.2-1">The following notation and primitives are used:<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-1.2-2">
+          <dt id="section-1.2-2.1">a || b</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-2.2">Denotes the concatenation of octet strings a and b.<a href="#section-1.2-2.2" class="pilcrow">¶</a>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-1.2-3">Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span><a href="#section-1.2-3" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-1.2-4">
+          <dt id="section-1.2-4.1">E1, E2</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.2">elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2.<a href="#section-1.2-4.2" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.3">G1, G2</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.4">subgroups of E1 and E2 (respectively) having prime order r.<a href="#section-1.2-4.4" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.5">GT</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.6">a subgroup, of prime order r, of the multiplicative group of a field extension.<a href="#section-1.2-4.6" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.7">e</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.8">G1 x G2 -&gt; GT: a non-degenerate bilinear map.<a href="#section-1.2-4.8" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.9">r</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.10">The prime order of the G1 and G2 subgroups.<a href="#section-1.2-4.10" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.11">P1, P2</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.12">points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x * P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a * b is field multiplication.<a href="#section-1.2-4.12" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.13">hash_to_curve_g1(ostr) -&gt; P</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.14">The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="xref">I-D.irtf-cfrg-hash-to-curve</a>]</span>. The algorithm first requires selection of the pairing friendly curve and digest
+algorithm, once selected apply the isogeny simplified SWU map to compute a point in G1 using the random oracle method. The domain separation tag value is dst.<a href="#section-1.2-4.14" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.15">hash_to_curve_g2(ostr) -&gt; P</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.16">The cryptographic hash function that takes as an arbitrary octet string input and returns a point in G2 as defined in <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="xref">I-D.irtf-cfrg-hash-to-curve</a>]</span>. The algorithm first requires selection of the pairing friendly curve and digest algorithm, once selected the isogeny simplified SWU map to compute a point in G2 using the random oracle method. The domain separation tag value is dst.<a href="#section-1.2-4.16" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.17">point_to_octets_min(P) -&gt; ostr</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.18">returns the canonical representation of the point P as an octet string in compressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)<a href="#section-1.2-4.18" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.19">point_to_octets_norm(P) -&gt; ostr</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.20">returns the canonical representation of the point P as an octet string in uncompressed form. This operation is also known as serialization. (FIXME: This either requires a normative wire format or a reference to the normative wire format)<a href="#section-1.2-4.20" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.21">octets_to_point(ostr) -&gt; P</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.22">returns the point P corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of point_to_octets.  This operation is also known as deserialization. Consumes either compressed or uncompressed ostr.<a href="#section-1.2-4.22" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-4.23">subgroup_check(P) -&gt; VALID or INVALID</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.24">returns VALID when the point P is an element of the subgroup of order r, and INVALID otherwise. This function can always be implemented by checking that r * P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [Bowe19].<a href="#section-1.2-4.24" class="pilcrow">¶</a>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="organization-of-this-document">
+<section id="section-1.3">
+        <h3 id="name-organization-of-this-docume">
+<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-organization-of-this-docume" class="section-name selfRef">Organization of this document</a>
+        </h3>
+<p id="section-1.3-1">This document is organized as follows:<a href="#section-1.3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.3-2.1">
+            <p id="section-1.3-2.1.1"><a href="#scheme-definition" class="xref">Section 3</a> defines the BBS signature scheme including any parameters required to define a concrete ciphersuite.<a href="#section-1.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.3-2.2">
+            <p id="section-1.3-2.2.1"><a href="#security-considerations" class="xref">Section 4</a> defines security considerations associated to the signature scheme.<a href="#section-1.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.3-2.3">
+            <p id="section-1.3-2.3.1"><a href="#ciphersuites" class="xref">Section 5</a> defines the format of a ciphersuite alongside a concrete ciphersuite based on the BLS12-381 curve.<a href="#section-1.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="conventions">
+<section id="section-2">
+      <h2 id="name-conventions">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-conventions" class="section-name selfRef">Conventions</a>
+      </h2>
+<p id="section-2-1">The keywords <span class="bcp14">MUST</span>, <span class="bcp14">MUST NOT</span>, <span class="bcp14">REQUIRED</span>, <span class="bcp14">SHALL</span>, <span class="bcp14">SHALL NOT</span>, <span class="bcp14">SHOULD</span>,
+<span class="bcp14">SHOULD NOT</span>, <span class="bcp14">RECOMMENDED</span>, <span class="bcp14">MAY</span>, and <span class="bcp14">OPTIONAL</span>, when they appear in this
+document, are to be interpreted as described in <span>[<a href="#RFC2119" class="xref">RFC2119</a>]</span>.<a href="#section-2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="scheme-definition">
+<section id="section-3">
+      <h2 id="name-scheme-definition">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-scheme-definition" class="section-name selfRef">Scheme Definition</a>
+      </h2>
+<p id="section-3-1">This section defines the BBS signature scheme, including the parameters required to define a concrete cipher-suite.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<div id="parameters">
+<section id="section-3.1">
+        <h3 id="name-parameters">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-parameters" class="section-name selfRef">Parameters</a>
+        </h3>
+<p id="section-3.1-1">The schemes operations defined in <a href="#operations" class="xref">Section 3.3</a> depend the following parameters:<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1-2.1">
+            <p id="section-3.1-2.1.1">A pairing-friendly elliptic curve, plus associated functionality given in Section 1.4.<a href="#section-3.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.1-2.2">
+            <p id="section-3.1-2.2.1">H, a hash function that MUST be a secure cryptographic hash function. For security, H MUST output at least ceil(log2(r)) bits, where r is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve.<a href="#section-3.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-3.1-2.3">
+            <p id="section-3.1-2.3.1">PRF(n): a pseudo-random function similar to <span>[<a href="#RFC4868" class="xref">RFC4868</a>]</span>. Returns n pseudo randomly generated bytes.<a href="#section-3.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="considerations">
+<section id="section-3.2">
+        <h3 id="name-considerations">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-considerations" class="section-name selfRef">Considerations</a>
+        </h3>
+<div id="subgroup-selection">
+<section id="section-3.2.1">
+          <h4 id="name-subgroup-selection">
+<a href="#section-3.2.1" class="section-number selfRef">3.2.1. </a><a href="#name-subgroup-selection" class="section-name selfRef">Subgroup Selection</a>
+          </h4>
+<p id="section-3.2.1-1">In definition of this signature scheme there are two possible variations based upon the sub-group selection, namely where public keys are defined in G2 and signatures in G1 OR the opposite where public keys are defined in G1 and signatures in G2. Some pairing cryptography based digital signature schemes such as <span>[<a href="#I-D.irtf-cfrg-bls-signature" class="xref">I-D.irtf-cfrg-bls-signature</a>]</span> elect to allow for both variations, because they optimize for different things. However, in the case of this scheme, due to the operations involved in both signature and proof generation being computational in-efficient when performed in G2 and in the pursuit of simplicity, the scheme is limited to a construction where public keys are in G2 and signatures in G1.<a href="#section-3.2.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="operations">
+<section id="section-3.3">
+        <h3 id="name-operations">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-operations" class="section-name selfRef">Operations</a>
+        </h3>
+<div id="keygen">
+<section id="section-3.3.1">
+          <h4 id="name-keygen">
+<a href="#section-3.3.1" class="section-number selfRef">3.3.1. </a><a href="#name-keygen" class="section-name selfRef">KeyGen</a>
+          </h4>
+<p id="section-3.3.1-1">The KeyGen algorithm generates a secret key SK deterministically from a secret octet string IKM.<a href="#section-3.3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.1-2">KeyGen uses an HKDF <span>[<a href="#RFC5869" class="xref">RFC5869</a>]</span> instantiated with the hash function H.<a href="#section-3.3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.3.1-3">For security, IKM MUST be infeasible to guess, e.g., generated by a trusted source of randomness.<a href="#section-3.3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.3.1-4">IKM MUST be at least 32 bytes long, but it MAY be longer.<a href="#section-3.3.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.3.1-5">Because KeyGen is deterministic, implementations MAY choose either to store the resulting SK or to store IKM and call KeyGen to derive SK when necessary.<a href="#section-3.3.1-5" class="pilcrow">¶</a></p>
+<p id="section-3.3.1-6">KeyGen takes an optional parameter, key_info. This parameter MAY be used to derive multiple independent keys from the same IKM.  By default, key_info is the empty string.<a href="#section-3.3.1-6" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3.1-7">
+<pre>SK = KeyGen(IKM)
+
+Inputs:
+
+- IKM, a secret octet string. See requirements above.
+
+Outputs:
+
+- SK, a uniformly random integer such that 0 &lt; SK &lt; r.
+
+Parameters:
+
+- key_info, an optional octet string. if this is not supplied, it MUST default to an empty string.
+
+Definitions:
+
+- HKDF-Extract is as defined in [@!RFC5869], instantiated with hash H.
+- HKDF-Expand is as defined in [@!RFC5869], instantiated with hash H.
+- I2OSP and OS2IP are as defined in [@!RFC8017], Section 4.
+- L is the integer given by ceil((3 * ceil(log2(r))) / 16).
+- "BBS-SIG-KEYGEN-SALT-" is an ASCII string comprising 20 octets.
+
+Procedure:
+1. salt = "BBS-SIG-KEYGEN-SALT-"
+
+2. SK = 0
+
+3. while SK == 0:
+
+4.     salt = H(salt)
+
+5.     PRK = HKDF-Extract(salt, IKM || I2OSP(0, 1))
+
+6.     OKM = HKDF-Expand(PRK, key_info || I2OSP(L, 2), L)
+
+7.     SK = OS2IP(OKM) mod r
+
+8. return SK
+</pre><a href="#section-3.3.1-7" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="sktopk">
+<section id="section-3.3.2">
+          <h4 id="name-sktopk">
+<a href="#section-3.3.2" class="section-number selfRef">3.3.2. </a><a href="#name-sktopk" class="section-name selfRef">SkToPk</a>
+          </h4>
+<p id="section-3.3.2-1">SkToPk algorithm takes a secret key SK and outputs a corresponding public key.<a href="#section-3.3.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3.2-2">
+<pre>PK = SkToPk(SK)
+
+Inputs:
+
+- SK, a secret integer such that 0 &lt; SK &lt; r
+
+Outputs:
+
+- PK, a public key encoded as an octet string
+
+Procedure:
+
+1. w = SK * P2
+
+2. PK = w
+
+3. return point_to_octets_min(PK)
+</pre><a href="#section-3.3.2-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="keyvalidate">
+<section id="section-3.3.3">
+          <h4 id="name-keyvalidate">
+<a href="#section-3.3.3" class="section-number selfRef">3.3.3. </a><a href="#name-keyvalidate" class="section-name selfRef">KeyValidate</a>
+          </h4>
+<p id="section-3.3.3-1">KeyValidate checks if the public key is valid.<a href="#section-3.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.3-2">As an optimization, implementations MAY cache the result of KeyValidate in order to avoid unnecessarily repeating validation for known keys.<a href="#section-3.3.3-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3.3-3">
+<pre>result = KeyValidate(PK)
+
+Inputs:
+
+- PK, a public key in the format output by SkToPk.
+
+Outputs:
+
+- result, either VALID or INVALID
+
+Procedure:
+
+1. (w, h0, h) = octets_to_point(PK)
+
+2. If w is the identity element, return INVALID
+
+3. result = subgroup_check(w) &amp;&amp; subgroup_check(h0)
+
+4. for i in 0 to len(h): result &amp;= subgroup_check(h[i])
+
+5. return result
+</pre><a href="#section-3.3.3-3" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="sign">
+<section id="section-3.3.4">
+          <h4 id="name-sign">
+<a href="#section-3.3.4" class="section-number selfRef">3.3.4. </a><a href="#name-sign" class="section-name selfRef">Sign</a>
+          </h4>
+<p id="section-3.3.4-1">Sign computes a signature from SK, PK, over a vector of messages.<a href="#section-3.3.4-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3.4-2">
+<pre>signature = Sign((msg[i],...,msg[L]), SK, PK)
+
+Inputs:
+
+- msg[i],...,msg[L], octet strings
+- SK, a secret key output from KeyGen
+- PK, a public key output from SkToPk
+
+Outputs:
+
+- signature, an octet string
+
+Procedure:
+
+1. (w, h0, h) = octets_to_point(PK)
+
+2. e = H(PRF(8*ceil(log2(r)))) mod r
+
+3. s = H(PRF(8*ceil(log2(r)))) mod r
+
+4. b = P1 + h0 * s + h[i] * msg[i] + ... + h[n] * msg[L]
+
+5. A = b * (1 / (SK + e))
+
+6. signature = (point_to_octets_min(A), e, s)
+
+7. return signature
+</pre><a href="#section-3.3.4-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="verify">
+<section id="section-3.3.5">
+          <h4 id="name-verify">
+<a href="#section-3.3.5" class="section-number selfRef">3.3.5. </a><a href="#name-verify" class="section-name selfRef">Verify</a>
+          </h4>
+<p id="section-3.3.5-1">Verify checks that a signature is valid for the octet string messages under the public key.<a href="#section-3.3.5-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3.5-2">
+<pre>result = Verify((msg[i],...,msg[L]), signature, PK)
+
+Inputs:
+
+- msg[i],...,msg[L], octet strings.
+- signature, octet string.
+- PK, a public key in the format output by SkToPk.
+
+Outputs:
+
+- result, either VALID or INVALID.
+
+Procedure:
+
+1. (A, e, s) = octets_to_point(signature.A), e, s
+
+2. pub_key = octets_to_point(PK)
+
+3. if subgroup_check(A) is INVALID
+
+4. if KeyValidate(pub_key) is INVALID
+
+5. b = P1 + h0 * s + h[i] * msg[i] + ... + h[n] * msg[L]
+
+6. C1 = e(A, w + P2 * e)
+
+7. C2 = e(b, P2)
+
+8. return C1 == C2
+</pre><a href="#section-3.3.5-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="spkgen">
+<section id="section-3.3.6">
+          <h4 id="name-spkgen">
+<a href="#section-3.3.6" class="section-number selfRef">3.3.6. </a><a href="#name-spkgen" class="section-name selfRef">SpkGen</a>
+          </h4>
+<p id="section-3.3.6-1">A signature proof of knowledge generating algorithm that creates a zero-knowledge proof of knowledge of a signature while selectively disclosing messages from a signature given a vector of messages, a vector of indices of the revealed messages, the signer's public key, and a presentation message.<a href="#section-3.3.6-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3.6-2">
+<pre>spk = SpkGen(PK, (msg[1],...,msg[L]), RIdxs, signature, pm)
+
+Inputs:
+
+- PK, octet string in output form from SkToPk
+- (msg\[1\],...,msg\[L\]), octet strings (messages in input to Sign).
+- RIdxs, vector of unsigned integers (indices of revealed messages).
+- signature, octet string in output form from Sign
+- pm, octet string
+
+Outputs:
+
+- spk, octet string
+
+Procedure:
+
+1. (A, e, s) = signature
+
+2. (w, h0, h\[1\],...,h\[L\]) = PK
+
+3. (i1, i2,..., iR) = RIdxs
+
+4. if subgroup\_check(A) is INVALID abort
+
+5. if KeyValidate(PK) is INVALID abort
+
+6. b = commitment + h0 \* s + h\[1\] \* msg\[1\] + ... + h\[L\] \* msg\[L\]
+
+7. r1 = H(PRF(8\*ceil(log2(r)))) mod r
+
+8. r2 = H(PRF(8\*ceil(log2(r)))) mod r
+
+9. e\~ = H(PRF(8\*ceil(log2(r)))) mod r
+
+10. r2\~ = H(PRF(8\*ceil(log2(r)))) mod r
+
+11. r3\~ = H(PRF(8\*ceil(log2(r)))) mod r
+
+12. s\~ = H(PRF(8\*ceil(log2(r)))) mod r
+
+13. r3 = r1 ^ -1 mod r
+
+14. for i in RIdxs m\~\[i\] = H(PRF(8\*ceil(log2(r)))) mod r
+
+15. A' = A \* r1
+
+16. Abar = A' \* -e + b \* r1
+
+17. d = b \* r1 + h0 \* -r2
+
+18. s' = s - r2 \* r3
+
+19. C1 = A' \* e\~ + h0 \* r2\~
+
+20. C2 = d \* r3\~ + h0 \* s\~ + h\[i1\] \* m\~\[i1\] + ... + h\[iR\] \* m\~\[iR\]
+
+21. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || pm)
+
+22. e^ = e\~ + c \* e
+
+23. r2^ = r2\~ - c \* r2
+
+24. r3^ = r3\~ + c \* r3
+
+25. s^ = s\~ - c \* s'
+
+26. for i in RIdxs: m^\[i\] = m\~\[i\] - c \* msg\[i\]
+
+27. spk = ( A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i1\], ..., m^\[iR\]) )
+
+28. return spk
+</pre><a href="#section-3.3.6-2" class="pilcrow">¶</a>
+</div>
+<p id="section-3.3.6-3">How a signature is to be encoded is not covered by this document. (TODO perhaps add some additional information in the appendix)
+(FIXME: Encoding out of scope OK, but wire format is required for test vectors. Unless this document is not normative.)<a href="#section-3.3.6-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="spkverify">
+<section id="section-3.3.7">
+          <h4 id="name-spkverify">
+<a href="#section-3.3.7" class="section-number selfRef">3.3.7. </a><a href="#name-spkverify" class="section-name selfRef">SpkVerify</a>
+          </h4>
+<p id="section-3.3.7-1">SpkVerify checks if a signature proof of knowledge is VALID given the proof, the signer's public key, a vector of revealed messages, a vector with the indices of these revealed messages, and the presentation message used in SpkGen.<a href="#section-3.3.7-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3.7-2">
+<pre>result = SpkVerify(spk, PK, (Rmsg[1],..., Rmsg[R]), RIdxs, pm)
+
+Inputs:
+
+- spk, octet string.
+- PK, octet string in output form from SkToPk.
+- (Rmsg\[1\], ..., Rmsg\[R\]), octet strings (revealed messages).
+- RIdxs, vector of unsigned integers (indices of revealed messages).
+- pm, octet string
+
+Outputs:
+
+- result, either VALID or INVALID.
+
+Procedure:
+
+1. if KeyValidate(PK) is INVALID
+
+2. (i1, i2, ..., iR) = RIndxs
+
+3. (A', Abar, d, C1, e^, r2^, C2, r3^, s^, (m^\[i1\],...,m^\[iR\])) = spk
+
+4. (w, h0, h\[1\],...,h\[L\]) = PK
+
+5. if A' == 1 return INVALID
+
+6. X1 = e(A', w)
+
+7. X2 = e(Abar, P2)
+
+8. if X1 != X2 return INVALID
+
+9. c = H(Abar || A' || h0 || C1 || d || h0 || h\[i1\] || ... || h\[iR\] || C2 || pm)
+
+10. T1 = Abar - d
+
+11. T2 = P1 + h\[i1\] \* Rmsg\[1\] + ... + h\[iR\] \* Rmsg\[R\]
+
+12. Y1 = A' \* e^ + h0 \* r2^ + T1 \* c
+
+13. Y2 = d \* r3^ + h0 \* s^ + h\[i1\] \* m^\[i1\] + ... + h\[iR\] \* m^\[iR\] - T2 \* c
+
+14. if C1 != Y1 return INVALID
+
+15. if C2 != Y2 return INVALID
+
+16. return VALID
+</pre><a href="#section-3.3.7-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-4">
+      <h2 id="name-security-considerations">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<div id="validating-public-keys">
+<section id="section-4.1">
+        <h3 id="name-validating-public-keys">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-validating-public-keys" class="section-name selfRef">Validating public keys</a>
+        </h3>
+<p id="section-4.1-1">All algorithms in Section 2 that operate on points in public keys require first validating those keys.  For the sign, verify and proof schemes, the use of KeyValidate is REQUIRED.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="skipping-membership-checks">
+<section id="section-4.2">
+        <h3 id="name-skipping-membership-checks">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-skipping-membership-checks" class="section-name selfRef">Skipping membership checks</a>
+        </h3>
+<p id="section-4.2-1">Some existing implementations skip the subgroup_check invocation in Verify (Section 2.8), whose purpose is ensuring that the signature is an element of a prime-order subgroup.  This check is REQUIRED of conforming implementations, for two reasons.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-4.2-2">
+<li id="section-4.2-2.1">
+            <p id="section-4.2-2.1.1">For most pairing-friendly elliptic curves used in practice, the pairing operation e (Section 1.3) is undefined when its input points are not in the prime-order subgroups of E1 and E2. The resulting behavior is unpredictable, and may enable forgeries.<a href="#section-4.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-4.2-2.2">
+            <p id="section-4.2-2.2.1">Even if the pairing operation behaves properly on inputs that are outside the correct subgroups, skipping the subgroup check breaks the strong unforgeability property [ADR02].<a href="#section-4.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+</section>
+</div>
+<div id="side-channel-attacks">
+<section id="section-4.3">
+        <h3 id="name-side-channel-attacks">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-side-channel-attacks" class="section-name selfRef">Side channel attacks</a>
+        </h3>
+<p id="section-4.3-1">Implementations of the signing algorithm SHOULD protect the secret key from side-channel attacks.  One method for protecting against certain side-channel attacks is ensuring that the implementation executes exactly the same sequence of instructions and performs exactly the same memory accesses, for any value of the secret key. In other words, implementations on the underlying pairing-friendly elliptic curve SHOULD run in constant time.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="randomness-considerations">
+<section id="section-4.4">
+        <h3 id="name-randomness-considerations">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-randomness-considerations" class="section-name selfRef">Randomness considerations</a>
+        </h3>
+<p id="section-4.4-1">The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One possibility is to generate IKM from a trusted source of randomness.  Guidelines on constructing such a source are outside the scope of this document.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.4-2">Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+<p id="section-4.4-3">BBS signatures are nondeterministic, meaning care must be taken against attacks arising from signing with bad randomness, for example, the nonce reuse attack on ECDSA [HDWH12]. It is RECOMMEDNED that the nonces and presentation messages used in this specification are chosen at random from a trusted source of randomness (see "Presentation message selection" section below for additional considerations).<a href="#section-4.4-3" class="pilcrow">¶</a></p>
+<p id="section-4.4-4">BlindSign as discussed in 2.10 uses randomness from two parties so care MUST be taken that both sources of randomness are trusted. If one party uses weak randomness, it could compromise the signature.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
+<p id="section-4.4-5">When a trusted source of randomness is used, signatures and proofs are much harder to forge or break due to the use of multiple nonces.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="presentation-message-selection">
+<section id="section-4.5">
+        <h3 id="name-presentation-message-select">
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-presentation-message-select" class="section-name selfRef">Presentation message selection</a>
+        </h3>
+<p id="section-4.5-1">The signature proofs of knowledge generated in this specification are created using a specified presentation message. A verifier-specified cryptographically random value (e.g., a nonce) featuring in the presentation message provides strong protections against replay attacks, and is RECOMMENDED in most use cases. In some settings, proofs can be generated in a non-interactive fashion, in which case verifiers MUST be able to verify the uniqueness of the presentation message values.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="implementing-hash-to-point-g1-and-hash-to-point-g2">
+<section id="section-4.6">
+        <h3 id="name-implementing-hash_to_point_">
+<a href="#section-4.6" class="section-number selfRef">4.6. </a><a href="#name-implementing-hash_to_point_" class="section-name selfRef">Implementing hash_to_point_g1 and hash_to_point_g2</a>
+        </h3>
+<p id="section-4.6-1">The security analysis models hash_to_point and hash_pubkey_to_point as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="xref">I-D.irtf-cfrg-hash-to-curve</a>]</span>.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
+<p id="section-4.6-2">In addition, ciphersuites MUST specify unique domain separation tags for hash_to_point.  The domain separation tag used in Section 1.4 is the RECOMMENDED one.<a href="#section-4.6-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="use-of-contexts">
+<section id="section-4.7">
+        <h3 id="name-use-of-contexts">
+<a href="#section-4.7" class="section-number selfRef">4.7. </a><a href="#name-use-of-contexts" class="section-name selfRef">Use of Contexts</a>
+        </h3>
+<p id="section-4.7-1">Contexts can be used to separate uses of the protocol between different protocols (which is very hard to reliably do otherwise) and between different uses within the same protocol. However, the following SHOULD be kept in mind:<a href="#section-4.7-1" class="pilcrow">¶</a></p>
+<p id="section-4.7-2">The context SHOULD be a constant string specified by the protocol using it. It SHOULD NOT incorporate variable elements from the message itself.<a href="#section-4.7-2" class="pilcrow">¶</a></p>
+<p id="section-4.7-3">Contexts SHOULD NOT be used opportunistically, as that kind of use is very error prone. If contexts are used, one SHOULD require all signature schemes available for use in that purpose support contexts.<a href="#section-4.7-3" class="pilcrow">¶</a></p>
+<p id="section-4.7-4">Contexts are an extra input, which percolate out of APIs; as such, even if the signature scheme supports contexts, those may not be available for use. This problem is compounded by the fact that many times the application is not invoking the signing, verification, and proof functions directly but via some other protocol.<a href="#section-4.7-4" class="pilcrow">¶</a></p>
+<p id="section-4.7-5">The ZKP protocols use nonces which MUST be different in each context.<a href="#section-4.7-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="choice-of-underlying-curve">
+<section id="section-4.8">
+        <h3 id="name-choice-of-underlying-curve">
+<a href="#section-4.8" class="section-number selfRef">4.8. </a><a href="#name-choice-of-underlying-curve" class="section-name selfRef">Choice of underlying curve</a>
+        </h3>
+<p id="section-4.8-1">BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a profile for using the BLS12-381 curve in <a href="#ciphersuites" class="xref">Section 5</a> which as a curve currently achieves close to 128-bit security.<a href="#section-4.8-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="ciphersuites">
+<section id="section-5">
+      <h2 id="name-ciphersuites">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-ciphersuites" class="section-name selfRef">Ciphersuites</a>
+      </h2>
+<p id="section-5-1">This section defines the format for a BLS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<div id="ciphersuite-format">
+<section id="section-5.1">
+        <h3 id="name-ciphersuite-format">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-ciphersuite-format" class="section-name selfRef">Ciphersuite Format</a>
+        </h3>
+<ul class="normal">
+<li class="normal" id="section-5.1-1.1">
+            <p id="section-5.1-1.1.1">H: a cryptographic hash function.<a href="#section-5.1-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-5.1-1.2">
+            <p id="section-5.1-1.2.1">hash<em>to</em>point: a hash from arbitrary strings to elliptic curve points. hash<em>to</em>point MUST be defined in terms of a hash-to-curve suite <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="xref">I-D.irtf-cfrg-hash-to-curve</a>]</span>.<a href="#section-5.1-1.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-5.1-2">The RECOMMENDED hash-to-curve domain separation tag is the ciphersuite ID string defined above.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="bls12-381-ciphersuite">
+<section id="section-5.2">
+        <h3 id="name-bls12-381-ciphersuite">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-bls12-381-ciphersuite" class="section-name selfRef">BLS12-381 Ciphersuite</a>
+        </h3>
+<p id="section-5.2-1">define things like point<em>to</em>octet including an appendix on the ZCash serialization<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-6">
+      <h2 id="name-iana-considerations">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-6-1">This document does not make any requests of IANA.<a href="#section-6-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="appendix">
+<section id="section-7">
+      <h2 id="name-appendix">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-appendix" class="section-name selfRef">Appendix</a>
+      </h2>
+<div id="usecases">
+<section id="section-7.1">
+        <h3 id="name-usecases">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-usecases" class="section-name selfRef">Usecases</a>
+        </h3>
+<div id="non-correlating-security-token">
+<section id="section-7.1.1">
+          <h4 id="name-non-correlating-security-to">
+<a href="#section-7.1.1" class="section-number selfRef">7.1.1. </a><a href="#name-non-correlating-security-to" class="section-name selfRef">Non-correlating Security Token</a>
+          </h4>
+<p id="section-7.1.1-1">In the most general sense BBS signatures can be used in any application where a cryptographically secured token is required but correlation caused by usage of the token is un-desirable.<a href="#section-7.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.1.1-2">For example in protocols like OAuth2.0 the most commonly used form of the access token leverages the JWT format alongside conventional cryptographic primitives such as traditional digital signatures or HMACs. These access tokens are then used by a relying party to prove authority to a resource server during a request. However, because the access token is most commonly sent by value as it was issued by the authorization server (e.g in a bearer style scheme), the access token can act as a source of strong correlation for the relying party. Relevant prior art can be found <a href="https://www.ietf.org/archive/id/draft-private-access-tokens-01.html">here</a>.<a href="#section-7.1.1-2" class="pilcrow">¶</a></p>
+<p id="section-7.1.1-3">BBS Signatures due to their unique properties removes this source of correlation but maintains the same set of guarantees required by a resource server to validate an access token back to its relevant authority (note that an approach to signing JSON tokens with BBS that may be of relevance is the <a href="https://json-web-proofs.github.io/json-web-proofs/draft-jmiller-json-web-proof.html">JWP</a> format and serialization). In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they derive a unique proof from the original access token and include that in the request instead, thus removing this vector of correlation.<a href="#section-7.1.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="improved-bearer-security-token">
+<section id="section-7.1.2">
+          <h4 id="name-improved-bearer-security-to">
+<a href="#section-7.1.2" class="section-number selfRef">7.1.2. </a><a href="#name-improved-bearer-security-to" class="section-name selfRef">Improved Bearer Security Token</a>
+          </h4>
+<p id="section-7.1.2-1">Bearer based security tokens such as JWT based access tokens used in the OAuth2.0 protocol are a highly popular format for expressing authorization grants. However their usage has several security limitations. Notably a bearer based authorization scheme often has to rely on a secure transport between the authorized party (client) and the resource server to mitigate the potential for a MITM attack or a malicious interception of the access token. The scheme also has to assume a degree of trust in the resource server it is presenting an access token to, particularly when the access token grants more than just access to the target resource server, because in a bearer based authorization scheme, anyone who possesses the access token has authority to what it grants. Bearer based access tokens also suffer from the threat of replay attacks.<a href="#section-7.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.1.2-2">Improved schemes around authorization protocols often involve adding a layer of proof of cryptographic key possession to the presentation of an access token, which mitigates the deficiencies highlighted above as well as providing a way to detect a replay attack. However, approaches that involve proof of cryptographic key possession such as DPoP (<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-04">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-04</a>) suffer from an increase in protocol complexity. A party requesting authorization must pre-generate appropriate key material, share the public portion of this with the authorization server alongside proving possession of the private portion of the key material. The authorization server must also be-able to accommodate receiving this information and validating it.<a href="#section-7.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-7.1.2-3">BBS Signatures ofter an alternative model that solves the same problems that proof of cryptographic key possession schemes do for bearer based schemes, but in a way that doesn't introduce new up-front protocol complexity. In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they derive a unique proof from the original access token and include that in the request instead. Because the access token is not shared in a request to a resource server, attacks such as MITM are mitigated. A resource server also obtains the ability to detect a replay attack by ensuring the proof presented is unique.<a href="#section-7.1.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="hardware-attestations">
+<section id="section-7.1.3">
+          <h4 id="name-hardware-attestations">
+<a href="#section-7.1.3" class="section-number selfRef">7.1.3. </a><a href="#name-hardware-attestations" class="section-name selfRef">Hardware Attestations</a>
+          </h4>
+<p id="section-7.1.3-1">TODO<a href="#section-7.1.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="selectively-disclosure-enabled-identity-assertions">
+<section id="section-7.1.4">
+          <h4 id="name-selectively-disclosure-enab">
+<a href="#section-7.1.4" class="section-number selfRef">7.1.4. </a><a href="#name-selectively-disclosure-enab" class="section-name selfRef">Selectively Disclosure Enabled Identity Assertions</a>
+          </h4>
+<p id="section-7.1.4-1">TODO<a href="#section-7.1.4-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="privacy-preserving-bound-signatures">
+<section id="section-7.1.5">
+          <h4 id="name-privacy-preserving-bound-si">
+<a href="#section-7.1.5" class="section-number selfRef">7.1.5. </a><a href="#name-privacy-preserving-bound-si" class="section-name selfRef">Privacy preserving bound signatures</a>
+          </h4>
+<p id="section-7.1.5-1">TODO<a href="#section-7.1.5-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+</section>
+</div>
+<section id="section-8">
+      <h2 id="name-normative-references">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+      </h2>
+<dl class="references">
+<dt id="I-D.irtf-cfrg-hash-to-curve">[I-D.irtf-cfrg-hash-to-curve]</dt>
+      <dd>
+<span class="refAuthor">Faz-Hernandez, A.</span>, <span class="refAuthor">Scott, S.</span>, <span class="refAuthor">Sullivan, N.</span>, <span class="refAuthor">Wahby, R. S.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Hashing to Elliptic Curves"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-hash-to-curve-13</span>, <time datetime="2021-11-10" class="refDate">10 November 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-13">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-13</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.irtf-cfrg-pairing-friendly-curves">[I-D.irtf-cfrg-pairing-friendly-curves]</dt>
+      <dd>
+<span class="refAuthor">Sakemi, Y.</span>, <span class="refAuthor">Kobayashi, T.</span>, <span class="refAuthor">Saito, T.</span>, and <span class="refAuthor">R. S. Wahby</span>, <span class="refTitle">"Pairing-Friendly Curves"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-pairing-friendly-curves-10</span>, <time datetime="2021-07-30" class="refDate">30 July 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-pairing-friendly-curves-10">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-pairing-friendly-curves-10</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+      <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4868">[RFC4868]</dt>
+      <dd>
+<span class="refAuthor">Kelly, S.</span> and <span class="refAuthor">S. Frankel</span>, <span class="refTitle">"Using HMAC-SHA-256, HMAC-SHA-384, and HMAC-SHA-512 with IPsec"</span>, <span class="seriesInfo">RFC 4868</span>, <span class="seriesInfo">DOI 10.17487/RFC4868</span>, <time datetime="2007-05" class="refDate">May 2007</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4868">https://www.rfc-editor.org/info/rfc4868</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5869">[RFC5869]</dt>
+      <dd>
+<span class="refAuthor">Krawczyk, H.</span> and <span class="refAuthor">P. Eronen</span>, <span class="refTitle">"HMAC-based Extract-and-Expand Key Derivation Function (HKDF)"</span>, <span class="seriesInfo">RFC 5869</span>, <span class="seriesInfo">DOI 10.17487/RFC5869</span>, <time datetime="2010-05" class="refDate">May 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5869">https://www.rfc-editor.org/info/rfc5869</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8017">[RFC8017]</dt>
+    <dd>
+<span class="refAuthor">Moriarty, K., Ed.</span>, <span class="refAuthor">Kaliski, B.</span>, <span class="refAuthor">Jonsson, J.</span>, and <span class="refAuthor">A. Rusch</span>, <span class="refTitle">"PKCS #1: RSA Cryptography Specifications Version 2.2"</span>, <span class="seriesInfo">RFC 8017</span>, <span class="seriesInfo">DOI 10.17487/RFC8017</span>, <time datetime="2016-11" class="refDate">November 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8017">https://www.rfc-editor.org/info/rfc8017</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+<section id="section-9">
+      <h2 id="name-informative-references">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+      </h2>
+<dl class="references">
+<dt id="I-D.irtf-cfrg-bls-signature">[I-D.irtf-cfrg-bls-signature]</dt>
+    <dd>
+<span class="refAuthor">Boneh, D.</span>, <span class="refAuthor">Gorbunov, S.</span>, <span class="refAuthor">Wahby, R. S.</span>, <span class="refAuthor">Wee, H.</span>, and <span class="refAuthor">Z. Zhang</span>, <span class="refTitle">"BLS Signatures"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-bls-signature-04</span>, <time datetime="2020-09-10" class="refDate">10 September 2020</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+<div id="authors-addresses">
+<section id="appendix-A">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Mike Lodder</span></div>
+<div dir="auto" class="left"><span class="org">CryptID</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:redmike7gmail.com" class="email">redmike7gmail.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Tobias Looker</span></div>
+<div dir="auto" class="left"><span class="org">Mattr</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:tobias.looker@mattr.global" class="email">tobias.looker@mattr.global</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Andrew Whitehead</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:cywolf@gmail.com" class="email">cywolf@gmail.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
