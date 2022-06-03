@@ -925,7 +925,7 @@ Procedure:
 
 16. if index != length(proof_octets), return INVALID
 
-17. Let msg_commitments be an empty set (i.e., msg_commitments = ())
+17. msg_commitments = ()
 
 18. If j > 5, set msg_commitments = (s_5, ..., s_(j-1))
 
