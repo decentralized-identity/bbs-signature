@@ -370,9 +370,7 @@ Procedure:
 
 1. W = SK * P2
 
-2. PK = W
-
-3. return point_to_octets_g2(PK)
+2. return point_to_octets_g2(W)
 ```
 
 ### KeyValidate
@@ -382,11 +380,11 @@ This operation checks if a public key is valid.
 As an optimization, implementations MAY cache the result of KeyValidate in order to avoid unnecessarily repeating validation for known public keys.
 
 ```
-result = KeyValidate(PK)
+result = KeyValidate(W)
 
 Inputs:
 
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
+- W (REQUIRED), a public key as calculated at step one (1) in SkToPk.
 
 Outputs:
 
@@ -394,15 +392,13 @@ Outputs:
 
 Procedure:
 
-1. W = octets_to_point_g2(PK)
+1. if W is INVALID, return INVALID
 
-2. if W is INVALID, return INVALID
+2. if subgroup_check(W) is INVALID, return INVALID
 
-3. if subgroup_check(W) is INVALID, return INVALID
+3. If W == Identity_G2, return INVALID
 
-4. If W == Identity_G2, return INVALID
-
-5. return VALID
+4. return VALID
 ```
 
 ### Sign
@@ -436,23 +432,19 @@ Outputs:
 
 Procedure:
 
-1. W = octets_to_point_g2(PK)
+1. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-2. if W is INVALID, abort
+2. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-3. generators =  (H_s || H_d || H_1 || ... || H_L)
+3. (e, s) = hash_to_scalar((SK  || domain || msg_1 || ... || msg_L), 2)
 
-4. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+4. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-5. (e, s) = hash_to_scalar((SK  || domain || msg_1 || ... || msg_L), 2)
+5. A = B * (1 / (SK + e))
 
-6. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+6. signature_octets = signature_to_octets(A, e, s)
 
-7. A = B * (1 / (SK + e))
-
-8. signature_octets = signature_to_octets(A, e, s)
-
-9. return signature_octets
+7. return signature_octets
 ```
 
 **Note** When computing step 7 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 7, and or `A != Identity_G1` after step 7 to prevent the production of invalid signatures.
@@ -494,9 +486,9 @@ Procedure:
 
 3. (A, e, s) = signature_result
 
-4. if KeyValidate(PK) is INVALID, return INVALID
+4. W = octets_to_point_g2(PK)
 
-5. W = octets_to_point_g2(PK)
+5. if KeyValidate(W) is INVALID, return INVALID
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
@@ -504,11 +496,9 @@ Procedure:
 
 8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-9. C1 = e(A, W + P2 * e)
+9. if e(A, W + P2 * e) * e(B, -P2) != 1, return INVALID
 
-10. C2 = e(B, P2)
-
-11. return C1 == C2
+10. return Valid
 ```
 
 ### ProofGen
@@ -557,47 +547,45 @@ Procedure:
 
 5. (A, e, s) = signature_result
 
-6. if KeyValidate(PK) is INVALID, return INVALID
+6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. generators =  (H_s || H_d || H_1 || ... || H_L)
+7. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+8. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
 
-9. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
+9. (m~_1, ..., m~_U) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
 
-10. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
+10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+11. r3 = r1 ^ -1 mod r
 
-12. r3 = r1 ^ -1 mod r
+12. A' = A * r1
 
-13. A' = A * r1
+13. Abar = A' * (-e) + B * r1
 
-14. Abar = A' * (-e) + B * r1
+14. D = B * r1 + H_s * r2
 
-15. D = B * r1 + H_s * r2
+15. s' = s + r2 * r3
 
-16. s' = s + r2 * r3
+16. C1 = A' * e~ + H_s * r2~
 
-17. C1 = A' * e~ + H_s * r2~
+17. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_1 + ... + H_jU * m~_U
 
-18. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+18. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-19. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+19. e^ = e~ + c * e
 
-20. e^ = e~ + c * e
+20. r2^ = r2~ + c * r2
 
-21. r2^ = r2~ + c * r2
+21. r3^ = r3~ + c * r3
 
-22. r3^ = r3~ + c * r3
+22. s^ = s~ + c * s'
 
-23. s^ = s~ + c * s'
+23. for j in (1, 2,..., U): m^_j = m~_j + c * msg_j
 
-24. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+24. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1, ..., m^_U))
 
-25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
-
-26. return proof
+25. return proof
 ```
 
 ### ProofVerify
@@ -634,33 +622,35 @@ Outputs:
 
 Procedure:
 
-1. if KeyValidate(PK) is INVALID, return INVALID
+1. W = octets_to_point_g2(PK)
 
-2. (i1, i2, ..., iR) = RevealedIndexes
+2. if KeyValidate(W) is INVALID, return INVALID
 
-3. (j1, j2, ..., jU) = [L]\RevealedIndexes
+3. (i1, i2, ..., iR) = RevealedIndexes
 
-4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
+4. (j1, j2, ..., jU) = [L]\RevealedIndexes
 
-5. generators =  (H_s || H_d || H_1 || ... || H_L)
+5. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1,...,m^_U)) = proof
 
-6. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+7. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-8. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+8. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-9. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+9. T = P1 + H_d * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+10. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_1 + ... + H_jU * m^_U
 
-11. if c != cv, return INVALID
+11. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-12. if A' == 1, return INVALID
+12. if c != cv, return INVALID
 
-13. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+13. if A' == 1, return INVALID
 
-14. return VALID
+14. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+
+15. return VALID
 ```
 
 ### CreateGenerators
