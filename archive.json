@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-02T00:10:50.274166+00:00",
+  "timestamp": "2022-06-05T00:10:38.665591+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -4364,7 +4364,7 @@
       "labels": [],
       "body": "There are several different uses of hash functions within the draft. These generally refer to the `hash` parameter, but some refer to the `xof` parameter, which currently appears independent. For compatibility, every hash function that is used in operations by multiple parties must be referenced in the ciphersuite ID. Because we don't want to list several hash functions here, and because supporting multiple hash functions adds extra dependencies (and implementation cost, platform incompatibilities, potential vulnerabilities) I suggest we try to reduce requirement to a single hash function per ciphersuite. Here are the use current cases I've identified:\r\n\r\n- In `hash_to_scalar`: Used to generate various scalars within signature and proof generation. We have a proposal to add an XMD version to support non-XOF hashes. This is the primary use of the hash function.\r\n- Within `KeyGen`: this one doesn't need to be included in the ciphersuite ID as it has no impact on other parties. Maybe the hash function should become an input parameter? If we want to keep this operation.\r\n- In generator creation:\r\n    - The current method uses an XOF to generate a stream of bytes which is then fed into a hash-to-curve implementation. If we want to support non-XOF hash functions then we might need to define an alternative method (like the one in the old draft).\r\n    - The chosen hash-to-curve suite should be required to use the same hash and a compatible `expand_message` method (XOF or XMD). It must also use `hash_to_curve` not `encode_to_curve` in order to guarantee a uniform distribution, ie. the suite identifier must end with 'RO'.\r\n- Hashing message inputs:\r\n    This one seems a little problematic. It is essential to the security of the signature scheme that all parties understand the encoding used to create the message scalars. Some implementations are going to need type-aware conversion of input values to scalars, which seems beyond the scope of this spec as it implies a dependency on a schema to define the value types. We could completely avoid standardizing message-to-scalar conversion and only use predefined scalars in the test cases. On the other hand, I also believe we need to support the base-level use case of simply signing one or more octet strings, in which case 'MapMessageToScalarAsHash' is sufficient. (In this case, do we want to require that the hash used to convert input messages is the same as the hash used within the other operations?)\r\n    In order to support both the typed-values message encoding use case and the simple hash-and-sign use case, perhaps we could add a simple parameter to the ciphersuite ID to distinguish between the two. We could add an ENC_TAG with two values: RAW (treat all input messages as octet strings), and SCHEMA (validate message inputs according to the associated schema, and apply its rules for converting into message scalars). When the ENC_TAG is SCHEMA, then a schema identifier would need to be included in the header value or somehow implied at the application level \u2013\u00a0I don't think we need to formalize this beyond adding a security guideline.",
       "createdAt": "2022-06-01T18:15:06Z",
-      "updatedAt": "2022-06-01T22:57:14Z",
+      "updatedAt": "2022-06-03T09:05:52Z",
       "closedAt": null,
       "comments": [
         {
@@ -4415,6 +4415,27 @@
           "body": "It looks like there are two slightly odd cases, KeyGen and MapMessageToScalarAsHash, which are inheriting the suite's hash parameters but don't necessarily need to because they aren't directly involved in signature generation or verification. Favouring simplicity, though, I think it's fine to only define these in terms of the suite's hash parameters. In both cases alternatives can be used instead, so we are only providing a useful default implementation.",
           "createdAt": "2022-06-01T22:49:20Z",
           "updatedAt": "2022-06-01T22:49:20Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "That's a great point! I haven't considered those cases. I do agree that those are just suggestions that cater the more \"simple\" use cases so it's fine to define everything based on 1 hash??\r\n\r\nAs a side note. I do start to believe that we overthinking this. Similar considerations could apply to [bls-signatures](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04#section-2.9) (for the ''Aggregate\" scheme) however they just leave everything to the upper layer, and it makes for a readable spec (they don't even worry about PK and message correspondence and ordering in [AggregateVerify](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04#section-2.9), which has been a big discussion here).\r\n\r\nPersonally i would leave `KeyGen` as it is with a note that it is optional but if used it must use whatever hash is defined by the suite. Same for `MapMessageToScalarAsHash`. As you [pointed out](https://github.com/decentralized-identity/bbs-signature/issues/162#issuecomment-1144134405), bbs+ will be wrapped to containers that will specify the message encoding. To avoid the perception that each message is hashed, we could move the `MapMessageToScalarAsHash` to the appendix, have a discussion around message encoding in the main part and only point to this operation as an example.",
+          "createdAt": "2022-06-02T11:14:47Z",
+          "updatedAt": "2022-06-03T09:05:52Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "In any case i think we are mostly in agreement here?? Maybe we should start with the xof vs hash discussion on the next call, as i think it's the main issue holding back some progress. Deciding on a direction would be very helpful.\r\n\r\nJust to try and clarify the options:\r\n- **Option 1**: Define everything on the basis of an xof only. This means `hash_to_scalar`, `hash_to_curve` + `createGenerators` and `MapMessageToScalarAsHash`.\r\n    - Advantages: fewer and simpler operations i.e., no need for [hash_to_scalar_xmd](https://github.com/decentralized-identity/bbs-signature/pull/151) or a more complicated `createGenerators` procedure (like the proposals [here](https://github.com/decentralized-identity/bbs-signature/pull/161#discussion_r887355556))\r\n    - Disadvantages (-**IMO**-): making it hard to define a sha2 based suite, and as a result, to use certain libraries like [blst](https://github.com/supranational/blst) and [noble-bls12-381](https://github.com/paulmillr/noble-bls12-381).\r\n- **Option 2**: Add support for fixed-output-length hash functions.\r\n    - Advantages (-**IMO**-): Ability to easier use a wider range of bls-sigs targeted implementations. Ease of defining sha2 based suites, that can give rise to more use cases (like emending systems or blockchain based ones).\r\n    - Disadvantages: (As described above) higher spec complexity + more time and effort required to add that support, at a time that we maybe should be focusing on other things.\r\n\r\nPlease let me know @andrewwhitehead if the above is not accurate or if i missed something. I'm also very keen to hear others opinion around this!",
+          "createdAt": "2022-06-02T11:21:34Z",
+          "updatedAt": "2022-06-02T11:21:34Z"
+        },
+        {
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Yes I think that's a good summary, and we should definitely hash it out (lol) on the next call.",
+          "createdAt": "2022-06-02T16:28:47Z",
+          "updatedAt": "2022-06-02T16:28:47Z"
         }
       ]
     },
@@ -4427,12 +4448,49 @@
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "ready-for-pr",
+        "core"
+      ],
       "body": "Lately the direction the document is going, is to pass inputs in a structured form (i.e., `octets_to_signature(signature)` vs `octets_to_signature(A, e, s)` etc.). Related to #138 and #155.\r\n\r\nOpening the issue so we can keep track of the update and make notation consistent across the spec.",
       "createdAt": "2022-06-01T18:28:10Z",
-      "updatedAt": "2022-06-01T18:28:10Z",
+      "updatedAt": "2022-06-02T22:14:13Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Im comfortable with passing structured inputs as the convention, I think we should also denote the destructing syntax in the terminology section though e.g (a,b,c) = arg and what it means for clarity",
+          "createdAt": "2022-06-02T22:14:01Z",
+          "updatedAt": "2022-06-02T22:14:01Z"
+        }
+      ]
+    },
+    {
+      "number": 164,
+      "id": "I_kwDOF8lax85K96VR",
+      "title": "Defintions of P1 and P2 in Ciphersuites",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/164",
+      "state": "OPEN",
+      "author": "dev0x1",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [
+        "core"
+      ],
+      "body": "Since any point on respective cyclic subgroup G1 and G2 can work as P1 and P2.\r\nFor interoperability, I think we should define the values of P1 and P2 in cipher suites. By clubbing this value in ciphersuite, an interoperable implementation has to refer only to cipher suite ID otherwise these have to be communicated on application-level messages or protocols.\r\n\r\nRegarding values for BLS12-381 ciphersuites, fixed base generators defined by pairing-crypto libraries zkcrypto(defined [here](https://github.com/zkcrypto/bls12_381/blob/34dab74ae44cd77dfa867928dd2e6c8383d8dc9d/src/g1.rs#L198) and [here](https://github.com/zkcrypto/bls12_381/blob/34dab74ae44cd77dfa867928dd2e6c8383d8dc9d/src/g2.rs#L212)) and blst(defined [here](https://github.com/supranational/blst/blob/bd8e64f97cb55217df1f7e84d4d73d6d8461e608/src/e1.c#L20) and [here](https://github.com/supranational/blst/blob/bd8e64f97cb55217df1f7e84d4d73d6d8461e608/src/e2.c#L24)) can be used. Both these libraries use same value for fixed base generators.",
+      "createdAt": "2022-06-02T06:27:35Z",
+      "updatedAt": "2022-06-02T22:12:11Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Thanks for raising! This will be very useful to track the issue! I think the (unfortunately **implicit**) assumption is that P1 and P2 will be the base points from the [pairing-friendly curves](https://www.ietf.org/archive/id/draft-irtf-cfrg-pairing-friendly-curves-10.html) spec (that are also used by the libs listed). There are some discussions to maybe use different points though (see #37).\r\n\r\nAnother option could be to go the [bls-signatures](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04#appendix-A) route and (re-)define the \"curve suite\" in an appendix (really just a mapping between terms). If we decide then to use different base points the update will be very easy.",
+          "createdAt": "2022-06-02T11:34:26Z",
+          "updatedAt": "2022-06-02T11:35:14Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -16515,7 +16573,7 @@
       "labels": [],
       "body": "Updating the way that the messages and generators are passed to the operations, using @andrewwhitehead's proposal of passing them in pairs. \r\n\r\nThe main purpose of the PR is to have a concrete base of discussion about what the best API will be. For alternatives see #117. For some more context see PR #128 (the motivation was \u201chow we get the revealed messages from the (msg_1, \u2026, msg_L) list and the revealed indexes).\r\n\r\nIMO all approaches have trade-offs. Although I like the proposal seen in this PR a lot and it makes things more explicit, I wonder if it is more error prone?? That said, it may provide the best balance between being explicit and easy to read. Interested on the WG feedback.\r\n",
       "createdAt": "2022-05-13T16:32:18Z",
-      "updatedAt": "2022-05-31T19:21:32Z",
+      "updatedAt": "2022-06-02T12:07:20Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "7568d6a95044c12f75e5ef19077eb5a7f6046063",
@@ -16589,6 +16647,13 @@
           "body": "Thank you @andrewwhitehead for the reviews. Updated based on your comments. \r\n\r\nCouple of additional changes:\r\n1. added some more guidance on Sign and Verify on how the generators and the messages are to be supplied.\r\n2. added an additional check on ProofVerify for the \"correctness\" of the indexes.",
           "createdAt": "2022-05-29T11:17:17Z",
           "updatedAt": "2022-05-29T15:58:27Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "#### NOTE:\r\nWaiting a little on resolution on #161 (or a consensus) to update this PR.",
+          "createdAt": "2022-06-02T12:07:19Z",
+          "updatedAt": "2022-06-02T12:07:19Z"
         }
       ],
       "reviews": [
@@ -19168,13 +19233,13 @@
       "labels": [],
       "body": "Proposing the following structure for the document. The main change is that `Sign`, `Verify`, `ProofGen` and `ProofVerify` are moved to their own \"core operations\" section. This will allow us to more easily define \"higher level functions\" on top of the \"core operations\" if need be.\r\n\r\n```\r\n|--- Introduction\r\n|      |--- Terminology\r\n|      |--- Notation\r\n|      +--- Organization of this document\r\n|--- Conventions\r\n|--- Considerations\r\n|      |--- Subgroup Selection\r\n|      |--- Messages and Generators\r\n|      +--- Encoding of elements to be hashed\r\n|--- BBS Scheme Definition\r\n|      |--- Parameters\r\n|      |--- Key Generation\r\n|      |      |--- KeyGen\r\n|      |      |--- SkToPk\r\n|      |      +--- KeyValidate        \r\n|      +--- Core Operations\r\n|             |--- Sign\r\n|             |--- Verify\r\n|             |--- ProofGen\r\n|             +--- ProofVerify\r\n|--- Utility Functions\r\n|      |--- CreateGenerators\r\n|      |--- MapMessageToScalar\r\n|      |      +--- MapMessageToScalarAsHash\r\n|      +--- Hash to scalar\r\n|--- Serialization\r\n|      |--- OctetsToSignatures\r\n|      +--- SignatureToOctets\r\n|--- Security Considerations\r\n|--- Ciphersuites \r\n+--- Appendix\r\n```",
       "createdAt": "2022-05-25T09:10:25Z",
-      "updatedAt": "2022-06-01T07:39:06Z",
+      "updatedAt": "2022-06-02T22:16:52Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "517868ceb34592c58e8b731c0e9d168d44821039",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "re-organizing-operations",
-      "headRefOid": "4b9790a9eb9e31ee993fafb3b28fda3ccc2686c6",
+      "headRefOid": "6fdf5ebd887ce8c00e1a01808c0d48e2540fdef3",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -19186,9 +19251,30 @@
           "body": "Suggested tweaks\r\n\r\n```\r\n|--- Introduction\r\n|      |--- Terminology\r\n|      |--- Notation\r\n|      +--- Organization of this document\r\n|--- Conventions\r\n|--- Considerations\r\n|      |--- Subgroup Selection\r\n|      |--- Messages and Generators\r\n|      +--- Encoding of elements to be hashed\r\n|--- Scheme Definition\r\n|      |--- Parameters\r\n|      |--- Key Generation Operations\r\n|      |      |--- KeyGen\r\n|      |      |--- SkToPk\r\n|      |      +--- KeyValidate        \r\n|      +--- Core Operations\r\n|             |--- Sign\r\n|             |--- Verify\r\n|             |--- ProofGen\r\n|             +--- ProofVerify\r\n|--- Utility Operations\r\n|      |--- CreateGenerators\r\n|      |--- MapMessageToScalar\r\n|      |      +--- MapMessageToScalarAsHash\r\n|      +--- Hash to scalar\r\n|      |--- OctetsToSignatures\r\n|      +--- SignatureToOctets\r\n|--- Security Considerations\r\n|--- Ciphersuite\r\n```",
           "createdAt": "2022-06-01T07:39:06Z",
           "updatedAt": "2022-06-01T07:39:06Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> Suggested tweaks\r\n\r\nDone! Thanks!",
+          "createdAt": "2022-06-02T11:59:50Z",
+          "updatedAt": "2022-06-02T11:59:50Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax847QwQn",
+          "commit": {
+            "abbreviatedOid": "6fdf5eb"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-02T22:16:52Z",
+          "updatedAt": "2022-06-02T22:16:52Z",
+          "comments": []
+        }
+      ]
     },
     {
       "number": 155,
@@ -19202,13 +19288,13 @@
       "labels": [],
       "body": "Fixes #153\r\n\r\nIntroduces a `proof_to_octets` and a `octets_to_proof` operation",
       "createdAt": "2022-05-25T13:24:23Z",
-      "updatedAt": "2022-06-01T20:46:36Z",
+      "updatedAt": "2022-06-03T19:39:06Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "517868ceb34592c58e8b731c0e9d168d44821039",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "proof-serialization",
-      "headRefOid": "f7d1887587a8310270d924d7c6653e21a4d00878",
+      "headRefOid": "452617e157314e88583e424c1aee22a1861c8ecf",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -20054,6 +20140,66 @@
               "updatedAt": "2022-06-01T20:46:36Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847Qwgw",
+          "commit": {
+            "abbreviatedOid": "e5ba570"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-02T22:18:32Z",
+          "updatedAt": "2022-06-02T22:18:33Z",
+          "comments": [
+            {
+              "originalPosition": 232,
+              "body": "Im actually fine with either so long as we are consistent, suffice to say if you think we are already being consistent w.r.t  option 1 then we can leave it as is.",
+              "createdAt": "2022-06-02T22:18:32Z",
+              "updatedAt": "2022-06-02T22:18:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847Q3Zb",
+          "commit": {
+            "abbreviatedOid": "f7d1887"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-02T23:08:43Z",
+          "updatedAt": "2022-06-02T23:08:43Z",
+          "comments": [
+            {
+              "originalPosition": 232,
+              "body": "There is a pending suggested change attached to this comment also which isn't entirely related to this conversation, once we have a resolution on that I'm happy to approve",
+              "createdAt": "2022-06-02T23:08:43Z",
+              "updatedAt": "2022-06-02T23:08:43Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847VL62",
+          "commit": {
+            "abbreviatedOid": "e5ba570"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-03T19:39:06Z",
+          "updatedAt": "2022-06-03T19:39:06Z",
+          "comments": [
+            {
+              "originalPosition": 232,
+              "body": "Yeap! Updated based on suggestion. Thanks!",
+              "createdAt": "2022-06-03T19:39:06Z",
+              "updatedAt": "2022-06-03T19:39:07Z"
+            }
+          ]
         }
       ]
     },
@@ -20258,7 +20404,7 @@
       "labels": [],
       "body": "This PR moves generator computation into a separate section, allowing for the use of separate computation methods and generator seed options. There are inconsistencies remaining with the test vectors, and the language and security considerations could likely use tidying up.",
       "createdAt": "2022-05-30T17:38:12Z",
-      "updatedAt": "2022-06-01T23:17:32Z",
+      "updatedAt": "2022-06-03T16:56:17Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "02ea4b981cc6288074c6beb968792d2e27d7003c",
@@ -20424,8 +20570,194 @@
               "updatedAt": "2022-06-01T23:17:33Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847NMWU",
+          "commit": {
+            "abbreviatedOid": "ffe5451"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-02T10:10:50Z",
+          "updatedAt": "2022-06-02T10:10:51Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "I agree regarding the seed and L dependency. I would much rather say that the input is a ciphersuite-defined seed. So we don't have to worry a lot about adversarial inputs which can be a pain to deal with (even if we use an XOF only).\r\n\r\nIMO there are the following trade-offs in the different input choices to `compute_generators` :\r\n\r\n- If we use maxMessageCount, the generators can be a parameter and not created in the procedure of each operation. This makes it clearer that they should be cached.\r\n- On the cons side, it \"forces\" a hard upper limit to the number of messages that can be signed, without any \"technical\" reason. It also requires the users to define this number which may not be as \"straight forward\", since, the more messages they \"support\", the less efficient the operation will be and the more generators they will need to cache.\r\n- Calling `compute_generators(L)` inside each procedure is clearer IMO and doesn't require more \"work\" from the implementer to define parameters.\r\n- On the cons side, it may not be clear enough that the output of `compute_generators` should be cached and **NOT** be re-calculated each time.\r\n\r\nI would personally go with option 2 and call `compute_generators(L)` inside each operation, with a note that the output must be cached (if it's not, it is not a security issue, just an efficiency one, so i think it's fine).",
+              "createdAt": "2022-06-02T10:10:51Z",
+              "updatedAt": "2022-06-02T10:10:51Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847NM4Z",
+          "commit": {
+            "abbreviatedOid": "ffe5451"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-02T10:12:54Z",
+          "updatedAt": "2022-06-02T10:12:55Z",
+          "comments": [
+            {
+              "originalPosition": 69,
+              "body": "Thinking more about it, another option, based on expand_message from h2c, can be the following, \r\n```\r\n(generator_1, ..., generator_L) = compute_generators(seed, L)\r\n\r\nProcedure:\r\n\r\n1. seed = hash(seed)\r\n2. uniform_bytes = expand_message(seed, gen_seed_dst, points_octets_length * L)\r\n3. index = 0\r\n4. for i in 1 to L:\r\n5.        gen_seed = uniform_bytes[index..(index + octet_point_length - 1)]\r\n6.        generator_i = hash_to_curve_g1(gen_seed, gen_dst)\r\n7.        if generator_i is in generators or generator_i = Indetity_G1 or generator_i = P1:\r\n8.               seed = hash(seed)\r\n9.               go back to step 2\r\n10.      index += octet_point_length\r\n11. return generators\r\n```\r\nThis has more or less the same advantages and disadvantages with the above proposal. Note that we are not creating new dependencies here really. It also has the advantage that it accounts for adversarially controlled seeds (if we worry about that, which I'm not really). On the other hand, is less performant, but again i think we should optimize for usability and readability of the spec here than performance.\r\n\r\nMore importantly IMO, it's usable with the ciphersuite defined `hash` so no need for a `generator_xof` parameter.",
+              "createdAt": "2022-06-02T10:12:55Z",
+              "updatedAt": "2022-06-03T16:56:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847NOj8",
+          "commit": {
+            "abbreviatedOid": "ffe5451"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-02T10:19:43Z",
+          "updatedAt": "2022-06-02T10:19:44Z",
+          "comments": [
+            {
+              "originalPosition": 180,
+              "body": "That's a good point! I can't even imagine what those methods (not h2c based) would look like.\r\n\r\n> maybe using a method that is agnostic of the hash type is good enough for now.\r\n\r\nYeap! That's my thinking as well. That's why i took a shot in such a procedure [here](https://github.com/decentralized-identity/bbs-signature/pull/161#discussion_r887355556). Another option can be an hkdf based construction (we already have a \"optional dependency\" on hkdf for keyGen) or a expand_message based one (since 'compute_generators' depends on h2c either way) as i try to propose [here](https://github.com/decentralized-identity/bbs-signature/pull/161#discussion_r887793786). IMO we best use the same hash for everything. We could use a different hash for `hash_to_curve_g1` by just pointing to the defined h2c suite, but for creating the input seed we should use the bbs+ suite defined `hash`.\r\n\r\nAnother option can be to make the described `compute_generators` procedure a requirement, and define the `generators_xof` parameter to the ciphersuite as required. However, I'm really not a big fun of this approach.",
+              "createdAt": "2022-06-02T10:19:43Z",
+              "updatedAt": "2022-06-02T10:19:44Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847PO0u",
+          "commit": {
+            "abbreviatedOid": "ffe5451"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-02T16:38:23Z",
+          "updatedAt": "2022-06-02T16:38:23Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "My intention was that the operations would do something like `(H_s, H_d, H_1 ... H_L) = compute_generators(L)`.",
+              "createdAt": "2022-06-02T16:38:23Z",
+              "updatedAt": "2022-06-02T16:38:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847PRgp",
+          "commit": {
+            "abbreviatedOid": "ffe5451"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-02T16:48:02Z",
+          "updatedAt": "2022-06-02T16:48:02Z",
+          "comments": [
+            {
+              "originalPosition": 69,
+              "body": "I like the idea of using expand_message rather than defining something equivalent, but this method does make it harder to extend a cached list of generators.",
+              "createdAt": "2022-06-02T16:48:02Z",
+              "updatedAt": "2022-06-02T16:48:02Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847SvVJ",
+          "commit": {
+            "abbreviatedOid": "ffe5451"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-03T11:05:22Z",
+          "updatedAt": "2022-06-03T11:05:22Z",
+          "comments": [
+            {
+              "originalPosition": 69,
+              "body": "Good point. Using `expand_message_xmd` you could save `b_0, last_i, b_(last_i)` as state and start from where you left of (and it will be easy to describe in the spec IMO). Using `expand_message_xof` though will be harder. However the current xof based construction has the same issue. So if people want this ability they can always use `expand_message_xmd` with an xof??",
+              "createdAt": "2022-06-03T11:05:22Z",
+              "updatedAt": "2022-06-03T11:05:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847Svxe",
+          "commit": {
+            "abbreviatedOid": "ffe5451"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-03T11:07:31Z",
+          "updatedAt": "2022-06-03T11:07:31Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "+1. In this case i would suggest `maxMessageCount` -> `MessageCount` (or `message_count`). I think this will be clearer.",
+              "createdAt": "2022-06-03T11:07:31Z",
+              "updatedAt": "2022-06-03T11:07:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847Sv0I",
+          "commit": {
+            "abbreviatedOid": "ffe5451"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-03T11:07:44Z",
+          "updatedAt": "2022-06-03T11:07:45Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "Note, in this case `L` should be inputted to `ProofVerify`. Not really an issue (i know a lot of implementations do this already), just a note so we will not forget to update the inputs.",
+              "createdAt": "2022-06-03T11:07:44Z",
+              "updatedAt": "2022-06-03T16:55:25Z"
+            }
+          ]
         }
       ]
+    },
+    {
+      "number": 165,
+      "id": "PR_kwDOF8lax845HQvu",
+      "title": "Editorial updates",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/165",
+      "state": "OPEN",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Various editorial updates:\r\n1. PK and KeyValidate updates:\r\n    1. Changed `KeyValidate` to accept the de-serialized key (half the times `KeyValidate` was used the the PK was (re) de-serialized  immediately after, which is inefficient).\r\n    2. Removed `KeyValidate` from `ProofGen` and `Sign` (we just hash the PK there).\r\n    3. Removed PK de-serialization from `Sign` (the result is not used).\r\n    4. Added PK de-serialization to `ProofVerify`.\r\n \r\n2. Changed notation from `m~_j1, \u2026, m~_jU` -> `m~_1, \u2026, m~_U` (I think it's clearer this way).\r\n\r\nSome updates noted by @dev0x1:\r\n1. Changed pairing equality check in `Verify` to match the one in `ProofVerify`.\r\n\r\n2. Fixed typo in `ProofVerify` (`H_s` -> `H_d` in step 8).\r\n\r\nI will update/re-base this as required if needed (it will probably have conflicts with some of the other open PRs).",
+      "createdAt": "2022-06-04T14:34:16Z",
+      "updatedAt": "2022-06-04T14:34:16Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "1c42e53eca5324c52cac262caaeb345c91d12802",
+      "headRepository": "BasileiosKal/bbs-signature",
+      "headRefName": "editorial-updates",
+      "headRefOid": "96bd182b4bb83194edbec4ff864dac83605c54de",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
