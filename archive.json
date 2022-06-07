@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-05T00:10:38.665591+00:00",
+  "timestamp": "2022-06-07T00:08:15.641201+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -4329,7 +4329,7 @@
       ],
       "body": "As noted by @mikelodder7,  in the document we don't yet discuss the integers (i.e., scalars mod r) serialization. More specifically, since we have a description for the byte length of those integers (`octet_scalar_length`), what is missing is the byte order.\r\n\r\nIn general i thing little-endian is preferred (it is mostly used in bls libs like the rust crate and blst) but an issue is that I2OSP uses big-endian if im not mistaken.\r\n\r\nThere are 3 options i can think of;\r\n1. We describe them as 32 bytes (or `octet_scalar_length` in general) in little-endian, with a note for I2OSP.\r\n2. We describe them in a way similar to some libs (i.e., four 64 bit parts in little-endian order), but i don't think something like that is suitable. \r\n3. We leave it up for implementers with some notes for guidance.\r\n\r\nAt the moment I'm leaning more towards option 3. Implementations may elect to use any kind of optimization and this will allow for that. \r\n\r\nAlso for what i know of, other specs like ecdsa and eddsa elect to define the integer's endianness but specs like bls-sigs and h2c adopt option 3, so it does not seem to be any \"absolutely correct\" way to do that.",
       "createdAt": "2022-05-26T19:28:52Z",
-      "updatedAt": "2022-05-27T21:57:27Z",
+      "updatedAt": "2022-06-06T09:46:40Z",
       "closedAt": null,
       "comments": []
     },
@@ -4364,7 +4364,7 @@
       "labels": [],
       "body": "There are several different uses of hash functions within the draft. These generally refer to the `hash` parameter, but some refer to the `xof` parameter, which currently appears independent. For compatibility, every hash function that is used in operations by multiple parties must be referenced in the ciphersuite ID. Because we don't want to list several hash functions here, and because supporting multiple hash functions adds extra dependencies (and implementation cost, platform incompatibilities, potential vulnerabilities) I suggest we try to reduce requirement to a single hash function per ciphersuite. Here are the use current cases I've identified:\r\n\r\n- In `hash_to_scalar`: Used to generate various scalars within signature and proof generation. We have a proposal to add an XMD version to support non-XOF hashes. This is the primary use of the hash function.\r\n- Within `KeyGen`: this one doesn't need to be included in the ciphersuite ID as it has no impact on other parties. Maybe the hash function should become an input parameter? If we want to keep this operation.\r\n- In generator creation:\r\n    - The current method uses an XOF to generate a stream of bytes which is then fed into a hash-to-curve implementation. If we want to support non-XOF hash functions then we might need to define an alternative method (like the one in the old draft).\r\n    - The chosen hash-to-curve suite should be required to use the same hash and a compatible `expand_message` method (XOF or XMD). It must also use `hash_to_curve` not `encode_to_curve` in order to guarantee a uniform distribution, ie. the suite identifier must end with 'RO'.\r\n- Hashing message inputs:\r\n    This one seems a little problematic. It is essential to the security of the signature scheme that all parties understand the encoding used to create the message scalars. Some implementations are going to need type-aware conversion of input values to scalars, which seems beyond the scope of this spec as it implies a dependency on a schema to define the value types. We could completely avoid standardizing message-to-scalar conversion and only use predefined scalars in the test cases. On the other hand, I also believe we need to support the base-level use case of simply signing one or more octet strings, in which case 'MapMessageToScalarAsHash' is sufficient. (In this case, do we want to require that the hash used to convert input messages is the same as the hash used within the other operations?)\r\n    In order to support both the typed-values message encoding use case and the simple hash-and-sign use case, perhaps we could add a simple parameter to the ciphersuite ID to distinguish between the two. We could add an ENC_TAG with two values: RAW (treat all input messages as octet strings), and SCHEMA (validate message inputs according to the associated schema, and apply its rules for converting into message scalars). When the ENC_TAG is SCHEMA, then a schema identifier would need to be included in the header value or somehow implied at the application level \u2013\u00a0I don't think we need to formalize this beyond adding a security guideline.",
       "createdAt": "2022-06-01T18:15:06Z",
-      "updatedAt": "2022-06-03T09:05:52Z",
+      "updatedAt": "2022-06-06T12:41:01Z",
       "closedAt": null,
       "comments": [
         {
@@ -4426,9 +4426,9 @@
         {
           "author": "BasileiosKal",
           "authorAssociation": "CONTRIBUTOR",
-          "body": "In any case i think we are mostly in agreement here?? Maybe we should start with the xof vs hash discussion on the next call, as i think it's the main issue holding back some progress. Deciding on a direction would be very helpful.\r\n\r\nJust to try and clarify the options:\r\n- **Option 1**: Define everything on the basis of an xof only. This means `hash_to_scalar`, `hash_to_curve` + `createGenerators` and `MapMessageToScalarAsHash`.\r\n    - Advantages: fewer and simpler operations i.e., no need for [hash_to_scalar_xmd](https://github.com/decentralized-identity/bbs-signature/pull/151) or a more complicated `createGenerators` procedure (like the proposals [here](https://github.com/decentralized-identity/bbs-signature/pull/161#discussion_r887355556))\r\n    - Disadvantages (-**IMO**-): making it hard to define a sha2 based suite, and as a result, to use certain libraries like [blst](https://github.com/supranational/blst) and [noble-bls12-381](https://github.com/paulmillr/noble-bls12-381).\r\n- **Option 2**: Add support for fixed-output-length hash functions.\r\n    - Advantages (-**IMO**-): Ability to easier use a wider range of bls-sigs targeted implementations. Ease of defining sha2 based suites, that can give rise to more use cases (like emending systems or blockchain based ones).\r\n    - Disadvantages: (As described above) higher spec complexity + more time and effort required to add that support, at a time that we maybe should be focusing on other things.\r\n\r\nPlease let me know @andrewwhitehead if the above is not accurate or if i missed something. I'm also very keen to hear others opinion around this!",
+          "body": "In any case i think we are mostly in agreement here?? Maybe we should start with the xof vs hash discussion on the next call, as i think it's the main issue holding back some progress. Deciding on a direction would be very helpful.\r\n\r\nJust to try and clarify the options:\r\n- **Option 1**: Define everything on the basis of an xof only. This means `hash_to_scalar`, `hash_to_curve` + `createGenerators` and `MapMessageToScalarAsHash`.\r\n    - Advantages: fewer and simpler operations i.e., no need for [hash_to_scalar_xmd](https://github.com/decentralized-identity/bbs-signature/pull/151) or a more complicated `createGenerators` procedure (like the proposals [here](https://github.com/decentralized-identity/bbs-signature/pull/161#discussion_r887355556))\r\n    - Disadvantages (-**IMO**-): making it hard to define a sha2 based suite, and as a result, to use certain libraries like [blst](https://github.com/supranational/blst) and [noble-bls12-381](https://github.com/paulmillr/noble-bls12-381).\r\n- **Option 2**: Add support for fixed-output-length hash functions.\r\n    - Advantages (-**IMO**-): Ability to easier use a wider range of bls-sigs targeted implementations. Ease of defining sha2 based suites, that can give rise to more use cases (like embedding systems or blockchain based ones).\r\n    - Disadvantages: (As described above) higher spec complexity + more time and effort required to add that support, at a time that we maybe should be focusing on other things.\r\n\r\nPlease let me know @andrewwhitehead if the above is not accurate or if i missed something. I'm also very keen to hear others opinion around this!",
           "createdAt": "2022-06-02T11:21:34Z",
-          "updatedAt": "2022-06-02T11:21:34Z"
+          "updatedAt": "2022-06-06T12:41:01Z"
         },
         {
           "author": "andrewwhitehead",
@@ -4436,6 +4436,13 @@
           "body": "Yes I think that's a good summary, and we should definitely hash it out (lol) on the next call.",
           "createdAt": "2022-06-02T16:28:47Z",
           "updatedAt": "2022-06-02T16:28:47Z"
+        },
+        {
+          "author": "christianpaquin",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "One drawback of the xof-only option is that the [hash to curve spec](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-14#appendix-J.10) only defines SHA256 test vectors for BLS. If we adopt the xof method, we'd need to specify these test vectors as well. The implementation point noted above is also important: the lack of library support for this option complicates the implementation. The level of expertise required to implement the low-level pairing primitives vs. the BBS app layer are vastly different; it blocked my own progress on my javascript ref implementation using the noble library.",
+          "createdAt": "2022-06-06T12:11:32Z",
+          "updatedAt": "2022-06-06T12:11:32Z"
         }
       ]
     },
@@ -4489,6 +4496,30 @@
           "body": "Thanks for raising! This will be very useful to track the issue! I think the (unfortunately **implicit**) assumption is that P1 and P2 will be the base points from the [pairing-friendly curves](https://www.ietf.org/archive/id/draft-irtf-cfrg-pairing-friendly-curves-10.html) spec (that are also used by the libs listed). There are some discussions to maybe use different points though (see #37).\r\n\r\nAnother option could be to go the [bls-signatures](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-04#appendix-A) route and (re-)define the \"curve suite\" in an appendix (really just a mapping between terms). If we decide then to use different base points the update will be very easy.",
           "createdAt": "2022-06-02T11:34:26Z",
           "updatedAt": "2022-06-02T11:35:14Z"
+        }
+      ]
+    },
+    {
+      "number": 166,
+      "id": "I_kwDOF8lax85LMSkE",
+      "title": "Uncompressed points data in hash_to_scalar input",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/166",
+      "state": "OPEN",
+      "author": "dev0x1",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "`hash_to_scalar` in different procedures accepts concatenation of G1 Points(`PK`, `A_bar`, `A_prime` or `D`) to be given as input. For Bls12-381 based cipher suites, the `point_to_octets_in_g1` method refers Zcash-serialization method as defined [here](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-pairing-friendly-curves-10#appendix-C), which specifies points can have compressed and uncompressed form of representation. For network transmission and storage, a compressed form is desired but was wondering for input to the hash function, if providing extra data from the uncompressed points can give more randomness and beneficial in this case in any way.\r\n\r\n",
+      "createdAt": "2022-06-06T08:20:10Z",
+      "updatedAt": "2022-06-06T19:12:54Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "That would be definitely nice. Thank you for the suggestion!\r\n\r\nI'm not 100% convinced that the raised complexity will be worth it though. the additional data passed into the hash will be deterministically defined by what is already inputted (the compressed version). So they will not help with brute force attacks etc., or provide much more entropy.",
+          "createdAt": "2022-06-06T19:12:54Z",
+          "updatedAt": "2022-06-06T19:12:54Z"
         }
       ]
     }
@@ -20745,7 +20776,7 @@
       "labels": [],
       "body": "Various editorial updates:\r\n1. PK and KeyValidate updates:\r\n    1. Changed `KeyValidate` to accept the de-serialized key (half the times `KeyValidate` was used the the PK was (re) de-serialized  immediately after, which is inefficient).\r\n    2. Removed `KeyValidate` from `ProofGen` and `Sign` (we just hash the PK there).\r\n    3. Removed PK de-serialization from `Sign` (the result is not used).\r\n    4. Added PK de-serialization to `ProofVerify`.\r\n \r\n2. Changed notation from `m~_j1, \u2026, m~_jU` -> `m~_1, \u2026, m~_U` (I think it's clearer this way).\r\n\r\nSome updates noted by @dev0x1:\r\n1. Changed pairing equality check in `Verify` to match the one in `ProofVerify`.\r\n\r\n2. Fixed typo in `ProofVerify` (`H_s` -> `H_d` in step 8).\r\n\r\nI will update/re-base this as required if needed (it will probably have conflicts with some of the other open PRs).",
       "createdAt": "2022-06-04T14:34:16Z",
-      "updatedAt": "2022-06-04T14:34:16Z",
+      "updatedAt": "2022-06-07T00:06:18Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "1c42e53eca5324c52cac262caaeb345c91d12802",
@@ -20756,8 +20787,124 @@
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
-      "reviews": []
+      "comments": [
+        {
+          "author": "dev0x1",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@BasileiosKal May be we can also update to use consistent ordering of **Abar** and **A'** in proof and input to `hash_to_scalar`, \r\nin `ProofGen`,\r\n`19. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`\r\n\r\n`25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))`\r\n\r\nin `ProofVerify`,\r\n\r\n`4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof`\r\n\r\n`10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`\r\n\r\n",
+          "createdAt": "2022-06-06T09:47:05Z",
+          "updatedAt": "2022-06-06T09:47:05Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "> @BasileiosKal May be we can also update to use consistent ordering of **Abar** and **A'** in proof and input to `hash_to_scalar`, in `ProofGen`, `19. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`\r\n> \r\n> `25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))`\r\n> \r\n> in `ProofVerify`,\r\n> \r\n> `4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof`\r\n> \r\n> `10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`\r\n\r\nI would probably raise this as a seperate issue rather than addressing in this PR",
+          "createdAt": "2022-06-07T00:06:18Z",
+          "updatedAt": "2022-06-07T00:06:18Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax847Xmlt",
+          "commit": {
+            "abbreviatedOid": "96bd182"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-05T21:43:04Z",
+          "updatedAt": "2022-06-05T21:43:04Z",
+          "comments": [
+            {
+              "originalPosition": 21,
+              "body": "I'd prefer we only hand the valid output of SkToPk as the input here",
+              "createdAt": "2022-06-05T21:43:04Z",
+              "updatedAt": "2022-06-05T21:43:04Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847Xmmv",
+          "commit": {
+            "abbreviatedOid": "96bd182"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-05T21:44:13Z",
+          "updatedAt": "2022-06-05T21:44:13Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "As per above I think we should consider drawing the boundary for this operation as `W` being the valid output from the SkToPk operation",
+              "createdAt": "2022-06-05T21:44:13Z",
+              "updatedAt": "2022-06-05T21:44:13Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847bJtM",
+          "commit": {
+            "abbreviatedOid": "96bd182"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-06T17:56:19Z",
+          "updatedAt": "2022-06-06T17:56:19Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "I'm not opposed to that. Just to clarify though, do you mean SkToPk not returning octetcs but W directly??",
+              "createdAt": "2022-06-06T17:56:19Z",
+              "updatedAt": "2022-06-06T17:56:19Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847bJ0e",
+          "commit": {
+            "abbreviatedOid": "96bd182"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-06T17:56:42Z",
+          "updatedAt": "2022-06-06T17:56:42Z",
+          "comments": [
+            {
+              "originalPosition": 21,
+              "body": "I would prefer that as well. That said it's a trade-off. The problem is that the output of `SkToPk` is an octet string, meaning we will need to de-serialize it in `KeyValidate`. Any time we call `KeyValidate` in a procedure though, we de-serialize the PK again. So we are doing two de-serializations wile we only need one.\r\n\r\nMaybe define `W` as a point in `G2` will be fine here??",
+              "createdAt": "2022-06-06T17:56:42Z",
+              "updatedAt": "2022-06-06T17:56:42Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847coRs",
+          "commit": {
+            "abbreviatedOid": "96bd182"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-06T23:56:47Z",
+          "updatedAt": "2022-06-06T23:56:48Z",
+          "comments": [
+            {
+              "originalPosition": 21,
+              "body": "Apologies I meant to say `octets_to_point_g2` instead of `SkToPk` so we would handle that deserialization in the procedure that is going to call `KeyValidate`",
+              "createdAt": "2022-06-06T23:56:48Z",
+              "updatedAt": "2022-06-06T23:56:48Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
