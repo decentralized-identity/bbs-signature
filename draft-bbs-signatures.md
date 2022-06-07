@@ -787,9 +787,9 @@ Procedure:
 
 1. if len(signature_octets) != (octet_point_length + 2 * octet_scalar_length), return INVALID
 
-2. a_octets = signature_octets[0..(octet_point_length - 1)]
+2. A_octets = signature_octets[0..(octet_point_length - 1)]
 
-3. A = octets_to_point_g1(a_octets)
+3. A = octets_to_point_g1(A_octets)
 
 4. if A is INVALID, return INVALID
 
@@ -838,7 +838,7 @@ Procedure:
 
 3. s_octets = I2OSP(s, octet_scalar_length)
 
-4. return (a_octets || e_octets || s_octets)
+4. return (A_octets || e_octets || s_octets)
 ```
 
 # Security Considerations
