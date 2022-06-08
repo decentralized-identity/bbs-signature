@@ -387,7 +387,8 @@ result = KeyValidate(W)
 
 Inputs:
 
-- W (REQUIRED), a public key as calculated at step one (1) in SkToPk.
+- W (REQUIRED), the valid output of octets_to_point_g2(PK) where PK an
+                 octet string outputted by the SkToPk operation.
 
 Outputs:
 
@@ -395,13 +396,11 @@ Outputs:
 
 Procedure:
 
-1. if W is INVALID, return INVALID
+1. if subgroup_check(W) is INVALID, return INVALID
 
-2. if subgroup_check(W) is INVALID, return INVALID
+2. If W == Identity_G2, return INVALID
 
-3. If W == Identity_G2, return INVALID
-
-4. return VALID
+3. return VALID
 ```
 
 ### Sign
@@ -489,9 +488,9 @@ Procedure:
 
 3. (A, e, s) = signature_result
 
-4. W = octets_to_point_g2(PK)
+4. W = pubkey_to_point(PK)
 
-5. if KeyValidate(W) is INVALID, return INVALID
+5. if W is INVALID, return INVALID
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
@@ -602,7 +601,7 @@ Inputs:
 
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - proof (REQUIRED), an octet string of the form outputted by the ProofGen operation.
-- ph (REQUIRED), octet string.
+- ph (OPTIONAL), octet string.
 - header (OPTIONAL), an optional octet string containing context and application specific information. If not supplied, it defaults to an empty string.
 - msg_i1,..., msg_iR (OPTIONAL), octet strings. The revealed messages in input to ProofGen.
 - RevealedIndexes (OPTIONAL), vector of unsigned integers. Indexes of revealed messages.
@@ -625,9 +624,9 @@ Outputs:
 
 Procedure:
 
-1. W = octets_to_point_g2(PK)
+1. W = pubkey_to_point(PK)
 
-2. if KeyValidate(W) is INVALID, return INVALID
+2. if W is INVALID, return INVALID
 
 3. (i1, i2, ..., iR) = RevealedIndexes
 
@@ -973,11 +972,37 @@ Procedure:
 9. return proof_octets
 ```
 
+### PubkeyToPoint
+This operation describes how to decode an octet string representing a public key, validate it and return the corresponding point in G2.
+
+```
+W = pubkey_to_point(PK)
+
+Inputs:
+
+- PK, octet string. A public key in the form ouputted by the SkToPK
+      operation
+
+Outputs:
+
+- W, a valid point in G2 or INVALID
+
+Procedure:
+
+1. W = octets_to_point_g2(PK)
+
+2. If W is INVALID, return INVALID
+
+3. If KeyValidate(W) is INVALID, return INVALID
+
+4. return W
+```
+
 # Security Considerations
 
 ## Validating public keys
 
-It is RECOMMENDED for any operation in (#operations) involving public keys that do not have an explicit invocation to the KeyValidate operation (#keyvalidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation. An example of where an explicit invocation to the KeyValidate operation (#keyvalidate) is already defined and therefore required is the verify (#verify) operation.
+It is RECOMMENDED for any operation in (#operations) involving public keys that do not have an explicit invocation to the KeyValidate operation (#keyvalidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation. An example of where an invocation to the KeyValidate operation (#keyvalidate) is required through the explicit call to [pubkey_to_point](#pubkeytopoint) (which calls KeyValidate) is the verify (#verify) operation.
 
 ## Skipping membership checks
 
