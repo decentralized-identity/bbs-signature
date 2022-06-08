@@ -1002,7 +1002,7 @@ Procedure:
 
 ## Validating public keys
 
-It is RECOMMENDED for any operation in (#operations) involving public keys that do not have an explicit invocation to the KeyValidate operation (#keyvalidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation. An example of where an invocation to the KeyValidate operation (#keyvalidate) is required through the explicit call to [pubkey_to_point](#pubkeytopoint) (which calls KeyValidate) is the verify (#verify) operation.
+It is RECOMMENDED for any operation in (#operations) involving public keys that do not have an explicit invocation to the KeyValidate operation (#keyvalidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation. An example of where an invocation to the KeyValidate operation (#keyvalidate) is required through the explicit call to [PubkeyToPoint](#pubkeytopoint) (which calls KeyValidate) is the verify (#verify) operation.
 
 ## Skipping membership checks
 
