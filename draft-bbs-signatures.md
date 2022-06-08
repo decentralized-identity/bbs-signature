@@ -73,20 +73,43 @@ Below is a basic diagram describing the main entities involved in using the sche
 
 !---
 ~~~ ascii-art
-  (1) sign                                       (3) ProofGen                                        (5) ProofVerify
-  +-----                                         +-----                                               +-----
-  |    |                                         |    |                                               |    |
-  |    |                                         |    |                                               |    |
-  |   \ /                                        |   \ /                                              |   \ /
-+----------+                                   +-----------+                                        +-----------+
-|          |                                   |           |                                        |           |
-|          |                                   |           |                                        |           |
-|          |                                   |           |                                        |           |
-|  Signer  |---(2)* Send signature + msgs----->|  Holder/  |---(4)* Send proof + revealed msgs----->| Verifier  |
-|          |                                   |  Prover   |                                        |           |
-|          |                                   |           |                                        |           |
-|          |                                   |           |                                        |           |
-+----------+                                   +-----------+                                        +-----------+
+  (1) sign                                      (3) ProofGen
+   +-----                                         +-----
+   |    |                                         |    |
+   |    |                                         |    |
+   |   \ /                                        |   \ /
++----------+                                   +-----------+
+|          |                                   |           |
+|          |                                   |           |
+|          |                                   |           |
+|  Signer  |---(2)* Send signature + msgs----->|  Holder/  |
+|          |                                   |  Prover   |
+|          |                                   |           |
+|          |                                   |           |
++----------+                                   +-----------+
+                                                     |
+                                                     |
+                                                     |
+                                      (4)* Send proof + revealed msgs
+                                                     |
+                                                     |
+                                                    \ /
+                                               +-----------+
+                                               |           |
+                                               |           |
+                                               |           |
+                                               | Verifier  |
+                                               |           |
+                                               |           |
+                                               |           |
+                                               +-----------+
+                                                  |   / \
+                                                  |    |
+                                                  |    |
+                                                  +-----
+                                             (5) ProofVerify
+
+
 ~~~
 !---
 Figure: Basic diagram capturing the main entities involved in using the scheme
@@ -158,6 +181,9 @@ I \\ J
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
+range(a, b)
+: For integers a and b, with a <= b, denotes the ascending ordered list of all integers between a and b inclusive (i.e., the integers "i" such that a <= i <= b).
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -178,7 +204,7 @@ r
 P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
 
-Identity\_G1, Identity\_G1
+Identity\_G1, Identity\_G2
 : The identity element for the G1 and G2 subgroups respectively.
 
 hash\_to\_curve\_g1(ostr) -> P
@@ -448,7 +474,7 @@ Procedure:
 10. return signature_octets
 ```
 
-**Note** When computing step 11 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 11, and or `A != Identity_G1` after step 11 to prevent the production of invalid signatures.
+**Note** When computing step 7 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 7, and or `A != Identity_G1` after step 7 to prevent the production of invalid signatures.
 
 ### Verify
 
@@ -630,7 +656,7 @@ Procedure:
 
 27. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 
-28. return proof
+28. return proof_to_octets(proof)
 ```
 
 ### ProofVerify
@@ -693,39 +719,43 @@ Procedure:
 
 1. if KeyValidate(PK) is INVALID, return INVALID
 
-2. if length(revealedMsgs) > L, return INVALID
+2. proof_value = octets_to_proof(proof)
 
-3. (i1, msg_i1), ..., (iR, msg_iR) = revealedMsgs
+3. if proof_value is INVALID, return INVALID
 
-4. for i in (i1, i2, ..., iR), if i < 1 or i > L, return INVALID
+4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_value
 
-5. [j1, ..., jU] = (1, ..., L) \ [i1, ..., iR]
+5. if length(revealedMsgs) > L, return INVALID
 
-6. H_i1, ..., H_iR = generators[i1], ..., generators[iR]
+6. (i1, msg_i1), ..., (iR, msg_iR) = revealedMsgs
 
-7. H_j1, ..., H_jU = generators[j1], ..., generators[jU]
+7. for i in (i1, i2, ..., iR), if i < 1 or i > L, return INVALID
 
-8. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
+8. [j1, ..., jU] = (1, ..., L) \ [i1, ..., iR]
 
-9. gen_prime =  (H_s || H_d || H_1 || ... || H_L)
+9. H_i1, ..., H_iR = generators[i1], ..., generators[iR]
 
-10. domain = hash_to_scalar((PK || L || gen_prime || Ciphersuite_ID || header), 1)
+10. H_j1, ..., H_jU = generators[j1], ..., generators[jU]
 
-11. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+11. gen_prime =  (H_s || H_d || H_1 || ... || H_L)
 
-12. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+12. domain = hash_to_scalar((PK || L || gen_prime || Ciphersuite_ID || header), 1)
 
-13. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+13. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-14. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+14. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-15. if c != cv, return INVALID
+15. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-16. if A' == 1, return INVALID
+16. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-17. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+17. if c != cv, return INVALID
 
-18. return VALID
+18. if A' == 1, return INVALID
+
+19. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+
+20. return VALID
 ```
 
 ### CreateGenerators
@@ -836,43 +866,49 @@ Procedure:
 This operation describes how to decode an octet string, validate it and return the underlying components that make up the signature.
 
 ```
-(A, e, s) = octets_to_signature(signature_octets)
+signature = octets_to_signature(signature_octets)
 
 Inputs:
 
-- signature_octets (REQUIRED), octet string of the form output from signature_to_octets operation.
+- signature_octets (REQUIRED), octet string of the form output from
+                               signature_to_octets operation.
 
 Outputs:
 
-- A, a valid point in the G1 subgroup which is not equal to the identity point.
-- e, an integer representing a valid scalar value within the range of 0 < e < r.
-- s, an integer representing a valid scalar value within the range of 0 < e < r.
+signature, a signature in the form (A, e, s), where A is a point in G1
+           and e and s are non-zero scalars mod r.
 
 Procedure:
 
-1. if len(signature_octets) != (octet_point_length + 2 * octet_scalar_length), return INVALID
+1. expected_len = octet_point_length + 2 * octet_scalar_length
 
-2. a_octets = signature_octets[0..(octet_point_length - 1)]
+2. if len(signature_octets) != expected_len, return INVALID
 
-3. A = octets_to_point_g1(a_octets)
+3. a_octets = signature_octets[0..(octet_point_length - 1)]
 
-4. if A is INVALID, return INVALID
+4. A = octets_to_point_g1(a_octets)
 
-5. if A == Identity_G1, return INVALID
+5. if A is INVALID, return INVALID
 
-5. index = octet_point_length
+6. if A == Identity_G1, return INVALID
 
-6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+7. index = octet_point_length
 
-7. if e = 0 OR e >= r, return INVALID
+8. end_index = index + octet_scalar_length - 1
 
-8. index += octet_scalar_length
+9. e = OS2IP(signature_octets[index..end_index])
 
-9. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+10. if e = 0 OR e >= r, return INVALID
 
-10. if s = 0 OR s >= r, return INVALID
+11. index += octet_scalar_length
 
-11. return (A, e, s)
+12. end_index = index + octet_scalar_length - 1
+
+13. s = OS2IP(signature_octets[index..end_index])
+
+14. if s = 0 OR s >= r, return INVALID
+
+15. return (A, e, s)
 ```
 
 ### SignatureToOctets
@@ -883,13 +919,12 @@ This operation describes how to encode a signature to an octet string.
 because its assumed these are done prior to its invocation, e.g as is the case with the Sign operation.
 
 ```
-signature_octets = signature_to_octets(A, e, s)
+signature_octets = signature_to_octets(signature)
 
 Inputs:
 
-- A (REQUIRED), a valid point in the G1 subgroup which is not equal to the identity point.
-- e (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < r.
-- s (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < r.
+- signature (REQUIRED), a valid signature, in the form (A, e, s), where
+                        A a point in G1 and e, s non-zero scalars mod r.
 
 Outputs:
 
@@ -897,13 +932,143 @@ Outputs:
 
 Procedure:
 
-1. A_octets = point_to_octets_g1(A)
+1. (A, e, s) = signature
 
-2. e_octets = I2OSP(e, octet_scalar_length)
+2. A_octets = point_to_octets_g1(A)
 
-3. s_octets = I2OSP(s, octet_scalar_length)
+3. e_octets = I2OSP(e, octet_scalar_length)
 
-4. return (a_octets || e_octets || s_octets)
+4. s_octets = I2OSP(s, octet_scalar_length)
+
+5. return (a_octets || e_octets || s_octets)
+```
+
+### OctetsToProof
+
+This operation describes how to decode an octet string representing a proof, validate it and return the underlying components that make up the proof value.
+
+The proof value outputted by this operation consists of the following components, in that order:
+
+1. Three (3) valid points of the G1 subgroup, each of which must not equal the identity point.
+2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive.
+3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof message commitments. This set can be empty (i.e., "()").
+
+```
+proof = octets_to_proof(proof_octets)
+
+Inputs:
+
+- proof_octets (REQUIRED), octet string of the form outputted from the
+                           proof_to_octets operation.
+
+Parameters:
+
+- r (REQUIRED), non-negative integer. The prime order of the G1 and
+                G2 groups, defined by the ciphersuite.
+- octet_scalar_length (REQUIRED), non-negative integer. The length of
+                                  a scalar octet representation, defined
+                                  by the ciphersuite.
+- octet_point_length (REQUIRED), non-negative integer. The length of
+                                 a point in G1 octet representation,
+                                 defined by the ciphersuite.
+
+Outputs:
+
+- proof, a proof value in the form described above or INVALID
+
+Procedure:
+
+1. proof_len_floor = 3 * octet_point_length + 5 * octet_scalar_length
+
+2. if length(proof_octets) < proof_len_floor, return INVALID
+
+// Points (i.e., (A', Abar, D) in ProofGen) de-serialization.
+3. index = 0
+
+4. for i in range(0, 2):
+
+5.     end_index = index + octet_point_length - 1
+
+6.     A_i = octets_to_point_g1(proof_octets[index..end_index])
+
+7.     if A_i is INVALID or Identity_G1, return INVALID
+
+8.     index += octet_point_length
+
+// Scalars (i.e., (c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU)) in
+// ProofGen) de-serialization.
+9. j = 0
+
+10. while index < length(proof_octets):
+
+11.     end_index = index + octet_scalar_length - 1
+
+12.     s_j = OS2IP(proof_octets[index..end_index])
+
+13.     if s_j = 0 or if s_j >= r, return INVALID
+
+14.     index += octet_scalar_length
+
+15.     j += 1
+
+16. if index != length(proof_octets), return INVALID
+
+17. msg_commitments = ()
+
+18. If j > 5, set msg_commitments = (s_5, ..., s_(j-1))
+
+19. return (A_0, A_1, A_2, s_0, s_1, s_2, s_3, s_4, msg_commitments)
+```
+
+### ProofToOctets
+
+This operation describes how to encode a proof, as computed at step 25 in [ProofGen](#proofgen), to an octet string. The input to the operation MUST be a valid proof.
+
+The inputed proof value must consist of the following components, in that order:
+
+1. Three (3) valid compressed points of the G1 subgroup, different from the identity point of G1 (i.e., `A', Abar, D`, in ProofGen)
+2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive (i.e., `c, e^, r2^, r3^, s^`, in ProofGen).
+3. A number of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof messages (i.e., `m^_j1, ..., m^_jU`, in ProofGen, where U the number of un-revealed messages).
+
+```
+proof_octets = proof_to_octets(proof)
+
+Inputs:
+
+- proof (REQUIRED), a BBS proof in the form calculated by ProofGen in
+                    step 25 (see above).
+
+Parameters:
+
+- octet_scalar_length (REQUIRED), non-negative integer. The length of
+                                  a scalar octet representation, defined
+                                  by the ciphersuite.
+
+Outputs:
+
+- proof_octets, octet string.
+
+Procedure:
+
+1. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1, ..., m^_U)) = proof
+
+2. Let proof_octets be an empty octet string.
+
+// Points Serialization.
+3. for point in (A', Abar, D):
+
+4.     point_octets = point_to_octets_g1(point)
+
+5.     proof_octets = proof_octets || point_octets
+
+// Scalar Serialization.
+6. for scalar in (c, e^, r2^, r3^, s^, m^_1, ..., m^_U):
+
+7.     scalar_octets = I2OSP(scalar, octet_scalar_length)
+
+8.     proof_octets = proof_octets || scalar_octets
+
+9. return proof_octets
 ```
 
 # Security Considerations
@@ -975,8 +1140,21 @@ The following section defines the format of the unique identifier for the cipher
   *  ADD\_INFO is an optional string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII characters between 0x21 and 0x7e (inclusive), and MUST end with an underscore (0x5f), other than the last character the string MUST not contain any other underscores (0x5f).
 
 ### Additional Parameters
+The parameters that each ciphersuite needs to define are generally divided into four main categories; the basic parameters (a hash function, the hash_to_scalar operation etc.,), the serialization operations (point_to_octets_g1 etc.,), the hash_to_curve parameters (the hash_to_curve dst etc.,) and the generator seeds (the message generator seed etc.,). See below for more details.
+
+**Basic Parameters**:
 
 - hash: a cryptographic hash function.
+
+- xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
+
+- octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
+
+- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
+
+- hashing\_elements\_to\_scalars: either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+
+**Serialization functions**:
 
 - point\_to\_octets_g1:
 a function that returns the canonical representation of the point P for the G1 subgroup as an octet string.
@@ -990,81 +1168,61 @@ a function that returns the point P in the subgroup G1 corresponding to the cano
 - octets\_to\_point_g2:
 a function that returns the point P in the subgroup G2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g2`.
 
+**Hash to curve parameters**:
+
 - hash\_to\_curve\_g1:
 A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
 
 - hash\_to\_curve\_g1\_dst: Domain separation tag used in the hash\_to\_curve\_g1 operation.
 
-- hash\_to\_field: A cryptographic hash function that follows the procedure outlined in section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve].
-
-- hash\_to\_field\_dst: Domain separation tag used in the hash\_to\_field operation.
-
-- hashing\_elements\_to\_scalars: either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+**Generator Seeds**:
 
 - message\_generator\_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
 - blind\_value\_generator\_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message\_generator\_seed, there are multiple scopes for the blind\_value\_generator\_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.
 
-- signature\_dst\_generator\_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message\_generator\_seed and blind\_value\_generator\_seed.
-
-- xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#creategenerators) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
-
-- octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
-
-- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
+- sig\_domain\_generator\_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message\_generator\_seed and blind\_value\_generator\_seed.
 
 ## BLS12-381 Ciphersuite
+The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hashtocurve-definition-using-shake-256), which also makes use of the SHAKE-256 function.
 
-Ciphersuite\_ID
-: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
+**Basic Parameters**:
 
-hash
-: SHAKE-256 as defined in [@!SHA3].
+- Ciphersuite\_ID: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
 
-point\_to\_octets_g1
-: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
+- hash: SHAKE-256 as defined in [@!SHA3].
 
-point\_to\_octets_g2
-: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup, using compression (i.e., setting C\_bit = 1).
+- xof\_no\_of\_bytes: 64.
 
-octets\_to\_point_g1
-: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
+- octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
-octets\_to\_point_g2
-: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
+- octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
-hash\_to\_curve_g1
-: follows the suite defined in (#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
+- hashing\_elements\_to\_scalars: hash\_to\_scalar.
 
-hash\_to\_curve\_g1\_dst
-: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO".
+**Serialization functions**:
 
-hash\_to\_field
-: adopts the required parameters from the suites defined in (#bls12-381-hash-to-curve-definition-using-shake-256) to satisfy those described in section 5.3 [@!I-D.irtf-cfrg-hash-to-curve] along with the defined dst.
+- point\_to\_octets_g1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
 
-hash\_to\_field\_dst
-: "BBS\_BLS12381FQ\_XOF:SHAKE-256\_SSWU\_RO".
+- point\_to\_octets_g2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup, using compression (i.e., setting C\_bit = 1).
 
-message\_generator\_seed
-: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
+- octets\_to\_point_g1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
 
-blind\_value\_generator\_seed
-: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_BLINDING\_VALUE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
+- octets\_to\_point_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
 
-signature\_dst\_generator\_seed
-: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIGNATURE\_DST\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
+**Hash to curve parameters**:
 
-hashing\_elements\_to\_scalars
-: hash\_to\_scalar.
+- hash\_to\_curve_g1: follows the suite defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
-xof\_no\_of\_bytes
-: 64.
+- hash\_to\_curve\_g1\_dst: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO".
 
-octet\_scalar\_length
-: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
+**Generator Seeds**:
 
-octet\_point\_length
-: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
+- message\_generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the required set of message generators.
+
+- blind\_value\_generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIG\_BLINDING\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the signature blinding value generator (H_s).
+
+- sig\_domain\_generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_SIG\_DOMAIN\_GENERATOR\_SEED" which is used by the [CreateGenerators](#creategenerators) operation to compute the generator used to sign the signature domain separation tag (H_d).
 
 ### Test Vectors
 
@@ -1188,15 +1346,13 @@ This document does not make any requests of IANA.
 
 {backmatter}
 
-# Appendix
+# BLS12-381 hash\_to\_curve definition using SHAKE-256
 
-## BLS12-381 hash\_to\_curve definition using SHAKE-256
-
-The following defines a hash_to_curve suite [@!I-D.irtf-cfrg-hash-to-curve] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (xof) of SHAKE-256 as per the guidance defined in section 8.9 of [@!I-D.irtf-cfrg-hash-to-curve].
+The following defines a hash\_to\_curve suite [@!I-D.irtf-cfrg-hash-to-curve] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (xof) of SHAKE-256 as per the guidance defined in section 8.9 of [@!I-D.irtf-cfrg-hash-to-curve].
 
 Note the notation used in the below definitions is sourced from [@!I-D.irtf-cfrg-hash-to-curve].
 
-### BLS12-381 G1
+## BLS12-381 G1
 
 The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
 
@@ -1238,7 +1394,7 @@ Note that the h_eff values for this suite are copied from that defined for the `
 
 An optimized example implementation of the Simplified SWU mapping to the curve E' isogenous to BLS12-381 G1 is given in Appendix F.2 [@!I-D.irtf-cfrg-hash-to-curve].
 
-### BLS12-381 G2
+## BLS12-381 G2
 
 The suite of `BLS12381G2_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
 
@@ -1285,9 +1441,9 @@ Note that the h_eff values for this suite are copied from that defined for the `
 
 An optimized example implementation of the Simplified SWU mapping to the curve E' isogenous to BLS12-381 G2 is given in Appendix F.2 [@!I-D.irtf-cfrg-hash-to-curve].
 
-## Usecases
+# Usecases
 
-### Non-correlating Security Token
+## Non-correlating Security Token
 
 In the most general sense BBS signatures can be used in any application where a cryptographically secured token is required but correlation caused by usage of the token is un-desirable.
 
@@ -1295,7 +1451,7 @@ For example in protocols like OAuth2.0 the most commonly used form of the access
 
 BBS Signatures due to their unique properties removes this source of correlation but maintains the same set of guarantees required by a resource server to validate an access token back to its relevant authority (note that an approach to signing JSON tokens with BBS that may be of relevance is the [JWP](https://json-web-proofs.github.io/json-web-proofs/draft-jmiller-json-web-proof.html) format and serialization). In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they derive a unique proof from the original access token and include that in the request instead, thus removing this vector of correlation.
 
-### Improved Bearer Security Token
+## Improved Bearer Security Token
 
 Bearer based security tokens such as JWT based access tokens used in the OAuth2.0 protocol are a highly popular format for expressing authorization grants. However their usage has several security limitations. Notably a bearer based authorization scheme often has to rely on a secure transport between the authorized party (client) and the resource server to mitigate the potential for a MITM attack or a malicious interception of the access token. The scheme also has to assume a degree of trust in the resource server it is presenting an access token to, particularly when the access token grants more than just access to the target resource server, because in a bearer based authorization scheme, anyone who possesses the access token has authority to what it grants. Bearer based access tokens also suffer from the threat of replay attacks.
 
@@ -1303,23 +1459,23 @@ Improved schemes around authorization protocols often involve adding a layer of 
 
 BBS Signatures ofter an alternative model that solves the same problems that proof of cryptographic key possession schemes do for bearer based schemes, but in a way that doesn't introduce new up-front protocol complexity. In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they derive a unique proof from the original access token and include that in the request instead. Because the access token is not shared in a request to a resource server, attacks such as MITM are mitigated. A resource server also obtains the ability to detect a replay attack by ensuring the proof presented is unique.
 
-### Hardware Attestations
+## Hardware Attestations
 
 TODO
 
-### Selectively Disclosure Enabled Identity Assertions
+## Selectively Disclosure Enabled Identity Assertions
 
 TODO
 
-### Privacy preserving bound signatures
+## Privacy preserving bound signatures
 
 TODO
 
-## Additional BLS12-381 Ciphersuite Test Vectors
+# Additional BLS12-381 Ciphersuite Test Vectors
 
 **NOTE** These fixtures are a work in progress and subject to change
 
-### Modified Message Signature
+## Modified Message Signature
 
 Using the following message
 
@@ -1335,7 +1491,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed
 
-### Extra Unsigned Message Signature
+## Extra Unsigned Message Signature
 
 Using the following messages
 
@@ -1353,7 +1509,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed
 
-### Missing Message Signature
+## Missing Message Signature
 
 Using the following messages
 
@@ -1371,7 +1527,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing
 
-### Reordered Message Signature
+## Reordered Message Signature
 
 Using the following messages
 
@@ -1405,7 +1561,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed
 
-### Wrong Public Key Signature
+## Wrong Public Key Signature
 
 Using the following messages
 
@@ -1439,7 +1595,7 @@ And the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct
 
-## Proof Generation and Verification Algorithmic Explanation
+# Proof Generation and Verification Algorithmic Explanation
 
 The following section provides an explanation of how the ProofGen and ProofVerify operations work.
 
@@ -1484,9 +1640,9 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
   </front>
 </reference>
 
-<reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-208.pdf">
+<reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf">
  <front>
-   <title>Recommendation for Stateful Hash-Based Signature Schemes</title>
+   <title>SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions</title>
    <author><organization>NIST</organization></author>
  </front>
 </reference>
