@@ -796,9 +796,9 @@ Procedure:
 
 2. if len(signature_octets) != expected_len, return INVALID
 
-3. a_octets = signature_octets[0..(octet_point_length - 1)]
+3. A_octets = signature_octets[0..(octet_point_length - 1)]
 
-4. A = octets_to_point_g1(a_octets)
+4. A = octets_to_point_g1(A_octets)
 
 5. if A is INVALID, return INVALID
 
@@ -852,7 +852,7 @@ Procedure:
 
 4. s_octets = I2OSP(s, octet_scalar_length)
 
-5. return (a_octets || e_octets || s_octets)
+5. return (A_octets || e_octets || s_octets)
 ```
 
 ### OctetsToProof
