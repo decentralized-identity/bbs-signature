@@ -181,6 +181,9 @@ I \\ J
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
+range(a, b)
+: For integers a and b, with a <= b, denotes the ascending ordered list of all integers between a and b inclusive (i.e., the integers "i" such that a <= i <= b).
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -597,7 +600,7 @@ Procedure:
 
 25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 
-26. return proof
+26. return proof_to_octets(proof)
 ```
 
 ### ProofVerify
@@ -640,27 +643,31 @@ Procedure:
 
 3. (j1, j2, ..., jU) = [L]\RevealedIndexes
 
-4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
+4. proof_value = octets_to_proof(proof)
 
-5. generators =  (H_s || H_d || H_1 || ... || H_L)
+5. if proof_value is INVALID, return INVALID
 
-6. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+6. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_value
 
-7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+7. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-8. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-9. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+9. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+10. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-11. if c != cv, return INVALID
+11. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-12. if A' == 1, return INVALID
+12. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-13. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+13. if c != cv, return INVALID
 
-14. return VALID
+14. if A' == 1, return INVALID
+
+15. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+
+16. return VALID
 ```
 
 ### CreateGenerators
@@ -771,43 +778,49 @@ Procedure:
 This operation describes how to decode an octet string, validate it and return the underlying components that make up the signature.
 
 ```
-(A, e, s) = octets_to_signature(signature_octets)
+signature = octets_to_signature(signature_octets)
 
 Inputs:
 
-- signature_octets (REQUIRED), octet string of the form output from signature_to_octets operation.
+- signature_octets (REQUIRED), octet string of the form output from
+                               signature_to_octets operation.
 
 Outputs:
 
-- A, a valid point in the G1 subgroup which is not equal to the identity point.
-- e, an integer representing a valid scalar value within the range of 0 < e < r.
-- s, an integer representing a valid scalar value within the range of 0 < e < r.
+signature, a signature in the form (A, e, s), where A is a point in G1
+           and e and s are non-zero scalars mod r.
 
 Procedure:
 
-1. if len(signature_octets) != (octet_point_length + 2 * octet_scalar_length), return INVALID
+1. expected_len = octet_point_length + 2 * octet_scalar_length
 
-2. A_octets = signature_octets[0..(octet_point_length - 1)]
+2. if len(signature_octets) != expected_len, return INVALID
 
-3. A = octets_to_point_g1(A_octets)
+3. A_octets = signature_octets[0..(octet_point_length - 1)]
 
-4. if A is INVALID, return INVALID
+4. A = octets_to_point_g1(A_octets)
 
-5. if A == Identity_G1, return INVALID
+5. if A is INVALID, return INVALID
 
-5. index = octet_point_length
+6. if A == Identity_G1, return INVALID
 
-6. e = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+7. index = octet_point_length
 
-7. if e = 0 OR e >= r, return INVALID
+8. end_index = index + octet_scalar_length - 1
 
-8. index += octet_scalar_length
+9. e = OS2IP(signature_octets[index..end_index])
 
-9. s = OS2IP(signature_octets[index..(index + octet_scalar_length - 1)])
+10. if e = 0 OR e >= r, return INVALID
 
-10. if s = 0 OR s >= r, return INVALID
+11. index += octet_scalar_length
 
-11. return (A, e, s)
+12. end_index = index + octet_scalar_length - 1
+
+13. s = OS2IP(signature_octets[index..end_index])
+
+14. if s = 0 OR s >= r, return INVALID
+
+15. return (A, e, s)
 ```
 
 ### SignatureToOctets
@@ -818,13 +831,12 @@ This operation describes how to encode a signature to an octet string.
 because its assumed these are done prior to its invocation, e.g as is the case with the Sign operation.
 
 ```
-signature_octets = signature_to_octets(A, e, s)
+signature_octets = signature_to_octets(signature)
 
 Inputs:
 
-- A (REQUIRED), a valid point in the G1 subgroup which is not equal to the identity point.
-- e (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < r.
-- s (REQUIRED), an integer representing a valid scalar value within the range of 0 < e < r.
+- signature (REQUIRED), a valid signature, in the form (A, e, s), where
+                        A a point in G1 and e, s non-zero scalars mod r.
 
 Outputs:
 
@@ -832,13 +844,143 @@ Outputs:
 
 Procedure:
 
-1. A_octets = point_to_octets_g1(A)
+1. (A, e, s) = signature
 
-2. e_octets = I2OSP(e, octet_scalar_length)
+2. A_octets = point_to_octets_g1(A)
 
-3. s_octets = I2OSP(s, octet_scalar_length)
+3. e_octets = I2OSP(e, octet_scalar_length)
 
-4. return (A_octets || e_octets || s_octets)
+4. s_octets = I2OSP(s, octet_scalar_length)
+
+5. return (A_octets || e_octets || s_octets)
+```
+
+### OctetsToProof
+
+This operation describes how to decode an octet string representing a proof, validate it and return the underlying components that make up the proof value.
+
+The proof value outputted by this operation consists of the following components, in that order:
+
+1. Three (3) valid points of the G1 subgroup, each of which must not equal the identity point.
+2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive.
+3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof message commitments. This set can be empty (i.e., "()").
+
+```
+proof = octets_to_proof(proof_octets)
+
+Inputs:
+
+- proof_octets (REQUIRED), octet string of the form outputted from the
+                           proof_to_octets operation.
+
+Parameters:
+
+- r (REQUIRED), non-negative integer. The prime order of the G1 and
+                G2 groups, defined by the ciphersuite.
+- octet_scalar_length (REQUIRED), non-negative integer. The length of
+                                  a scalar octet representation, defined
+                                  by the ciphersuite.
+- octet_point_length (REQUIRED), non-negative integer. The length of
+                                 a point in G1 octet representation,
+                                 defined by the ciphersuite.
+
+Outputs:
+
+- proof, a proof value in the form described above or INVALID
+
+Procedure:
+
+1. proof_len_floor = 3 * octet_point_length + 5 * octet_scalar_length
+
+2. if length(proof_octets) < proof_len_floor, return INVALID
+
+// Points (i.e., (A', Abar, D) in ProofGen) de-serialization.
+3. index = 0
+
+4. for i in range(0, 2):
+
+5.     end_index = index + octet_point_length - 1
+
+6.     A_i = octets_to_point_g1(proof_octets[index..end_index])
+
+7.     if A_i is INVALID or Identity_G1, return INVALID
+
+8.     index += octet_point_length
+
+// Scalars (i.e., (c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU)) in
+// ProofGen) de-serialization.
+9. j = 0
+
+10. while index < length(proof_octets):
+
+11.     end_index = index + octet_scalar_length - 1
+
+12.     s_j = OS2IP(proof_octets[index..end_index])
+
+13.     if s_j = 0 or if s_j >= r, return INVALID
+
+14.     index += octet_scalar_length
+
+15.     j += 1
+
+16. if index != length(proof_octets), return INVALID
+
+17. msg_commitments = ()
+
+18. If j > 5, set msg_commitments = (s_5, ..., s_(j-1))
+
+19. return (A_0, A_1, A_2, s_0, s_1, s_2, s_3, s_4, msg_commitments)
+```
+
+### ProofToOctets
+
+This operation describes how to encode a proof, as computed at step 25 in [ProofGen](#proofgen), to an octet string. The input to the operation MUST be a valid proof.
+
+The inputed proof value must consist of the following components, in that order:
+
+1. Three (3) valid compressed points of the G1 subgroup, different from the identity point of G1 (i.e., `A', Abar, D`, in ProofGen)
+2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive (i.e., `c, e^, r2^, r3^, s^`, in ProofGen).
+3. A number of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the un-revealed from the proof messages (i.e., `m^_j1, ..., m^_jU`, in ProofGen, where U the number of un-revealed messages).
+
+```
+proof_octets = proof_to_octets(proof)
+
+Inputs:
+
+- proof (REQUIRED), a BBS proof in the form calculated by ProofGen in
+                    step 25 (see above).
+
+Parameters:
+
+- octet_scalar_length (REQUIRED), non-negative integer. The length of
+                                  a scalar octet representation, defined
+                                  by the ciphersuite.
+
+Outputs:
+
+- proof_octets, octet string.
+
+Procedure:
+
+1. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1, ..., m^_U)) = proof
+
+2. Let proof_octets be an empty octet string.
+
+// Points Serialization.
+3. for point in (A', Abar, D):
+
+4.     point_octets = point_to_octets_g1(point)
+
+5.     proof_octets = proof_octets || point_octets
+
+// Scalar Serialization.
+6. for scalar in (c, e^, r2^, r3^, s^, m^_1, ..., m^_U):
+
+7.     scalar_octets = I2OSP(scalar, octet_scalar_length)
+
+8.     proof_octets = proof_octets || scalar_octets
+
+9. return proof_octets
 ```
 
 # Security Considerations
