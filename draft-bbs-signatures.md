@@ -780,8 +780,8 @@ Procedure:
 
 5. return (scalar_1, ..., scalar_n)
 ```
-
-## OctetsToSignature
+## Serialization
+### OctetsToSignature
 
 This operation describes how to decode an octet string, validate it and return the underlying components that make up the signature.
 
@@ -831,7 +831,7 @@ Procedure:
 15. return (A, e, s)
 ```
 
-## SignatureToOctets
+### SignatureToOctets
 
 This operation describes how to encode a signature to an octet string.
 
