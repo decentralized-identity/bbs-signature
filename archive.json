@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-07T00:08:15.641201+00:00",
+  "timestamp": "2022-06-09T00:08:50.747335+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -4299,7 +4299,7 @@
       "id": "I_kwDOF8lax85KPsjt",
       "title": "OctetsToProof and ProofToOctets",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/153",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [
@@ -4311,8 +4311,8 @@
       ],
       "body": "With the merge of #147 defining the rules for the signature serialisation we now need to define how to do the corresponding for the proof value outputted by the ProofGen operation and consumed by the ProofVerify operation.",
       "createdAt": "2022-05-23T19:54:04Z",
-      "updatedAt": "2022-05-23T22:43:58Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-07T23:05:47Z",
+      "closedAt": "2022-06-07T23:05:47Z",
       "comments": []
     },
     {
@@ -4504,15 +4504,15 @@
       "id": "I_kwDOF8lax85LMSkE",
       "title": "Uncompressed points data in hash_to_scalar input",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/166",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "dev0x1",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "`hash_to_scalar` in different procedures accepts concatenation of G1 Points(`PK`, `A_bar`, `A_prime` or `D`) to be given as input. For Bls12-381 based cipher suites, the `point_to_octets_in_g1` method refers Zcash-serialization method as defined [here](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-pairing-friendly-curves-10#appendix-C), which specifies points can have compressed and uncompressed form of representation. For network transmission and storage, a compressed form is desired but was wondering for input to the hash function, if providing extra data from the uncompressed points can give more randomness and beneficial in this case in any way.\r\n\r\n",
       "createdAt": "2022-06-06T08:20:10Z",
-      "updatedAt": "2022-06-06T19:12:54Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-08T19:51:13Z",
+      "closedAt": "2022-06-08T19:51:13Z",
       "comments": [
         {
           "author": "BasileiosKal",
@@ -4520,6 +4520,20 @@
           "body": "That would be definitely nice. Thank you for the suggestion!\r\n\r\nI'm not 100% convinced that the raised complexity will be worth it though. the additional data passed into the hash will be deterministically defined by what is already inputted (the compressed version). So they will not help with brute force attacks etc., or provide much more entropy.",
           "createdAt": "2022-06-06T19:12:54Z",
           "updatedAt": "2022-06-06T19:12:54Z"
+        },
+        {
+          "author": "dev0x1",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Thanks for your feedback. I had an impression that while encoding for the compressed form there would be few deterministic metadata bits that will be absent in uncompressed form but this is not the case. Now I get that to keep things simple, using only compressed representation works very well.",
+          "createdAt": "2022-06-07T17:51:25Z",
+          "updatedAt": "2022-06-07T17:51:25Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Great! Closing the issue since we reached a consensus! (@dev0x1 please re-open if that's not accurate or you feel there's more to discuss)",
+          "createdAt": "2022-06-08T19:51:13Z",
+          "updatedAt": "2022-06-08T19:51:13Z"
         }
       ]
     }
@@ -16604,13 +16618,13 @@
       "labels": [],
       "body": "Updating the way that the messages and generators are passed to the operations, using @andrewwhitehead's proposal of passing them in pairs. \r\n\r\nThe main purpose of the PR is to have a concrete base of discussion about what the best API will be. For alternatives see #117. For some more context see PR #128 (the motivation was \u201chow we get the revealed messages from the (msg_1, \u2026, msg_L) list and the revealed indexes).\r\n\r\nIMO all approaches have trade-offs. Although I like the proposal seen in this PR a lot and it makes things more explicit, I wonder if it is more error prone?? That said, it may provide the best balance between being explicit and easy to read. Interested on the WG feedback.\r\n",
       "createdAt": "2022-05-13T16:32:18Z",
-      "updatedAt": "2022-06-02T12:07:20Z",
+      "updatedAt": "2022-06-08T20:00:33Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "7568d6a95044c12f75e5ef19077eb5a7f6046063",
+      "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "api_update",
-      "headRefOid": "9e7f4d4a4164b9961125887dc2eefb016d2e9512",
+      "headRefOid": "153452be23d5bbd4cf2a76f29000982605e23618",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -18719,13 +18733,13 @@
       "labels": [],
       "body": "First shot in a `hash_to_scalar_xmd` function to be used with regular hashes as an alternative to the one currently in the spec (that uses an xof). The proposed function essentially makes use of `expand_message_xmd` (not called directly, see below why), and will give a less efficient option for implementers not wishing to make use of shake256.\r\n\r\nComparison with `hash_to_field` and `expand_message_xmd`:\r\n1.\t**Memory efficiency**: `hash_to_field` will call `expand_message` once to output the total number of bytes needed for all the outputted elements. Since we may potentially need to create many scalars, this may not be the more efficient approach. For example, if one wants to create a proof with 1000 hidden messages, the output of `expand_message` will need to be at least 64 kb. In contrast, `hash_to_scalar_xmd` will only need to \u201chold\u201d 64 bytes at once. Note that the total number of hash invocations is the same in both cases, so the computational overhead will effectively be zero.\r\n2.\t**Efficiently checking if a scalar is 0**: Although there are discussions on not overengineering the spec, I feel here is the one place we may need to have the check. The reason is that many signed messages may result to the probability of returning a 0 been higher than what we anticipate (not really an issue for bls12-381 but may become an issue for \u201csmaller\u201d ECs).\r\n3.\tCalling `expand_message_xmd` directly instead of the xof would be wasteful (it would result to at least n-1 unnecessary hash computations for b_0)\r\n\r\nAnother option can be to use hkdf instead. The tradeoff here is double the hash computations vs spec simplicity + the wider availability of hkdf.\r\n",
       "createdAt": "2022-05-21T20:26:35Z",
-      "updatedAt": "2022-06-01T19:21:46Z",
+      "updatedAt": "2022-06-08T19:54:16Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "517868ceb34592c58e8b731c0e9d168d44821039",
+      "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "hash_to_scalar_xmd",
-      "headRefOid": "594495840a740a6c18706b27dde65be00e9ac783",
+      "headRefOid": "1603a4027fce3aa803125501171f27d3db5af7f9",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -19264,13 +19278,13 @@
       "labels": [],
       "body": "Proposing the following structure for the document. The main change is that `Sign`, `Verify`, `ProofGen` and `ProofVerify` are moved to their own \"core operations\" section. This will allow us to more easily define \"higher level functions\" on top of the \"core operations\" if need be.\r\n\r\n```\r\n|--- Introduction\r\n|      |--- Terminology\r\n|      |--- Notation\r\n|      +--- Organization of this document\r\n|--- Conventions\r\n|--- Considerations\r\n|      |--- Subgroup Selection\r\n|      |--- Messages and Generators\r\n|      +--- Encoding of elements to be hashed\r\n|--- BBS Scheme Definition\r\n|      |--- Parameters\r\n|      |--- Key Generation\r\n|      |      |--- KeyGen\r\n|      |      |--- SkToPk\r\n|      |      +--- KeyValidate        \r\n|      +--- Core Operations\r\n|             |--- Sign\r\n|             |--- Verify\r\n|             |--- ProofGen\r\n|             +--- ProofVerify\r\n|--- Utility Functions\r\n|      |--- CreateGenerators\r\n|      |--- MapMessageToScalar\r\n|      |      +--- MapMessageToScalarAsHash\r\n|      +--- Hash to scalar\r\n|--- Serialization\r\n|      |--- OctetsToSignatures\r\n|      +--- SignatureToOctets\r\n|--- Security Considerations\r\n|--- Ciphersuites \r\n+--- Appendix\r\n```",
       "createdAt": "2022-05-25T09:10:25Z",
-      "updatedAt": "2022-06-02T22:16:52Z",
+      "updatedAt": "2022-06-08T19:43:28Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "517868ceb34592c58e8b731c0e9d168d44821039",
+      "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "re-organizing-operations",
-      "headRefOid": "6fdf5ebd887ce8c00e1a01808c0d48e2540fdef3",
+      "headRefOid": "7989c20991e33b0f4f1b9b970e0e271e441e9ee8",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -19289,6 +19303,27 @@
           "body": "> Suggested tweaks\r\n\r\nDone! Thanks!",
           "createdAt": "2022-06-02T11:59:50Z",
           "updatedAt": "2022-06-02T11:59:50Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "@BasileiosKal with the merge of #155 can you rebase this PR as I think otherwise the section will end up in the wrong place, after that im happy to merge.",
+          "createdAt": "2022-06-07T23:08:56Z",
+          "updatedAt": "2022-06-07T23:08:56Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "@BasileiosKal with the merge of #155 can you rebase this PR as I think otherwise the section will end up in the wrong place, after that im happy to merge.",
+          "createdAt": "2022-06-07T23:08:56Z",
+          "updatedAt": "2022-06-07T23:08:56Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> @BasileiosKal with the merge of https://github.com/decentralized-identity/bbs-signature/pull/155 can you rebase this PR as I think otherwise the section will end up in the wrong place, after that im happy to merge.\r\n\r\nDone rebase! \r\n\r\nSince we have 4 \"serialization\" operations maybe they are \"worth\" their own sub-section?? So the `Utility Operations` section now looks like:\r\n\r\n```\r\n|--- Utility Operations\r\n|      |--- CreateGenerators\r\n|      |--- MapMessageToScalar\r\n|      |      +--- MapMessageToScalarAsHash\r\n|      +--- Hash to scalar\r\n|      +---- Serialization\r\n|              |--- OctetsToSignatures\r\n|              |--- SignatureToOctets\r\n|              |--- OctetsToProof\r\n|              +--- ProofToOctets\r\n```\r\n\r\nI'm more than happy to fall back if people don't like this change.",
+          "createdAt": "2022-06-08T19:43:28Z",
+          "updatedAt": "2022-06-08T19:43:28Z"
         }
       ],
       "reviews": [
@@ -19304,6 +19339,39 @@
           "createdAt": "2022-06-02T22:16:52Z",
           "updatedAt": "2022-06-02T22:16:52Z",
           "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax847eS-e",
+          "commit": {
+            "abbreviatedOid": "6fdf5eb"
+          },
+          "author": "alessandroguggino",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-07T09:11:18Z",
+          "updatedAt": "2022-06-07T09:11:18Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax847gvte",
+          "commit": {
+            "abbreviatedOid": "6fdf5eb"
+          },
+          "author": "alessandroguggino",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-07T16:09:57Z",
+          "updatedAt": "2022-06-07T16:09:58Z",
+          "comments": [
+            {
+              "originalPosition": 55,
+              "body": "Remove the dot at the end.\r\n```suggestion\r\n## Encoding of elements to be hashed\r\n```",
+              "createdAt": "2022-06-07T16:09:57Z",
+              "updatedAt": "2022-06-07T16:09:58Z"
+            }
+          ]
         }
       ]
     },
@@ -19312,25 +19380,35 @@
       "id": "PR_kwDOF8lax844cgoG",
       "title": "Proof serialization/de-serialization ",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/155",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Fixes #153\r\n\r\nIntroduces a `proof_to_octets` and a `octets_to_proof` operation",
       "createdAt": "2022-05-25T13:24:23Z",
-      "updatedAt": "2022-06-03T19:39:06Z",
+      "updatedAt": "2022-06-07T23:05:47Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "517868ceb34592c58e8b731c0e9d168d44821039",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "proof-serialization",
       "headRefOid": "452617e157314e88583e424c1aee22a1861c8ecf",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
-      "comments": [],
+      "closedAt": "2022-06-07T23:05:47Z",
+      "mergedAt": "2022-06-07T23:05:47Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "849e6d96b895615d460f92bf0b1d7efbb8f62519"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Multiple reviews and approvals, open 13 days, merging",
+          "createdAt": "2022-06-07T23:05:42Z",
+          "updatedAt": "2022-06-07T23:05:42Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOF8lax846uDie",
@@ -20231,6 +20309,32 @@
               "updatedAt": "2022-06-03T19:39:07Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847cpuM",
+          "commit": {
+            "abbreviatedOid": "452617e"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-07T00:09:32Z",
+          "updatedAt": "2022-06-07T00:09:32Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax847eVqK",
+          "commit": {
+            "abbreviatedOid": "452617e"
+          },
+          "author": "alessandroguggino",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-07T09:18:56Z",
+          "updatedAt": "2022-06-07T09:18:56Z",
+          "comments": []
         }
       ]
     },
@@ -20774,15 +20878,15 @@
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
-      "body": "Various editorial updates:\r\n1. PK and KeyValidate updates:\r\n    1. Changed `KeyValidate` to accept the de-serialized key (half the times `KeyValidate` was used the the PK was (re) de-serialized  immediately after, which is inefficient).\r\n    2. Removed `KeyValidate` from `ProofGen` and `Sign` (we just hash the PK there).\r\n    3. Removed PK de-serialization from `Sign` (the result is not used).\r\n    4. Added PK de-serialization to `ProofVerify`.\r\n \r\n2. Changed notation from `m~_j1, \u2026, m~_jU` -> `m~_1, \u2026, m~_U` (I think it's clearer this way).\r\n\r\nSome updates noted by @dev0x1:\r\n1. Changed pairing equality check in `Verify` to match the one in `ProofVerify`.\r\n\r\n2. Fixed typo in `ProofVerify` (`H_s` -> `H_d` in step 8).\r\n\r\nI will update/re-base this as required if needed (it will probably have conflicts with some of the other open PRs).",
+      "body": "Various editorial updates:\r\n1. PK and KeyValidate updates:\r\n    1. Changed `KeyValidate` to accept the de-serialized key (half the times `KeyValidate` was used the PK was (re) de-serialized  immediately after, which is inefficient).\r\n    2. Removed `KeyValidate` from `ProofGen` and `Sign` (we just hash the PK there).\r\n    3. Removed PK de-serialization from `Sign` (the result is not used).\r\n    4. Added PK de-serialization to `ProofVerify`.\r\n \r\n2. Changed notation from `m~_j1, \u2026, m~_jU` -> `m~_1, \u2026, m~_U` (I think it's clearer this way).\r\n\r\nSome updates noted by @dev0x1:\r\n1. Changed pairing equality check in `Verify` to match the one in `ProofVerify`.\r\n\r\n2. Fixed typo in `ProofVerify` (`H_s` -> `H_d` in step 8).\r\n\r\nI will update/re-base this as required if needed (it will probably have conflicts with some of the other open PRs).",
       "createdAt": "2022-06-04T14:34:16Z",
-      "updatedAt": "2022-06-07T00:06:18Z",
+      "updatedAt": "2022-06-08T19:06:38Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "1c42e53eca5324c52cac262caaeb345c91d12802",
+      "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "editorial-updates",
-      "headRefOid": "96bd182b4bb83194edbec4ff864dac83605c54de",
+      "headRefOid": "2247a107ebc0d4f98ac4f031fe36576545b7c7c7",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -20801,6 +20905,27 @@
           "body": "> @BasileiosKal May be we can also update to use consistent ordering of **Abar** and **A'** in proof and input to `hash_to_scalar`, in `ProofGen`, `19. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`\r\n> \r\n> `25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))`\r\n> \r\n> in `ProofVerify`,\r\n> \r\n> `4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof`\r\n> \r\n> `10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`\r\n\r\nI would probably raise this as a seperate issue rather than addressing in this PR",
           "createdAt": "2022-06-07T00:06:18Z",
           "updatedAt": "2022-06-07T00:06:18Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "@BasileiosKal can you address conflicts?",
+          "createdAt": "2022-06-07T23:07:25Z",
+          "updatedAt": "2022-06-07T23:07:25Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Updated to remove conflicts + made ph in ProofVerify optional (thanks @dev0x1!!)",
+          "createdAt": "2022-06-08T18:11:21Z",
+          "updatedAt": "2022-06-08T18:11:21Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "After thinking more about it, IMO the best way to de-serialize the PK and check if it is valid is to introduce a `PubkeyToPoint` operation. The reasons are, \r\n\r\n1. If we de-serialize the PK in the procedure and pass the result in KeyValidate directly, we would potentially pass INVALID as input, which I really don\u2019t think it\u2019s wise (not technically wrong, but I\u2019m really afraid of implementation mistakes here).\r\n2. If we de-serialize the PK in KeyValidate, we would need to de-serialize the key twice. \r\n3. We want the two operations distinct so we can say that people can skip (or cache) the KeyValidate check.\r\n\r\nThe proposal goes around these issues. Thoughts??\r\n\r\n",
+          "createdAt": "2022-06-08T19:04:51Z",
+          "updatedAt": "2022-06-08T19:04:51Z"
         }
       ],
       "reviews": [
@@ -20903,6 +21028,89 @@
               "updatedAt": "2022-06-06T23:56:48Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax847n0wf",
+          "commit": {
+            "abbreviatedOid": "96bd182"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-08T19:06:37Z",
+          "updatedAt": "2022-06-08T19:06:38Z",
+          "comments": [
+            {
+              "originalPosition": 21,
+              "body": "Got it! That is indeed better. I updated towards that direction, introducing some more updates (see [here](https://github.com/decentralized-identity/bbs-signature/pull/165#issuecomment-1150289470)). Let me know of what you think of this new direction!",
+              "createdAt": "2022-06-08T19:06:38Z",
+              "updatedAt": "2022-06-08T19:06:38Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 167,
+      "id": "PR_kwDOF8lax845QSVW",
+      "title": "Harmonized use of A_octets (vs a_octets)",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/167",
+      "state": "MERGED",
+      "author": "christianpaquin",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Capitalized the 'A' in `A_octets` everywhere.",
+      "createdAt": "2022-06-07T15:42:42Z",
+      "updatedAt": "2022-06-08T20:56:06Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
+      "headRepository": "christianpaquin/bbs-signature",
+      "headRefName": "harmonized-a_octets",
+      "headRefOid": "a6a59d1cad3e6687882dd8132bb7fcb8432ba88c",
+      "closedAt": "2022-06-08T20:56:06Z",
+      "mergedAt": "2022-06-08T20:56:06Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "ef70c2d973f9944f18c0295e3028b814def82d1a"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals. Editorial update. Improves readability. Merging!",
+          "createdAt": "2022-06-08T20:55:50Z",
+          "updatedAt": "2022-06-08T20:55:50Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax847io2W",
+          "commit": {
+            "abbreviatedOid": "8d4a47c"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "LGTM just need to resolve conflicts",
+          "createdAt": "2022-06-07T23:06:48Z",
+          "updatedAt": "2022-06-07T23:06:48Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax847oJo-",
+          "commit": {
+            "abbreviatedOid": "a6a59d1"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "@christianpaquin I hope you don't mind but i took the liberty to resolve the conflicts. LGTM also. I'm happy to merge!",
+          "createdAt": "2022-06-08T20:12:13Z",
+          "updatedAt": "2022-06-08T20:12:13Z",
+          "comments": []
         }
       ]
     }
