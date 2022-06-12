@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-09T00:08:50.747335+00:00",
+  "timestamp": "2022-06-12T00:09:11.572627+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -4483,11 +4483,12 @@
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [
+        "ready-for-pr",
         "core"
       ],
       "body": "Since any point on respective cyclic subgroup G1 and G2 can work as P1 and P2.\r\nFor interoperability, I think we should define the values of P1 and P2 in cipher suites. By clubbing this value in ciphersuite, an interoperable implementation has to refer only to cipher suite ID otherwise these have to be communicated on application-level messages or protocols.\r\n\r\nRegarding values for BLS12-381 ciphersuites, fixed base generators defined by pairing-crypto libraries zkcrypto(defined [here](https://github.com/zkcrypto/bls12_381/blob/34dab74ae44cd77dfa867928dd2e6c8383d8dc9d/src/g1.rs#L198) and [here](https://github.com/zkcrypto/bls12_381/blob/34dab74ae44cd77dfa867928dd2e6c8383d8dc9d/src/g2.rs#L212)) and blst(defined [here](https://github.com/supranational/blst/blob/bd8e64f97cb55217df1f7e84d4d73d6d8461e608/src/e1.c#L20) and [here](https://github.com/supranational/blst/blob/bd8e64f97cb55217df1f7e84d4d73d6d8461e608/src/e2.c#L24)) can be used. Both these libraries use same value for fixed base generators.",
       "createdAt": "2022-06-02T06:27:35Z",
-      "updatedAt": "2022-06-02T22:12:11Z",
+      "updatedAt": "2022-06-09T21:06:12Z",
       "closedAt": null,
       "comments": [
         {
@@ -4536,6 +4537,22 @@
           "updatedAt": "2022-06-08T19:51:13Z"
         }
       ]
+    },
+    {
+      "number": 168,
+      "id": "I_kwDOF8lax85LlK_d",
+      "title": "Explicitly give the number of bytes for the PRF function",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/168",
+      "state": "OPEN",
+      "author": "christianpaquin",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The PRF function in `ProofGen` takes the value `8*ceil(log2(r))`. It would be helpful to explicitly define its value for the BLS12-381 ciphersuite to avoid guess work. I assume the value is 256.",
+      "createdAt": "2022-06-10T21:20:58Z",
+      "updatedAt": "2022-06-10T21:20:58Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -19271,24 +19288,26 @@
       "id": "PR_kwDOF8lax844bgab",
       "title": "Re-organizing the sections",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/154",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Proposing the following structure for the document. The main change is that `Sign`, `Verify`, `ProofGen` and `ProofVerify` are moved to their own \"core operations\" section. This will allow us to more easily define \"higher level functions\" on top of the \"core operations\" if need be.\r\n\r\n```\r\n|--- Introduction\r\n|      |--- Terminology\r\n|      |--- Notation\r\n|      +--- Organization of this document\r\n|--- Conventions\r\n|--- Considerations\r\n|      |--- Subgroup Selection\r\n|      |--- Messages and Generators\r\n|      +--- Encoding of elements to be hashed\r\n|--- BBS Scheme Definition\r\n|      |--- Parameters\r\n|      |--- Key Generation\r\n|      |      |--- KeyGen\r\n|      |      |--- SkToPk\r\n|      |      +--- KeyValidate        \r\n|      +--- Core Operations\r\n|             |--- Sign\r\n|             |--- Verify\r\n|             |--- ProofGen\r\n|             +--- ProofVerify\r\n|--- Utility Functions\r\n|      |--- CreateGenerators\r\n|      |--- MapMessageToScalar\r\n|      |      +--- MapMessageToScalarAsHash\r\n|      +--- Hash to scalar\r\n|--- Serialization\r\n|      |--- OctetsToSignatures\r\n|      +--- SignatureToOctets\r\n|--- Security Considerations\r\n|--- Ciphersuites \r\n+--- Appendix\r\n```",
       "createdAt": "2022-05-25T09:10:25Z",
-      "updatedAt": "2022-06-08T19:43:28Z",
+      "updatedAt": "2022-06-09T21:04:44Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "re-organizing-operations",
       "headRefOid": "7989c20991e33b0f4f1b9b970e0e271e441e9ee8",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2022-06-09T21:04:31Z",
+      "mergedAt": "2022-06-09T21:04:31Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "69d54e61405064871f72e61f89e57a9e29635da9"
+      },
       "comments": [
         {
           "author": "tplooker",
@@ -19324,6 +19343,20 @@
           "body": "> @BasileiosKal with the merge of https://github.com/decentralized-identity/bbs-signature/pull/155 can you rebase this PR as I think otherwise the section will end up in the wrong place, after that im happy to merge.\r\n\r\nDone rebase! \r\n\r\nSince we have 4 \"serialization\" operations maybe they are \"worth\" their own sub-section?? So the `Utility Operations` section now looks like:\r\n\r\n```\r\n|--- Utility Operations\r\n|      |--- CreateGenerators\r\n|      |--- MapMessageToScalar\r\n|      |      +--- MapMessageToScalarAsHash\r\n|      +--- Hash to scalar\r\n|      +---- Serialization\r\n|              |--- OctetsToSignatures\r\n|              |--- SignatureToOctets\r\n|              |--- OctetsToProof\r\n|              +--- ProofToOctets\r\n```\r\n\r\nI'm more than happy to fall back if people don't like this change.",
           "createdAt": "2022-06-08T19:43:28Z",
           "updatedAt": "2022-06-08T19:43:28Z"
+        },
+        {
+          "author": "alessandroguggino",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> Since we have 4 \"serialization\" operations maybe they are \"worth\" their own sub-section??\r\n\r\nYou're right! I agree",
+          "createdAt": "2022-06-09T12:09:51Z",
+          "updatedAt": "2022-06-09T12:09:59Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Multiple approvals, purely editorial, merging",
+          "createdAt": "2022-06-09T21:04:44Z",
+          "updatedAt": "2022-06-09T21:04:44Z"
         }
       ],
       "reviews": [
@@ -20880,7 +20913,7 @@
       "labels": [],
       "body": "Various editorial updates:\r\n1. PK and KeyValidate updates:\r\n    1. Changed `KeyValidate` to accept the de-serialized key (half the times `KeyValidate` was used the PK was (re) de-serialized  immediately after, which is inefficient).\r\n    2. Removed `KeyValidate` from `ProofGen` and `Sign` (we just hash the PK there).\r\n    3. Removed PK de-serialization from `Sign` (the result is not used).\r\n    4. Added PK de-serialization to `ProofVerify`.\r\n \r\n2. Changed notation from `m~_j1, \u2026, m~_jU` -> `m~_1, \u2026, m~_U` (I think it's clearer this way).\r\n\r\nSome updates noted by @dev0x1:\r\n1. Changed pairing equality check in `Verify` to match the one in `ProofVerify`.\r\n\r\n2. Fixed typo in `ProofVerify` (`H_s` -> `H_d` in step 8).\r\n\r\nI will update/re-base this as required if needed (it will probably have conflicts with some of the other open PRs).",
       "createdAt": "2022-06-04T14:34:16Z",
-      "updatedAt": "2022-06-08T19:06:38Z",
+      "updatedAt": "2022-06-09T21:05:27Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
@@ -20926,6 +20959,13 @@
           "body": "After thinking more about it, IMO the best way to de-serialize the PK and check if it is valid is to introduce a `PubkeyToPoint` operation. The reasons are, \r\n\r\n1. If we de-serialize the PK in the procedure and pass the result in KeyValidate directly, we would potentially pass INVALID as input, which I really don\u2019t think it\u2019s wise (not technically wrong, but I\u2019m really afraid of implementation mistakes here).\r\n2. If we de-serialize the PK in KeyValidate, we would need to de-serialize the key twice. \r\n3. We want the two operations distinct so we can say that people can skip (or cache) the KeyValidate check.\r\n\r\nThe proposal goes around these issues. Thoughts??\r\n\r\n",
           "createdAt": "2022-06-08T19:04:51Z",
           "updatedAt": "2022-06-08T19:04:51Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Can you resolve conflicts with this PR?",
+          "createdAt": "2022-06-09T21:05:27Z",
+          "updatedAt": "2022-06-09T21:05:27Z"
         }
       ],
       "reviews": [
@@ -21113,6 +21153,32 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 169,
+      "id": "PR_kwDOF8lax845fiQ9",
+      "title": "Harmonization edits",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/169",
+      "state": "OPEN",
+      "author": "christianpaquin",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Harmonized 1) order of ph and header in ProofGen and ProofVerify arguments, and 2) use of \"indexes\".",
+      "createdAt": "2022-06-10T21:23:34Z",
+      "updatedAt": "2022-06-10T21:23:34Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "69d54e61405064871f72e61f89e57a9e29635da9",
+      "headRepository": "christianpaquin/bbs-signature",
+      "headRefName": "consistency-edits",
+      "headRefOid": "25cb9b045bf52c06cf94dae81fb7c66c2e07e5b7",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
