@@ -1386,11 +1386,11 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.1-2.7">R</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.8">The set of message indices that are retained or hidden in a signature proof of knowledge.<a href="#section-1.1-2.8" class="pilcrow">¶</a>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.8">The set of message indexes that are retained or hidden in a signature proof of knowledge.<a href="#section-1.1-2.8" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.1-2.9">D</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.10">The set of message indices that are disclosed in a signature proof of knowledge.<a href="#section-1.1-2.10" class="pilcrow">¶</a>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.10">The set of message indexes that are disclosed in a signature proof of knowledge.<a href="#section-1.1-2.10" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.1-2.11">msg</dt>
@@ -1901,7 +1901,7 @@ Inputs:
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - signature (REQUIRED), an octet string of the form outputted by the Sign operation.
 - header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
-- ph (OPTIONAL), octet string.
+- ph (OPTIONAL), octet string containing the presentation header.
 - msg_1,..., msg_L (OPTIONAL), octet strings. Messages in input to Sign.
 - H_1,..., H_L (OPTIONAL), points of G1. The generators in input to Sign.
 - RevealedIndexes (OPTIONAL), vector of unsigned integers. Indexes of revealed messages.
@@ -1985,14 +1985,14 @@ Procedure:
           </h4>
 <p id="section-4.3.4-1">This operation checks that a proof is valid for a header, vector of revealed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).<a href="#section-4.3.4-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3.4-2">
-<pre>result = ProofVerify(PK, proof, ph, header, (msg_i1,..., msg_iR), RevealedIndexes, (H_1,..., H_L))
+<pre>result = ProofVerify(PK, proof, header, ph, (msg_i1,..., msg_iR), RevealedIndexes, (H_1,..., H_L))
 
 Inputs:
 
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - proof (REQUIRED), an octet string of the form outputted by the ProofGen operation.
-- ph (REQUIRED), octet string.
 - header (OPTIONAL), an optional octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- ph (REQUIRED), octet string  containing the presentation header.
 - msg_i1,..., msg_iR (OPTIONAL), octet strings. The revealed messages in input to ProofGen.
 - RevealedIndexes (OPTIONAL), vector of unsigned integers. Indexes of revealed messages.
 - H_1,..., H_L (OPTIONAL), points of G1. The generators in input to Sign.
