@@ -130,10 +130,10 @@ L
 : The total number of signed messages.
 
 R
-: The set of message indices that are retained or hidden in a signature proof of knowledge.
+: The set of message indexes that are retained or hidden in a signature proof of knowledge.
 
 D
-: The set of message indices that are disclosed in a signature proof of knowledge.
+: The set of message indexes that are disclosed in a signature proof of knowledge.
 
 msg
 : An input message to be signed by the signature scheme.
@@ -534,7 +534,7 @@ Inputs:
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - signature (REQUIRED), an octet string of the form outputted by the Sign operation.
 - header (OPTIONAL), an octet string containing context and application specific information. If not supplied, it defaults to an empty string.
-- ph (OPTIONAL), octet string.
+- ph (OPTIONAL), octet string containing the presentation header.
 - msg_1,..., msg_L (OPTIONAL), octet strings. Messages in input to Sign.
 - H_1,..., H_L (OPTIONAL), points of G1. The generators in input to Sign.
 - RevealedIndexes (OPTIONAL), vector of unsigned integers. Indexes of revealed messages.
@@ -614,14 +614,14 @@ Procedure:
 This operation checks that a proof is valid for a header, vector of revealed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
 ```
-result = ProofVerify(PK, proof, ph, header, (msg_i1,..., msg_iR), RevealedIndexes, (H_1,..., H_L))
+result = ProofVerify(PK, proof, header, ph, (msg_i1,..., msg_iR), RevealedIndexes, (H_1,..., H_L))
 
 Inputs:
 
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
 - proof (REQUIRED), an octet string of the form outputted by the ProofGen operation.
-- ph (REQUIRED), octet string.
 - header (OPTIONAL), an optional octet string containing context and application specific information. If not supplied, it defaults to an empty string.
+- ph (REQUIRED), octet string  containing the presentation header.
 - msg_i1,..., msg_iR (OPTIONAL), octet strings. The revealed messages in input to ProofGen.
 - RevealedIndexes (OPTIONAL), vector of unsigned integers. Indexes of revealed messages.
 - H_1,..., H_L (OPTIONAL), points of G1. The generators in input to Sign.
