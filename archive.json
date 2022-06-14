@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-12T00:09:11.572627+00:00",
+  "timestamp": "2022-06-14T00:10:09.115594+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -4547,12 +4547,47 @@
       "author": "christianpaquin",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "ready-for-pr",
+        "core"
+      ],
       "body": "The PRF function in `ProofGen` takes the value `8*ceil(log2(r))`. It would be helpful to explicitly define its value for the BLS12-381 ciphersuite to avoid guess work. I assume the value is 256.",
       "createdAt": "2022-06-10T21:20:58Z",
-      "updatedAt": "2022-06-10T21:20:58Z",
+      "updatedAt": "2022-06-13T18:59:07Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Suggestion discussed on WG call is to generalize the `xof_no_of_bytes` parameter for this purpose and parameterize it in the proof gen procedure.",
+          "createdAt": "2022-06-13T18:59:07Z",
+          "updatedAt": "2022-06-13T18:59:07Z"
+        }
+      ]
+    },
+    {
+      "number": 171,
+      "id": "I_kwDOF8lax85LsOUj",
+      "title": "s value is undefined in ProofGen",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/171",
+      "state": "CLOSED",
+      "author": "christianpaquin",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "In (currently) step 11 of ProofGen:\r\n```\r\nB = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L\r\n```\r\nThe scalar `s` is undefined. Is it supposed to be `s~` generated in step 9?",
+      "createdAt": "2022-06-13T19:52:42Z",
+      "updatedAt": "2022-06-13T20:22:11Z",
+      "closedAt": "2022-06-13T20:22:11Z",
+      "comments": [
+        {
+          "author": "christianpaquin",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Ah, that's the `s` from the signature; missed that.",
+          "createdAt": "2022-06-13T20:22:11Z",
+          "updatedAt": "2022-06-13T20:22:11Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -18750,7 +18785,7 @@
       "labels": [],
       "body": "First shot in a `hash_to_scalar_xmd` function to be used with regular hashes as an alternative to the one currently in the spec (that uses an xof). The proposed function essentially makes use of `expand_message_xmd` (not called directly, see below why), and will give a less efficient option for implementers not wishing to make use of shake256.\r\n\r\nComparison with `hash_to_field` and `expand_message_xmd`:\r\n1.\t**Memory efficiency**: `hash_to_field` will call `expand_message` once to output the total number of bytes needed for all the outputted elements. Since we may potentially need to create many scalars, this may not be the more efficient approach. For example, if one wants to create a proof with 1000 hidden messages, the output of `expand_message` will need to be at least 64 kb. In contrast, `hash_to_scalar_xmd` will only need to \u201chold\u201d 64 bytes at once. Note that the total number of hash invocations is the same in both cases, so the computational overhead will effectively be zero.\r\n2.\t**Efficiently checking if a scalar is 0**: Although there are discussions on not overengineering the spec, I feel here is the one place we may need to have the check. The reason is that many signed messages may result to the probability of returning a 0 been higher than what we anticipate (not really an issue for bls12-381 but may become an issue for \u201csmaller\u201d ECs).\r\n3.\tCalling `expand_message_xmd` directly instead of the xof would be wasteful (it would result to at least n-1 unnecessary hash computations for b_0)\r\n\r\nAnother option can be to use hkdf instead. The tradeoff here is double the hash computations vs spec simplicity + the wider availability of hkdf.\r\n",
       "createdAt": "2022-05-21T20:26:35Z",
-      "updatedAt": "2022-06-08T19:54:16Z",
+      "updatedAt": "2022-06-13T18:42:20Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
@@ -19215,6 +19250,46 @@
               "body": "Im in favour of option 2 also",
               "createdAt": "2022-06-01T07:41:37Z",
               "updatedAt": "2022-06-01T07:41:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax84746jr",
+          "commit": {
+            "abbreviatedOid": "1603a40"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-13T18:41:46Z",
+          "updatedAt": "2022-06-13T18:41:46Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "```suggestion\r\n26. return proof_to_octets(proof)\r\n```",
+              "createdAt": "2022-06-13T18:41:46Z",
+              "updatedAt": "2022-06-13T18:41:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax84746t8",
+          "commit": {
+            "abbreviatedOid": "1603a40"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-13T18:42:19Z",
+          "updatedAt": "2022-06-13T18:42:20Z",
+          "comments": [
+            {
+              "originalPosition": 28,
+              "body": "Add back in the proof decoding rules",
+              "createdAt": "2022-06-13T18:42:19Z",
+              "updatedAt": "2022-06-13T18:42:20Z"
             }
           ]
         }
@@ -20913,7 +20988,7 @@
       "labels": [],
       "body": "Various editorial updates:\r\n1. PK and KeyValidate updates:\r\n    1. Changed `KeyValidate` to accept the de-serialized key (half the times `KeyValidate` was used the PK was (re) de-serialized  immediately after, which is inefficient).\r\n    2. Removed `KeyValidate` from `ProofGen` and `Sign` (we just hash the PK there).\r\n    3. Removed PK de-serialization from `Sign` (the result is not used).\r\n    4. Added PK de-serialization to `ProofVerify`.\r\n \r\n2. Changed notation from `m~_j1, \u2026, m~_jU` -> `m~_1, \u2026, m~_U` (I think it's clearer this way).\r\n\r\nSome updates noted by @dev0x1:\r\n1. Changed pairing equality check in `Verify` to match the one in `ProofVerify`.\r\n\r\n2. Fixed typo in `ProofVerify` (`H_s` -> `H_d` in step 8).\r\n\r\nI will update/re-base this as required if needed (it will probably have conflicts with some of the other open PRs).",
       "createdAt": "2022-06-04T14:34:16Z",
-      "updatedAt": "2022-06-09T21:05:27Z",
+      "updatedAt": "2022-06-13T18:38:35Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
@@ -20966,6 +21041,13 @@
           "body": "Can you resolve conflicts with this PR?",
           "createdAt": "2022-06-09T21:05:27Z",
           "updatedAt": "2022-06-09T21:05:27Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Discussed on the WG call resolved to make a few changes\r\n\r\n- rename pubkey_to_point to octets_to_pubkey\r\n- add identity check to octets_to_pubkey and then remove KeyValidate\r\n- add security consideration for sub group checks for the octet_to_point_g* functions",
+          "createdAt": "2022-06-13T18:38:07Z",
+          "updatedAt": "2022-06-13T18:38:07Z"
         }
       ],
       "reviews": [
@@ -21088,6 +21170,52 @@
               "updatedAt": "2022-06-08T19:06:38Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax84741C6",
+          "commit": {
+            "abbreviatedOid": "2247a10"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-13T18:21:10Z",
+          "updatedAt": "2022-06-13T18:21:10Z",
+          "comments": [
+            {
+              "originalPosition": 249,
+              "body": "```suggestion\r\n\r\nThis operation decodes an octet string representing a public key, validates it and return the corresponding point in G2.\r\n```",
+              "createdAt": "2022-06-13T18:21:10Z",
+              "updatedAt": "2022-06-13T18:21:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax84741Rh",
+          "commit": {
+            "abbreviatedOid": "2247a10"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-13T18:22:00Z",
+          "updatedAt": "2022-06-13T18:22:00Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax84745t4",
+          "commit": {
+            "abbreviatedOid": "2247a10"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "CHANGES_REQUESTED",
+          "body": "Dropping approval considering the changes we agreed on the WG call",
+          "createdAt": "2022-06-13T18:38:35Z",
+          "updatedAt": "2022-06-13T18:38:35Z",
+          "comments": []
         }
       ]
     },
@@ -21159,26 +21287,124 @@
       "id": "PR_kwDOF8lax845fiQ9",
       "title": "Harmonization edits",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/169",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "christianpaquin",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Harmonized 1) order of ph and header in ProofGen and ProofVerify arguments, and 2) use of \"indexes\".",
       "createdAt": "2022-06-10T21:23:34Z",
-      "updatedAt": "2022-06-10T21:23:34Z",
+      "updatedAt": "2022-06-13T18:17:22Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "69d54e61405064871f72e61f89e57a9e29635da9",
       "headRepository": "christianpaquin/bbs-signature",
       "headRefName": "consistency-edits",
       "headRefOid": "25cb9b045bf52c06cf94dae81fb7c66c2e07e5b7",
+      "closedAt": "2022-06-13T18:17:22Z",
+      "mergedAt": "2022-06-13T18:17:22Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "c8a1055e766a4f1839fd5083aa6c7a9a865e3784"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Reviewed on WG call, multiple approvals, merging",
+          "createdAt": "2022-06-13T18:17:15Z",
+          "updatedAt": "2022-06-13T18:17:15Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax8474zgH",
+          "commit": {
+            "abbreviatedOid": "25cb9b0"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-13T18:15:21Z",
+          "updatedAt": "2022-06-13T18:15:21Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax8474z7S",
+          "commit": {
+            "abbreviatedOid": "25cb9b0"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-13T18:16:57Z",
+          "updatedAt": "2022-06-13T18:16:57Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax8474z7e",
+          "commit": {
+            "abbreviatedOid": "25cb9b0"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-13T18:16:57Z",
+          "updatedAt": "2022-06-13T18:16:57Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 170,
+      "id": "PR_kwDOF8lax845lTst",
+      "title": "Add definition of U to ProofGen/ProofVerify",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/170",
+      "state": "OPEN",
+      "author": "christianpaquin",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Suggesting adding `U` to the definitions, since the value is used in the functions. \r\n\r\nAlso changed \"e.g.\" to \"i.e.\" as a clarification. ",
+      "createdAt": "2022-06-13T19:02:44Z",
+      "updatedAt": "2022-06-13T21:56:32Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "c8a1055e766a4f1839fd5083aa6c7a9a865e3784",
+      "headRepository": "christianpaquin/bbs-signature",
+      "headRefName": "add-U-def-to-proof-gen-and-verify",
+      "headRefOid": "830a31df1e714374c53e0c037653ea5a93278607",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
-      "reviews": []
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "LGTM thanks!",
+          "createdAt": "2022-06-13T21:56:32Z",
+          "updatedAt": "2022-06-13T21:56:32Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax8475xjC",
+          "commit": {
+            "abbreviatedOid": "830a31d"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-13T21:56:20Z",
+          "updatedAt": "2022-06-13T21:56:20Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
