@@ -671,9 +671,9 @@ Procedure:
 
 13. if c != cv, return INVALID
 
-14. if A' == 1, return INVALID
+14. if A' == Identity_G1, return INVALID
 
-15. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+15. if e(A', W) * e(Abar, -P2) != Identity_G1, return INVALID
 
 16. return VALID
 ```
