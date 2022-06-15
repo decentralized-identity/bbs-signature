@@ -2145,7 +2145,7 @@ Procedure:
 <a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-hash-to-scalar" class="section-name selfRef">Hash to Scalar</a>
         </h3>
 <p id="section-5.3-1">This operation describes how to hash an arbitrary octet string to <code>n</code> scalar values in the multiplicative group of integers mod r. This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the <a href="#sign">Sign</a>, <a href="#verify">Verify</a>, <a href="#proofgen">ProofGen</a> and <a href="#proofgen">ProofVerify</a> functions, one must use <a href="#mapmessagetoscalar">MapMessageToScalarAsHash</a> instead.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
-<p id="section-5.3-2">The <code>hash_to_scalar</code> procedure hashes elements using an extendable-output function (xof). Applications not wishing to use an xof may use <code>hash_to_field</code> defined in Section 5.3 of <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="xref">I-D.irtf-cfrg-hash-to-curve</a>]</span>, combined with <code>expand_message_xmd</code> defined in Section 5.4.1 of the same document, in place of <code>hash_to_scalar</code>. In that case, every element outputted by <code>hash_to_field</code> that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using <code>hash_to_field</code>), until they get <code>n</code> non-zero elements (for example, if there is only one 0 in the output of <code>hash_to_field(msg, 2)</code> one must try to calculate <code>hash_to_field(msg, 3)</code> etc.).<a href="#section-5.3-2" class="pilcrow">¶</a></p>
+<p id="section-5.3-2">The <code>hash_to_scalar</code> procedure hashes elements using an extendable-output function (xof). Applications not wishing to use an xof may use <code>hash_to_field</code> defined in Section 5.2 of <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="xref">I-D.irtf-cfrg-hash-to-curve</a>]</span>, combined with <code>expand_message_xmd</code> defined in Section 5.3.1 of the same document, in place of <code>hash_to_scalar</code>. In that case, every element outputted by <code>hash_to_field</code> that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using <code>hash_to_field</code>), until they get <code>n</code> non-zero elements (for example, if there is only one 0 in the output of <code>hash_to_field(msg, 2)</code> one must try to calculate <code>hash_to_field(msg, 3)</code> etc.).<a href="#section-5.3-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-5.3-3">
 <pre>result = hash_to_scalar(msg_octets, n)
 
@@ -2813,7 +2813,7 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 <dl class="references">
 <dt id="I-D.irtf-cfrg-hash-to-curve">[I-D.irtf-cfrg-hash-to-curve]</dt>
       <dd>
-<span class="refAuthor">Faz-Hernandez, A.</span>, <span class="refAuthor">Scott, S.</span>, <span class="refAuthor">Sullivan, N.</span>, <span class="refAuthor">Wahby, R. S.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Hashing to Elliptic Curves"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-hash-to-curve-14</span>, <time datetime="2022-02-18" class="refDate">18 February 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-14">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-14</a>&gt;</span>. </dd>
+<span class="refAuthor">Faz-Hernandez, A.</span>, <span class="refAuthor">Scott, S.</span>, <span class="refAuthor">Sullivan, N.</span>, <span class="refAuthor">Wahby, R. S.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Hashing to Elliptic Curves"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-hash-to-curve-16</span>, <time datetime="2022-06-15" class="refDate">15 June 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.irtf-cfrg-pairing-friendly-curves">[I-D.irtf-cfrg-pairing-friendly-curves]</dt>
       <dd>
@@ -2896,7 +2896,7 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 
 * k: 128
 
-* expand_message: expand_message_xof (Section 5.4.2 of [@!I-D.irtf-cfrg-hash-to-curve])
+* expand_message: expand_message_xof (Section 5.3.2 of [@!I-D.irtf-cfrg-hash-to-curve])
 
 * hash: SHAKE-256
 
@@ -2945,7 +2945,7 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 
 * k: 128
 
-* expand_message: expand_message_xof (Section 5.4.2 of [@!I-D.irtf-cfrg-hash-to-curve])
+* expand_message: expand_message_xof (Section 5.3.2 of [@!I-D.irtf-cfrg-hash-to-curve])
 
 * hash: SHAKE-256
 
