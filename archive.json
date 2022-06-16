@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-14T00:10:09.115594+00:00",
+  "timestamp": "2022-06-16T00:08:40.307516+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -4361,10 +4361,12 @@
       "author": "andrewwhitehead",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "core"
+      ],
       "body": "There are several different uses of hash functions within the draft. These generally refer to the `hash` parameter, but some refer to the `xof` parameter, which currently appears independent. For compatibility, every hash function that is used in operations by multiple parties must be referenced in the ciphersuite ID. Because we don't want to list several hash functions here, and because supporting multiple hash functions adds extra dependencies (and implementation cost, platform incompatibilities, potential vulnerabilities) I suggest we try to reduce requirement to a single hash function per ciphersuite. Here are the use current cases I've identified:\r\n\r\n- In `hash_to_scalar`: Used to generate various scalars within signature and proof generation. We have a proposal to add an XMD version to support non-XOF hashes. This is the primary use of the hash function.\r\n- Within `KeyGen`: this one doesn't need to be included in the ciphersuite ID as it has no impact on other parties. Maybe the hash function should become an input parameter? If we want to keep this operation.\r\n- In generator creation:\r\n    - The current method uses an XOF to generate a stream of bytes which is then fed into a hash-to-curve implementation. If we want to support non-XOF hash functions then we might need to define an alternative method (like the one in the old draft).\r\n    - The chosen hash-to-curve suite should be required to use the same hash and a compatible `expand_message` method (XOF or XMD). It must also use `hash_to_curve` not `encode_to_curve` in order to guarantee a uniform distribution, ie. the suite identifier must end with 'RO'.\r\n- Hashing message inputs:\r\n    This one seems a little problematic. It is essential to the security of the signature scheme that all parties understand the encoding used to create the message scalars. Some implementations are going to need type-aware conversion of input values to scalars, which seems beyond the scope of this spec as it implies a dependency on a schema to define the value types. We could completely avoid standardizing message-to-scalar conversion and only use predefined scalars in the test cases. On the other hand, I also believe we need to support the base-level use case of simply signing one or more octet strings, in which case 'MapMessageToScalarAsHash' is sufficient. (In this case, do we want to require that the hash used to convert input messages is the same as the hash used within the other operations?)\r\n    In order to support both the typed-values message encoding use case and the simple hash-and-sign use case, perhaps we could add a simple parameter to the ciphersuite ID to distinguish between the two. We could add an ENC_TAG with two values: RAW (treat all input messages as octet strings), and SCHEMA (validate message inputs according to the associated schema, and apply its rules for converting into message scalars). When the ENC_TAG is SCHEMA, then a schema identifier would need to be included in the header value or somehow implied at the application level \u2013\u00a0I don't think we need to formalize this beyond adding a security guideline.",
       "createdAt": "2022-06-01T18:15:06Z",
-      "updatedAt": "2022-06-06T12:41:01Z",
+      "updatedAt": "2022-06-15T21:09:43Z",
       "closedAt": null,
       "comments": [
         {
@@ -4588,6 +4590,60 @@
           "updatedAt": "2022-06-13T20:22:11Z"
         }
       ]
+    },
+    {
+      "number": 172,
+      "id": "I_kwDOF8lax85LtfFa",
+      "title": "Amend the introduction to attribute the BBS name to the underlying authors",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/172",
+      "state": "OPEN",
+      "author": "tplooker",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [
+        "ready-for-pr",
+        "core"
+      ],
+      "body": "Dan Boneh, Xavier Boyen and Hovav Shacham are the original authors of the academic works that the name derives from hence should be appropriately attributed within the spec.",
+      "createdAt": "2022-06-14T03:59:00Z",
+      "updatedAt": "2022-06-15T21:09:28Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 173,
+      "id": "I_kwDOF8lax85LxUZ9",
+      "title": "Consistent ordering of Abar and A'",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/173",
+      "state": "OPEN",
+      "author": "dev0x1",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [
+        "ready-for-pr",
+        "core"
+      ],
+      "body": "It would be nice to have the same ordering of **Abar** and **A'** in proof serialization/deserialization and during concatenated input to `hash_to_scalar`.\r\nin `ProofGen`,\r\n`19. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`\r\n\r\n`25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))`\r\n\r\nin `ProofVerify`,\r\n\r\n`4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof`\r\n\r\n`10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`",
+      "createdAt": "2022-06-14T18:39:20Z",
+      "updatedAt": "2022-06-15T21:09:16Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 176,
+      "id": "I_kwDOF8lax85L3NOF",
+      "title": "Specify W in ProofVerify",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/176",
+      "state": "OPEN",
+      "author": "christianpaquin",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Step 15 of ProofVerify is:\r\n```\r\n15. if e(A', W) * e(Abar, -P2) != 1, return INVALID\r\n```\r\n\r\n`W` is unspecified in the function; I assume it's the public key point, like in the other functions. If so, we need to add\r\n```\r\nW = octets_to_point_g2(PK)\r\n```\r\n",
+      "createdAt": "2022-06-15T21:22:54Z",
+      "updatedAt": "2022-06-15T21:22:54Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -20988,13 +21044,13 @@
       "labels": [],
       "body": "Various editorial updates:\r\n1. PK and KeyValidate updates:\r\n    1. Changed `KeyValidate` to accept the de-serialized key (half the times `KeyValidate` was used the PK was (re) de-serialized  immediately after, which is inefficient).\r\n    2. Removed `KeyValidate` from `ProofGen` and `Sign` (we just hash the PK there).\r\n    3. Removed PK de-serialization from `Sign` (the result is not used).\r\n    4. Added PK de-serialization to `ProofVerify`.\r\n \r\n2. Changed notation from `m~_j1, \u2026, m~_jU` -> `m~_1, \u2026, m~_U` (I think it's clearer this way).\r\n\r\nSome updates noted by @dev0x1:\r\n1. Changed pairing equality check in `Verify` to match the one in `ProofVerify`.\r\n\r\n2. Fixed typo in `ProofVerify` (`H_s` -> `H_d` in step 8).\r\n\r\nI will update/re-base this as required if needed (it will probably have conflicts with some of the other open PRs).",
       "createdAt": "2022-06-04T14:34:16Z",
-      "updatedAt": "2022-06-13T18:38:35Z",
+      "updatedAt": "2022-06-14T12:27:49Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
+      "baseRefOid": "ca6dc83da752127a3d2cf61043c5781b7c433d53",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "editorial-updates",
-      "headRefOid": "2247a107ebc0d4f98ac4f031fe36576545b7c7c7",
+      "headRefOid": "d1c38213a9859f693e09f4ab1bbe1ee996df99c0",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -21363,24 +21419,26 @@
       "id": "PR_kwDOF8lax845lTst",
       "title": "Add definition of U to ProofGen/ProofVerify",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/170",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "christianpaquin",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Suggesting adding `U` to the definitions, since the value is used in the functions. \r\n\r\nAlso changed \"e.g.\" to \"i.e.\" as a clarification. ",
       "createdAt": "2022-06-13T19:02:44Z",
-      "updatedAt": "2022-06-13T21:56:32Z",
+      "updatedAt": "2022-06-14T10:10:07Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "c8a1055e766a4f1839fd5083aa6c7a9a865e3784",
       "headRepository": "christianpaquin/bbs-signature",
       "headRefName": "add-U-def-to-proof-gen-and-verify",
       "headRefOid": "830a31df1e714374c53e0c037653ea5a93278607",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2022-06-14T10:10:07Z",
+      "mergedAt": "2022-06-14T10:10:07Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "ca6dc83da752127a3d2cf61043c5781b7c433d53"
+      },
       "comments": [
         {
           "author": "tplooker",
@@ -21388,6 +21446,13 @@
           "body": "LGTM thanks!",
           "createdAt": "2022-06-13T21:56:32Z",
           "updatedAt": "2022-06-13T21:56:32Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals. Merging.",
+          "createdAt": "2022-06-14T10:09:56Z",
+          "updatedAt": "2022-06-14T10:09:56Z"
         }
       ],
       "reviews": [
@@ -21403,8 +21468,112 @@
           "createdAt": "2022-06-13T21:56:20Z",
           "updatedAt": "2022-06-13T21:56:20Z",
           "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax8478AxV",
+          "commit": {
+            "abbreviatedOid": "830a31d"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-14T10:03:57Z",
+          "updatedAt": "2022-06-14T10:03:57Z",
+          "comments": []
         }
       ]
+    },
+    {
+      "number": 174,
+      "id": "PR_kwDOF8lax845uCPV",
+      "title": "Updated section refs to new v16 hash-to-curve spec",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/174",
+      "state": "MERGED",
+      "author": "christianpaquin",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "New v16 of the hash-to-curve spec removed section 5.1, so we need to adapt the section 5.x references in ours. See [v15 and v16 diff](https://www.ietf.org/rfcdiff?difftype=--hwdiff&url2=draft-irtf-cfrg-hash-to-curve-16.txt).\r\n\r\nI couldn't find the actual reference to the spec in the Normative References section, only generic `[@!I-D.irtf-cfrg-hash-to-curve]` refs; I assume the build system turns that to a ref to the latest version?",
+      "createdAt": "2022-06-15T16:06:35Z",
+      "updatedAt": "2022-06-15T23:51:52Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "ca6dc83da752127a3d2cf61043c5781b7c433d53",
+      "headRepository": "christianpaquin/bbs-signature",
+      "headRefName": "updated-refs-to-hash-to-curve-spec",
+      "headRefOid": "14a916fa883e7699e6c92ebd0d377092776600db",
+      "closedAt": "2022-06-15T23:51:52Z",
+      "mergedAt": "2022-06-15T23:51:52Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "8c6930008f1482ccbdbd3cde7eea2f93ef4e920d"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Minor editorial tweak, merging",
+          "createdAt": "2022-06-15T23:51:48Z",
+          "updatedAt": "2022-06-15T23:51:48Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax848FivF",
+          "commit": {
+            "abbreviatedOid": "14a916f"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "LGTM thanks @christianpaquin and yes the reference resolution I believe auto resolves to the latest draft available for that name",
+          "createdAt": "2022-06-15T20:25:52Z",
+          "updatedAt": "2022-06-15T20:25:52Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 175,
+      "id": "PR_kwDOF8lax845vD5U",
+      "title": "Use Identity_G1 instead of 1 in ProofVerify",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/175",
+      "state": "OPEN",
+      "author": "christianpaquin",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "*** NOT READY FOR MERGE ***\r\n\r\nUse Identity_G1 instead of 1 in ProofVerify.\r\n\r\nNOTE: my 2nd correction on line 676 isn't correct; we don't have a notation for the identity element in the pairing group. What should it be?\r\n\r\n",
+      "createdAt": "2022-06-15T21:16:15Z",
+      "updatedAt": "2022-06-15T23:17:26Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "ca6dc83da752127a3d2cf61043c5781b7c433d53",
+      "headRepository": "christianpaquin/bbs-signature",
+      "headRefName": "use-id-element-in-proofverify",
+      "headRefOid": "e594467c57f7bb203ca83125137a00bd5e9f8e96",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "`Identity_GT` I suppose?",
+          "createdAt": "2022-06-15T21:33:46Z",
+          "updatedAt": "2022-06-15T21:33:46Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "> Identity_GT I suppose?\r\n\r\nYeah this would make more sense to me? could we add that to the terminology section @christianpaquin",
+          "createdAt": "2022-06-15T23:17:26Z",
+          "updatedAt": "2022-06-15T23:17:26Z"
+        }
+      ],
+      "reviews": []
     }
   ]
 }
