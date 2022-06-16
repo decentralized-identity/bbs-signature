@@ -204,8 +204,8 @@ r
 P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
 
-Identity\_G1, Identity\_G2
-: The identity element for the G1 and G2 subgroups respectively.
+Identity\_G1, Identity\_G2, Identity\_GT
+: The identity element for the G1, G2, and GT subgroups respectively.
 
 hash\_to\_curve\_g1(ostr) -> P
 : A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
@@ -673,7 +673,7 @@ Procedure:
 
 14. if A' == Identity_G1, return INVALID
 
-15. if e(A', W) * e(Abar, -P2) != Identity_G1, return INVALID
+15. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
 
 16. return VALID
 ```
