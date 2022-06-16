@@ -10,7 +10,7 @@ none                                                           M. Lodder
                                                                         
                                                                 V. Kalos
                                                                    MATTR
-                                                            15 June 2022
+                                                            16 June 2022
 
 
                         The BBS Signature Scheme
@@ -283,8 +283,8 @@ Table of Contents
       scalar multiplication.  Operations in GT are written in
       multiplicative notation, i.e., a * b is field multiplication.
 
-   Identity_G1, Identity_G2  The identity element for the G1 and G2
-      subgroups respectively.
+   Identity_G1, Identity_G2, Identity_GT  The identity element for the
+      G1, G2, and GT subgroups respectively.
 
    hash_to_curve_g1(ostr) -> P  A cryptographic hash function that takes
       as an arbitrary octet string input and returns a point in G1 as
@@ -860,9 +860,9 @@ Procedure:
 
 13. if c != cv, return INVALID
 
-14. if A' == 1, return INVALID
+14. if A' == Identity_G1, return INVALID
 
-15. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+15. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
 
 16. return VALID
 

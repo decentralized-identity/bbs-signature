@@ -1490,8 +1490,8 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
           <dd style="margin-left: 1.5em" id="section-1.2-4.12">points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x * P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a * b is field multiplication.<a href="#section-1.2-4.12" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.2-4.13">Identity_G1, Identity_G2</dt>
-          <dd style="margin-left: 1.5em" id="section-1.2-4.14">The identity element for the G1 and G2 subgroups respectively.<a href="#section-1.2-4.14" class="pilcrow">¶</a>
+<dt id="section-1.2-4.13">Identity_G1, Identity_G2, Identity_GT</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.14">The identity element for the G1, G2, and GT subgroups respectively.<a href="#section-1.2-4.14" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.2-4.15">hash_to_curve_g1(ostr) -&gt; P</dt>
@@ -2042,9 +2042,9 @@ Procedure:
 
 13. if c != cv, return INVALID
 
-14. if A' == 1, return INVALID
+14. if A' == Identity_G1, return INVALID
 
-15. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+15. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
 
 16. return VALID
 </pre><a href="#section-4.3.4-2" class="pilcrow">¶</a>
