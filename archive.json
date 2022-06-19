@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-16T00:08:40.307516+00:00",
+  "timestamp": "2022-06-19T00:09:33.040800+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -4638,12 +4638,23 @@
       "author": "christianpaquin",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "ready-for-pr",
+        "core"
+      ],
       "body": "Step 15 of ProofVerify is:\r\n```\r\n15. if e(A', W) * e(Abar, -P2) != 1, return INVALID\r\n```\r\n\r\n`W` is unspecified in the function; I assume it's the public key point, like in the other functions. If so, we need to add\r\n```\r\nW = octets_to_point_g2(PK)\r\n```\r\n",
       "createdAt": "2022-06-15T21:22:54Z",
-      "updatedAt": "2022-06-15T21:22:54Z",
+      "updatedAt": "2022-06-16T23:14:56Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Thanks for raising! This is addressed in PR #165 (with a little bit of a different approach). This is good to keep track of the issue.",
+          "createdAt": "2022-06-16T02:30:15Z",
+          "updatedAt": "2022-06-16T02:30:15Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -18841,7 +18852,7 @@
       "labels": [],
       "body": "First shot in a `hash_to_scalar_xmd` function to be used with regular hashes as an alternative to the one currently in the spec (that uses an xof). The proposed function essentially makes use of `expand_message_xmd` (not called directly, see below why), and will give a less efficient option for implementers not wishing to make use of shake256.\r\n\r\nComparison with `hash_to_field` and `expand_message_xmd`:\r\n1.\t**Memory efficiency**: `hash_to_field` will call `expand_message` once to output the total number of bytes needed for all the outputted elements. Since we may potentially need to create many scalars, this may not be the more efficient approach. For example, if one wants to create a proof with 1000 hidden messages, the output of `expand_message` will need to be at least 64 kb. In contrast, `hash_to_scalar_xmd` will only need to \u201chold\u201d 64 bytes at once. Note that the total number of hash invocations is the same in both cases, so the computational overhead will effectively be zero.\r\n2.\t**Efficiently checking if a scalar is 0**: Although there are discussions on not overengineering the spec, I feel here is the one place we may need to have the check. The reason is that many signed messages may result to the probability of returning a 0 been higher than what we anticipate (not really an issue for bls12-381 but may become an issue for \u201csmaller\u201d ECs).\r\n3.\tCalling `expand_message_xmd` directly instead of the xof would be wasteful (it would result to at least n-1 unnecessary hash computations for b_0)\r\n\r\nAnother option can be to use hkdf instead. The tradeoff here is double the hash computations vs spec simplicity + the wider availability of hkdf.\r\n",
       "createdAt": "2022-05-21T20:26:35Z",
-      "updatedAt": "2022-06-13T18:42:20Z",
+      "updatedAt": "2022-06-17T01:37:53Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
@@ -18866,6 +18877,13 @@
           "body": "Updated to use the `range(a, b)` notation introduced to #155.",
           "createdAt": "2022-06-01T19:21:45Z",
           "updatedAt": "2022-06-01T19:21:45Z"
+        },
+        {
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> If the memory usage turns out to not be an issue the operation can be significantly simplified to something like,\r\n> \r\n> ```\r\n> result = hash_to_scalar_xmd(msg, n)\r\n> \r\n> Procedure:\r\n> \r\n> 1. msg_hash= hash(msg || I2OSP(0, 1) || I2OSP(n, 8))\r\n> \r\n> 2. (scalar_1, ..., scalar_n) = hash_to_field(msg_hash, n)\r\n> \r\n> 3. if 0 in (scalar_1, ..., scalar_n):\r\n> \r\n> 4.     msg_hash = hash(msg_hash)\r\n> \r\n> 5.     go back to step 2\r\n> \r\n> 6. return (scalar_1, ..., scalar_n)\r\n> ```\r\n\r\nLooking again, I think this may be the better option. There's no actual requirement for the hash_to_field implementation to output all of the bytes before generating the scalars, in fact the bls12-381 implementation does it iteratively: https://github.com/zkcrypto/bls12_381/blob/34dab74ae44cd77dfa867928dd2e6c8383d8dc9d/src/hash_to_curve/mod.rs#L50\r\n\r\nWe could even use the same method for both XOF and XMD modes and eliminate the separate versions, short-circuiting and restarting if a zero scalar is found (which is unlikely anyway) by using a slightly modified version of hash_to_field. (Edit) Here's what that might look like:\r\n\r\n```\r\nmsg_prime = msg || I2OSP(0, 1) || I2OSP(count, 8)\r\nlen_in_bytes = count * expand_length\r\nuniform_bytes = expand_message(msg_prime, hash_to_scalar_dst, len_in_bytes)\r\nfor i in range(1, count):\r\n  tv = uniform_bytes[expand_length*(i-1)..expand_length*i]\r\n  scalar_i = OS2IP(tv) mod r\r\n  if scalar_i == 0:\r\n  \treturn hash_to_scalar(uniform_bytes, count)\r\nreturn (scalar_1, ..., scalar_(count))\r\n```",
+          "createdAt": "2022-06-17T01:14:51Z",
+          "updatedAt": "2022-06-17T01:37:53Z"
         }
       ],
       "reviews": [
@@ -20696,21 +20714,21 @@
       "id": "PR_kwDOF8lax844smIw",
       "title": "Generator definition within ciphersuite",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/161",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "andrewwhitehead",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "This PR moves generator computation into a separate section, allowing for the use of separate computation methods and generator seed options. There are inconsistencies remaining with the test vectors, and the language and security considerations could likely use tidying up.",
       "createdAt": "2022-05-30T17:38:12Z",
-      "updatedAt": "2022-06-03T16:56:17Z",
+      "updatedAt": "2022-06-16T21:44:52Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "02ea4b981cc6288074c6beb968792d2e27d7003c",
       "headRepository": "andrewwhitehead/bbs-signature",
       "headRefName": "suite-generators",
       "headRefOid": "ffe54514da9c9a47a387c78e85fbecba71fb88a6",
-      "closedAt": null,
+      "closedAt": "2022-06-16T21:44:52Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -21539,24 +21557,26 @@
       "id": "PR_kwDOF8lax845vD5U",
       "title": "Use Identity_G1 instead of 1 in ProofVerify",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/175",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "christianpaquin",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
-      "body": "*** NOT READY FOR MERGE ***\r\n\r\nUse Identity_G1 instead of 1 in ProofVerify.\r\n\r\nNOTE: my 2nd correction on line 676 isn't correct; we don't have a notation for the identity element in the pairing group. What should it be?\r\n\r\n",
+      "body": "Use Identity_G1 and Identity_GT instead of 1 in ProofVerify.\r\n\r\n",
       "createdAt": "2022-06-15T21:16:15Z",
-      "updatedAt": "2022-06-15T23:17:26Z",
+      "updatedAt": "2022-06-16T23:14:01Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "ca6dc83da752127a3d2cf61043c5781b7c433d53",
+      "baseRefOid": "8c6930008f1482ccbdbd3cde7eea2f93ef4e920d",
       "headRepository": "christianpaquin/bbs-signature",
       "headRefName": "use-id-element-in-proofverify",
-      "headRefOid": "e594467c57f7bb203ca83125137a00bd5e9f8e96",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "739202cdb54332dca56d47b9877355e52ef035d6",
+      "closedAt": "2022-06-16T23:14:01Z",
+      "mergedAt": "2022-06-16T23:14:01Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "337f3b03caa246c0ed9265fae44b0ab78d94fa72"
+      },
       "comments": [
         {
           "author": "andrewwhitehead",
@@ -21571,9 +21591,157 @@
           "body": "> Identity_GT I suppose?\r\n\r\nYeah this would make more sense to me? could we add that to the terminology section @christianpaquin",
           "createdAt": "2022-06-15T23:17:26Z",
           "updatedAt": "2022-06-15T23:17:26Z"
+        },
+        {
+          "author": "christianpaquin",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> > Identity_GT I suppose?\r\n> \r\n> Yeah this would make more sense to me? could we add that to the terminology section @christianpaquin\r\n\r\nDone",
+          "createdAt": "2022-06-16T14:00:18Z",
+          "updatedAt": "2022-06-16T14:00:18Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Multiple approvals, minor editorial change that provides an important clarification to the ProofVerify procedure, merging.",
+          "createdAt": "2022-06-16T23:13:57Z",
+          "updatedAt": "2022-06-16T23:13:57Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax848MNM5",
+          "commit": {
+            "abbreviatedOid": "739202c"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-16T23:08:14Z",
+          "updatedAt": "2022-06-16T23:08:14Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax848MNjz",
+          "commit": {
+            "abbreviatedOid": "739202c"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-16T23:11:19Z",
+          "updatedAt": "2022-06-16T23:11:19Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 177,
+      "id": "PR_kwDOF8lax845ziih",
+      "title": "Update generator creation procedure",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/177",
+      "state": "OPEN",
+      "author": "andrewwhitehead",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This removes several of the ciphersuite parameters in favor of a generator creation procedure which reuses the `expand_message` operation defined by hash-to-curve suite. Additional PRs would be needed to update the use of generators in the suite's operations, and to update the test vectors. I'm trying to avoid conflicts with open PRs.\r\n\r\nThe operation currently defines a `hash_output_bytes` value, but this would likely switch to `expand_length` used in #151.\r\n\r\nSupersedes #161 and the discussion on that PR.",
+      "createdAt": "2022-06-16T21:44:40Z",
+      "updatedAt": "2022-06-16T22:19:49Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "8c6930008f1482ccbdbd3cde7eea2f93ef4e920d",
+      "headRepository": "andrewwhitehead/bbs-signature",
+      "headRefName": "suite-generators-2",
+      "headRefOid": "7955cdd74817832480cfc6a1e997fd16fa61a509",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax848L20S",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-16T21:56:02Z",
+          "updatedAt": "2022-06-16T21:56:03Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "For an XOF hash, this is not much different from the previous procedure, it only adds a DST.",
+              "createdAt": "2022-06-16T21:56:03Z",
+              "updatedAt": "2022-06-16T21:56:03Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848L3Ii",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-16T21:57:49Z",
+          "updatedAt": "2022-06-16T21:57:50Z",
+          "comments": [
+            {
+              "originalPosition": 42,
+              "body": "I don't see any need for the generator DST and seed DST to be ciphersuite parameters, although the actual values are up for debate (these are chosen to be similar to the KeyGen salt).",
+              "createdAt": "2022-06-16T21:57:50Z",
+              "updatedAt": "2022-06-16T21:57:50Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848L6NU",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "alessandroguggino",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-16T22:17:05Z",
+          "updatedAt": "2022-06-16T22:17:05Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "Why not use an `xof` instead of `expand_message` and then call `.read(...)` inside the for cycle?",
+              "createdAt": "2022-06-16T22:17:05Z",
+              "updatedAt": "2022-06-16T22:17:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848L6hk",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-16T22:19:13Z",
+          "updatedAt": "2022-06-16T22:19:14Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "This procedure is meant to be easily implemented whether the hash-to-curve suite's hash function is extensible-output or not, without introducing an extra hash function.",
+              "createdAt": "2022-06-16T22:19:13Z",
+              "updatedAt": "2022-06-16T22:19:49Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
