@@ -204,8 +204,8 @@ r
 P1, P2
 : points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
 
-Identity\_G1, Identity\_G2
-: The identity element for the G1 and G2 subgroups respectively.
+Identity\_G1, Identity\_G2, Identity\_GT
+: The identity element for the G1, G2, and GT subgroups respectively.
 
 hash\_to\_curve\_g1(ostr) -> P
 : A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
@@ -713,7 +713,7 @@ Procedure:
 
 This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r. This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
-The `hash_to_scalar` procedure hashes elements using an extendable-output function (xof). Applications not wishing to use an xof may use `hash_to_field` defined in Section 5.3 of [@!I-D.irtf-cfrg-hash-to-curve], combined with `expand_message_xmd` defined in Section 5.4.1 of the same document, in place of `hash_to_scalar`. In that case, every element outputted by `hash_to_field` that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using `hash_to_field`), until they get `n` non-zero elements (for example, if there is only one 0 in the output of `hash_to_field(msg, 2)` one must try to calculate `hash_to_field(msg, 3)` etc.).
+The `hash_to_scalar` procedure hashes elements using an extendable-output function (xof). Applications not wishing to use an xof may use `hash_to_field` defined in Section 5.2 of [@!I-D.irtf-cfrg-hash-to-curve], combined with `expand_message_xmd` defined in Section 5.3.1 of the same document, in place of `hash_to_scalar`. In that case, every element outputted by `hash_to_field` that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using `hash_to_field`), until they get `n` non-zero elements (for example, if there is only one 0 in the output of `hash_to_field(msg, 2)` one must try to calculate `hash_to_field(msg, 3)` etc.).
 
 ```
 result = hash_to_scalar(msg_octets, n)
@@ -1284,7 +1284,7 @@ The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
 
 * k: 128
 
-* expand_message: expand_message_xof (Section 5.4.2 of [@!I-D.irtf-cfrg-hash-to-curve])
+* expand_message: expand_message_xof (Section 5.3.2 of [@!I-D.irtf-cfrg-hash-to-curve])
 
 * hash: SHAKE-256
 
@@ -1331,7 +1331,7 @@ The suite of `BLS12381G2_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
 
 * k: 128
 
-* expand_message: expand_message_xof (Section 5.4.2 of [@!I-D.irtf-cfrg-hash-to-curve])
+* expand_message: expand_message_xof (Section 5.3.2 of [@!I-D.irtf-cfrg-hash-to-curve])
 
 * hash: SHAKE-256
 
