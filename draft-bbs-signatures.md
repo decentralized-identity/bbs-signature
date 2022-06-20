@@ -654,27 +654,31 @@ Procedure:
 
 3. (j1, j2, ..., jU) = [L]\RevealedIndexes
 
-4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof
+4. proof_value = octets_to_proof(proof)
 
-5. generators =  (H_s || H_d || H_1 || ... || H_L)
+5. if proof_value is INVALID, return INVALID
 
-6. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+6. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_value
 
-7. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+7. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-8. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-9. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+9. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+10. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-11. if c != cv, return INVALID
+11. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-12. if A' == Identity_G1, return INVALID
+12. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-13. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+13. if c != cv, return INVALID
 
-14. return VALID
+14. if A' == Identity_G1, return INVALID
+
+15. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+
+16. return VALID
 ```
 
 # Utility Operations
@@ -755,7 +759,7 @@ This document defines two different operations for hashing inputs into scalar va
 1. `hash_to_scalar_xof`, is the more performant option, which makes use of an extendable output function, like SHAKE-256 or SHAKE-128.
 2. `hash_to_scalar_xmd`, is less performant in comparison, requires a fixed length output function like SHA2 or SHA3.
 
-#### hash_to_scalar_xof
+### hash_to_scalar_xof
 
 The `hash_to_scalar_xof` function takes as an input the message to be hashed and a non-negative integer indicating the number of non-zero scalars to be returned. The operation can be implemented using an extendable output function (xof), like one from the SHAKE family of functions [@!SHA3]. The xof function MUST provide at least `k` bits of collision resistance (where `k` the security level of the ciphersuite) and be indifferentiable from a random oracle under reasonable assumption.
 
@@ -800,7 +804,7 @@ Procedure:
 8. return (scalar_1, ..., scalar_n)
 ```
 
-#### hash_to_scalar_xmd
+### hash_to_scalar_xmd
 
 Implementations not wishing to use the more performant `hash_to_scalar_xof` operation, can elect to use `hash_to_scalar_xmd`. The `hash_to_scalar_xmd` is based on the `expand_message_xmd` function defined in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve] and as such, can be implimented using a hash function with a fixed output length like SHA-256 or SHA-512 (in contrast `hash_to_scalar_xof`, requires an extentable output hash function). The hash function used to impliment this operation MUST comfort to the requirements detailed in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve].
 
@@ -865,6 +869,7 @@ Procedure:
 
 19. return scalar_1, ..., scalar_n
 ```
+
 ## Serialization
 ### OctetsToSignature
 
