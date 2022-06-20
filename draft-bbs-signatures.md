@@ -711,9 +711,9 @@ Outputs:
 
 Procedure:
 
-1. n = 1
+1. v = expand_message(generator_seed, seed_dst, hash_output_bytes)
 
-2. v = expand_message(generator_seed, seed_dst, hash_output_bytes)
+2. n = 1
 
 3. for i in range(1, count):
 
@@ -721,13 +721,13 @@ Procedure:
 
 5.    while generator_i == Identity_G1 or generator_i == P1:
 
-6.        candidate = hash_to_curve_g1(v, generator_dst)
+6.        v = expand_message(v || I2OSP(n, 4), seed_dst, hash_output_bytes)
 
-7.        if candidate not in generators[1..i-1]: generator_i = candidate
+7.        n = n + 1
 
-8.        v = expand_message(v || I2OSP(n, 4), seed_dst, hash_output_bytes)
+8.        candidate = hash_to_curve_g1(v, generator_dst)
 
-9.        n = n + 1
+9.        if candidate not in generators[1..i-1]: generator_i = candidate
 
 10. return generators
 ```
