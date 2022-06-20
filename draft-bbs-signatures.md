@@ -988,7 +988,7 @@ Procedure:
 
 ## Validating public keys
 
-It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [octets_to_pubkey](#octets-to-public-key) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure returns INVALID the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
+It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [octets\_to\_pubkey](#octets-to-public-key) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure returns INVALID the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
 
 ## Valid de-serialization
 
