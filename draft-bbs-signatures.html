@@ -1151,7 +1151,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
             <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-utility-operations" class="xref">Utility Operations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
-                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-creategenerators" class="xref">CreateGenerators</a></p>
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-generator-point-computation" class="xref">Generator point computation</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
                 <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-mapmessagetoscalar" class="xref">MapMessageToScalar</a></p>
@@ -1572,7 +1572,7 @@ document, are to be interpreted as described in <span>[<a href="#RFC2119" class=
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-messages-and-generators" class="section-name selfRef">Messages and generators</a>
         </h3>
 <p id="section-3.2-1">Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator <code>H_1</code> is multiplied with <code>msg_1</code> during signing, then <code>H_1</code> MUST be multiplied with <code>msg_1</code> in all other operations as well (signature verification, proof generation and proof verification). For simplicity, each function will take as input the list of generators to be used with the messages. Those generators can be any distinct element from the generators list <code>H</code>. Applications for efficiency can elect to pass the indexes of those generators to the list <code>H</code> instead. Care must be taken for the correct generator to be raised to the correct message in that case.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
-<p id="section-3.2-2">Aside from the message generators, the scheme uses two additional generators: <code>H_s</code> and <code>H_d</code>. The first (<code>H_s</code>), is used for the blinding value (<code>s</code>) of the signature. The second generator (<code>H_d</code>), is used to sign the signature's domain, which binds both signature and proof to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.2-2">Aside from the message generators, the scheme uses two additional generators: <code>H_s</code> and <code>H_d</code>. The first (<code>H_s</code>), is used for the blinding value (<code>s</code>) of the signature. The second generator (<code>H_d</code>), is used to sign the signature's domain, which binds both the signature and its derived proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).<a href="#section-3.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="encoding-of-elements-to-be-hashed">
@@ -2022,20 +2022,31 @@ Procedure:
       <h2 id="name-utility-operations">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-utility-operations" class="section-name selfRef">Utility Operations</a>
       </h2>
-<div id="creategenerators">
+<div id="generator-point-computation">
 <section id="section-5.1">
-        <h3 id="name-creategenerators">
-<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-creategenerators" class="section-name selfRef">CreateGenerators</a>
+        <h3 id="name-generator-point-computation">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-generator-point-computation" class="section-name selfRef">Generator point computation</a>
         </h3>
-<p id="section-5.1-1">The CreateGenerators operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as Sign, Verify, ProofGen and ProofVerify.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-5.1-2">
-<pre>generators = CreateGenerators(dst, message_generator_seed, length);
+<p id="section-5.1-1">The <code>create_generators</code> operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as Sign, Verify, ProofGen and ProofVerify. It takes one input, the number of generator points to create, which is determined in part by the number of signed messages.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">As an optimization, implementations MAY cache the result of <code>create_generators</code> for a specific <code>generator_seed</code> (determined by the ciphersuite) and <code>count</code>. The values <code>n</code> and <code>v</code> MAY also be cached in order to efficiently extend a existing list of generator points.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5.1-3">
+<pre>generators = create_generators(count)
 
 Inputs:
 
-- dst (REQUIRED), octet string. Domain Separation Tag.
-- message_generator_seed (REQUIRED), octet string.
-- length (REQUIRED), unsigned integer. Number of generators to create from the seed and dst.
+- count (REQUIRED), unsigned integer. Number of generator points to create.
+
+Parameters:
+
+- generator_seed, octet string. A seed value selected by the ciphersuite.
+- hash_to_curve_g1. A hash-to-curve suite selected by the ciphersuite.
+
+Definitions:
+
+- expand_message is the corresponding operation associated with the ciphersuite's hash_to_curve_g1 parameter.
+- seed_dst is the octet string representing "BBS-SIG-GENERATOR-SEED" in the ASCII character encoding.
+- hash_output_bytes is the integer given by ceil((log2(r) + k) / 8).
+- generator_dst is the octet string representing "BBS-SIG-GENERATOR-DST" in the ASCII character encoding.
 
 Outputs:
 
@@ -2043,20 +2054,26 @@ Outputs:
 
 Procedure:
 
-1. h = xof(seed)
+1. v = expand_message(generator_seed, seed_dst, hash_output_bytes)
 
-2. for i in 0 to length:
+2. n = 1
 
-3.    generator_i = Identity_G1
+3. for i in range(1, count):
 
-4.    while(generator_i == Identity_G1 or generator_i == P1)
+4.    generator_i = Identity_G1
 
-5.        candidate = hash_to_curve_g1(h.read(xof_no_of_bytes), dst)
+5.    while generator_i == Identity_G1 or generator_i == P1:
 
-6.        if candidate not in generators: generator_i = candidate
+6.        v = expand_message(v || I2OSP(n, 4), seed_dst, hash_output_bytes)
 
-7. return generators
-</pre><a href="#section-5.1-2" class="pilcrow">¶</a>
+7.        n = n + 1
+
+8.        candidate = hash_to_curve_g1(v, generator_dst)
+
+9.        if candidate not in generators[1..i-1]: generator_i = candidate
+
+10. return (generator_1, ..., generator_count)
+</pre><a href="#section-5.1-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -2545,13 +2562,13 @@ Procedure:
 <a href="#section-7.1.2" class="section-number selfRef">7.1.2. </a><a href="#name-additional-parameters" class="section-name selfRef">Additional Parameters</a>
           </h4>
 <p id="section-7.1.2-1">The parameters that each ciphersuite needs to define are generally divided into four main categories; the basic parameters (a hash function, the hash<em>to</em>scalar operation etc.,), the serialization operations (point<em>to</em>octets<em>g1 etc.,), the hash</em>to<em>curve parameters (the hash</em>to_curve dst etc.,) and the generator seeds (the message generator seed etc.,). See below for more details.<a href="#section-7.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-7.1.2-2"><strong>Basic Parameters</strong>:<a href="#section-7.1.2-2" class="pilcrow">¶</a></p>
+<p id="section-7.1.2-2"><strong>Basic parameters</strong>:<a href="#section-7.1.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.1.2-3.1">
               <p id="section-7.1.2-3.1.1">hash: a cryptographic hash function.<a href="#section-7.1.2-3.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-7.1.2-3.2">
-              <p id="section-7.1.2-3.2.1">xof_no_of_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in <a href="#creategenerators" class="xref">Section 5.1</a> or computing the e and s components of the signature generated in <a href="#sign" class="xref">Section 4.3.1</a>. It is RECOMMENDED this value be set to one greater than <code>ceil(r+k)/8</code> for the ciphersuite, where <code>r</code> and <code>k</code> are parameters from the underlying pairing friendly curve being used.<a href="#section-7.1.2-3.2.1" class="pilcrow">¶</a></p>
+              <p id="section-7.1.2-3.2.1">xof_no_of_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in <a href="#generator-point-computation" class="xref">Section 5.1</a> or computing the e and s components of the signature generated in <a href="#sign" class="xref">Section 4.3.1</a>. It is RECOMMENDED this value be set to one greater than <code>ceil(r+k)/8</code> for the ciphersuite, where <code>r</code> and <code>k</code> are parameters from the underlying pairing friendly curve being used.<a href="#section-7.1.2-3.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-7.1.2-3.3">
               <p id="section-7.1.2-3.3.1">octet_scalar_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to <code>ceil(log2(r)/8)</code>.<a href="#section-7.1.2-3.3.1" class="pilcrow">¶</a></p>
@@ -2582,26 +2599,14 @@ a function that returns the point P in the subgroup G1 corresponding to the cano
 a function that returns the point P in the subgroup G2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of <code>point_to_octets_g2</code>.<a href="#section-7.1.2-5.4.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-7.1.2-6"><strong>Hash to curve parameters</strong>:<a href="#section-7.1.2-6" class="pilcrow">¶</a></p>
+<p id="section-7.1.2-6"><strong>Generator parameters</strong>:<a href="#section-7.1.2-6" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.1.2-7.1">
-              <p id="section-7.1.2-7.1.1">hash_to_curve_g1:
-A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="xref">I-D.irtf-cfrg-hash-to-curve</a>]</span>.<a href="#section-7.1.2-7.1.1" class="pilcrow">¶</a></p>
+              <p id="section-7.1.2-7.1.1">generator_seed: The seed used to determine the generator points which form part of the public parameters used by the BBS signature scheme. Note there are multiple possible scopes for this seed, including: a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); and a signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operation to any others.<a href="#section-7.1.2-7.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-7.1.2-7.2">
-              <p id="section-7.1.2-7.2.1">hash_to_curve_g1_dst: Domain separation tag used in the hash_to_curve_g1 operation.<a href="#section-7.1.2-7.2.1" class="pilcrow">¶</a></p>
-</li>
-          </ul>
-<p id="section-7.1.2-8"><strong>Generator Seeds</strong>:<a href="#section-7.1.2-8" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-7.1.2-9.1">
-              <p id="section-7.1.2-9.1.1">message_generator_seed: The seed used to generate the message generators which form part of the public parameters used by the BBS signature scheme, Note there are multiple possible scopes for this seed including; a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.<a href="#section-7.1.2-9.1.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-7.1.2-9.2">
-              <p id="section-7.1.2-9.2.1">blind_value_generator_seed: The seed used to calculate the signature blinding value generator (H_s). Similar to the message_generator_seed, there are multiple scopes for the blind_value_generator_seed, with the choices being a global seed, a signer specific seed or a signature specific seed. Also, the ciphersuite MUST define this seed OR how to compute it as a pre-cursor operations to any others.<a href="#section-7.1.2-9.2.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-7.1.2-9.3">
-              <p id="section-7.1.2-9.3.1">sig_domain_generator_seed: The seed for calculating the generator used to sign the signature domain separation tag. The scopes and requirements for this seed are the same as the scopes and requirements of the message_generator_seed and blind_value_generator_seed.<a href="#section-7.1.2-9.3.1" class="pilcrow">¶</a></p>
+              <p id="section-7.1.2-7.2.1">hash_to_curve_g1:
+A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="xref">I-D.irtf-cfrg-hash-to-curve</a>]</span>.<a href="#section-7.1.2-7.2.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 </section>
@@ -2614,7 +2619,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
 <a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-bls12-381-ciphersuite" class="section-name selfRef">BLS12-381 Ciphersuite</a>
         </h3>
 <p id="section-7.2-1">The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. The targeted security level of the suite in bits is <code>k = 128</code>. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of <span>[<a href="#SHA3" class="xref">SHA3</a>]</span>. It also uses the hash-to-curve suite defined by this document in <a href="#bls12-381-hashtocurve-definition-using-shake-256">Appendix A.1</a>, which also makes use of the SHAKE-256 function.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
-<p id="section-7.2-2"><strong>Basic Parameters</strong>:<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+<p id="section-7.2-2"><strong>Basic parameters</strong>:<a href="#section-7.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.2-3.1">
             <p id="section-7.2-3.1.1">Ciphersuite_ID: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_"<a href="#section-7.2-3.1.1" class="pilcrow">¶</a></p>
@@ -2650,25 +2655,13 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
             <p id="section-7.2-5.4.1">octets_to_point_g2: follows the format documented in Appendix C section 2 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span> for the G2 subgroup.<a href="#section-7.2-5.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-7.2-6"><strong>Hash to curve parameters</strong>:<a href="#section-7.2-6" class="pilcrow">¶</a></p>
+<p id="section-7.2-6"><strong>Generator parameters</strong>:<a href="#section-7.2-6" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.2-7.1">
-            <p id="section-7.2-7.1.1">hash_to_curve_g1: follows the suite defined in <a href="#bls12-381-hash-to-curve-definition-using-shake-256">Appendix A.1</a> for the G1 subgroup.<a href="#section-7.2-7.1.1" class="pilcrow">¶</a></p>
+            <p id="section-7.2-7.1.1">generator_seed: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the <a href="#generator-point-computation">create_generators</a> operation to compute the required set of message generators.<a href="#section-7.2-7.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.2-7.2">
-            <p id="section-7.2-7.2.1">hash_to_curve_g1_dst: "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO".<a href="#section-7.2-7.2.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<p id="section-7.2-8"><strong>Generator Seeds</strong>:<a href="#section-7.2-8" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-7.2-9.1">
-            <p id="section-7.2-9.1.1">message_generator_seed: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED" which is used by the <a href="#creategenerators">CreateGenerators</a> operation to compute the required set of message generators.<a href="#section-7.2-9.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-7.2-9.2">
-            <p id="section-7.2-9.2.1">blind_value_generator_seed: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIG_BLINDING_GENERATOR_SEED" which is used by the <a href="#creategenerators">CreateGenerators</a> operation to compute the signature blinding value generator (H_s).<a href="#section-7.2-9.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-7.2-9.3">
-            <p id="section-7.2-9.3.1">sig_domain_generator_seed: A global seed value of "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_SIG_DOMAIN_GENERATOR_SEED" which is used by the <a href="#creategenerators">CreateGenerators</a> operation to compute the generator used to sign the signature domain separation tag (H_d).<a href="#section-7.2-9.3.1" class="pilcrow">¶</a></p>
+            <p id="section-7.2-7.2.1">hash_to_curve_g1: follows the suite defined in <a href="#bls12-381-hash-to-curve-definition-using-shake-256">Appendix A.1</a> for the G1 subgroup.<a href="#section-7.2-7.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <div id="test-vectors">
@@ -2685,7 +2678,7 @@ A cryptographic hash function that takes as an arbitrary octet string input and 
             <h5 id="name-message-generators">
 <a href="#section-7.2.1.1" class="section-number selfRef">7.2.1.1. </a><a href="#name-message-generators" class="section-name selfRef">Message Generators</a>
             </h5>
-<p id="section-7.2.1.1-1">Following the procedure defined in <a href="#creategenerators" class="xref">Section 5.1</a> with an input seed value of<a href="#section-7.2.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.2.1.1-1">Following the procedure defined in <a href="#generator-point-computation" class="xref">Section 5.1</a> with an input seed value of<a href="#section-7.2.1.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-7.2.1.1-2">
 <pre>BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED
 </pre><a href="#section-7.2.1.1-2" class="pilcrow">¶</a>
