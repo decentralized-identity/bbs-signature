@@ -729,7 +729,7 @@ Procedure:
 
 9.        if candidate not in generators[1..i-1]: generator_i = candidate
 
-10. return generators
+10. return (generator_1, ..., generator_count)
 ```
 
 ## MapMessageToScalar
