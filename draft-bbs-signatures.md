@@ -217,7 +217,7 @@ point\_to\_octets_g1(P) -> ostr, point\_to\_octets_g2(P) -> ostr
 : returns the canonical representation of the point P for the respective subgroup as an octet string. This operation is also known as serialization.
 
 octets\_to\_point_g1(ostr) -> P, octets\_to\_point_g2(ostr) -> P
-: returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g* function.  This operation is also known as deserialization.
+: returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g\* function.  This operation is also known as deserialization.
 
 subgroup\_check(P) -> VALID or INVALID
 : returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [@Bowe19].
@@ -380,39 +380,7 @@ Procedure:
 
 1. W = SK * P2
 
-2. PK = W
-
-3. return point_to_octets_g2(PK)
-```
-
-### KeyValidate
-
-This operation checks if a public key is valid.
-
-As an optimization, implementations MAY cache the result of KeyValidate in order to avoid unnecessarily repeating validation for known public keys.
-
-```
-result = KeyValidate(PK)
-
-Inputs:
-
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk operation.
-
-Outputs:
-
-- result, either VALID or INVALID.
-
-Procedure:
-
-1. W = octets_to_point_g2(PK)
-
-2. if W is INVALID, return INVALID
-
-3. if subgroup_check(W) is INVALID, return INVALID
-
-4. If W == Identity_G2, return INVALID
-
-5. return VALID
+2. return point_to_octets_g2(W)
 ```
 
 ## Core Operations
@@ -448,23 +416,19 @@ Outputs:
 
 Procedure:
 
-1. W = octets_to_point_g2(PK)
+1. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-2. if W is INVALID, abort
+2. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-3. generators =  (H_s || H_d || H_1 || ... || H_L)
+3. (e, s) = hash_to_scalar((SK  || domain || msg_1 || ... || msg_L), 2)
 
-4. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+4. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-5. (e, s) = hash_to_scalar((SK  || domain || msg_1 || ... || msg_L), 2)
+5. A = B * (1 / (SK + e))
 
-6. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+6. signature_octets = signature_to_octets(A, e, s)
 
-7. A = B * (1 / (SK + e))
-
-8. signature_octets = signature_to_octets(A, e, s)
-
-9. return signature_octets
+7. return signature_octets
 ```
 
 **Note** When computing step 7 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 7, and or `A != Identity_G1` after step 7 to prevent the production of invalid signatures.
@@ -506,9 +470,9 @@ Procedure:
 
 3. (A, e, s) = signature_result
 
-4. if KeyValidate(PK) is INVALID, return INVALID
+4. W = octets_to_pubkey(PK)
 
-5. W = octets_to_point_g2(PK)
+5. if W is INVALID, return INVALID
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
@@ -516,11 +480,9 @@ Procedure:
 
 8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-9. C1 = e(A, W + P2 * e)
+9. if e(A, W + P2 * e) * e(B, -P2) != 1, return INVALID
 
-10. C2 = e(B, P2)
-
-11. return C1 == C2
+10. return VALID
 ```
 
 ### ProofGen
@@ -562,55 +524,53 @@ Procedure:
 
 1. signature_result = octets_to_signature(signature)
 
-2. (i1, i2,..., iR) = RevealedIndexes
+2. if signature_result is INVALID, return INVALID
 
-3. (j1, j2,..., jU) = [L] \ RevealedIndexes
+3. (A, e, s) = signature_result
 
-4. if signature_result is INVALID, return INVALID
+4. (i1, i2,..., iR) = RevealedIndexes
 
-5. (A, e, s) = signature_result
+5. (j1, j2,..., jU) = [L] \ RevealedIndexes
 
-6. if KeyValidate(PK) is INVALID, return INVALID
+6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-7. generators =  (H_s || H_d || H_1 || ... || H_L)
+7. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+8. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
 
-9. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
+9. (m~_1, ..., m~_U) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
 
-10. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
+10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-11. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+11. r3 = r1 ^ -1 mod r
 
-12. r3 = r1 ^ -1 mod r
+12. A' = A * r1
 
-13. A' = A * r1
+13. Abar = A' * (-e) + B * r1
 
-14. Abar = A' * (-e) + B * r1
+14. D = B * r1 + H_s * r2
 
-15. D = B * r1 + H_s * r2
+15. s' = s + r2 * r3
 
-16. s' = s + r2 * r3
+16. C1 = A' * e~ + H_s * r2~
 
-17. C1 = A' * e~ + H_s * r2~
+17. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_1 + ... + H_jU * m~_U
 
-18. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+18. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-19. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+19. e^ = e~ + c * e
 
-20. e^ = e~ + c * e
+20. r2^ = r2~ + c * r2
 
-21. r2^ = r2~ + c * r2
+21. r3^ = r3~ + c * r3
 
-22. r3^ = r3~ + c * r3
+22. s^ = s~ + c * s'
 
-23. s^ = s~ + c * s'
+23. for j in (1, 2,..., U): m^_j = m~_j + c * msg_j
 
-24. for j in (j1, j2,..., jU): m^_j = m~_j + c * msg_j
+24. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1, ..., m^_U))
 
-25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
-
-26. return proof
+25. return proof_to_octets(proof)
 ```
 
 ### ProofVerify
@@ -648,37 +608,39 @@ Outputs:
 
 Procedure:
 
-1. if KeyValidate(PK) is INVALID, return INVALID
+1. proof_result = octets_to_proof(proof)
 
-2. (i1, i2, ..., iR) = RevealedIndexes
+2. if proof_result is INVALID, return INVALID
 
-3. (j1, j2, ..., jU) = [L]\RevealedIndexes
+3. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1,...,m^_U)) = proof_result
 
-4. proof_value = octets_to_proof(proof)
+4. W = octets_to_pubkey(PK)
 
-5. if proof_value is INVALID, return INVALID
+5. if W is INVALID, return INVALID
 
-6. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_value
+6. (i1, i2, ..., iR) = RevealedIndexes
 
-7. generators =  (H_s || H_d || H_1 || ... || H_L)
+7. (j1, j2, ..., jU) = [L]\RevealedIndexes
 
-8. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
+8. generators =  (H_s || H_d || H_1 || ... || H_L)
 
-9. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+9. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-10. T = P1 + H_s * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+10. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-11. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+11. T = P1 + H_d * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-12. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+12. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_1 + ... + H_jU * m^_U
 
-13. if c != cv, return INVALID
+13. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
 
-14. if A' == Identity_G1, return INVALID
+14. if c != cv, return INVALID
 
-15. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+15. if A' == Identity_G1, return INVALID
 
-16. return VALID
+16. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+
+17. return VALID
 ```
 
 # Utility Operations
@@ -1081,11 +1043,44 @@ Procedure:
 9. return proof_octets
 ```
 
+### Octets to Public Key
+
+This operation decodes an octet string representing a public key, validates it and returns the corresponding point in G2. Steps 2 to 5 check if the public key is valid. As an optimization, implementations MAY cache the result of those steps, to avoid unnecessarily repeating validation for known public keys.
+
+```
+W = octets_to_pubkey(PK)
+
+Inputs:
+
+- PK, octet string. A public key in the form ouputted by the SkToPK
+      operation
+
+Outputs:
+
+- W, a valid point in G2 or INVALID
+
+Procedure:
+
+1. W = octets_to_point_g2(PK)
+
+2. If W is INVALID, return INVALID
+
+3. if subgroup_check(W) is INVALID, return INVALID
+
+4. If W == Identity_G2, return INVALID
+
+5. return W
+```
+
 # Security Considerations
 
 ## Validating public keys
 
-It is RECOMMENDED for any operation in [BBS Scheme Definition](#bbs-scheme-definition) involving public keys that do not have an explicit invocation to the KeyValidate operation (#keyvalidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation. An example of where an explicit invocation to the KeyValidate operation (#keyvalidate) is already defined and therefore required is the verify (#verify) operation.
+It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [octets\_to\_pubkey](#octets-to-public-key) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure returns INVALID the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
+
+## Point de-serialization
+
+This document makes use of `octet_to_point_g*` to parse octet strings to elliptic curve points (either in G1 or G2). It is assumed (even if not explicitly described) that the result of this operation will not be INVALID. If `octet_to_point_g*` returns INVALID, then the calling operation should immediately return INVALID as well and abort the operation. Note that the only place where the output is assumed to be VALID implicitly is in the [Encoding of Elements to be Hashed](#encoding-of-elements-to-be-hashed) section.
 
 ## Skipping membership checks
 
