@@ -479,7 +479,7 @@ Procedure:
 
 9. if e(A, W + P2 * e) * e(B, -P2) != 1, return INVALID
 
-10. return Valid
+10. return VALID
 ```
 
 ### ProofGen
