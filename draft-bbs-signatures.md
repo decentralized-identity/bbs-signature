@@ -380,33 +380,6 @@ Procedure:
 2. return point_to_octets_g2(W)
 ```
 
-### KeyValidate
-
-This operation checks if a public key is valid.
-
-As an optimization, implementations MAY cache the result of KeyValidate in order to avoid unnecessarily repeating validation for known public keys.
-
-```
-result = KeyValidate(W)
-
-Inputs:
-
-- W (REQUIRED), the valid output of octets_to_point_g2(PK) where PK an
-                 octet string outputted by the SkToPk operation.
-
-Outputs:
-
-- result, either VALID or INVALID.
-
-Procedure:
-
-1. if subgroup_check(W) is INVALID, return INVALID
-
-2. If W == Identity_G2, return INVALID
-
-3. return VALID
-```
-
 ## Core Operations
 
 ### Sign
@@ -494,7 +467,7 @@ Procedure:
 
 3. (A, e, s) = signature_result
 
-4. W = pubkey_to_point(PK)
+4. W = octets_to_pubkey(PK)
 
 5. if W is INVALID, return INVALID
 
@@ -548,13 +521,13 @@ Procedure:
 
 1. signature_result = octets_to_signature(signature)
 
-2. (i1, i2,..., iR) = RevealedIndexes
+2. if signature_result is INVALID, return INVALID
 
-3. (j1, j2,..., jU) = [L] \ RevealedIndexes
+3. (A, e, s) = signature_result
 
-4. if signature_result is INVALID, return INVALID
+4. (i1, i2,..., iR) = RevealedIndexes
 
-5. (A, e, s) = signature_result
+5. (j1, j2,..., jU) = [L] \ RevealedIndexes
 
 6. generators =  (H_s || H_d || H_1 || ... || H_L)
 
@@ -632,19 +605,19 @@ Outputs:
 
 Procedure:
 
-1. W = pubkey_to_point(PK)
+1. proof_result = octets_to_proof(proof)
 
-2. if W is INVALID, return INVALID
+2. if proof_result is INVALID, return INVALID
 
-3. (i1, i2, ..., iR) = RevealedIndexes
+3. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1,...,m^_U)) = proof_result
 
-4. (j1, j2, ..., jU) = [L]\RevealedIndexes
+4. W = octets_to_pubkey(PK)
 
-5. proof_value = octets_to_proof(proof)
+5. if W is INVALID, return INVALID
 
-6. if proof_value is INVALID, return INVALID
+6. (i1, i2, ..., iR) = RevealedIndexes
 
-7. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1,...,m^_U)) = proof_value
+7. (j1, j2, ..., jU) = [L]\RevealedIndexes
 
 8. generators =  (H_s || H_d || H_1 || ... || H_L)
 
@@ -660,9 +633,9 @@ Procedure:
 
 14. if c != cv, return INVALID
 
-15. if A' == 1, return INVALID
+15. if A' == Identity_G1, return INVALID
 
-16. if e(A', W) * e(Abar, -P2) != 1, return INVALID
+16. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
 
 17. return VALID
 ```
@@ -982,11 +955,12 @@ Procedure:
 9. return proof_octets
 ```
 
-### PubkeyToPoint
-This operation describes how to decode an octet string representing a public key, validate it and return the corresponding point in G2.
+### Octets to Public Key
+
+This operation decodes an octet string representing a public key, validates it and returns the corresponding point in G2. Steps 2 to 5 check if the public key is valid. As an optimization, implementations MAY cache the result of those steps, to avoid unnecessarily repeating validation for known public keys.
 
 ```
-W = pubkey_to_point(PK)
+W = octets_to_pubkey(PK)
 
 Inputs:
 
@@ -1003,16 +977,22 @@ Procedure:
 
 2. If W is INVALID, return INVALID
 
-3. If KeyValidate(W) is INVALID, return INVALID
+3. if subgroup_check(W) is INVALID, return INVALID
 
-4. return W
+4. If W == Identity_G2, return INVALID
+
+5. return W
 ```
 
 # Security Considerations
 
 ## Validating public keys
 
-It is RECOMMENDED for any operation in [Scheme Definition](#scheme-definition) involving public keys that do not have an explicit invocation to the KeyValidate operation (#keyvalidate) documented in their procedure, that this check be performed prior to executing the operation. An example of where this recommendation applies is the sign (#sign) operation. An example of where an explicit invocation to the KeyValidate operation (#keyvalidate) is already defined and therefore required is the verify (#verify) operation.
+It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [octets_to_pubkey](#octets-to-public-key) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure returns INVALID the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
+
+## Valid de-serialization
+
+This document makes use of `octet_to_point_g*` to parse octet strings to elliptic curve points (either in G1 or G2). It is assumed (even if not explicitly described) that the result of this operation will not be INVALID. If `octet_to_point_g*` returns INVALID, then the calling operation should immediately return INVALID as well and abort the operation. Note that the only place where the output is assumed to be VALID implicitly is in the [Encoding of Elements to be Hashed](#encoding-of-elements-to-be-hashed) section.
 
 ## Skipping membership checks
 
