@@ -553,7 +553,7 @@ Procedure:
 
 17. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_1 + ... + H_jU * m~_U
 
-18. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+18. c = hash_to_scalar((PK || A' || Abar || D || C1 || C2 || ph), 1)
 
 19. e^ = e~ + c * e
 
@@ -629,7 +629,7 @@ Procedure:
 
 12. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_1 + ... + H_jU * m^_U
 
-13. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)
+13. cv = hash_to_scalar((PK || A' || Abar || D || C1 || C2 || ph), 1)
 
 14. if c != cv, return INVALID
 
