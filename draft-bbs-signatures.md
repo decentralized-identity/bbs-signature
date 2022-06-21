@@ -184,9 +184,6 @@ X\[a..b\]
 range(a, b)
 : For integers a and b, with a <= b, denotes the ascending ordered list of all integers between a and b inclusive (i.e., the integers "i" such that a <= i <= b).
 
-strxor(octet_str_1, octet_str_2)
-: The bitwise XOR of two octet strings of equal length, as defined in Section 4 of [@!I-D.irtf-cfrg-hash-to-curve].
-
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -507,6 +504,7 @@ Inputs:
 Parameters:
 
 - Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
+- expand_length, non-negative integer. Defined by the ciphersuite.
 - H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
 - H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
 
@@ -536,9 +534,9 @@ Procedure:
 
 7. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-8. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
+8. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(expand_length), 6)
 
-9. (m~_1, ..., m~_U) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
+9. (m~_1, ..., m~_U) =  hash_to_scalar(PRF(expand_length), U)
 
 10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -742,7 +740,7 @@ This operation describes how to hash an arbitrary octet string to `n` scalar val
 This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). Note that, if an implementer wants to use hash\_to\_field here instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). However, the hash\_to\_curve ciphersuites used by this document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For completeness, we define here the operation making use of the expand\_message function, that will be defined by the hash-to-curve ciphersuite used. If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
 ```
-result = hash_to_scalar_xof(msg_octets, count)
+result = hash_to_scalar(msg_octets, count)
 
 Inputs:
 
@@ -776,7 +774,7 @@ Procedure:
 
 5. uniform_bytes = expand_message(msg_prime, dst_prime, len_in_bytes)
 
-6. for i in (1, 2, ..., count):
+6. for i in (1, ..., count):
 
 7.     tv = uniform_bytes[(i-1)*expand_length..i*expand_length]
 
