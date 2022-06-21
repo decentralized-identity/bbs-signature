@@ -477,7 +477,7 @@ Procedure:
 
 8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-9. if e(A, W + P2 * e) * e(B, -P2) != 1, return INVALID
+9. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
 
 10. return VALID
 ```
