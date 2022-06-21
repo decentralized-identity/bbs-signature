@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-19T00:09:33.040800+00:00",
+  "timestamp": "2022-06-21T00:08:45.788847+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -4655,6 +4655,63 @@
           "updatedAt": "2022-06-16T02:30:15Z"
         }
       ]
+    },
+    {
+      "number": 178,
+      "id": "I_kwDOF8lax85MJQpu",
+      "title": "Align language consistency disclose vs reveal",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/178",
+      "state": "OPEN",
+      "author": "tplooker",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [
+        "ready-for-pr",
+        "core"
+      ],
+      "body": "We use both the term disclosed messages and revealed messages throughout the draft, considering we offer in the introduction that selective disclosure is one of the key properties enabled by the scheme I suggest we change all usages of the term reveal to disclose in the context of messages.",
+      "createdAt": "2022-06-20T23:32:10Z",
+      "updatedAt": "2022-06-20T23:32:25Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 179,
+      "id": "I_kwDOF8lax85MJRcJ",
+      "title": "Handling subgroup checks",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/179",
+      "state": "OPEN",
+      "author": "tplooker",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [
+        "ready-for-pr",
+        "core"
+      ],
+      "body": "Currently in the draft there are several key places we need to do subgroup checks on points, for example to validate a public key post de-serialization. However in some places we are implicitly relying on the `octet_to_point` function to perform this role and other places we are doing it as an explicit step in the procedure. We need to make this consistent, the options are\r\n\r\n1) Consistently rely on the `octet_to_point_g*` implementation and add a security consideration that documents this function MUST perform the relevant subgroup check.\r\n2) Explicitly document anywhere in the procedure where a subgroup check is required.\r\n\r\nIMO 2 feels like a safer but more verbose option to me.",
+      "createdAt": "2022-06-20T23:36:55Z",
+      "updatedAt": "2022-06-20T23:41:14Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 180,
+      "id": "I_kwDOF8lax85MJRuJ",
+      "title": "Add an acknowledgements section",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/180",
+      "state": "OPEN",
+      "author": "tplooker",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [
+        "ready-for-pr",
+        "core"
+      ],
+      "body": "As captured in the issue title",
+      "createdAt": "2022-06-20T23:38:39Z",
+      "updatedAt": "2022-06-20T23:41:24Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -18852,13 +18909,13 @@
       "labels": [],
       "body": "First shot in a `hash_to_scalar_xmd` function to be used with regular hashes as an alternative to the one currently in the spec (that uses an xof). The proposed function essentially makes use of `expand_message_xmd` (not called directly, see below why), and will give a less efficient option for implementers not wishing to make use of shake256.\r\n\r\nComparison with `hash_to_field` and `expand_message_xmd`:\r\n1.\t**Memory efficiency**: `hash_to_field` will call `expand_message` once to output the total number of bytes needed for all the outputted elements. Since we may potentially need to create many scalars, this may not be the more efficient approach. For example, if one wants to create a proof with 1000 hidden messages, the output of `expand_message` will need to be at least 64 kb. In contrast, `hash_to_scalar_xmd` will only need to \u201chold\u201d 64 bytes at once. Note that the total number of hash invocations is the same in both cases, so the computational overhead will effectively be zero.\r\n2.\t**Efficiently checking if a scalar is 0**: Although there are discussions on not overengineering the spec, I feel here is the one place we may need to have the check. The reason is that many signed messages may result to the probability of returning a 0 been higher than what we anticipate (not really an issue for bls12-381 but may become an issue for \u201csmaller\u201d ECs).\r\n3.\tCalling `expand_message_xmd` directly instead of the xof would be wasteful (it would result to at least n-1 unnecessary hash computations for b_0)\r\n\r\nAnother option can be to use hkdf instead. The tradeoff here is double the hash computations vs spec simplicity + the wider availability of hkdf.\r\n",
       "createdAt": "2022-05-21T20:26:35Z",
-      "updatedAt": "2022-06-17T01:37:53Z",
+      "updatedAt": "2022-06-20T23:26:16Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
+      "baseRefOid": "ccf48fa8e2e9eb022b3591687d5ca6e3bebac584",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "hash_to_scalar_xmd",
-      "headRefOid": "1603a4027fce3aa803125501171f27d3db5af7f9",
+      "headRefOid": "d3fc060c3cf5fe13154010e99e97083603941147",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -18884,6 +18941,41 @@
           "body": "> If the memory usage turns out to not be an issue the operation can be significantly simplified to something like,\r\n> \r\n> ```\r\n> result = hash_to_scalar_xmd(msg, n)\r\n> \r\n> Procedure:\r\n> \r\n> 1. msg_hash= hash(msg || I2OSP(0, 1) || I2OSP(n, 8))\r\n> \r\n> 2. (scalar_1, ..., scalar_n) = hash_to_field(msg_hash, n)\r\n> \r\n> 3. if 0 in (scalar_1, ..., scalar_n):\r\n> \r\n> 4.     msg_hash = hash(msg_hash)\r\n> \r\n> 5.     go back to step 2\r\n> \r\n> 6. return (scalar_1, ..., scalar_n)\r\n> ```\r\n\r\nLooking again, I think this may be the better option. There's no actual requirement for the hash_to_field implementation to output all of the bytes before generating the scalars, in fact the bls12-381 implementation does it iteratively: https://github.com/zkcrypto/bls12_381/blob/34dab74ae44cd77dfa867928dd2e6c8383d8dc9d/src/hash_to_curve/mod.rs#L50\r\n\r\nWe could even use the same method for both XOF and XMD modes and eliminate the separate versions, short-circuiting and restarting if a zero scalar is found (which is unlikely anyway) by using a slightly modified version of hash_to_field. (Edit) Here's what that might look like:\r\n\r\n```\r\nmsg_prime = msg || I2OSP(0, 1) || I2OSP(count, 8)\r\nlen_in_bytes = count * expand_length\r\nuniform_bytes = expand_message(msg_prime, hash_to_scalar_dst, len_in_bytes)\r\nfor i in range(1, count):\r\n  tv = uniform_bytes[expand_length*(i-1)..expand_length*i]\r\n  scalar_i = OS2IP(tv) mod r\r\n  if scalar_i == 0:\r\n  \treturn hash_to_scalar(uniform_bytes, count)\r\nreturn (scalar_1, ..., scalar_(count))\r\n```",
           "createdAt": "2022-06-17T01:14:51Z",
           "updatedAt": "2022-06-17T01:37:53Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I think i prefer to directly use hash-to-field if we are to go the simpler round. If we assume an optimized implementation then this is much easier to be achieved if someone uses (an optimized) hash-to-field, rather than requiring from a bbs+ implementer to efficiently use an optimized expand-message. We can achieve the same effect of only one operation by just hashing the original message and trying again (as in my [original suggestion](https://github.com/decentralized-identity/bbs-signature/pull/151#issuecomment-1133764513)).\r\n\r\nBut let\u2019s discuss this more in the WG call :)",
+          "createdAt": "2022-06-20T17:23:31Z",
+          "updatedAt": "2022-06-20T17:24:44Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Discussed on WG call, the current sentiment is to restructure the hash to scalar procedure to either use hash_to_field or expand_message to accomplish the same functionality but in a simpler manner. See above for the two proposals from @BasileiosKal and @andrewwhitehead respectively.",
+          "createdAt": "2022-06-20T18:26:26Z",
+          "updatedAt": "2022-06-20T18:26:26Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Discussed on WG call, resolved to move to the hash_to_field based approach suggested by @BasileiosKal, however a slightly modified procedure to use a counter instead of hash if a zero scalar value is encountered. \r\n\r\nMore generally it was also discussed that we should open a tracking issue to determine whether we want to support rejection sampling in general across the spec for procedures that involve generating scalars. There is guidance in the hash to curve draft that advises against this style of check (e.g checking that a generated scalar value is zero) so we may revise to line up with that guidance because the probability is so low.",
+          "createdAt": "2022-06-20T18:44:37Z",
+          "updatedAt": "2022-06-20T18:44:37Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "After some more thought, a potentially annoying issue is that using `hash_to_field` will require defining 2 h2c ciphersuites, one for the xof and one for the xmd version of `expand_message`. The reason is that the h2c spec only defines suites where the `field` in `hash_to_field` is the base field of the EC itself and not the scalars mod r (that we need). This matters because we would then \"mod\" with the wrong prime (i.e.,  not r).\r\n\r\nAny thoughts here?? @andrewwhitehead, @tplooker?? If not, I may move with [Andrew\u2019s proposal](https://github.com/decentralized-identity/bbs-signature/pull/151#issuecomment-1158367638) to avoid this issue.",
+          "createdAt": "2022-06-20T22:58:59Z",
+          "updatedAt": "2022-06-20T22:58:59Z"
+        },
+        {
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@BasileiosKal  The H2C spec does say this..\r\n\r\n> The hash_to_field function is also suitable for securely hashing to scalars.  For example, when hashing to the scalar field for an elliptic curve (sub)group with prime order r, it suffices to instantiate hash_to_field with target field GF(r).\r\n\r\nHowever, I'm not sure if we can guarantee that a particular H2C implementation has support for this operation.\r\n\r\nAlso this doesn't work if we want to support the reduced-memory iterative version: `return hash_to_scalar(uniform_bytes, count)`",
+          "createdAt": "2022-06-20T23:23:24Z",
+          "updatedAt": "2022-06-20T23:26:16Z"
         }
       ],
       "reviews": [
@@ -21055,24 +21147,26 @@
       "id": "PR_kwDOF8lax845HQvu",
       "title": "Editorial updates",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/165",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Various editorial updates:\r\n1. PK and KeyValidate updates:\r\n    1. Changed `KeyValidate` to accept the de-serialized key (half the times `KeyValidate` was used the PK was (re) de-serialized  immediately after, which is inefficient).\r\n    2. Removed `KeyValidate` from `ProofGen` and `Sign` (we just hash the PK there).\r\n    3. Removed PK de-serialization from `Sign` (the result is not used).\r\n    4. Added PK de-serialization to `ProofVerify`.\r\n \r\n2. Changed notation from `m~_j1, \u2026, m~_jU` -> `m~_1, \u2026, m~_U` (I think it's clearer this way).\r\n\r\nSome updates noted by @dev0x1:\r\n1. Changed pairing equality check in `Verify` to match the one in `ProofVerify`.\r\n\r\n2. Fixed typo in `ProofVerify` (`H_s` -> `H_d` in step 8).\r\n\r\nI will update/re-base this as required if needed (it will probably have conflicts with some of the other open PRs).",
       "createdAt": "2022-06-04T14:34:16Z",
-      "updatedAt": "2022-06-14T12:27:49Z",
+      "updatedAt": "2022-06-20T18:56:30Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "ca6dc83da752127a3d2cf61043c5781b7c433d53",
+      "baseRefOid": "337f3b03caa246c0ed9265fae44b0ab78d94fa72",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "editorial-updates",
-      "headRefOid": "d1c38213a9859f693e09f4ab1bbe1ee996df99c0",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "e0a67d6a46b23d5cbe1ba92384711e9740913e6b",
+      "closedAt": "2022-06-20T18:56:30Z",
+      "mergedAt": "2022-06-20T18:56:30Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "ec3780a935356478fdc3887036759ccee72c07fa"
+      },
       "comments": [
         {
           "author": "dev0x1",
@@ -21122,6 +21216,13 @@
           "body": "Discussed on the WG call resolved to make a few changes\r\n\r\n- rename pubkey_to_point to octets_to_pubkey\r\n- add identity check to octets_to_pubkey and then remove KeyValidate\r\n- add security consideration for sub group checks for the octet_to_point_g* functions",
           "createdAt": "2022-06-13T18:38:07Z",
           "updatedAt": "2022-06-13T18:38:07Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> Discussed on the WG call resolved to make a few changes\r\n\r\nUpdated and ready for re-review!",
+          "createdAt": "2022-06-20T11:56:52Z",
+          "updatedAt": "2022-06-20T11:56:52Z"
         }
       ],
       "reviews": [
@@ -21289,6 +21390,72 @@
           "body": "Dropping approval considering the changes we agreed on the WG call",
           "createdAt": "2022-06-13T18:38:35Z",
           "updatedAt": "2022-06-13T18:38:35Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax848W5CB",
+          "commit": {
+            "abbreviatedOid": "694d69e"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-20T18:09:13Z",
+          "updatedAt": "2022-06-20T18:09:13Z",
+          "comments": [
+            {
+              "originalPosition": 103,
+              "body": "```suggestion\r\n10. return VALID\r\n```",
+              "createdAt": "2022-06-20T18:09:13Z",
+              "updatedAt": "2022-06-20T18:09:13Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848W5P8",
+          "commit": {
+            "abbreviatedOid": "694d69e"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-20T18:10:29Z",
+          "updatedAt": "2022-06-20T18:10:30Z",
+          "comments": [
+            {
+              "originalPosition": 283,
+              "body": "```suggestion\r\n## Point de-serialization\r\n```",
+              "createdAt": "2022-06-20T18:10:29Z",
+              "updatedAt": "2022-06-20T18:10:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848W5Vh",
+          "commit": {
+            "abbreviatedOid": "5605266"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-20T18:11:02Z",
+          "updatedAt": "2022-06-20T18:11:02Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax848W-Xh",
+          "commit": {
+            "abbreviatedOid": "5605266"
+          },
+          "author": "christianpaquin",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-20T18:42:01Z",
+          "updatedAt": "2022-06-20T18:42:01Z",
           "comments": []
         }
       ]
@@ -21641,25 +21808,35 @@
       "id": "PR_kwDOF8lax845ziih",
       "title": "Update generator creation procedure",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/177",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "andrewwhitehead",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "This removes several of the ciphersuite parameters in favor of a generator creation procedure which reuses the `expand_message` operation defined by hash-to-curve suite. Additional PRs would be needed to update the use of generators in the suite's operations, and to update the test vectors. I'm trying to avoid conflicts with open PRs.\r\n\r\nThe operation currently defines a `hash_output_bytes` value, but this would likely switch to `expand_length` used in #151.\r\n\r\nSupersedes #161 and the discussion on that PR.",
       "createdAt": "2022-06-16T21:44:40Z",
-      "updatedAt": "2022-06-16T22:19:49Z",
+      "updatedAt": "2022-06-20T21:41:04Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "8c6930008f1482ccbdbd3cde7eea2f93ef4e920d",
+      "baseRefOid": "337f3b03caa246c0ed9265fae44b0ab78d94fa72",
       "headRepository": "andrewwhitehead/bbs-signature",
       "headRefName": "suite-generators-2",
-      "headRefOid": "7955cdd74817832480cfc6a1e997fd16fa61a509",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
-      "comments": [],
+      "headRefOid": "2f0064a6ca362d6a9b5cd7a791c0d76d4b9a19ce",
+      "closedAt": "2022-06-20T21:41:04Z",
+      "mergedAt": "2022-06-20T21:41:04Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "ccf48fa8e2e9eb022b3591687d5ca6e3bebac584"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Discussed on WG call, multiple reviews and approvals, merging, thanks @andrewwhitehead!",
+          "createdAt": "2022-06-20T21:40:59Z",
+          "updatedAt": "2022-06-20T21:40:59Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOF8lax848L20S",
@@ -21740,8 +21917,451 @@
               "updatedAt": "2022-06-16T22:19:49Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848SjGg",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T09:08:35Z",
+          "updatedAt": "2022-06-19T10:03:55Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "```suggestion\r\nThe `create_generators` operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as Sign, Verify, ProofGen and ProofVerify. It takes one input, the number of generator points to create, which is determined in part by the number of signed messages.\r\n```\r\nThe selectively revealed part may be confused to the number of messages that will be revealed by the proof. Maybe removing it will be clearer??",
+              "createdAt": "2022-06-19T09:08:35Z",
+              "updatedAt": "2022-06-19T10:03:56Z"
+            },
+            {
+              "originalPosition": 53,
+              "body": "```suggestion\r\n2. v = expand_message(generator_seed || I2OSP(0, 4), seed_dst, hash_output_bytes)\r\n```\r\nJust for consistency with line 728 and so we can guarantee that the inputs will be distinct??",
+              "createdAt": "2022-06-19T09:12:59Z",
+              "updatedAt": "2022-06-19T10:03:56Z"
+            },
+            {
+              "originalPosition": 70,
+              "body": "A potential issue here is that from the first generator, all other generators can be deterministically defined. On other words, `generator_2` is not indistinguishable from random if you know `generator_1`. \r\n\r\nI realize that this approach is meant to be more easily \"extendable\" so I'm fine with moving on with that and maybe updating it later if we need to. Since the seed is not adversarialy controlled this is most probably fine.\r\n\r\nThat said, some other options can be to,\r\n1. call `expand_message` once to get `count * hash_output_bytes` bytes and the get substrings of that as seeds. I do realize this is not as easily extendable, but it will be provably secure while keeping the number of parameters low.\r\n2. use a \"secret value\" like PRK in HKDF or b_0 in expand_message_xmd. So we can set `b_0 = hash(generator_seed)` and call `v = expand_message(b_0 || v || I2OSP(n, 4), seed_dst, hash_output_bytes)` etc..\r\n\r\nIn any case, i sugest moving with this now and work on a formal security analysis later. This will allow for some other progress to be done as well.",
+              "createdAt": "2022-06-19T09:57:47Z",
+              "updatedAt": "2022-06-19T10:03:56Z"
+            },
+            {
+              "originalPosition": 41,
+              "body": "We don't mod something here so i don't see the reason for this suggestion. This will be the seed that will go into hash_to_curve which can be whatever length we want wright?? Or are we going to use that value, just so we will not introduce an extra variable?? It still seems a little extensive though, why not use `ceil(log2(r)/8)` for example??",
+              "createdAt": "2022-06-19T10:02:40Z",
+              "updatedAt": "2022-06-19T10:03:56Z"
+            },
+            {
+              "originalPosition": 19,
+              "body": "Is `c` here `count`??",
+              "createdAt": "2022-06-19T10:03:27Z",
+              "updatedAt": "2022-06-19T10:03:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848Skfx",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T10:04:28Z",
+          "updatedAt": "2022-06-19T10:04:28Z",
+          "comments": [
+            {
+              "originalPosition": 42,
+              "body": "That's true but since this procedure will be used to create ciphersuite specific operators i like not adding them to the things an implimenter will need to choose. Maybe adding them as operation definitions??",
+              "createdAt": "2022-06-19T10:04:28Z",
+              "updatedAt": "2022-06-19T10:04:28Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848Skf1",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T10:04:32Z",
+          "updatedAt": "2022-06-19T10:04:32Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "There is a difference IMO and that is that we re-initialize the xof every time with a different seed. Personally, I\u2019m fine with the approach since it allows for the efficient \"expansion\" of cached generators.",
+              "createdAt": "2022-06-19T10:04:32Z",
+              "updatedAt": "2022-06-19T10:05:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848SlDn",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T10:28:06Z",
+          "updatedAt": "2022-06-19T10:28:07Z",
+          "comments": [
+            {
+              "originalPosition": 41,
+              "body": "And actually, thinking more about it, does this method \"require\" expand_message?? Wouldn't just `hash` do, where if `hash` is an xof, we will specify the output length??",
+              "createdAt": "2022-06-19T10:28:06Z",
+              "updatedAt": "2022-06-19T10:28:07Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848SwrT",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T17:25:04Z",
+          "updatedAt": "2022-06-19T17:25:04Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "Yes I wasn't clear there, it's only similar for the first generator.",
+              "createdAt": "2022-06-19T17:25:04Z",
+              "updatedAt": "2022-06-19T17:25:04Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848Swsh",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T17:26:09Z",
+          "updatedAt": "2022-06-19T17:26:09Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "Oops, I renamed that to `n`.",
+              "createdAt": "2022-06-19T17:26:09Z",
+              "updatedAt": "2022-06-19T17:26:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848SwuK",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T17:27:24Z",
+          "updatedAt": "2022-06-19T17:27:24Z",
+          "comments": [
+            {
+              "originalPosition": 42,
+              "body": "> Maybe adding them as operation definitions??\r\n\r\nThey are added as definitions currently",
+              "createdAt": "2022-06-19T17:27:24Z",
+              "updatedAt": "2022-06-19T17:27:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848Swye",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T17:31:20Z",
+          "updatedAt": "2022-06-19T17:31:21Z",
+          "comments": [
+            {
+              "originalPosition": 41,
+              "body": "`hash_output_bytes` would likely be replaced by `expand_length` in future, but that's in another PR. I didn't want to reference `xof_no_bytes` here.",
+              "createdAt": "2022-06-19T17:31:20Z",
+              "updatedAt": "2022-06-19T17:31:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848Sw3A",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T17:35:09Z",
+          "updatedAt": "2022-06-19T17:35:09Z",
+          "comments": [
+            {
+              "originalPosition": 41,
+              "body": "> And actually, thinking more about it, does this method \"require\" expand_message?? Wouldn't just hash do, where if hash is an xof, we will specify the output length??\r\n\r\nIt could but that would limit `v` to the hash's output size for fixed output hashes. I prefer using `expand_message` here because it's a primitive that is guaranteed to be available and should be hard to misuse.",
+              "createdAt": "2022-06-19T17:35:09Z",
+              "updatedAt": "2022-06-19T17:35:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848Sw6D",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T17:37:44Z",
+          "updatedAt": "2022-06-19T17:37:44Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "That could be a little harder to implement, because generator_seed doesn't have a bounded length, so the implementer might need to allocate a separate buffer to create the input for expand_message. If the inputs are not distinct, then the algorithm would loop to the next attempt because the generator was already output.",
+              "createdAt": "2022-06-19T17:37:44Z",
+              "updatedAt": "2022-06-19T17:54:19Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848Sw-R",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T17:41:12Z",
+          "updatedAt": "2022-06-19T17:41:12Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "> generator_2 is not indistinguishable from random if you know generator_1\r\n\r\ngenerator_i does not determine the generator_(i+1) though, as the generator points are not used as inputs to create the next state. There are multiple `v` values which could produce each generator point, especially if we increase the size of `v`. And of course you would have to invert the hash somehow to predict the next value.\r\n\r\nAnother option would be to use `v[X..]` as the hash-to-curve input, so the first X bytes remain as 'private' for the generator state machine.",
+              "createdAt": "2022-06-19T17:41:12Z",
+              "updatedAt": "2022-06-19T17:50:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848Sx-e",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T18:31:32Z",
+          "updatedAt": "2022-06-19T18:31:32Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "Here's what the last option might look like:\r\n\r\n```\r\nprivate_bytes = 16  # could be in definitions, probably does not need to be curve dependent\r\nhash_output_bytes = private_bytes + expand_length\r\nn = 1\r\nv = expand_message(generator_seed, seed_dst, hash_output_bytes)\r\nfor i in range(1, count):\r\n   generator_i = Identity_G1\r\n   while generator_i == Identity_G1 or generator_i == P1:\r\n       candidate = hash_to_curve_g1(v[private_bytes..hash_output_bytes], generator_dst)\r\n       if candidate not in generators[1..i-1]: generator_i = candidate\r\n       v = expand_message(v || I2OSP(n, 4), seed_dst, hash_output_bytes)\r\n       n = n + 1\r\nreturn generators\r\n```\r\n\r\nAnother option is to initialize v[..private_bytes] with zeroes when hashing the seed.",
+              "createdAt": "2022-06-19T18:31:32Z",
+              "updatedAt": "2022-06-19T18:31:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848S3iP",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T23:23:16Z",
+          "updatedAt": "2022-06-19T23:23:16Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "> generator_i does not determine the generator_(i+1) though, as the generator points are not used as inputs to create the next state. There are multiple v values which could produce each generator point, especially if we increase the size of v. And of course you would have to invert the hash somehow to predict the next value.\r\n\r\nYea this is true in practice, however it may not be \"strong\" enough for a security proof. Proving \"statistical closeness to uniform\" is hard, since`P(generator_i | generator_(i-1), ..., generator_1) >> 1/i`. Also, I think we should treat the seed as a known, fixed value (like an IV) in this case, which does not help with the proof. Even if that was not the case though, it is true that multiple `v`'s can give the same point, but a simulator cannot find them, if we assume coalition resistance. As you noted though, we may be able to prove this for \"computationally close to uniform\".\r\n\r\nPersonally, I like the cut-off method. A prefix-free method could also work and is pretty close to the current direction of the PR. That said, I do suggest leaving any updates (if there are any required) after we do a formal analysis. I will try to write down a formal proof, and if there are any updates required as a result, we can make them in following PRs.\r\n",
+              "createdAt": "2022-06-19T23:23:16Z",
+              "updatedAt": "2022-06-19T23:23:16Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848S3j4",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T23:24:05Z",
+          "updatedAt": "2022-06-19T23:24:06Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "Good point. Maybe then calculating a first `v` as `v = expand_message(generator_seed, seed_dst, hash_output_bytes)` and then again as `v = expand_message(v || I2OSP(0, 4), seed_dst, hash_output_bytes)` (this second `v` will be the \"seed\" for the first generator)?? I do realize this adds complexity, but it will make it easier to move to a cut-off or prefix-free like construction if we decide to do so.",
+              "createdAt": "2022-06-19T23:24:05Z",
+              "updatedAt": "2022-06-19T23:24:06Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848S3ml",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T23:25:19Z",
+          "updatedAt": "2022-06-19T23:25:20Z",
+          "comments": [
+            {
+              "originalPosition": 41,
+              "body": "Ok. Thats a good point and i think that you are right in that expand_message will be just as available in practice.",
+              "createdAt": "2022-06-19T23:25:19Z",
+              "updatedAt": "2022-06-19T23:25:20Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848S3ny",
+          "commit": {
+            "abbreviatedOid": "7955cdd"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-19T23:25:57Z",
+          "updatedAt": "2022-06-19T23:25:57Z",
+          "comments": [
+            {
+              "originalPosition": 42,
+              "body": "Oh, you right. My bad!",
+              "createdAt": "2022-06-19T23:25:57Z",
+              "updatedAt": "2022-06-19T23:25:57Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848XSXR",
+          "commit": {
+            "abbreviatedOid": "a499a62"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Just a minor comment. LGTM otherwise!!",
+          "createdAt": "2022-06-20T20:48:53Z",
+          "updatedAt": "2022-06-20T20:57:35Z",
+          "comments": [
+            {
+              "originalPosition": 75,
+              "body": "```suggestion\r\n9.        if candidate not in (generator_1, ..., generator_(i-1)):\r\n\r\n10.              generator_i = candidate\r\n\r\n11. return (generator_1, ..., generator_count)\r\n```\r\nJust a suggestion because we \"technically\" don\u2019t define the generators list",
+              "createdAt": "2022-06-20T20:48:54Z",
+              "updatedAt": "2022-06-20T21:08:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848XT7W",
+          "commit": {
+            "abbreviatedOid": "a499a62"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-20T21:00:48Z",
+          "updatedAt": "2022-06-20T21:00:48Z",
+          "comments": [
+            {
+              "originalPosition": 75,
+              "body": "Thanks, maybe it should use `n` instead of `count` as the length parameter in line with hash-to-scalar?",
+              "createdAt": "2022-06-20T21:00:48Z",
+              "updatedAt": "2022-06-20T21:00:48Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848XU6N",
+          "commit": {
+            "abbreviatedOid": "a499a62"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-20T21:08:09Z",
+          "updatedAt": "2022-06-20T21:08:09Z",
+          "comments": [
+            {
+              "originalPosition": 75,
+              "body": "Oh right, sorry! Yea I\u2019m fine with both honestly. I'm updating hash-to-scalar either way, so I can make that consistent with what we do here. I updated the suggestion to use `count` for now, just for ease, but I can go with either.",
+              "createdAt": "2022-06-20T21:08:09Z",
+              "updatedAt": "2022-06-20T21:08:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848XY95",
+          "commit": {
+            "abbreviatedOid": "2f0064a"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-20T21:40:06Z",
+          "updatedAt": "2022-06-20T21:40:06Z",
+          "comments": []
         }
       ]
+    },
+    {
+      "number": 181,
+      "id": "PR_kwDOF8lax845-rgh",
+      "title": "Updates to intro",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/181",
+      "state": "OPEN",
+      "author": "tplooker",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Resolves #172 and makes a minor editorial tweak to intro section",
+      "createdAt": "2022-06-20T23:40:51Z",
+      "updatedAt": "2022-06-20T23:40:51Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "271897555aa6a941862a1c7c0314d85e43d69cb7",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "tl/update-intro",
+      "headRefOid": "ec3fa9ed4c10890632e71d5775b552cad0146646",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
