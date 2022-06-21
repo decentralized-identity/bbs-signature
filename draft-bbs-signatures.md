@@ -59,7 +59,7 @@ BBS is a digital signature scheme categorized as a form of short group signature
 
 A digital signature scheme is a fundamental cryptographic primitive that is used to provide data integrity and verifiable authenticity in various protocols. The core premise of digital signature technology is built upon asymmetric cryptography where-by the possessor of a private key is able to sign a message, where anyone in possession of the corresponding public key matching that of the private key is able to verify the signature.
 
-The name BBS is derived from the authors of the original academic works of Dan Boneh, Xavier Boyen and Hovav Schacham, where the scheme was first described.
+The name BBS is derived from the authors of the original academic work of Dan Boneh, Xavier Boyen, and Hovav Shacham, where the scheme was first described.
 
 Beyond the core properties of a digital signature scheme, BBS signatures provide multiple additional unique properties, three key ones are:
 
