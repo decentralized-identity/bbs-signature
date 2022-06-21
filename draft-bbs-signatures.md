@@ -665,10 +665,15 @@ Parameters:
 
 Definitions:
 
-- expand_message is the corresponding operation associated with the ciphersuite's hash_to_curve_g1 parameter.
-- seed_dst is the octet string representing "BBS-SIG-GENERATOR-SEED" in the ASCII character encoding.
-- hash_output_bytes is the integer given by ceil((log2(r) + k) / 8).
-- generator_dst is the octet string representing "BBS-SIG-GENERATOR-DST" in the ASCII character encoding.
+- expand_message, as defined by the hash-to-curve suite uniquely
+                  identified by the hash_to_curve_id ciphersuite
+                  parameter.
+- seed_dst, is the octet string representing "BBS-SIG-GENERATOR-SEED"
+            in the ASCII character encoding.
+- expand_length, non-negative integer. Defined by the ciphersuite.
+- generator_dst, is the octet string representing
+                 "BBS-SIG-GENERATOR-DST" in the ASCII character
+                 encoding.
 
 Outputs:
 
@@ -676,7 +681,7 @@ Outputs:
 
 Procedure:
 
-1. v = expand_message(generator_seed, seed_dst, hash_output_bytes)
+1. v = expand_message(generator_seed, seed_dst, expand_length)
 
 2. n = 1
 
@@ -686,7 +691,7 @@ Procedure:
 
 5.    while generator_i == Identity_G1 or generator_i == P1:
 
-6.        v = expand_message(v || I2OSP(n, 4), seed_dst, hash_output_bytes)
+6.        v = expand_message(v || I2OSP(n, 4), seed_dst, expand_length)
 
 7.        n = n + 1
 
@@ -734,32 +739,26 @@ Procedure:
 
 This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
-This document defines two different operations for hashing inputs into scalar values. The first one, making use of a more modern extendable output function, and the second one, making use of the more established fixed-output hash functions. More specifically, the operations defined are the following.
-
-1. `hash_to_scalar_xof`, is the more performant option, which makes use of an extendable output function, like SHAKE-256 or SHAKE-128.
-2. `hash_to_scalar_xmd`, is less performant in comparison, requires a fixed length output function like SHA2 or SHA3.
-
-### hash_to_scalar_xof
-
-The `hash_to_scalar_xof` function takes as an input the message to be hashed and a non-negative integer indicating the number of non-zero scalars to be returned. The operation can be implemented using an extendable output function (xof), like one from the SHAKE family of functions [@!SHA3]. The xof function MUST provide at least `k` bits of collision resistance (where `k` the security level of the ciphersuite) and be indifferentiable from a random oracle under reasonable assumption.
+This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). Note that, if an implementer wants to use hash\_to\_field here instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). However, the hash\_to\_curve ciphersuites used by this document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For completeness, we define here the operation making use of the expand\_message function, that will be defined by the hash-to-curve ciphersuite used. If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
 ```
-result = hash_to_scalar_xof(msg_octets, n)
+result = hash_to_scalar_xof(msg_octets, count)
 
 Inputs:
 
 - msg_octets (REQUIRED), octet string. The message to be hashed.
-- n (REQUIRED), an integer greater or equal to 1. The number of scalars
-                to output.
+- count (REQUIRED), an integer greater or equal to 1. The number of
+                    scalars to output.
 
 Parameters:
 
-- r (REQUIRED), non-negative integer. The prime order of the G1 and G2
-                groups, defined by the ciphersuite.
-- expand_length (REQUIRED), non-negative integer. The number of bytes to
-                            read from the xof function, defined by the
-                            ciphersuite.
-- dst (REQUIRED), octet string. Domain separation tag.
+- expand_message, as defined by the hash-to-curve suite uniquely
+                  identified by the hash_to_curve_id ciphersuite
+                  parameter.
+- dst, octet string. the separation tag defined by the
+       hash_to_curve_id ciphersuite parameter.
+- expand_length, non-negative integer. The number of bytes required to
+                 compute each scalar, defined by the ciphersuite.
 
 Outputs:
 
@@ -767,87 +766,29 @@ Outputs:
 
 Procedure:
 
-1. dst_prime = (dst || I2OSP(len(dst), 1))
+1. len_in_bytes = cound * expand_length
 
-2. msg = (msg_octets || I2OSP(n, 8))
+2. dst_prime = dst || "HASH_TO_SCALAR_"
 
-3. ex_l_octets = I2OSP(expand_length, 2)
+3. t = 0
 
-4. h = xof(msg || ex_l_octets || dst_prime)
+4. msg_prime = msg_octets || I2OSP(t, 1) || I2OSP(count, 4)
 
-5. for i in range(1, n):
+5. uniform_bytes = expand_message(msg_prime, dst_prime, len_in_bytes)
 
-6.     scalar_i = OS2IP(h.read(expand_length)) mod r
+6. for i in (1, 2, ..., count):
 
-7.     if scalar_i is 0, go back to step 6
+7.     tv = uniform_bytes[(i-1)*expand_length..i*expand_length]
 
-8. return (scalar_1, ..., scalar_n)
-```
+8.     scalar_i = OS2IP(tv) mod r
 
-### hash_to_scalar_xmd
+9. if 0 in (scalar_1, ..., scalar_count):
 
-Implementations not wishing to use the more performant `hash_to_scalar_xof` operation, can elect to use `hash_to_scalar_xmd`. The `hash_to_scalar_xmd` is based on the `expand_message_xmd` function defined in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve] and as such, can be implimented using a hash function with a fixed output length like SHA-256 or SHA-512 (in contrast `hash_to_scalar_xof`, requires an extentable output hash function). The hash function used to impliment this operation MUST comfort to the requirements detailed in Section 5.4 of [@!I-D.irtf-cfrg-hash-to-curve].
+10.     t = t + 1
 
-```
-result = hash_to_scalar_xmd(msg_octets, n)
+11.     go back to step 4
 
-Inputs:
-- msg_octets (REQUIRED), octet string. The message to be hashed.
-- n (REQUIRED), an integer greater or equal to 1. The number of scalars
-                to output.
-
-Parameters:
-
-- r (REQUIRED), non-negative integer. The prime order of the G1 and G2
-                groups, defined by the ciphersuite.
-- expand_length (REQUIRED), non-negative integer. The number of bytes
-                            required to compute each scalar, defined by
-                            the ciphersuite.
-- dst (REQUIRED), octet string. Domain separation tag.
-- b (REQUIRED), non-negative integer. The output size of the hash
-                function in bits. For example, for SHA-256, b = 256.
-- s (REQUIRED), non-negative integer. The input block size of the hash
-                function in bits. For example, for SHA-256, s = 512.
-
-Procedure:
-
-1. Set b_in_bytes = b/8 and s_in_bytes = s/8
-
-2. ell = ceil(expand_length / b_in_bytes)
-
-3. dst_prime = dst || I2OSP(len(dst), 1)
-
-4. Z_pad = I2OSP(0, s_in_bytes)
-
-5. msg = (msg_octets || I2OSP(n, 8))
-
-6. ex_l_octets = I2OSP(expand_length, 2)
-
-7. msg_prime = (Z_pad || msg || ex_l_octets || I2OSP(0, 1) || dst_prime)
-
-8. b_0 = H(msg_prime)
-
-9. b_1 = H(b_0 || I2OSP(1, 1) || dst_prime)
-
-10. k = 2
-
-11. for i in range(1, n):
-
-12.     for _ in range(2, ell):
-
-13.         b_k = hash(strxor(b_0, b_(k-1)) || I2OSP(k, 1) || dst_prime)
-
-14.         k += 1
-
-15.     total_bytes = (b_(k-ell) || ... || b_(k-1))
-
-16.     h_i = total_bytes[0..expand_length]
-
-17.     scalar_i = OS2IP(h_i) mod r
-
-18.     if scalar_i is 0 mod r, go back to step 12.
-
-19. return scalar_1, ..., scalar_n
+12. return (scalar_1, ..., scalar_count)
 ```
 
 ## Serialization
@@ -1176,7 +1117,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
 
-- hashing\_elements\_to\_scalars:  either `hash_to_scalar_xof` using hash (in this case hash MUST be an xof), or `hash_to_scalar_xmd`.
+- hash\_to\_curve: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve], along with the dst used for the hash\_to\_field operation. This uniquely defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup) and the expand\_message operations used in this document.
 
 **Serialization functions**:
 
@@ -1196,9 +1137,6 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 - generator\_seed: The seed used to determine the generator points which form part of the public parameters used by the BBS signature scheme. Note there are multiple possible scopes for this seed, including: a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); and a signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operation to any others.
 
-- hash\_to\_curve\_g1:
-A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
-
 ## BLS12-381 Ciphersuite
 
 The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hashtocurve-definition-using-shake-256), which also makes use of the SHAKE-256 function.
@@ -1215,7 +1153,7 @@ The following ciphersuite is based on the BLS12-381 elliptic curve defined in Se
 
 - octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
-- hashing\_elements\_to\_scalars: hash\_to\_scalar\_xof.
+- hash\_to\_curve: `BLS12381G1_XOF:SHAKE-256_SSWU_R0_` as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup. The hash\_to\_field dst is the ASCII-encoded domain separation tag `BBS_BLS12381G1_XOF:SHAKE-256_SSWU_R0_`.
 
 **Serialization functions**:
 
