@@ -208,16 +208,16 @@ Identity\_G1, Identity\_G2, Identity\_GT
 : The identity element for the G1, G2, and GT subgroups respectively.
 
 hash\_to\_curve\_g1(ostr, dst) -> P
-: A cryptographic hash function that takes an arbitrary octet string as input and returns a point in G1, using the hash\_to\_curve operation defined in [@!I-D.irtf-cfrg-hash-to-curve] and the inputted dst as the domain separation tag for that operation (more specifically, the inputted dst will become the DST parameter for the hash\_to\_field operation, called by hash\_to\_curve). 
+: A cryptographic hash function that takes an arbitrary octet string as input and returns a point in G1, using the hash\_to\_curve operation defined in [@!I-D.irtf-cfrg-hash-to-curve] and the inputted dst as the domain separation tag for that operation (more specifically, the inputted dst will become the DST parameter for the hash\_to\_field operation, called by hash\_to\_curve).
 
 point\_to\_octets_g1(P) -> ostr, point\_to\_octets_g2(P) -> ostr
 : returns the canonical representation of the point P for the respective subgroup as an octet string. This operation is also known as serialization.
 
 octets\_to\_point_g1(ostr) -> P, octets\_to\_point_g2(ostr) -> P
-: returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g\* function.  This operation is also known as deserialization.
+: returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g\* function. This operation is also known as deserialization.
 
 subgroup\_check(P) -> VALID or INVALID
-: returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [@Bowe19].
+: returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element. In some cases, faster checks may also exist, e.g., [@Bowe19].
 
 ## Organization of this document
 
@@ -504,7 +504,7 @@ Inputs:
 Parameters:
 
 - Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
-- expand_length, non-negative integer. Defined by the ciphersuite.
+- expand_length (REQUIRED), non-negative integer. Defined by the ciphersuite.
 - H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
 - H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
 
