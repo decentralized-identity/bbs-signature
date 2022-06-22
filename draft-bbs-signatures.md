@@ -504,7 +504,6 @@ Inputs:
 Parameters:
 
 - Ciphersuite_ID (REQUIRED), ASCII string. The unique ID of the ciphersuite.
-- expand_length (REQUIRED), non-negative integer. Defined by the ciphersuite.
 - H_s (REQUIRED), point of G1. The generator for the blinding value of the signature.
 - H_d (REQUIRED), point of G1. The generator used to sign the signature domain.
 
@@ -534,9 +533,9 @@ Procedure:
 
 7. domain = hash_to_scalar((PK || L || generators || Ciphersuite_ID || header), 1)
 
-8. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(expand_length), 6)
+8. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(8*ceil(log2(r))), 6)
 
-9. (m~_1, ..., m~_U) =  hash_to_scalar(PRF(expand_length), U)
+9. (m~_1, ..., m~_U) =  hash_to_scalar(PRF(8*ceil(log2(r))), U)
 
 10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -666,7 +665,6 @@ Parameters:
                   the hash_to_curve_suite ciphersuite parameter.
 - dst, the separation tag defined by the hash_to_curve_suite
        ciphersuite parameter.
-- expand_length, non-negative integer. Defined by the ciphersuite.
 
 Definitions:
 
@@ -674,6 +672,8 @@ Definitions:
             characters: dst || "SIG_GENERATOR_SEED_".
 - generator_dst, the octet string representing the ASCII encoded
                  characters: dst || "SIG_GENERATOR_DST_".
+- seed_len = ceil((ceil(log2(r)) + k)/8), where r and k are defined by
+                                          the ciphersuite.
 
 Outputs:
 
@@ -681,7 +681,7 @@ Outputs:
 
 Procedure:
 
-1. v = expand_message(generator_seed, seed_dst, expand_length)
+1. v = expand_message(generator_seed, seed_dst, seed_len)
 
 2. n = 1
 
@@ -691,7 +691,7 @@ Procedure:
 
 5.    while generator_i == Identity_G1 or generator_i == P1:
 
-6.        v = expand_message(v || I2OSP(n, 4), seed_dst, expand_length)
+6.        v = expand_message(v || I2OSP(n, 4), seed_dst, seed_len)
 
 7.        n = n + 1
 
@@ -756,13 +756,13 @@ Parameters:
                   the hash_to_curve_suite ciphersuite parameter.
 - dst, the separation tag defined by the hash_to_curve_suite
        ciphersuite parameter.
-- expand_length, non-negative integer. The number of bytes required to
-                 compute each scalar, defined by the ciphersuite.
 
 Definitions:
 
-h2s_dst, the octet string representing the ASCII encoded characters:
-         dst || "HASH_TO_SCALAR_".
+- h2s_dst, the octet string representing the ASCII encoded characters:
+           dst || "HASH_TO_SCALAR_".
+- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
+                                          the ciphersuite.
 
 Outputs:
 
@@ -770,7 +770,7 @@ Outputs:
 
 Procedure:
 
-1. len_in_bytes = cound * expand_length
+1. len_in_bytes = cound * expand_len
 
 2. t = 0
 
@@ -780,7 +780,7 @@ Procedure:
 
 5. for i in (1, ..., count):
 
-6.     tv = uniform_bytes[(i-1)*expand_length..i*expand_length-1]
+6.     tv = uniform_bytes[(i-1)*expand_len..i*expand_len-1]
 
 7.     scalar_i = OS2IP(tv) mod r
 
@@ -1112,8 +1112,6 @@ The parameters that each ciphersuite needs to define are generally divided into 
 **Basic parameters**:
 
 - hash: a cryptographic hash function.
-
-- expand\_length: Number of bytes to expand a message that will be hashed to a scalar (see [Hashing to Scalars](#hashing-to-scalars)) or to a point in G1 (i.e., a generator, see [Create Generators](#creategenerators)). It is RECOMMENDED that this value is set to one greater or equal to `ceil((ceil(log2(r))+k)/8)` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
 
 - octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
 
