@@ -395,9 +395,9 @@ Inputs:
                  operation.
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk
                  operation provided the above SK as input.
-- header (OPTIONAL), an octet string containing context and
-                     application specific information. If not
-                     supplied, it defaults to an empty string.
+- header (OPTIONAL), an octet string containing context and application
+                     specific information. If not supplied, it defaults
+                     to an empty string.
 - messages (OPTIONAL), a vector of octet strings.
 
 Parameters:
@@ -408,9 +408,9 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages
-     to be signed e.g length(messages). If no messages are supplied as
-     an input, the value of L MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of messages to
+     be signed e.g length(messages). If no messages are supplied as an
+     input, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -456,9 +456,9 @@ Inputs:
                  operation.
 - signature (REQUIRED), an octet string of the form outputted by the
                         Sign operation.
-- header (OPTIONAL), an octet string containing context and
-                     application specific information. If not
-                     supplied, it defaults to an empty string.
+- header (OPTIONAL), an octet string containing context and application
+                     specific information. If not supplied, it defaults
+                     to an empty string.
 - messages (OPTIONAL), a vector of octet strings.
 
 Parameters:
@@ -469,9 +469,9 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages
-     to be signed e.g length(messages). If no messages are supplied as
-     an input, the value of L MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of messages to
+     be signed e.g length(messages). If no messages are supplied as an
+     input, the value of L MUST evaluate to zero (0).
 
 Outputs:
 
@@ -523,9 +523,9 @@ Inputs:
                  operation.
 - signature (REQUIRED), an octet string of the form outputted by the
                         Sign operation.
-- header (OPTIONAL), an octet string containing context and
-                     application specific information. If not
-                     supplied, it defaults to an empty string.
+- header (OPTIONAL), an octet string containing context and application
+                     specific information. If not supplied, it defaults
+                     to an empty string.
 - ph (OPTIONAL), octet string containing the presentation header.
 - revealedIndexes (OPTIONAL), vector of unsigned integers in ascending
                               order. Indexes of revealed messages.
@@ -553,7 +553,7 @@ Outputs:
 
 - proof, octet string; or INVALID.
 
-Precomputations: 
+Precomputations:
 
 1. (i1, ..., iR) = revealedIndexes
 
@@ -627,7 +627,7 @@ This operation checks that a proof is valid for a header, vector of revealed mes
 The operation accepts the list of messages the prover indicated to be revealed. Those messages MUST be in the same order as when supplied to [Sign](#sign) (as a subset of the signed messages). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the revealed messages had in the original array of messages supplied to [Sign](#sign) (i.e., the `revealedIndexes` list supplied to [ProodGen](#proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
 ```
-result = ProofVerify(PK, proof, L, header, ph, 
+result = ProofVerify(PK, proof, L, header, ph,
                      revealedIndexes,
                      revealedMessages)
 
@@ -639,8 +639,8 @@ Inputs:
                     ProofGen operation.
 - L (REQUIRED), non-negative integer. The number of signed messages.
 - header (OPTIONAL), an optional octet string containing context and
-                     application specific information. If not
-                     supplied, it defaults to an empty string.
+                     application specific information. If not supplied,
+                     it defaults to an empty string.
 - ph (OPTIONAL), octet string containing the presentation header.
 - revealedIndexes (OPTIONAL), vector of unsigned integers in ascending
                               order. Indexes of revealed messages.
@@ -664,7 +664,7 @@ Outputs:
 
 - result, either VALID or INVALID.
 
-Precomputations: 
+Precomputations:
 
 1. (i1, i2,..., iR) = revealedIndexes
 
