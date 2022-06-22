@@ -742,7 +742,7 @@ This operation describes how to hash an arbitrary octet string to `n` scalar val
 This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). Note that, if an implementer wants to use hash\_to\_field here instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). However, the hash\_to\_curve ciphersuites used by this document, make use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For completeness, we define here the operation making use of the expand\_message function, that will be defined by the hash-to-curve suite used. If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
 ```
-result = hash_to_scalar(msg_octets, count)
+scalars = hash_to_scalar(msg_octets, count)
 
 Inputs:
 
@@ -766,7 +766,7 @@ h2s_dst, the octet string representing the ASCII encoded characters:
 
 Outputs:
 
-- (scalar_1, ..., scalar_n), a list of non-zero scalars mod r.
+- scalars, an array of non-zero scalars mod r.
 
 Procedure:
 
