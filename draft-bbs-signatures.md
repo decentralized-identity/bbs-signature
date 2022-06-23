@@ -382,6 +382,8 @@ Procedure:
 
 ## Core Operations
 
+The operations in this section make use of a “Precomputations” set of steps. The “Precomputations” steps must be executed before the steps in the “Procedure” of each operation and include computations that can be cached and re-used multiple times (like creating the generators etc.) or procedural steps like de-structuring inputted arrays.
+
 ### Sign
 
 This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages.
@@ -517,7 +519,7 @@ This operation computes a zero-knowledge proof-of-knowledge of a signature, whil
 The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosedIndexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosedIndexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
 ```
-proof = ProofGen(PK, signature, header, ph, disclosedIndexes, messages)
+proof = ProofGen(PK, signature, header, ph, messages, disclosedIndexes)
 
 Inputs:
 
@@ -530,12 +532,12 @@ Inputs:
                      to an empty string.
 - ph (OPTIONAL), octet string containing the presentation header. If not
                  supplied, it defaults to an empty string.
+- messages (OPTIONAL), a vector of octet strings. If not supplied, it
+                       defaults to the empty array "()".
 - disclosedIndexes (OPTIONAL), vector of unsigned integers in ascending
                               order. Indexes of disclosed messages. If
                               not supplied, it defaults to the empty
                               array "()".
-- messages (OPTIONAL), a vector of octet strings. If not supplied, it
-                       defaults to the empty array "()".
 
 Parameters:
 
@@ -634,8 +636,8 @@ The operation accepts the list of messages the prover indicated to be disclosed.
 
 ```
 result = ProofVerify(PK, proof, L, header, ph,
-                     disclosedIndexes,
-                     disclosedMessages)
+                     disclosedMessages,
+                     disclosedIndexes)
 
 Inputs:
 
@@ -649,13 +651,13 @@ Inputs:
                      it defaults to an empty string.
 - ph (OPTIONAL), octet string containing the presentation header. If not
                  supplied, it defaults to an empty string.
+- disclosedMessages (OPTIONAL), a vector of octet strings. If not
+                                supplied, it defaults to the empty array
+                                "()".
 - disclosedIndexes (OPTIONAL), vector of unsigned integers in ascending
                                order. Indexes of disclosed messages. If
                                not supplied, it defaults to the empty
                                array "()".
-- disclosedMessages (OPTIONAL), a vector of octet strings. If not
-                                supplied, it defaults to the empty array
-                                "()".
 
 Parameters:
 
