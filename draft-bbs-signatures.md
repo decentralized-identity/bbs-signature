@@ -591,7 +591,7 @@ Procedure:
 
 7. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(prf_len), 6)
 
-8. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(prf_len), U)
+8. (m~_j1, ..., m~_jU) = hash_to_scalar(PRF(prf_len), U)
 
 9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
