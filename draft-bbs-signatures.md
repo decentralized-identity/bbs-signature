@@ -497,7 +497,7 @@ Procedure:
 
 5. if W is INVALID, return INVALID
 
-6. gen_octets =  (H_s || H_d || H_1 || ... || H_L)
+6. gen_octets = (H_s || H_d || H_1 || ... || H_L)
 
 7. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
 
