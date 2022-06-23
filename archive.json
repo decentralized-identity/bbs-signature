@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-21T00:08:45.788847+00:00",
+  "timestamp": "2022-06-23T00:09:05.967777+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -4596,7 +4596,7 @@
       "id": "I_kwDOF8lax85LtfFa",
       "title": "Amend the introduction to attribute the BBS name to the underlying authors",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/172",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -4606,8 +4606,8 @@
       ],
       "body": "Dan Boneh, Xavier Boyen and Hovav Shacham are the original authors of the academic works that the name derives from hence should be appropriately attributed within the spec.",
       "createdAt": "2022-06-14T03:59:00Z",
-      "updatedAt": "2022-06-15T21:09:28Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-21T22:04:03Z",
+      "closedAt": "2022-06-21T22:04:03Z",
       "comments": []
     },
     {
@@ -4615,7 +4615,7 @@
       "id": "I_kwDOF8lax85LxUZ9",
       "title": "Consistent ordering of Abar and A'",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/173",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "dev0x1",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
@@ -4625,8 +4625,8 @@
       ],
       "body": "It would be nice to have the same ordering of **Abar** and **A'** in proof serialization/deserialization and during concatenated input to `hash_to_scalar`.\r\nin `ProofGen`,\r\n`19. c = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`\r\n\r\n`25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))`\r\n\r\nin `ProofVerify`,\r\n\r\n`4. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof`\r\n\r\n`10. cv = hash_to_scalar((PK || Abar || A' || D || C1 || C2 || ph), 1)`",
       "createdAt": "2022-06-14T18:39:20Z",
-      "updatedAt": "2022-06-15T21:09:16Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-21T20:59:19Z",
+      "closedAt": "2022-06-21T20:59:19Z",
       "comments": []
     },
     {
@@ -4634,7 +4634,7 @@
       "id": "I_kwDOF8lax85L3NOF",
       "title": "Specify W in ProofVerify",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/176",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "christianpaquin",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
@@ -4644,8 +4644,8 @@
       ],
       "body": "Step 15 of ProofVerify is:\r\n```\r\n15. if e(A', W) * e(Abar, -P2) != 1, return INVALID\r\n```\r\n\r\n`W` is unspecified in the function; I assume it's the public key point, like in the other functions. If so, we need to add\r\n```\r\nW = octets_to_point_g2(PK)\r\n```\r\n",
       "createdAt": "2022-06-15T21:22:54Z",
-      "updatedAt": "2022-06-16T23:14:56Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-21T21:18:32Z",
+      "closedAt": "2022-06-21T21:18:32Z",
       "comments": [
         {
           "author": "BasileiosKal",
@@ -4653,6 +4653,13 @@
           "body": "Thanks for raising! This is addressed in PR #165 (with a little bit of a different approach). This is good to keep track of the issue.",
           "createdAt": "2022-06-16T02:30:15Z",
           "updatedAt": "2022-06-16T02:30:15Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Addressed from #165. Closing.",
+          "createdAt": "2022-06-21T21:18:32Z",
+          "updatedAt": "2022-06-21T21:18:32Z"
         }
       ]
     },
@@ -4671,9 +4678,17 @@
       ],
       "body": "We use both the term disclosed messages and revealed messages throughout the draft, considering we offer in the introduction that selective disclosure is one of the key properties enabled by the scheme I suggest we change all usages of the term reveal to disclose in the context of messages.",
       "createdAt": "2022-06-20T23:32:10Z",
-      "updatedAt": "2022-06-20T23:32:25Z",
+      "updatedAt": "2022-06-21T21:14:02Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Somewhat blocked by a resolution to #138 as this makes some modifications to the API.",
+          "createdAt": "2022-06-21T21:14:02Z",
+          "updatedAt": "2022-06-21T21:14:02Z"
+        }
+      ]
     },
     {
       "number": 179,
@@ -4690,9 +4705,17 @@
       ],
       "body": "Currently in the draft there are several key places we need to do subgroup checks on points, for example to validate a public key post de-serialization. However in some places we are implicitly relying on the `octet_to_point` function to perform this role and other places we are doing it as an explicit step in the procedure. We need to make this consistent, the options are\r\n\r\n1) Consistently rely on the `octet_to_point_g*` implementation and add a security consideration that documents this function MUST perform the relevant subgroup check.\r\n2) Explicitly document anywhere in the procedure where a subgroup check is required.\r\n\r\nIMO 2 feels like a safer but more verbose option to me.",
       "createdAt": "2022-06-20T23:36:55Z",
-      "updatedAt": "2022-06-20T23:41:14Z",
+      "updatedAt": "2022-06-21T18:20:14Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Maybe a middle-of-the-road solution would be to define explicitly `octets_to_point` as an operation in the spec, that calls `octets_to_point_g1` and does the checks. For example, something like:\r\n```\r\nresult = octets_to_point_g1(point_octets)\r\n\r\nInputs:\r\n- point_octets, octet string\r\n\r\nParameters:\r\n- SubgroupCheck_g1, a function that on input a point P, returns VALID if P \r\n                    is in the G1 subgroup and INVALID in any other case.\r\n\r\nProcedure:\r\n\r\n1. P = octets_to_point_g1(point_octets)\r\n\r\n2. if P is INVALID, return INVALID\r\n\r\n3. if SubgroupCheck_g1(P) is INVALID, return INVALID\r\n\r\n4. if P = Identity_G1, return INVALID\r\n\r\n5. return P \r\n```\r\n\r\nNote: the identity check is not always necessary above, but it can be nice to have.",
+          "createdAt": "2022-06-21T18:20:14Z",
+          "updatedAt": "2022-06-21T18:20:14Z"
+        }
+      ]
     },
     {
       "number": 180,
@@ -16787,21 +16810,21 @@
       "id": "PR_kwDOF8lax843y_lL",
       "title": "API update",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/138",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Updating the way that the messages and generators are passed to the operations, using @andrewwhitehead's proposal of passing them in pairs. \r\n\r\nThe main purpose of the PR is to have a concrete base of discussion about what the best API will be. For alternatives see #117. For some more context see PR #128 (the motivation was \u201chow we get the revealed messages from the (msg_1, \u2026, msg_L) list and the revealed indexes).\r\n\r\nIMO all approaches have trade-offs. Although I like the proposal seen in this PR a lot and it makes things more explicit, I wonder if it is more error prone?? That said, it may provide the best balance between being explicit and easy to read. Interested on the WG feedback.\r\n",
       "createdAt": "2022-05-13T16:32:18Z",
-      "updatedAt": "2022-06-08T20:00:33Z",
+      "updatedAt": "2022-06-22T22:37:10Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "849e6d96b895615d460f92bf0b1d7efbb8f62519",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "api_update",
       "headRefOid": "153452be23d5bbd4cf2a76f29000982605e23618",
-      "closedAt": null,
+      "closedAt": "2022-06-22T22:37:10Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -16875,6 +16898,13 @@
           "body": "#### NOTE:\r\nWaiting a little on resolution on #161 (or a consensus) to update this PR.",
           "createdAt": "2022-06-02T12:07:19Z",
           "updatedAt": "2022-06-02T12:07:19Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Closing since updates are addressed by PR #183",
+          "createdAt": "2022-06-22T22:37:10Z",
+          "updatedAt": "2022-06-22T22:37:10Z"
         }
       ],
       "reviews": [
@@ -18593,21 +18623,21 @@
       "id": "PR_kwDOF8lax844GxzD",
       "title": "Minor tweak to CreateGenerators",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/145",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "alessandroguggino",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "I found the same issue as @christianpaquin in #139, and I hope this helps a little bit to make it clearer.",
       "createdAt": "2022-05-19T09:28:22Z",
-      "updatedAt": "2022-06-01T07:43:25Z",
+      "updatedAt": "2022-06-21T08:21:50Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "85a1036b5a0ac8dbec42655798d61274937d21d7",
       "headRepository": "alessandroguggino/bbs-signature",
       "headRefName": "creategenerators",
       "headRefOid": "57a97b2091ca584d175424f9444bae730bbbcb13",
-      "closedAt": null,
+      "closedAt": "2022-06-21T08:21:49Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -18639,6 +18669,13 @@
           "body": "Related to #161 ",
           "createdAt": "2022-06-01T07:43:24Z",
           "updatedAt": "2022-06-01T07:43:24Z"
+        },
+        {
+          "author": "alessandroguggino",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I think I can close this PR after the merge of a new `create_generators`",
+          "createdAt": "2022-06-21T08:21:49Z",
+          "updatedAt": "2022-06-21T08:21:49Z"
         }
       ],
       "reviews": [
@@ -18909,13 +18946,13 @@
       "labels": [],
       "body": "First shot in a `hash_to_scalar_xmd` function to be used with regular hashes as an alternative to the one currently in the spec (that uses an xof). The proposed function essentially makes use of `expand_message_xmd` (not called directly, see below why), and will give a less efficient option for implementers not wishing to make use of shake256.\r\n\r\nComparison with `hash_to_field` and `expand_message_xmd`:\r\n1.\t**Memory efficiency**: `hash_to_field` will call `expand_message` once to output the total number of bytes needed for all the outputted elements. Since we may potentially need to create many scalars, this may not be the more efficient approach. For example, if one wants to create a proof with 1000 hidden messages, the output of `expand_message` will need to be at least 64 kb. In contrast, `hash_to_scalar_xmd` will only need to \u201chold\u201d 64 bytes at once. Note that the total number of hash invocations is the same in both cases, so the computational overhead will effectively be zero.\r\n2.\t**Efficiently checking if a scalar is 0**: Although there are discussions on not overengineering the spec, I feel here is the one place we may need to have the check. The reason is that many signed messages may result to the probability of returning a 0 been higher than what we anticipate (not really an issue for bls12-381 but may become an issue for \u201csmaller\u201d ECs).\r\n3.\tCalling `expand_message_xmd` directly instead of the xof would be wasteful (it would result to at least n-1 unnecessary hash computations for b_0)\r\n\r\nAnother option can be to use hkdf instead. The tradeoff here is double the hash computations vs spec simplicity + the wider availability of hkdf.\r\n",
       "createdAt": "2022-05-21T20:26:35Z",
-      "updatedAt": "2022-06-20T23:26:16Z",
+      "updatedAt": "2022-06-22T23:18:27Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "ccf48fa8e2e9eb022b3591687d5ca6e3bebac584",
+      "baseRefOid": "5d8ec5a086046be0bce4c9d75defab2963a2a584",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "hash_to_scalar_xmd",
-      "headRefOid": "d3fc060c3cf5fe13154010e99e97083603941147",
+      "headRefOid": "b86e1c415dd8e4f6d57aa34c093067d83e7c5ce6",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -18976,6 +19013,27 @@
           "body": "@BasileiosKal  The H2C spec does say this..\r\n\r\n> The hash_to_field function is also suitable for securely hashing to scalars.  For example, when hashing to the scalar field for an elliptic curve (sub)group with prime order r, it suffices to instantiate hash_to_field with target field GF(r).\r\n\r\nHowever, I'm not sure if we can guarantee that a particular H2C implementation has support for this operation.\r\n\r\nAlso this doesn't work if we want to support the reduced-memory iterative version: `return hash_to_scalar(uniform_bytes, count)`",
           "createdAt": "2022-06-20T23:23:24Z",
           "updatedAt": "2022-06-20T23:26:16Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "> After some more thought, a potentially annoying issue is that using hash_to_field will require defining 2 h2c ciphersuites, one for the xof and one for the xmd version of expand_message. The reason is that the h2c spec only defines suites where the field in hash_to_field is the base field of the EC itself and not the scalars mod r (that we need). This matters because we would then \"mod\" with the wrong prime (i.e., not r).\r\n\r\nOn the flip side would this not make the BBS signature ciphersuite definition simpler e.g just a single reference to h2c ciphersuite for all underlying operations?",
+          "createdAt": "2022-06-21T00:22:43Z",
+          "updatedAt": "2022-06-21T00:22:43Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> However, I'm not sure if we can guarantee that a particular H2C implementation has support for this operation.\r\n\r\nYea those are my worries as well. We can define the \"correct\" field for `hash-to-field` but there are some implementations that don't support Fr (like [blst](https://github.com/supranational/blst/blob/master/src/hash_to_field.c#L150). Other libs, like [nodle-bls12-381](https://github.com/paulmillr/noble-bls12-381/blob/main/index.ts#L286) and the[ rust crate](https://github.com/zkcrypto/bls12_381/blob/main/src/hash_to_curve/map_scalar.rs) do support this though).\r\n\r\n> On the flip side would this not make the BBS signature ciphersuite definition simpler e.g just a single reference to h2c ciphersuite for all underlying operations?\r\n\r\nThat\u2019s definitely true! However, as Andrew noted, an issue is that not all libraries have support for the operations we need. So we can create the suites, but we may raise the implementation barrier doing so.\r\n\r\nAnother issue is that we can't just define a different hash-to-field that mods r because we need the mod p to create the generators (i.e., for hash-to-curve). So this can be confusing to implementers (essentially we need two different versions of hash-to-field, one that mods p for create-generators and one that mods r for hash-to-scalar).",
+          "createdAt": "2022-06-21T17:53:47Z",
+          "updatedAt": "2022-06-21T18:05:36Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Ok! i gave it a shot, based on @andrewwhitehead's [proposal](https://github.com/decentralized-identity/bbs-signature/pull/151#issuecomment-1158367638) of using  `expand-message`. As most libraries have a `mod r` functionality, this would create the lowest implementation barrier + keep the spec simpler. I added a note saying that hash-to-scalar essentially calls hash-to-field for Fr, so if implementers have this available, they can just use that. Also made some updates in the ciphersuites. Thoughts??",
+          "createdAt": "2022-06-21T18:03:55Z",
+          "updatedAt": "2022-06-21T20:21:10Z"
         }
       ],
       "reviews": [
@@ -19456,6 +19514,526 @@
               "body": "Add back in the proof decoding rules",
               "createdAt": "2022-06-13T18:42:19Z",
               "updatedAt": "2022-06-13T18:42:20Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dBlJ",
+          "commit": {
+            "abbreviatedOid": "3d7e10d"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T21:01:50Z",
+          "updatedAt": "2022-06-21T21:01:50Z",
+          "comments": [
+            {
+              "originalPosition": 4,
+              "body": "This isn't used anymore",
+              "createdAt": "2022-06-21T21:01:50Z",
+              "updatedAt": "2022-06-21T21:01:50Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dBrZ",
+          "commit": {
+            "abbreviatedOid": "3d7e10d"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T21:02:13Z",
+          "updatedAt": "2022-06-21T21:02:13Z",
+          "comments": [
+            {
+              "originalPosition": 60,
+              "body": "Not _xof",
+              "createdAt": "2022-06-21T21:02:13Z",
+              "updatedAt": "2022-06-21T21:02:13Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dFkm",
+          "commit": {
+            "abbreviatedOid": "3d7e10d"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T21:18:16Z",
+          "updatedAt": "2022-06-21T21:18:17Z",
+          "comments": [
+            {
+              "originalPosition": 151,
+              "body": "Can we also resolve #168 in this PR by substituting this parameter in place of `8*ceil(log2(r))` for steps 8 and 9 of the procedure?",
+              "createdAt": "2022-06-21T21:18:16Z",
+              "updatedAt": "2022-06-21T21:18:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dIZt",
+          "commit": {
+            "abbreviatedOid": "3d7e10d"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T21:31:07Z",
+          "updatedAt": "2022-06-21T21:31:08Z",
+          "comments": [
+            {
+              "originalPosition": 99,
+              "body": "```suggestion\r\n6. for i in (1, ..., count):\r\n```",
+              "createdAt": "2022-06-21T21:31:08Z",
+              "updatedAt": "2022-06-21T21:31:08Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dODn",
+          "commit": {
+            "abbreviatedOid": "3d7e10d"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T21:59:17Z",
+          "updatedAt": "2022-06-21T21:59:18Z",
+          "comments": [
+            {
+              "originalPosition": 4,
+              "body": "Good catch! Removed!",
+              "createdAt": "2022-06-21T21:59:17Z",
+              "updatedAt": "2022-06-21T21:59:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dOHe",
+          "commit": {
+            "abbreviatedOid": "3d7e10d"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T21:59:37Z",
+          "updatedAt": "2022-06-21T21:59:37Z",
+          "comments": [
+            {
+              "originalPosition": 60,
+              "body": "Thanks! Fixed!",
+              "createdAt": "2022-06-21T21:59:37Z",
+              "updatedAt": "2022-06-21T21:59:37Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dOLE",
+          "commit": {
+            "abbreviatedOid": "3d7e10d"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T21:59:55Z",
+          "updatedAt": "2022-06-21T21:59:55Z",
+          "comments": [
+            {
+              "originalPosition": 99,
+              "body": "Done!",
+              "createdAt": "2022-06-21T21:59:55Z",
+              "updatedAt": "2022-06-21T21:59:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dOS6",
+          "commit": {
+            "abbreviatedOid": "3d7e10d"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T22:00:38Z",
+          "updatedAt": "2022-06-21T22:00:38Z",
+          "comments": [
+            {
+              "originalPosition": 151,
+              "body": "Yea good idea! Done!",
+              "createdAt": "2022-06-21T22:00:38Z",
+              "updatedAt": "2022-06-21T22:00:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dXah",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T22:57:27Z",
+          "updatedAt": "2022-06-21T22:57:27Z",
+          "comments": [
+            {
+              "originalPosition": 33,
+              "body": "I think this should be in the Parameters section",
+              "createdAt": "2022-06-21T22:57:27Z",
+              "updatedAt": "2022-06-21T22:57:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dX6N",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T23:01:07Z",
+          "updatedAt": "2022-06-21T23:01:07Z",
+          "comments": [
+            {
+              "originalPosition": 86,
+              "body": "I'm not sure what DST value this is?",
+              "createdAt": "2022-06-21T23:01:07Z",
+              "updatedAt": "2022-06-21T23:01:07Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dYWY",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T23:04:18Z",
+          "updatedAt": "2022-06-21T23:04:19Z",
+          "comments": [
+            {
+              "originalPosition": 114,
+              "body": "```suggestion\r\n7.     tv = uniform_bytes[(i-1)*expand_length..i*expand_length-1]\r\n```",
+              "createdAt": "2022-06-21T23:04:18Z",
+              "updatedAt": "2022-06-21T23:04:19Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dYrQ",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T23:06:46Z",
+          "updatedAt": "2022-06-21T23:06:46Z",
+          "comments": [
+            {
+              "originalPosition": 33,
+              "body": "I was thinking this also what are definitions? I thought we only had inputs outputs and parameters?",
+              "createdAt": "2022-06-21T23:06:46Z",
+              "updatedAt": "2022-06-21T23:06:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dZDH",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T23:09:39Z",
+          "updatedAt": "2022-06-21T23:09:40Z",
+          "comments": [
+            {
+              "originalPosition": 135,
+              "body": "I don't think `ceil(r+k)/8` is correct (it's huge). Maybe `ceil((ceil(log2(r)) + k) / 8)`",
+              "createdAt": "2022-06-21T23:09:39Z",
+              "updatedAt": "2022-06-21T23:10:01Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dZ9f",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T23:16:43Z",
+          "updatedAt": "2022-06-21T23:16:43Z",
+          "comments": [
+            {
+              "originalPosition": 98,
+              "body": "I realized there's actually an issue with using expand_length here, as it conflicts with the recommended value for hash_to_field which is `ceil((ceil(log2(p)) + k) / 8)`. For BLS12-381 that is 48 bytes, but we have expand_length set to 64 bytes. That's not a problem here, but it does mean that a standard hash_to_field implementation can't be substituted.",
+              "createdAt": "2022-06-21T23:16:43Z",
+              "updatedAt": "2022-06-21T23:27:07Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848db2y",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T23:32:04Z",
+          "updatedAt": "2022-06-21T23:32:04Z",
+          "comments": [
+            {
+              "originalPosition": 86,
+              "body": "Ah, looks like it's the hash-to-curve ciphersuite identifier. There's a small issue that `hash_to_curve` is defined by the ciphersuite but `hash_to_curve_id` is referenced here and in `create_generators`",
+              "createdAt": "2022-06-21T23:32:04Z",
+              "updatedAt": "2022-06-21T23:32:04Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848hpc2",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T15:47:47Z",
+          "updatedAt": "2022-06-22T15:47:48Z",
+          "comments": [
+            {
+              "originalPosition": 33,
+              "body": "Fixed. Thanks!",
+              "createdAt": "2022-06-22T15:47:48Z",
+              "updatedAt": "2022-06-22T15:47:48Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848hpvB",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T15:48:13Z",
+          "updatedAt": "2022-06-22T15:48:14Z",
+          "comments": [
+            {
+              "originalPosition": 86,
+              "body": "Updated! Thank you! (named the ciphersuite parameter `hash_to_curve_suite` and used it in `create_generators` and `hash_to_scalar`)",
+              "createdAt": "2022-06-22T15:48:14Z",
+              "updatedAt": "2022-06-22T15:48:14Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848hp4p",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T15:48:28Z",
+          "updatedAt": "2022-06-22T15:48:29Z",
+          "comments": [
+            {
+              "originalPosition": 114,
+              "body": "Done!",
+              "createdAt": "2022-06-22T15:48:28Z",
+              "updatedAt": "2022-06-22T15:48:29Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848hqHF",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T15:48:47Z",
+          "updatedAt": "2022-06-22T15:48:47Z",
+          "comments": [
+            {
+              "originalPosition": 135,
+              "body": "Good catch! Yea it was wrong. Fixed.",
+              "createdAt": "2022-06-22T15:48:47Z",
+              "updatedAt": "2022-06-22T15:48:48Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848hwqo",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T16:00:25Z",
+          "updatedAt": "2022-06-22T16:00:25Z",
+          "comments": [
+            {
+              "originalPosition": 98,
+              "body": "Good point! Haven't thought about that. I updated `expand_length` to be 48 bytes. Don't see any reason for the 64 bytes value. It only makes sense if we are moding p, which we don\u2019t (64 was possibly copied from the bls signatures spec??).",
+              "createdAt": "2022-06-22T16:00:25Z",
+              "updatedAt": "2022-06-22T16:00:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848h5qI",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T16:18:53Z",
+          "updatedAt": "2022-06-22T16:18:53Z",
+          "comments": [
+            {
+              "originalPosition": 98,
+              "body": "Yes, 64 is the number of bytes when hashing to a G1 point (32 bytes are used for each component). If we want to allow the use of hash_to_field then I think we would need two different expand_length parameters, or we should just remove it from the ciphersuite and use definitions.",
+              "createdAt": "2022-06-22T16:18:53Z",
+              "updatedAt": "2022-06-22T16:18:53Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848iIMc",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T16:51:04Z",
+          "updatedAt": "2022-06-22T16:51:04Z",
+          "comments": [
+            {
+              "originalPosition": 98,
+              "body": "Don\u2019t see why we need 2 different `expand_length` parameters?? The `expand_length` defined by the ciphersuite will only be used for `hash_to_field` when creating scalars. When creating generators, one must use the `hash_to_field` defined by the H2C ciphersuite (which defines `L = 64 bytes`).\r\n\r\nI\u2019m fine with removing it and using definitions. I\u2019m not 100% clear about the reasoning though. Is it to be clearer to the developer and avoid mistakes (like using 48 bytes when creating generators??)",
+              "createdAt": "2022-06-22T16:51:04Z",
+              "updatedAt": "2022-06-22T16:51:04Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848iMaO",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T17:04:11Z",
+          "updatedAt": "2022-06-22T17:04:11Z",
+          "comments": [
+            {
+              "originalPosition": 98,
+              "body": "`create_generators` is using the `expand_length` parameter here though, as it uses `expand_message` directly.",
+              "createdAt": "2022-06-22T17:04:11Z",
+              "updatedAt": "2022-06-22T17:04:11Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848iM0L",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T17:05:34Z",
+          "updatedAt": "2022-06-22T17:05:35Z",
+          "comments": [
+            {
+              "originalPosition": 98,
+              "body": "Actually, while that is the case, it is just generating the next 'seed' from that value so that's probably okay. It does seem to confuse the purpose of the parameter a little, though.",
+              "createdAt": "2022-06-22T17:05:35Z",
+              "updatedAt": "2022-06-22T17:05:35Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848iTiU",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T17:28:56Z",
+          "updatedAt": "2022-06-22T17:28:56Z",
+          "comments": [
+            {
+              "originalPosition": 98,
+              "body": "(Sorry about the multiple messages.) I think we can probably move forward with this one and address the length parameter later unless there's additional feedback.",
+              "createdAt": "2022-06-22T17:28:56Z",
+              "updatedAt": "2022-06-22T17:28:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848kFS4",
+          "commit": {
+            "abbreviatedOid": "f8dd02b"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-22T23:18:26Z",
+          "updatedAt": "2022-06-22T23:18:27Z",
+          "comments": [
+            {
+              "originalPosition": 98,
+              "body": "Thank you very much for the feedback :) This is clearly confusing so moving to definitions is the best option IMO.\r\n\r\nFor `ProofGen` I removed the update from here and re-introduce it in PR #183. For `create_generators` and `hash_to_scalar` I made the update here.",
+              "createdAt": "2022-06-22T23:18:27Z",
+              "updatedAt": "2022-06-22T23:18:27Z"
             }
           ]
         }
@@ -22342,20 +22920,193 @@
       "id": "PR_kwDOF8lax845-rgh",
       "title": "Updates to intro",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/181",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "Resolves #172 and makes a minor editorial tweak to intro section",
       "createdAt": "2022-06-20T23:40:51Z",
-      "updatedAt": "2022-06-20T23:40:51Z",
+      "updatedAt": "2022-06-21T22:39:32Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "271897555aa6a941862a1c7c0314d85e43d69cb7",
       "headRepository": "decentralized-identity/bbs-signature",
       "headRefName": "tl/update-intro",
-      "headRefOid": "ec3fa9ed4c10890632e71d5775b552cad0146646",
+      "headRefOid": "f336811ae8276054ef50cb4924b2b6c9ca01f994",
+      "closedAt": "2022-06-21T22:04:03Z",
+      "mergedAt": "2022-06-21T22:04:03Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "5d8ec5a086046be0bce4c9d75defab2963a2a584"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Multiple approvals, editorial changes, merging",
+          "createdAt": "2022-06-21T22:03:59Z",
+          "updatedAt": "2022-06-21T22:03:59Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax848Y4rc",
+          "commit": {
+            "abbreviatedOid": "ec3fa9e"
+          },
+          "author": "alessandroguggino",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T08:15:20Z",
+          "updatedAt": "2022-06-21T08:16:06Z",
+          "comments": [
+            {
+              "originalPosition": 4,
+              "body": "```suggestion\r\nThe name BBS is derived from the authors of the original academic work of Dan Boneh, Xavier Boyen, and Hovav Shacham, where the scheme was first described.\r\n```",
+              "createdAt": "2022-06-21T08:15:20Z",
+              "updatedAt": "2022-06-21T08:16:06Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848Y_N1",
+          "commit": {
+            "abbreviatedOid": "f336811"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Minor comment. LGTM otherwise!!",
+          "createdAt": "2022-06-21T08:28:28Z",
+          "updatedAt": "2022-06-21T08:43:25Z",
+          "comments": [
+            {
+              "originalPosition": 14,
+              "body": "```suggestion\r\n**Proof of Possession** - The proofs generated by the scheme prove to a verifier that the party who generated the proof (prover) was in possession of a signature without revealing it. The scheme also supports binding a presentation header to the generated proof. The presentation header can include arbitrary information such as a cryptographic nonce, an audience/domain identifier and/or time based validity information.\r\n```\r\nMaybe^?? Or remove the \"or\"??",
+              "createdAt": "2022-06-21T08:28:28Z",
+              "updatedAt": "2022-06-21T08:43:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848c-5d",
+          "commit": {
+            "abbreviatedOid": "ec3fa9e"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-21T20:51:36Z",
+          "updatedAt": "2022-06-21T20:51:37Z",
+          "comments": [
+            {
+              "originalPosition": 14,
+              "body": "`/` often implies or so adding it would be and or or IMO?",
+              "createdAt": "2022-06-21T20:51:36Z",
+              "updatedAt": "2022-06-21T20:51:37Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848dGXG",
+          "commit": {
+            "abbreviatedOid": "f336811"
+          },
+          "author": "alessandroguggino",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-21T21:21:48Z",
+          "updatedAt": "2022-06-21T21:21:48Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 182,
+      "id": "PR_kwDOF8lax846DaZa",
+      "title": "Order points in hash and update 1 to Identity_GT",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/182",
+      "state": "MERGED",
+      "author": "alessandroguggino",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes #173 by @dev0x1.\r\nNow the challenge hashes `c` and `cv` in `ProofGen` and `ProofVerify` are computed as `hash_to_scalar((PK || A' || Abar || D || C1 || C2 || ph), 1)`, to keep the ordering of the proof.\r\n\r\nThe other minor fix is to follow the new notation introduced in #175  and use `Identity_GT` instead of `1` in `Verify`.",
+      "createdAt": "2022-06-21T18:48:42Z",
+      "updatedAt": "2022-06-21T22:45:06Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "271897555aa6a941862a1c7c0314d85e43d69cb7",
+      "headRepository": "alessandroguggino/bbs-signature",
+      "headRefName": "consistency-fixes",
+      "headRefOid": "8114fc20fb81d8ca9c308fbec3be6eeb774a6137",
+      "closedAt": "2022-06-21T20:59:19Z",
+      "mergedAt": "2022-06-21T20:59:19Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "d9cf0acb995770963bca1fe262e5d3def484a3c7"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals, editorial update, merging! Thanks @alessandroguggino!!",
+          "createdAt": "2022-06-21T20:59:06Z",
+          "updatedAt": "2022-06-21T20:59:06Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax848dAL6",
+          "commit": {
+            "abbreviatedOid": "8114fc2"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "LGTM! Thanks!",
+          "createdAt": "2022-06-21T20:56:22Z",
+          "updatedAt": "2022-06-21T20:56:22Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax848dAaH",
+          "commit": {
+            "abbreviatedOid": "8114fc2"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-21T20:57:13Z",
+          "updatedAt": "2022-06-21T20:57:13Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 183,
+      "id": "PR_kwDOF8lax846LFnL",
+      "title": "New API update",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/183",
+      "state": "OPEN",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Substitutes previous PR #138 on API update since it had more conflicts than text at this point.\r\n\r\n### Updates:\r\nThis PR introduces the following main changes:\r\n\r\n1. Removes the generators from the input of the operations. Now the generators are computed as part of the operation procedure, using `create_generators` and a ciphersuite defined seed.\r\n2. Makes all arguments \u201cstructured\u201d (this is to be more explicit when for example we need a specific subarray of an inputted array in the correct order, i.e., revealed messages from messages using the indexes etc.). This closes #163.\r\n3. Introduces an additional section for the core operations called `Precomputations`. The reason is that, as the result of the above updates, a lot of steps are needed to de-structure the inputs or get sub-arrays of the inputted arrays etc. I find that those steps \u201cfill\u201d the main procedure, making it harder to read (especially ProofGen/ ProofVerify). So, I moved them to the \u201cPrecomputation\u201d section to try and make things more readable. \r\n\r\n### Pros and Cons:\r\n**Pros**:\r\n-\tWe are as explicit as it gets when it comes to the ordering of things etc.\r\n-\tThe operations api is much nicer IMO (no more generators there!! Thanks @andrewwhitehead!!)\r\n\r\n**Cons**:\r\n-\tA lot more steps. Been explicit requires describing every step of how we get certain elements.\r\n\r\n### Note:\r\nRegarding the `Precomputations` section if the WG finds it to be more confusing than helpful I\u2019m fine with removing it. Personally, I like it, but it was an \u201cexperiment\u201d to see how it looks.",
+      "createdAt": "2022-06-22T22:35:00Z",
+      "updatedAt": "2022-06-22T22:54:11Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "5d8ec5a086046be0bce4c9d75defab2963a2a584",
+      "headRepository": "BasileiosKal/bbs-signature",
+      "headRefName": "api_update_new",
+      "headRefOid": "5ad737d5e46b7dfe39acb72e3a2d2acd4fceac63",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
