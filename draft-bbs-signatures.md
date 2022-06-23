@@ -398,7 +398,8 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- messages (OPTIONAL), a vector of octet strings.
+- messages (OPTIONAL), a vector of octet strings. If not supplied, it
+                       defaults to the empty array "()".
 
 Parameters:
 
@@ -459,7 +460,8 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- messages (OPTIONAL), a vector of octet strings.
+- messages (OPTIONAL), a vector of octet strings. If not supplied, it
+                       defaults to the empty array "()".
 
 Parameters:
 
@@ -526,10 +528,14 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- ph (OPTIONAL), octet string containing the presentation header.
+- ph (OPTIONAL), octet string containing the presentation header. If not
+                 supplied, it defaults to an empty string.
 - disclosedIndexes (OPTIONAL), vector of unsigned integers in ascending
-                              order. Indexes of disclosed messages.
-- messages (OPTIONAL),  a vector of octet strings.
+                              order. Indexes of disclosed messages. If
+                              not supplied, it defaults to the empty
+                              array "()".
+- messages (OPTIONAL), a vector of octet strings. If not supplied, it
+                       defaults to the empty array "()".
 
 Parameters:
 
@@ -543,9 +549,9 @@ Definitions:
      i.e., L = length(messages). If no messages are supplied, the
      value of L MUST evaluate to zero (0).
 - R, is the non-negative integer representing the number of disclosed
-     messages, i.e., R = length(disclosedIndexes). If no messages are
-     disclosed, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of hidden
+     (revealed) messages, i.e., R = length(disclosedIndexes). If no
+     messages are disclosed, R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
 - prf_len = ceil(ceil(log2(r))/8), where r defined by the ciphersuite.
 
@@ -585,7 +591,7 @@ Procedure:
 
 7. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(prf_len), 6)
 
-8. (m~_1, ..., m~_U) =  hash_to_scalar(PRF(prf_len), U)
+8. (m~_j1, ..., m~_jU) =  hash_to_scalar(PRF(prf_len), U)
 
 9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
@@ -601,7 +607,7 @@ Procedure:
 
 15. C1 = A' * e~ + H_s * r2~
 
-16. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_1 + ... + H_jU * m~_U
+16. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
 17. c = hash_to_scalar((PK || A' || Abar || D || C1 || C2 || ph), 1)
 
@@ -641,10 +647,15 @@ Inputs:
 - header (OPTIONAL), an optional octet string containing context and
                      application specific information. If not supplied,
                      it defaults to an empty string.
-- ph (OPTIONAL), octet string containing the presentation header.
+- ph (OPTIONAL), octet string containing the presentation header. If not
+                 supplied, it defaults to an empty string.
 - disclosedIndexes (OPTIONAL), vector of unsigned integers in ascending
-                              order. Indexes of disclosed messages.
-- disclosedMessages (OPTIONAL), a vector of octet strings.
+                               order. Indexes of disclosed messages. If
+                               not supplied, it defaults to the empty
+                               array "()".
+- disclosedMessages (OPTIONAL), a vector of octet strings. If not
+                                supplied, it defaults to the empty array
+                                "()".
 
 Parameters:
 
@@ -666,9 +677,9 @@ Outputs:
 
 Precomputations:
 
-1. (i1, i2,..., iR) = disclosedIndexes
+1. (i1, ..., iR) = disclosedIndexes
 
-2. (j1, j2,..., jU) = range(1, L) \ disclosedIndexes
+2. (j1, ..., jU) = range(1, L) \ disclosedIndexes
 
 3. msg_i1, ..., msg_iR = disclosedMessages[1], ..., disclosedMessages[R]
 
