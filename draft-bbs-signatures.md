@@ -687,7 +687,7 @@ Precomputations:
 
 5. H_1, ..., H_L = MsgGenerators[1], ..., MsgGenerators[L]
 
-6. H_i1, ..., H_jR = MsgGenerators[i1], ..., MsgGenerators[iR]
+6. H_i1, ..., H_iR = MsgGenerators[i1], ..., MsgGenerators[iR]
 
 7. H_j1, ..., H_jU = MsgGenerators[j1], ..., MsgGenerators[jU]
 
