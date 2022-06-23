@@ -583,7 +583,7 @@ Procedure:
 
 3. (A, e, s) = signature_result
 
-4. gen_octets =  (H_s || H_d || H_1 || ... || H_L)
+4. gen_octets = (H_s || H_d || H_1 || ... || H_L)
 
 5. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
 
