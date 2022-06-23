@@ -657,21 +657,22 @@ Inputs:
 
 Parameters:
 
+- hash_to_curve_suite, the hash to curve suite id defined by the
+                       ciphersuite.
+- hash_to_curve_g1, the hash_to_curve operation for the G1 subgroup,
+                    defined by the suite specified by the
+                    hash_to_curve_suite parameter.
+- expand_message, the expand_message operation defined by the suite
+                  specified by the hash_to_curve_suite parameter.
 - generator_seed, octet string. A seed value selected by the ciphersuite.
-- hash_to_curve_g1. the hash_to_curve operation for the G1 subgroup,
-                    defined by the hash_to_curve_suite ciphersuite
-                    parameter.
-- expand_message, as defined by the hash to curve suite identified by
-                  the hash_to_curve_suite ciphersuite parameter.
-- dst, the separation tag defined by the hash_to_curve_suite
-       ciphersuite parameter.
 
 Definitions:
 
-- seed_dst, the octet string representing the ASCII encoded
-            characters: dst || "SIG_GENERATOR_SEED_".
-- generator_dst, the octet string representing the ASCII encoded
-                 characters: dst || "SIG_GENERATOR_DST_".
+- seed_dst, the octet string representing the ASCII encoded characters:
+           "BBS_" || hash_to_curve_suite || "SIG_GENERATOR_SEED_".
+- generator_dst, the octet string representing:
+                 "BBS_" || hash_to_curve_suite || "SIG_GENERATOR_DST_",
+                 in the ASCII characters encoding.
 - seed_len = ceil((ceil(log2(r)) + k)/8), where r and k are defined by
                                           the ciphersuite.
 
@@ -739,7 +740,7 @@ Procedure:
 
 This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
-This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). Note that, if an implementer wants to use hash\_to\_field here instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). However, the hash\_to\_curve ciphersuites used by this document, make use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For completeness, we define here the operation making use of the expand\_message function, that will be defined by the hash-to-curve suite used. If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
+This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). Note that, if an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). However, the hash\_to\_curve ciphersuites used by this document, make use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For completeness, we define here the operation making use of the expand\_message function, that will be defined by the hash-to-curve suite used. If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
 ```
 scalars = hash_to_scalar(msg_octets, count)
@@ -752,15 +753,15 @@ Inputs:
 
 Parameters:
 
-- expand_message, as defined by the hash to curve suite identified by
-                  the hash_to_curve_suite ciphersuite parameter.
-- dst, the separation tag defined by the hash_to_curve_suite
-       ciphersuite parameter.
+- hash_to_curve_suite, the hash to curve suite id defined by the
+                       ciphersuite.
+- expand_message, the expand_message operation defined by the suite
+                  specified by the hash_to_curve_suite parameter.
 
 Definitions:
 
 - h2s_dst, the octet string representing the ASCII encoded characters:
-           dst || "HASH_TO_SCALAR_".
+           "BBS_" || hash_to_curve_suite || "HASH_TO_SCALAR_".
 - expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
                                           the ciphersuite.
 
@@ -1117,7 +1118,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
 
-- hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve], along with a domain separation tag (dst). This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the [Notation](#notation) section) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document. Note, the dst defined here only forms the prefix of the actual dst used by hash\_to\_curve\_g1 or expand\_message. The actual value of the dst used by those operations, will be formed by the operation calling them.
+- hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the [Notation](#notation) section) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
 
 **Serialization functions**:
 
@@ -1153,7 +1154,7 @@ The following ciphersuite is based on the BLS12-381 elliptic curve defined in Se
 
 - octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
-- hash\_to\_curve\_suite: "BLS12381G1\_XOF:SHAKE-256\_SSWU\_R0\_" as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup. The dst value is "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU_R0\_".
+- hash\_to\_curve\_suite: "BLS12381G1\_XOF:SHAKE-256\_SSWU\_R0\_" as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
 **Serialization functions**:
 
