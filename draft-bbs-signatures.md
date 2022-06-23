@@ -1148,8 +1148,6 @@ The following ciphersuite is based on the BLS12-381 elliptic curve defined in Se
 
 - hash: SHAKE-256 as defined in [@!SHA3].
 
-- expand\_length: 48.
-
 - octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
 - octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
