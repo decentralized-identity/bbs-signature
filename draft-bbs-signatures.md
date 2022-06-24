@@ -549,7 +549,7 @@ Procedure:
 
 14. D = B * r1 + H_s * r2
 
-15. s' = s + r2 * r3
+15. s' = r2 * r3 + s mod r
 
 16. C1 = A' * e~ + H_s * r2~
 
@@ -557,15 +557,15 @@ Procedure:
 
 18. c = hash_to_scalar((PK || A' || Abar || D || C1 || C2 || ph), 1)
 
-19. e^ = e~ + c * e
+19. e^ = c * e + e~ mod r
 
-20. r2^ = r2~ + c * r2
+20. r2^ = c * r2 + r2~ mod r
 
-21. r3^ = r3~ + c * r3
+21. r3^ = c * r3 + r3~ mod r
 
-22. s^ = s~ + c * s'
+22. s^ = c * s' + s~ mod r
 
-23. for j in (1, 2,..., U): m^_j = m~_j + c * msg_j
+23. for j in (1, 2,..., U): m^_j = c * msg_j + m~_j mod r
 
 24. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1, ..., m^_U))
 
@@ -1537,7 +1537,7 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
   Also set,
 
         4.  r3 = r1 ^ -1 mod r
-        5.  s' = s + r2 * r3.
+        5.  s' = r2 * r3 + s mod r.
 
   The values `(A', Abar, d)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the proof to the signer's `Pk`.
 
