@@ -209,17 +209,17 @@ P1, P2
 Identity\_G1, Identity\_G2, Identity\_GT
 : The identity element for the G1, G2, and GT subgroups respectively.
 
-hash\_to\_curve\_g1(ostr) -> P
-: A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
+hash\_to\_curve\_g1(ostr, dst) -> P
+: A cryptographic hash function that takes an arbitrary octet string as input and returns a point in G1, using the hash\_to\_curve operation defined in [@!I-D.irtf-cfrg-hash-to-curve] and the inputted dst as the domain separation tag for that operation (more specifically, the inputted dst will become the DST parameter for the hash\_to\_field operation, called by hash\_to\_curve).
 
 point\_to\_octets_g1(P) -> ostr, point\_to\_octets_g2(P) -> ostr
 : returns the canonical representation of the point P for the respective subgroup as an octet string. This operation is also known as serialization.
 
 octets\_to\_point_g1(ostr) -> P, octets\_to\_point_g2(ostr) -> P
-: returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g\* function.  This operation is also known as deserialization.
+: returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g\* function. This operation is also known as deserialization.
 
 subgroup\_check(P) -> VALID or INVALID
-: returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element.  In some cases, faster checks may also exist, e.g., [@Bowe19].
+: returns VALID when the point P is an element of the subgroup of order p, and INVALID otherwise. This function can always be implemented by checking that p \* P is equal to the identity element. In some cases, faster checks may also exist, e.g., [@Bowe19].
 
 ## Organization of this document
 
@@ -659,15 +659,24 @@ Inputs:
 
 Parameters:
 
+- hash_to_curve_suite, the hash to curve suite id defined by the
+                       ciphersuite.
+- hash_to_curve_g1, the hash_to_curve operation for the G1 subgroup,
+                    defined by the suite specified by the
+                    hash_to_curve_suite parameter.
+- expand_message, the expand_message operation defined by the suite
+                  specified by the hash_to_curve_suite parameter.
 - generator_seed, octet string. A seed value selected by the ciphersuite.
-- hash_to_curve_g1. A hash-to-curve suite selected by the ciphersuite.
 
 Definitions:
 
-- expand_message is the corresponding operation associated with the ciphersuite's hash_to_curve_g1 parameter.
-- seed_dst is the octet string representing "BBS-SIG-GENERATOR-SEED" in the ASCII character encoding.
-- hash_output_bytes is the integer given by ceil((log2(r) + k) / 8).
-- generator_dst is the octet string representing "BBS-SIG-GENERATOR-DST" in the ASCII character encoding.
+- seed_dst, the octet string representing the ASCII encoded characters:
+           "BBS_" || hash_to_curve_suite || "SIG_GENERATOR_SEED_".
+- generator_dst, the octet string representing:
+                 "BBS_" || hash_to_curve_suite || "SIG_GENERATOR_DST_",
+                 in the ASCII characters encoding.
+- seed_len = ceil((ceil(log2(r)) + k)/8), where r and k are defined by
+                                          the ciphersuite.
 
 Outputs:
 
@@ -675,7 +684,7 @@ Outputs:
 
 Procedure:
 
-1. v = expand_message(generator_seed, seed_dst, hash_output_bytes)
+1. v = expand_message(generator_seed, seed_dst, seed_len)
 
 2. n = 1
 
@@ -685,7 +694,7 @@ Procedure:
 
 5.    while generator_i == Identity_G1 or generator_i == P1:
 
-6.        v = expand_message(v || I2OSP(n, 4), seed_dst, hash_output_bytes)
+6.        v = expand_message(v || I2OSP(n, 4), seed_dst, seed_len)
 
 7.        n = n + 1
 
@@ -731,39 +740,62 @@ Procedure:
 
 ## Hash to Scalar
 
-This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r. This procedure acts as a helper function, and it is used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
-The `hash_to_scalar` procedure hashes elements using an extendable-output function (xof). Applications not wishing to use an xof may use `hash_to_field` defined in Section 5.2 of [@!I-D.irtf-cfrg-hash-to-curve], combined with `expand_message_xmd` defined in Section 5.3.1 of the same document, in place of `hash_to_scalar`. In that case, every element outputted by `hash_to_field` that is equal to 0 MUST be rejected. If that occurs, one should calculate more field elements (using `hash_to_field`), until they get `n` non-zero elements (for example, if there is only one 0 in the output of `hash_to_field(msg, 2)` one must try to calculate `hash_to_field(msg, 3)` etc.).
+This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). Note that, if an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). However, the hash\_to\_curve ciphersuites used by this document, make use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For completeness, we define here the operation making use of the expand\_message function, that will be defined by the hash-to-curve suite used. If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
 ```
-result = hash_to_scalar(msg_octets, n)
+scalars = hash_to_scalar(msg_octets, count)
 
 Inputs:
 
 - msg_octets (REQUIRED), octet string. The message to be hashed.
-- n (REQUIRED), non-negative integer. The number of scalars to output.
+- count (REQUIRED), an integer greater or equal to 1. The number of
+                    scalars to output.
 
 Parameters:
 
-- r (REQUIRED), non-negative integer. The prime order of the G_1 and G_2 groups,
-     defined by the ciphersuite.
+- hash_to_curve_suite, the hash to curve suite id defined by the
+                       ciphersuite.
+- expand_message, the expand_message operation defined by the suite
+                  specified by the hash_to_curve_suite parameter.
+
+Definitions:
+
+- h2s_dst, the octet string representing the ASCII encoded characters:
+           "BBS_" || hash_to_curve_suite || "HASH_TO_SCALAR_".
+- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
+                                          the ciphersuite.
 
 Outputs:
 
-- (scalar_1, ..., scalar_n), a list of non-zero scalars mod r.
+- scalars, an array of non-zero scalars mod r.
 
 Procedure:
 
-1. h = xof(msg_octets)
+1. len_in_bytes = cound * expand_len
 
-2. for i in (1, ..., n):
+2. t = 0
 
-3.     scalar_i = OS2IP(h.read(64)) mod r
+3. msg_prime = msg_octets || I2OSP(t, 1) || I2OSP(count, 4)
 
-4.     if scalar_i is 0, go back to step 3
+4. uniform_bytes = expand_message(msg_prime, h2s_dst, len_in_bytes)
 
-5. return (scalar_1, ..., scalar_n)
+5. for i in (1, ..., count):
+
+6.     tv = uniform_bytes[(i-1)*expand_len..i*expand_len-1]
+
+7.     scalar_i = OS2IP(tv) mod r
+
+8. if 0 in (scalar_1, ..., scalar_count):
+
+9.     t = t + 1
+
+10.    go back to step 3
+
+11. return (scalar_1, ..., scalar_count)
 ```
+
 ## Serialization
 ### OctetsToSignature
 
@@ -1078,19 +1110,17 @@ The following section defines the format of the unique identifier for the cipher
 
 ### Additional Parameters
 
-The parameters that each ciphersuite needs to define are generally divided into four main categories; the basic parameters (a hash function, the hash_to_scalar operation etc.,), the serialization operations (point_to_octets_g1 etc.,), the hash_to_curve parameters (the hash_to_curve dst etc.,) and the generator seeds (the message generator seed etc.,). See below for more details.
+The parameters that each ciphersuite needs to define are generally divided into three main categories; the basic parameters (a hash function etc.,), the serialization operations (point_to_octets_g1 etc.,) and the generator parameters. See below for more details.
 
 **Basic parameters**:
 
 - hash: a cryptographic hash function.
 
-- xof\_no\_of\_bytes: Number of bytes to draw from the xof when performing operations such as creating generators as per the operation documented in (#generator-point-computation) or computing the e and s components of the signature generated in (#sign). It is RECOMMENDED this value be set to one greater than `ceil(r+k)/8` for the ciphersuite, where `r` and `k` are parameters from the underlying pairing friendly curve being used.
-
 - octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
 
 - octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
 
-- hashing\_elements\_to\_scalars: either hash_to_scalar using hash (in this case hash MUST be an xof), or hash_to_field with the additional check and re-calculation of more elements until the desired number of non-zero field elements is returned (as described in [Hash to scalar](#hash-to-scalar)).
+- hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the [Notation](#notation) section) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
 
 **Serialization functions**:
 
@@ -1110,9 +1140,6 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 - generator\_seed: The seed used to determine the generator points which form part of the public parameters used by the BBS signature scheme. Note there are multiple possible scopes for this seed, including: a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); and a signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operation to any others.
 
-- hash\_to\_curve\_g1:
-A cryptographic hash function that takes as an arbitrary octet string input and returns a point in G1 as defined in [@!I-D.irtf-cfrg-hash-to-curve].
-
 ## BLS12-381 Ciphersuite
 
 The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hashtocurve-definition-using-shake-256), which also makes use of the SHAKE-256 function.
@@ -1123,13 +1150,11 @@ The following ciphersuite is based on the BLS12-381 elliptic curve defined in Se
 
 - hash: SHAKE-256 as defined in [@!SHA3].
 
-- xof\_no\_of\_bytes: 64.
-
 - octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
 - octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
-- hashing\_elements\_to\_scalars: hash\_to\_scalar.
+- hash\_to\_curve\_suite: "BLS12381G1\_XOF:SHAKE-256\_SSWU\_R0\_" as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
 **Serialization functions**:
 
@@ -1144,8 +1169,6 @@ The following ciphersuite is based on the BLS12-381 elliptic curve defined in Se
 **Generator parameters**:
 
 - generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
-
-- hash\_to\_curve_g1: follows the suite defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
 ### Test Vectors
 
