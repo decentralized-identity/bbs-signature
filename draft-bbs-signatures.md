@@ -13,15 +13,6 @@ value = "draft-bbs-signatures-latest"
 status = "informational"
 
 [[author]]
-initials = "M."
-surname = "Lodder"
-fullname = "Mike Lodder"
-#role = "editor"
-organization = "CryptID"
-  [author.address]
-  email = "redmike7gmail.com"
-
-[[author]]
 initials = "T."
 surname = "Looker"
 fullname = "Tobias Looker"
@@ -29,6 +20,15 @@ fullname = "Tobias Looker"
 organization = "MATTR"
   [author.address]
   email = "tobias.looker@mattr.global"
+
+[[author]]
+initials = "V."
+surname = "Kalos"
+fullname = "Vasileios Kalos"
+#role = "editor"
+organization = "MATTR"
+  [author.address]
+  email = "vasilis.kalos@mattr.global"
 
 [[author]]
 initials = "A."
@@ -40,13 +40,15 @@ organization = ""
   email = "cywolf@gmail.com"
 
 [[author]]
-initials = "V."
-surname = "Kalos"
-fullname = "Vasileios Kalos"
+initials = "M."
+surname = "Lodder"
+fullname = "Mike Lodder"
 #role = "editor"
-organization = "MATTR"
+organization = "CryptID"
   [author.address]
-  email = "vasilis.kalos@mattr.global"
+  email = "redmike7gmail.com"
+
+
 %%%
 
 .# Abstract
@@ -1382,6 +1384,14 @@ Along with the SK value as defined in (#key-pair) as inputs into the Sign operat
 
 This document does not make any requests of IANA.
 
+# Acknowledgements
+
+The authors would like to acknowledge the significant amount of academic work that preceeded the development of this document. In particular the original work of [@SGS] which was subsequently developed in [@CDL16].
+
+The current state of this document is the product of the work of the Decentralized Identity Foundation Applied Cryptography Working group, which includes numerous active participants. In particular, the following individuals contributed ideas, feedback and wording that influenced this specification:
+
+Orie Steele, Christian Paquin, Alessandro Guggino and Tomislav Markovski
+
 {backmatter}
 
 # BLS12-381 hash\_to\_curve definition using SHAKE-256
@@ -1703,6 +1713,21 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
  <seriesInfo name="In" value="International Conference on Trust and Trustworthy Computing"/>
  <seriesInfo name="pages" value="1-20"/>
  <seriesInfo name="Springer," value="Cham"/>
+</reference>
+
+<reference anchor="SGS" target="https://link.springer.com/chapter/10.1007/978-3-540-28628-8_3">
+ <front>
+   <title>Short Group Signatures</title>
+   <author initials="D." surname="Boneh" fullname="Dan Boneh">
+    </author>
+    <author initials="X." surname="Boyen" fullname="Xavier Boyen">
+    </author>
+    <author initials="H." surname="Shacham" fullname="Hovav Scacham">
+    </author>
+    <date year="2004"/>
+ </front>
+ <seriesInfo name="In" value="Advances in Cryptology"/>
+ <seriesInfo name="pages" value="41-55"/>
 </reference>
 
 <reference anchor="ZCASH-REVIEW" target="https://research.nccgroup.com/wp-content/uploads/2020/07/NCC_Group_Zcash2018_Public_Report_2019-01-30_v1.3.pdf">
