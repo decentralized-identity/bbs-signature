@@ -186,6 +186,9 @@ X\[a..b\]
 range(a, b)
 : For integers a and b, with a <= b, denotes the ascending ordered list of all integers between a and b inclusive (i.e., the integers "i" such that a <= i <= b).
 
+utf8(ascii_string)
+: Encoding the inputted ASCII string to an octet string using UTF-8 character encoding.
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -255,7 +258,7 @@ Aside from the message generators, the scheme uses two additional generators: `H
 
 ## Encoding of elements to be hashed
 
-To avoid ambiguity, each element passed to the hash or the xof function, including situations when multiple elements are supplied in a concatenated form, must first be encoded to an appropriate format, depending on its type. Specifically,
+This document uses the hash\_to\_scalar function to hash elements to scalars in the multplicative group mod r (see [Section 5.3](#hash-to-scalar)). To avoid ambiguity, each element passed to that operation, must first be encoded to an appropriate format, depending on its type. Specifically,
 
 - Points in G1 or G2 must be encoded using the `point_to_octets_g*` implementation for a particular ciphersuite.
 - Non-negative integers must be encoded using `I2OSP` with an output length of 8 bytes.
@@ -263,26 +266,56 @@ To avoid ambiguity, each element passed to the hash or the xof function, includi
 - Octet strings must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value is encoded directly.
 - ASCII strings must be transformed into octet strings using UTF-8 encoding.
 
-After encoding, octet strings MUST be prepended with a value representing the length of their binary representation in the form of the number of bytes. If the octet string represents a DST, then its length must be encoded to octets using I2OSP with ouptut length of 1 byte. If it is a generic octet string (not representing a DST), its length must be encoded to octets using I2OSP with ouptut length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. DSTs with length larger than 2^8 - 1 MUST be rejected. Other octet-strings (not DSTs) with length larger than 2^64 - 1, MUST also be rejected.
+After encoding, octet strings MUST be prepended with a value representing the length of their binary representation in the form of the number of bytes. This length must be encoded to octets using I2OSP with output length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. If the length of the octet string is larger than 2^64 - 1, the octet string MUST be rejected. Similarly, ASCII strings, after encoded to octets (using utf8), must also be appended with the length of their octet-string representation.
 
-As an example of the above transformations, consider the following. Assume that one wants to hash together the message `"Jane"` and the number `25`. The procedure would be
+Optional input/parameters to operations that feature in a call to hash\_to\_scalar, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `hash(A || X || B)` MUST be evaluated to `hash(A || "" || B)`.
 
-- Calculate octets of the message `"Jane"` and the number `25` as,
-   ```
-   message_octets = 0x4a616e65
-   number_octets = I2OSP(25, 4) = 0x0000000000000019
-   ```
-- Calculate the length of the message binary representation (message_octets) and transform it to octets i.e., `len(message_octets) = I2OSP(4, 8) = 0x0000000000000004`.
-- Prepend the length calculated in the previous step to the message's binary representation and concatenate the result with the octets representing the number `25`, to get the octets to be hashed,
-   ```
-   octets_to_hash = len(message_octets) || message_octets || number_octets =
-                  = 0x00000000000000044a616e650000000000000019
-   ```
-- hash the result (i.e., `hash(octets_to_hash)`)
+The above procedure is further described in the following operation.
 
-For readability, this document makes these transformations implicitly, but they MUST precede every call to the hash or xof function.
+```
+result = encode_for_hash(input_array)
 
-Optional input/parameters to operations that feature in a call to a HASH or XOF function, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `HASH(A || X || B)` MUST be evaluated to `HASH(A || "" || B)`.
+Inputs:
+
+- input_array, an array of elements to be hashed.
+
+Parameters:
+
+- octet_scalar_length, non-negative integer. The length of a scalar
+                       octet representation, defined by the ciphersuite.
+
+Outputs:
+
+- result, an octet string or INVALID.
+
+Procedure:
+
+1. let octets_to_hash be an empty octet string.
+
+2. for el in input_array:
+
+3.     if el is an ASCII string: el = utf8(el)
+
+4.     if el is an octet string:
+
+5.         if length(el) > 2^64 - 1, return INVALID
+
+6.         el_octs = I2OSP(length(el), 8) || el
+
+7.     else if el is a Point in G1: el_octs = point_to_octets_g1(el)
+
+8.     else if el is a Point in G2: el_octs = point_to_octets_g2(el)
+
+9.     else if el is a Scalar: el_octs = I2OSP(el, octet_scalar_length)
+
+10.    else if el is a non-negative integer: el_octs = I2OSP(el, 8)
+
+11.    else: return INVALID
+
+12.    octets_to_hash = octets_to_hash || el_octs
+
+13. return octets_to_hash
+```
 
 # Scheme Definition
 
@@ -427,21 +460,27 @@ Precomputations:
 
 Procedure:
 
-1. gen_octets =  (H_s || H_d || H_1 || ... || H_L)
+1. dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
 
-2. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
+2. dom_for_hash = encode_for_hash(dom_array)
 
-3. domain = hash_to_scalar(domain_prime, 1)
+3. if dom_for_hash is INVALID, return INVALD
 
-4. (e, s) = hash_to_scalar((SK  || domain || msg_1 || ... || msg_L), 2)
+4. domain = hash_to_scalar(dom_for_hash, 1)
 
-5. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+5. e_s_for_hash = encode_for_hash(SK, domain, msg_1, ..., msg_L)
 
-6. A = B * (1 / (SK + e))
+6. if e_s_for_hash is INVALID, return INVALID
 
-7. signature_octets = signature_to_octets(A, e, s)
+7. (e, s) = hash_to_scalar(e_s_for_hash, 2)
 
-8. return signature_octets
+8. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+
+9. A = B * (1 / (SK + e))
+
+10. signature_octets = signature_to_octets(A, e, s)
+
+11. return signature_octets
 ```
 
 **Note** When computing step 7 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evalute to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 7, and or `A != Identity_G1` after step 7 to prevent the production of invalid signatures.
@@ -499,17 +538,19 @@ Procedure:
 
 5. if W is INVALID, return INVALID
 
-6. gen_octets = (H_s || H_d || H_1 || ... || H_L)
+6. dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
 
-7. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
+7. dom_for_hash = encode_for_hash(dom_array)
 
-8. domain = hash_to_scalar(domain_prime, 1)
+8. if dom_for_hash is INVALID, return INVALD
 
-9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+9. domain = hash_to_scalar(dom_for_hash, 1)
 
-10. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
+10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-11. return VALID
+11. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
+
+12. return VALID
 ```
 
 ### ProofGen
@@ -585,47 +626,55 @@ Procedure:
 
 3. (A, e, s) = signature_result
 
-4. gen_octets = (H_s || H_d || H_1 || ... || H_L)
+4. dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
 
-5. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
+5. dom_for_hash = encode_for_hash(dom_array)
 
-6. domain = hash_to_scalar(domain_prime, 1)
+6. if dom_for_hash is INVALID, return INVALD
 
-7. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(prf_len), 6)
+7. domain = hash_to_scalar(dom_for_hash, 1)
 
-8. (m~_j1, ..., m~_jU) = hash_to_scalar(PRF(prf_len), U)
+8. (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(prf_len), 6)
 
-9. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+9. (m~_j1, ..., m~_jU) = hash_to_scalar(PRF(prf_len), U)
 
-10. r3 = r1 ^ -1 mod r
+10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 
-11. A' = A * r1
+11. r3 = r1 ^ -1 mod r
 
-12. Abar = A' * (-e) + B * r1
+12. A' = A * r1
 
-13. D = B * r1 + H_s * r2
+13. Abar = A' * (-e) + B * r1
 
-14. s' = r2 * r3 + s mod r
+14. D = B * r1 + H_s * r2
 
-15. C1 = A' * e~ + H_s * r2~
+15. s' = r2 * r3 + s mod r
 
-16. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+16. C1 = A' * e~ + H_s * r2~
 
-17. c = hash_to_scalar((PK || A' || Abar || D || C1 || C2 || ph), 1)
+17. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-18. e^ = c * e + e~ mod r
+18. proof_for_hash = encode_for_hash(A', Abar, D, C1, C2, domain, ph)
 
-19. r2^ = c * r2 + r2~ mod r
+19. rev_for_hash = encode_for_hash(R, i1, ..., iR, msg_i1, ..., msg_iR)
 
-20. r3^ = c * r3 + r3~ mod r
+20. if proof_for_hash or rev_for_hash is INVALID, return INVALID
 
-21. s^ = c * s' + s~ mod r
+21. c = hash_to_scalar((proof_for_hash || rev_for_hash), 1)
 
-22. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
+22. e^ = c * e + e~ mod r
 
-23. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+23. r2^ = c * r2 + r2~ mod r
 
-24. return proof_to_octets(proof)
+24. r3^ = c * r3 + r3~ mod r
+
+25. s^ = c * s' + s~ mod r
+
+26. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
+
+27. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+
+28. return proof_to_octets(proof)
 ```
 
 ### ProofVerify
@@ -711,27 +760,35 @@ Procedure:
 
 5. if W is INVALID, return INVALID
 
-6. gen_octets =  (H_s || H_d || H_1 || ... || H_L)
+6. dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
 
-7. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
+7. dom_for_hash = encode_for_hash(dom_array)
 
-8. domain = hash_to_scalar(domain_prime, 1)
+8. if dom_for_hash is INVALID, return INVALD
 
-9. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
+9. domain = hash_to_scalar(dom_for_hash, 1)
 
-10. T = P1 + H_d * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+10. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
 
-11. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+11. T = P1 + H_d * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-12. cv = hash_to_scalar((PK || A' || Abar || D || C1 || C2 || ph), 1)
+12. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-13. if c != cv, return INVALID
+13. proof_for_hash = encode_for_hash(A', Abar, D, C1, C2, domain, ph)
 
-14. if A' == Identity_G1, return INVALID
+14. rev_for_hash = encode_for_hash(R, i1, ..., iR, msg_i1, ..., msg_iR)
 
-15. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+15. if proof_for_hash or rev_for_hash is INVALID, return INVALID
 
-16. return VALID
+16. cv = hash_to_scalar((proof_for_hash || rev_for_hash), 1)
+
+17. if c != cv, return INVALID
+
+18. if A' == Identity_G1, return INVALID
+
+19. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+
+20. return VALID
 ```
 
 # Utility Operations
