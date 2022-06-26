@@ -617,7 +617,7 @@ Procedure:
 
 18. revealed_octs = (R || i1 || ... || iR || msg_i1 || ... || msg_iR)
 
-19. c = hash_to_scalar(proof_octs || revealed_octs || domain || ph, 1)
+19. c = hash_to_scalar((proof_octs || revealed_octs || domain || ph), 1)
 
 20. e^ = c * e + e~ mod r
 
@@ -733,7 +733,7 @@ Procedure:
 
 13. revealed_octs = (R || i1 || ... || iR || msg_i1 || ... || msg_iR)
 
-14. c = hash_to_scalar(proof_octs || revealed_octs || domain || ph, 1)
+14. c = hash_to_scalar((proof_octs || revealed_octs || domain || ph), 1)
 
 15. if c != cv, return INVALID
 
