@@ -1730,6 +1730,21 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
  <seriesInfo name="pages" value="41-55"/>
 </reference>
 
+<reference anchor="ASM06" target="https://link.springer.com/chapter/10.1007/11832072_8">
+ <front>
+   <title>Constant-Size Dynamic k-TAA</title>
+   <author initials="M. H." surname="Au" fullname="Man Ho Au">
+    </author>
+    <author initials="W." surname="Susilo" fullname="Willy Susilo">
+    </author>
+    <author initials="Y." surname="Mu" fullname="Yi Mu">
+    </author>
+    <date year="2006"/>
+ </front>
+ <seriesInfo name="In" value="International Conference on Security and Cryptography for Networks"/>
+ <seriesInfo name="pages" value="111-125"/>
+ <seriesInfo name="Springer," value="Berlin, Heidelberg"/>
+</reference>
 <reference anchor="ZCASH-REVIEW" target="https://research.nccgroup.com/wp-content/uploads/2020/07/NCC_Group_Zcash2018_Public_Report_2019-01-30_v1.3.pdf">
  <front>
    <title>Zcash Overwinter Consensus and Sapling Cryptography Review</title>
