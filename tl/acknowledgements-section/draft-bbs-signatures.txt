@@ -1740,8 +1740,9 @@ aacb0e0ccc477de9408ec18810b508abccb975e2c8099ea93ba28bf66c836ac31189097446c5c5b6
 
    The authors would like to acknowledge the significant amount of
    academic work that preceeded the development of this document.  In
-   particular the original work of [SGS] which was subsequently
-   developed in [CDL16].
+   particular the original work of [BBS04] which was subsequently
+   developed in [ASM06] and in [CDL16].  This last academic work is the
+   one mostly used by this document.
 
    The current state of this document is the product of the work of the
    Decentralized Identity Foundation Applied Cryptography Working group,
@@ -1799,6 +1800,15 @@ aacb0e0ccc477de9408ec18810b508abccb975e2c8099ea93ba28bf66c836ac31189097446c5c5b6
               Joint Signature and Encryption", pages 83-107, April 2002,
               <https://doi.org/10.1007/3-540-46035-7_6>.
 
+   [ASM06]    Au, M. H., Susilo, W., and Y. Mu, "Constant-Size Dynamic
+              k-TAA", Springer, Berlin, Heidelberg, 2006,
+              <https://link.springer.com/chapter/10.1007/11832072_8>.
+
+   [BBS04]    Boneh, D., Boyen, X., and H. Shacham, "Short Group
+              Signatures", pages 41-55, 2004,
+              <https://link.springer.com/
+              chapter/10.1007/978-3-540-28628-8_3>.
+
    [Bowe19]   Bowe, S., "Faster subgroup checks for BLS12-381", July
               2019, <https://eprint.iacr.org/2019/814>.
 
@@ -1819,11 +1829,6 @@ aacb0e0ccc477de9408ec18810b508abccb975e2c8099ea93ba28bf66c836ac31189097446c5c5b6
               Internet-Draft, draft-irtf-cfrg-bls-signature-05, 16 June
               2022, <https://datatracker.ietf.org/doc/html/draft-irtf-
               cfrg-bls-signature-05>.
-
-   [SGS]      Boneh, D., Boyen, X., and H. Shacham, "Short Group
-              Signatures", pages 41-55, 2004,
-              <https://link.springer.com/
-              chapter/10.1007/978-3-540-28628-8_3>.
 
    [ZCASH-REVIEW]
               NCC Group, "Zcash Overwinter Consensus and Sapling
