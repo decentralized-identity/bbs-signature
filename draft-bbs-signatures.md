@@ -427,9 +427,9 @@ Precomputations:
 
 Procedure:
 
-1. gen_octets =  (H_s || H_d || H_1 || ... || H_L)
+1. gen_octs =  (H_s || H_d || H_1 || ... || H_L)
 
-2. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
+2. domain_prime = (PK || L || gen_octs || Ciphersuite_ID || header)
 
 3. domain = hash_to_scalar(domain_prime, 1)
 
@@ -499,9 +499,9 @@ Procedure:
 
 5. if W is INVALID, return INVALID
 
-6. gen_octets = (H_s || H_d || H_1 || ... || H_L)
+6. gen_octs = (H_s || H_d || H_1 || ... || H_L)
 
-7. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
+7. domain_prime = (PK || L || gen_octs || Ciphersuite_ID || header)
 
 8. domain = hash_to_scalar(domain_prime, 1)
 
@@ -569,13 +569,15 @@ Precomputations:
 
 3. msg_1, ..., msg_L = messages[1], ..., messages[L]
 
-4. msg_j1, ..., msg_jU = messages[j1], ..., messages[jU]
+4. msg_i1, ..., msg_iR = messages[i1], ..., messages[iR]
 
-5. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
+5. msg_j1, ..., msg_jU = messages[j1], ..., messages[jU]
 
-6. H_1, ..., H_L = MsgGenerators[1], ..., MsgGenerators[L]
+6. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
 
-7. H_j1, ..., H_jU = MsgGenerators[j1], ..., MsgGenerators[jU]
+7. H_1, ..., H_L = MsgGenerators[1], ..., MsgGenerators[L]
+
+8. H_j1, ..., H_jU = MsgGenerators[j1], ..., MsgGenerators[jU]
 
 Procedure:
 
@@ -585,9 +587,9 @@ Procedure:
 
 3. (A, e, s) = signature_result
 
-4. gen_octets = (H_s || H_d || H_1 || ... || H_L)
+4. gen_octs = (H_s || H_d || H_1 || ... || H_L)
 
-5. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
+5. domain_prime = (PK || L || gen_octs || Ciphersuite_ID || header)
 
 6. domain = hash_to_scalar(domain_prime, 1)
 
@@ -611,21 +613,25 @@ Procedure:
 
 16. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-17. c = hash_to_scalar((PK || A' || Abar || D || C1 || C2 || ph), 1)
+17. proof_octs = (A' || Abar || D || C1 || C2)
 
-18. e^ = c * e + e~ mod r
+18. revealed_octs = (R || i1 || ... || iR || msg_i1 || ... || msg_iR)
 
-19. r2^ = c * r2 + r2~ mod r
+19. c = hash_to_scalar(proof_octs || revealed_octs || domain || ph, 1)
 
-20. r3^ = c * r3 + r3~ mod r
+20. e^ = c * e + e~ mod r
 
-21. s^ = c * s' + s~ mod r
+21. r2^ = c * r2 + r2~ mod r
 
-22. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
+22. r3^ = c * r3 + r3~ mod r
 
-23. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+23. s^ = c * s' + s~ mod r
 
-24. return proof_to_octets(proof)
+24. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
+
+25. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+
+26. return proof_to_octets(proof)
 ```
 
 ### ProofVerify
@@ -711,9 +717,9 @@ Procedure:
 
 5. if W is INVALID, return INVALID
 
-6. gen_octets =  (H_s || H_d || H_1 || ... || H_L)
+6. gen_octs =  (H_s || H_d || H_1 || ... || H_L)
 
-7. domain_prime = (PK || L || gen_octets || Ciphersuite_ID || header)
+7. domain_prime = (PK || L || gen_octs || Ciphersuite_ID || header)
 
 8. domain = hash_to_scalar(domain_prime, 1)
 
@@ -723,15 +729,19 @@ Procedure:
 
 11. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-12. cv = hash_to_scalar((PK || A' || Abar || D || C1 || C2 || ph), 1)
+12. proof_octs = (A' || Abar || D || C1 || C2)
 
-13. if c != cv, return INVALID
+13. revealed_octs = (R || i1 || ... || iR || msg_i1 || ... || msg_iR)
 
-14. if A' == Identity_G1, return INVALID
+14. c = hash_to_scalar(proof_octs || revealed_octs || domain || ph, 1)
 
-15. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+15. if c != cv, return INVALID
 
-16. return VALID
+16. if A' == Identity_G1, return INVALID
+
+17. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+
+18. return VALID
 ```
 
 # Utility Operations
