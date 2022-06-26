@@ -1715,7 +1715,7 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
  <seriesInfo name="Springer," value="Cham"/>
 </reference>
 
-<reference anchor="SGS" target="https://link.springer.com/chapter/10.1007/978-3-540-28628-8_3">
+<reference anchor="BBS04" target="https://link.springer.com/chapter/10.1007/978-3-540-28628-8_3">
  <front>
    <title>Short Group Signatures</title>
    <author initials="D." surname="Boneh" fullname="Dan Boneh">
