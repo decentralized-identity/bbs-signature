@@ -464,7 +464,7 @@ Procedure:
 
 2. dom_for_hash = encode_for_hash(dom_array)
 
-3. if dom_for_hash is INVALID, return INVALD
+3. if dom_for_hash is INVALID, return INVALID
 
 4. domain = hash_to_scalar(dom_for_hash, 1)
 
@@ -656,13 +656,14 @@ Procedure:
 
 17. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-18. proof_for_hash = encode_for_hash(A', Abar, D, C1, C2, domain, ph)
+18. c_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
+                       msg_i1, ..., msg_iR, domain, ph)
 
-19. rev_for_hash = encode_for_hash(R, i1, ..., iR, msg_i1, ..., msg_iR)
+19. c_for_hash = encode_for_hash(c_array)
 
-20. if proof_for_hash or rev_for_hash is INVALID, return INVALID
+20. if c_for_hash is INVALID, return INVALID
 
-21. c = hash_to_scalar((proof_for_hash || rev_for_hash), 1)
+21. c = hash_to_scalar(c_for_hash, 1)
 
 22. e^ = c * e + e~ mod r
 
@@ -776,13 +777,14 @@ Procedure:
 
 12. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
-13. proof_for_hash = encode_for_hash(A', Abar, D, C1, C2, domain, ph)
+13. cv_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
+                       msg_i1, ..., msg_iR, domain, ph)
 
-14. rev_for_hash = encode_for_hash(R, i1, ..., iR, msg_i1, ..., msg_iR)
+14. cv_for_hash = encode_for_hash(cv_array)
 
-15. if proof_for_hash or rev_for_hash is INVALID, return INVALID
+15. if cv_for_hash is INVALID, return INVALID
 
-16. cv = hash_to_scalar((proof_for_hash || rev_for_hash), 1)
+16. cv = hash_to_scalar(cv_for_hash, 1)
 
 17. if c != cv, return INVALID
 
