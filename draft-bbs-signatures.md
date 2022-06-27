@@ -668,7 +668,7 @@ Parameters:
 Definitions:
 
 - R, is the non-negative integer representing the number of disclosed
-     (revealed) messages, i.e., R = length(disclosedIndexes). If no 
+     (revealed) messages, i.e., R = length(disclosedIndexes). If no
      messages are disclosed, the value of R MUST evaluate to zero (0).
 - U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
