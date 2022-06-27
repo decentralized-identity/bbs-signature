@@ -1387,11 +1387,11 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.1-2.7">R</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.8">The set of message indexes that are retained or hidden in a signature proof of knowledge.<a href="#section-1.1-2.8" class="pilcrow">¶</a>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.8">The number of message indexes that are disclosed (revealed) in a proof-of-knowledge of a signature.<a href="#section-1.1-2.8" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.1-2.9">D</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.10">The set of message indexes that are disclosed in a signature proof of knowledge.<a href="#section-1.1-2.10" class="pilcrow">¶</a>
+<dt id="section-1.1-2.9">U</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.10">The number of message indexes that are undisclosed in a proof-of-knowledge of a signature.<a href="#section-1.1-2.10" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.1-2.11">msg</dt>
@@ -1399,7 +1399,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.1-2.13">generator</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.14">A valid point on the selected sub-group of the curve being used that is used to commit a value.<a href="#section-1.1-2.14" class="pilcrow">¶</a>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.14">A valid point on the selected subgroup of the curve being used that is employed to commit a value.<a href="#section-1.1-2.14" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.1-2.15">H_s</dt>
@@ -2039,9 +2039,9 @@ Parameters:
 Definitions:
 
 - R, is the non-negative integer representing the number of disclosed
-     messages, i.e., R = length(disclosedIndexes). If no messages are
-     disclosed, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of hidden
+     (revealed) messages, i.e., R = length(disclosedIndexes). If no
+     messages are disclosed, the value of R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
 
 Outputs:
