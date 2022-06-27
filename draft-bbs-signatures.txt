@@ -10,7 +10,7 @@ none                                                           M. Lodder
                                                                         
                                                                 V. Kalos
                                                                    MATTR
-                                                            25 June 2022
+                                                            27 June 2022
 
 
                         The BBS Signature Scheme
@@ -89,8 +89,7 @@ Table of Contents
    10. Informative References
    Appendix A.  BLS12-381 hash_to_curve definition using SHAKE-256
      A.1.  BLS12-381 G1
-     A.2.  BLS12-381 G2
-   Appendix B.  Usecases
+   Appendix B.  Use Cases
      B.1.  Non-correlating Security Token
      B.2.  Improved Bearer Security Token
      B.3.  Hardware Attestations
@@ -269,9 +268,9 @@ Table of Contents
       document assumes that E1 has a more compact representation than
       E2, i.e., because E1 is defined over a smaller field than E2.
 
-   G1, G2  subgroups of E1 and E2 (respectively) having prime order p.
+   G1, G2  subgroups of E1 and E2 (respectively) having prime order r.
 
-   GT  a subgroup, of prime order p, of the multiplicative group of a
+   GT  a subgroup, of prime order r, of the multiplicative group of a
       field extension.
 
    e  G1 x G2 -> GT: a non-degenerate bilinear map.
@@ -307,8 +306,8 @@ Table of Contents
       operation is also known as deserialization.
 
    subgroup_check(P) -> VALID or INVALID  returns VALID when the point P
-      is an element of the subgroup of order p, and INVALID otherwise.
-      This function can always be implemented by checking that p * P is
+      is an element of the subgroup of order r, and INVALID otherwise.
+      This function can always be implemented by checking that r * P is
       equal to the identity element.  In some cases, faster checks may
       also exist, e.g., [Bowe19].
 
@@ -1031,7 +1030,7 @@ Outputs:
 
 Procedure:
 
-1. If len(dst) > 2^8 - 1 or len(msg) > 2^64 - 1, abort
+1. If len(dst) > 2^8 - 1 or len(msg) > 2^64 - 1, return INVALID
 
 2. dst_prime = I2OSP(len(dst), 1) || dst
 
@@ -1094,7 +1093,7 @@ Procedure:
 
   Procedure:
 
-  1. len_in_bytes = cound * expand_len
+  1. len_in_bytes = count * expand_len
 
   2. t = 0
 
@@ -1831,6 +1830,8 @@ A.1.  BLS12-381 G1
 
 * p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 
+* r: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
+
 * m: 1
 
 * k: 128
@@ -1865,56 +1866,7 @@ A.1.  BLS12-381 G1
    the curve E' isogenous to BLS12-381 G1 is given in Appendix F.2
    [I-D.irtf-cfrg-hash-to-curve].
 
-A.2.  BLS12-381 G2
-
-   The suite of BLS12381G2_XOF:SHAKE-256_SSWU_R0_ is defined as follows:
-
-* encoding type: hash_to_curve (Section 3 of [@!I-D.irtf-cfrg-hash-to-curve])
-
-* E: y^2 = x^3 + 4 * (1 + I)
-
-* base field F is GF(p^m), where
-
-  -  p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6
-         b0f6241eabfffeb153ffffb9feffffffffaaab
-
-  -  m: 2
-
-  -  (1, I) is the basis for F, where I^2 + 1 == 0 in F
-
-* k: 128
-
-* expand_message: expand_message_xof (Section 5.3.2 of [@!I-D.irtf-cfrg-hash-to-curve])
-
-* hash: SHAKE-256
-
-* L: 64
-
-* f: Simplified SWU for AB == 0 (Section 6.6.3 of [@!I-D.irtf-cfrg-hash-to-curve])
-
-* Z: -(2 + I)
-
-*  E': y'^2 = x'^3 + A' * x' + B', where
-
-      -  A' = 240 * I
-
-      -  B' = 1012 * (1 + I)
-
-*  iso_map: the isogeny map from E' to E given in Appendix E.3 of [@!I-D.irtf-cfrg-hash-to-curve]
-
-*  h_eff: 0xbc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff0315
-  08ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689
-  f6a359894c0adebbf6b4e8020005aaa95551
-
-   Note that the h_eff values for this suite are copied from that
-   defined for the BLS12381G2_XMD:SHA-256_SSWU_RO_ suite defined in
-   section 8.8.1 of [I-D.irtf-cfrg-hash-to-curve].
-
-   An optimized example implementation of the Simplified SWU mapping to
-   the curve E' isogenous to BLS12-381 G2 is given in Appendix F.2
-   [I-D.irtf-cfrg-hash-to-curve].
-
-Appendix B.  Usecases
+Appendix B.  Use Cases
 
 B.1.  Non-correlating Security Token
 
