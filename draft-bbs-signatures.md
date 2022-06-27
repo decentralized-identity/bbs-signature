@@ -632,7 +632,7 @@ Procedure:
 
 5. dom_for_hash = encode_for_hash(dom_array)
 
-6. if dom_for_hash is INVALID, return INVALD
+6. if dom_for_hash is INVALID, return INVALID
 
 7. domain = hash_to_scalar(dom_for_hash, 1)
 
