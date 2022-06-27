@@ -2,14 +2,13 @@
 
 
 
-none                                                           M. Lodder
-                                                                 CryptID
-                                                               T. Looker
+none                                                           T. Looker
+                                                                V. Kalos
                                                                    MATTR
                                                             A. Whitehead
                                                                         
-                                                                V. Kalos
-                                                                   MATTR
+                                                               M. Lodder
+                                                                 CryptID
                                                             27 June 2022
 
 
@@ -85,8 +84,9 @@ Table of Contents
      7.2.  BLS12-381 Ciphersuite
        7.2.1.  Test Vectors
    8.  IANA Considerations
-   9.  Normative References
-   10. Informative References
+   9.  Acknowledgements
+   10. Normative References
+   11. Informative References
    Appendix A.  BLS12-381 hash_to_curve definition using SHAKE-256
      A.1.  BLS12-381 G1
    Appendix B.  Use Cases
@@ -1745,7 +1745,24 @@ aacb0e0ccc477de9408ec18810b508abccb975e2c8099ea93ba28bf66c836ac31189097446c5c5b6
 
    This document does not make any requests of IANA.
 
-9.  Normative References
+9.  Acknowledgements
+
+   The authors would like to acknowledge the significant amount of
+   academic work that preceeded the development of this document.  In
+   particular the original work of [BBS04] which was subsequently
+   developed in [ASM06] and in [CDL16].  This last academic work is the
+   one mostly used by this document.
+
+   The current state of this document is the product of the work of the
+   Decentralized Identity Foundation Applied Cryptography Working group,
+   which includes numerous active participants.  In particular, the
+   following individuals contributed ideas, feedback and wording that
+   influenced this specification:
+
+   Orie Steele, Christian Paquin, Alessandro Guggino and Tomislav
+   Markovski
+
+10.  Normative References
 
    [I-D.irtf-cfrg-hash-to-curve]
               Faz-Hernandez, A., Scott, S., Sullivan, N., Wahby, R. S.,
@@ -1786,11 +1803,20 @@ aacb0e0ccc477de9408ec18810b508abccb975e2c8099ea93ba28bf66c836ac31189097446c5c5b6
               <https://nvlpubs.nist.gov/nistpubs/FIPS/
               NIST.FIPS.202.pdf>.
 
-10.  Informative References
+11.  Informative References
 
    [ADR02]    An, J. H., Dodis, Y., and T. Rabin, "On the Security of
               Joint Signature and Encryption", pages 83-107, April 2002,
               <https://doi.org/10.1007/3-540-46035-7_6>.
+
+   [ASM06]    Au, M. H., Susilo, W., and Y. Mu, "Constant-Size Dynamic
+              k-TAA", Springer, Berlin, Heidelberg, 2006,
+              <https://link.springer.com/chapter/10.1007/11832072_8>.
+
+   [BBS04]    Boneh, D., Boyen, X., and H. Shacham, "Short Group
+              Signatures", pages 41-55, 2004,
+              <https://link.springer.com/
+              chapter/10.1007/978-3-540-28628-8_3>.
 
    [Bowe19]   Bowe, S., "Faster subgroup checks for BLS12-381", July
               2019, <https://eprint.iacr.org/2019/814>.
@@ -2135,20 +2161,20 @@ Appendix D.  Proof Generation and Verification Algorithmic Explanation
 
 Authors' Addresses
 
-   Mike Lodder
-   CryptID
-   Email: redmike7gmail.com
-
-
    Tobias Looker
    MATTR
    Email: tobias.looker@mattr.global
+
+
+   Vasileios Kalos
+   MATTR
+   Email: vasilis.kalos@mattr.global
 
 
    Andrew Whitehead
    Email: cywolf@gmail.com
 
 
-   Vasileios Kalos
-   MATTR
-   Email: vasilis.kalos@mattr.global
+   Mike Lodder
+   CryptID
+   Email: redmike7gmail.com

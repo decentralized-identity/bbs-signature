@@ -5,10 +5,10 @@
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
 <title>The BBS Signature Scheme</title>
-<meta content="Mike Lodder" name="author">
 <meta content="Tobias Looker" name="author">
-<meta content="Andrew Whitehead" name="author">
 <meta content="Vasileios Kalos" name="author">
+<meta content="Andrew Whitehead" name="author">
+<meta content="Mike Lodder" name="author">
 <meta content="
        BBS is a digital signature scheme categorized as a form of short group signature that supports several unique properties. Notably, the scheme supports signing multiple messages whilst producing a single output digital signature. Through this capability, the possessor of a signature is able to derive proofs that selectively disclose subsets of the originally signed set of messages, whilst preserving the verifiable authenticity and integrity of the messages. Furthermore, these derived proofs are said to be zero-knowledge in nature as they do not reveal the underlying signature; instead, what they reveal is a proof of knowledge of the undisclosed signature. 
     " name="description">
@@ -1031,7 +1031,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 <td class="right">June 2022</td>
 </tr></thead>
 <tfoot><tr>
-<td class="left">Lodder, et al.</td>
+<td class="left">Looker, et al.</td>
 <td class="center">Informational</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
@@ -1044,19 +1044,19 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
-      <div class="author-name">M. Lodder</div>
-<div class="org">CryptID</div>
+      <div class="author-name">T. Looker</div>
+<div class="org">MATTR</div>
 </div>
 <div class="author">
-      <div class="author-name">T. Looker</div>
+      <div class="author-name">V. Kalos</div>
 <div class="org">MATTR</div>
 </div>
 <div class="author">
       <div class="author-name">A. Whitehead</div>
 </div>
 <div class="author">
-      <div class="author-name">V. Kalos</div>
-<div class="org">MATTR</div>
+      <div class="author-name">M. Lodder</div>
+<div class="org">CryptID</div>
 </div>
 </dd>
 </dl>
@@ -1246,64 +1246,67 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
             <p id="section-toc.1-1.8.1"><a href="#section-8" class="xref">8</a>.  <a href="#name-iana-considerations" class="xref">IANA Considerations</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-normative-references" class="xref">Normative References</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="xref">9</a>.  <a href="#name-acknowledgements" class="xref">Acknowledgements</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#section-10" class="xref">10</a>. <a href="#name-informative-references" class="xref">Informative References</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="xref">10</a>. <a href="#name-normative-references" class="xref">Normative References</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#appendix-A" class="xref">Appendix A</a>.  <a href="#name-bls12-381-hash_to_curve-def" class="xref">BLS12-381 hash_to_curve definition using SHAKE-256</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
-                <p id="section-toc.1-1.11.2.1.1"><a href="#appendix-A.1" class="xref">A.1</a>.  <a href="#name-bls12-381-g1" class="xref">BLS12-381 G1</a></p>
-</li>
-            </ul>
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="xref">11</a>. <a href="#name-informative-references" class="xref">Informative References</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
-            <p id="section-toc.1-1.12.1"><a href="#appendix-B" class="xref">Appendix B</a>.  <a href="#name-use-cases" class="xref">Use Cases</a></p>
+            <p id="section-toc.1-1.12.1"><a href="#appendix-A" class="xref">Appendix A</a>.  <a href="#name-bls12-381-hash_to_curve-def" class="xref">BLS12-381 hash_to_curve definition using SHAKE-256</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
-                <p id="section-toc.1-1.12.2.1.1"><a href="#appendix-B.1" class="xref">B.1</a>.  <a href="#name-non-correlating-security-to" class="xref">Non-correlating Security Token</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
-                <p id="section-toc.1-1.12.2.2.1"><a href="#appendix-B.2" class="xref">B.2</a>.  <a href="#name-improved-bearer-security-to" class="xref">Improved Bearer Security Token</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.3">
-                <p id="section-toc.1-1.12.2.3.1"><a href="#appendix-B.3" class="xref">B.3</a>.  <a href="#name-hardware-attestations" class="xref">Hardware Attestations</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.4">
-                <p id="section-toc.1-1.12.2.4.1"><a href="#appendix-B.4" class="xref">B.4</a>.  <a href="#name-selectively-disclosure-enab" class="xref">Selectively Disclosure Enabled Identity Assertions</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.5">
-                <p id="section-toc.1-1.12.2.5.1"><a href="#appendix-B.5" class="xref">B.5</a>.  <a href="#name-privacy-preserving-bound-si" class="xref">Privacy preserving bound signatures</a></p>
+                <p id="section-toc.1-1.12.2.1.1"><a href="#appendix-A.1" class="xref">A.1</a>.  <a href="#name-bls12-381-g1" class="xref">BLS12-381 G1</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
-            <p id="section-toc.1-1.13.1"><a href="#appendix-C" class="xref">Appendix C</a>.  <a href="#name-additional-bls12-381-cipher" class="xref">Additional BLS12-381 Ciphersuite Test Vectors</a></p>
+            <p id="section-toc.1-1.13.1"><a href="#appendix-B" class="xref">Appendix B</a>.  <a href="#name-use-cases" class="xref">Use Cases</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.1">
-                <p id="section-toc.1-1.13.2.1.1"><a href="#appendix-C.1" class="xref">C.1</a>.  <a href="#name-modified-message-signature" class="xref">Modified Message Signature</a></p>
+                <p id="section-toc.1-1.13.2.1.1"><a href="#appendix-B.1" class="xref">B.1</a>.  <a href="#name-non-correlating-security-to" class="xref">Non-correlating Security Token</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.2">
-                <p id="section-toc.1-1.13.2.2.1"><a href="#appendix-C.2" class="xref">C.2</a>.  <a href="#name-extra-unsigned-message-sign" class="xref">Extra Unsigned Message Signature</a></p>
+                <p id="section-toc.1-1.13.2.2.1"><a href="#appendix-B.2" class="xref">B.2</a>.  <a href="#name-improved-bearer-security-to" class="xref">Improved Bearer Security Token</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.3">
-                <p id="section-toc.1-1.13.2.3.1"><a href="#appendix-C.3" class="xref">C.3</a>.  <a href="#name-missing-message-signature" class="xref">Missing Message Signature</a></p>
+                <p id="section-toc.1-1.13.2.3.1"><a href="#appendix-B.3" class="xref">B.3</a>.  <a href="#name-hardware-attestations" class="xref">Hardware Attestations</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.4">
-                <p id="section-toc.1-1.13.2.4.1"><a href="#appendix-C.4" class="xref">C.4</a>.  <a href="#name-reordered-message-signature" class="xref">Reordered Message Signature</a></p>
+                <p id="section-toc.1-1.13.2.4.1"><a href="#appendix-B.4" class="xref">B.4</a>.  <a href="#name-selectively-disclosure-enab" class="xref">Selectively Disclosure Enabled Identity Assertions</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13.2.5">
-                <p id="section-toc.1-1.13.2.5.1"><a href="#appendix-C.5" class="xref">C.5</a>.  <a href="#name-wrong-public-key-signature" class="xref">Wrong Public Key Signature</a></p>
+                <p id="section-toc.1-1.13.2.5.1"><a href="#appendix-B.5" class="xref">B.5</a>.  <a href="#name-privacy-preserving-bound-si" class="xref">Privacy preserving bound signatures</a></p>
 </li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
-            <p id="section-toc.1-1.14.1"><a href="#appendix-D" class="xref">Appendix D</a>.  <a href="#name-proof-generation-and-verifi" class="xref">Proof Generation and Verification Algorithmic Explanation</a></p>
+            <p id="section-toc.1-1.14.1"><a href="#appendix-C" class="xref">Appendix C</a>.  <a href="#name-additional-bls12-381-cipher" class="xref">Additional BLS12-381 Ciphersuite Test Vectors</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.1">
+                <p id="section-toc.1-1.14.2.1.1"><a href="#appendix-C.1" class="xref">C.1</a>.  <a href="#name-modified-message-signature" class="xref">Modified Message Signature</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.2">
+                <p id="section-toc.1-1.14.2.2.1"><a href="#appendix-C.2" class="xref">C.2</a>.  <a href="#name-extra-unsigned-message-sign" class="xref">Extra Unsigned Message Signature</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.3">
+                <p id="section-toc.1-1.14.2.3.1"><a href="#appendix-C.3" class="xref">C.3</a>.  <a href="#name-missing-message-signature" class="xref">Missing Message Signature</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.4">
+                <p id="section-toc.1-1.14.2.4.1"><a href="#appendix-C.4" class="xref">C.4</a>.  <a href="#name-reordered-message-signature" class="xref">Reordered Message Signature</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14.2.5">
+                <p id="section-toc.1-1.14.2.5.1"><a href="#appendix-C.5" class="xref">C.5</a>.  <a href="#name-wrong-public-key-signature" class="xref">Wrong Public Key Signature</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.15">
-            <p id="section-toc.1-1.15.1"><a href="#appendix-E" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.15.1"><a href="#appendix-D" class="xref">Appendix D</a>.  <a href="#name-proof-generation-and-verifi" class="xref">Proof Generation and Verification Algorithmic Explanation</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.16">
+            <p id="section-toc.1-1.16.1"><a href="#appendix-E" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -2916,9 +2919,19 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 <p id="section-8-1">This document does not make any requests of IANA.<a href="#section-8-1" class="pilcrow">¶</a></p>
 </section>
 </div>
+<div id="acknowledgements">
 <section id="section-9">
+      <h2 id="name-acknowledgements">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
+      </h2>
+<p id="section-9-1">The authors would like to acknowledge the significant amount of academic work that preceeded the development of this document. In particular the original work of <span>[<a href="#BBS04" class="xref">BBS04</a>]</span> which was subsequently developed in <span>[<a href="#ASM06" class="xref">ASM06</a>]</span> and in <span>[<a href="#CDL16" class="xref">CDL16</a>]</span>. This last academic work is the one mostly used by this document.<a href="#section-9-1" class="pilcrow">¶</a></p>
+<p id="section-9-2">The current state of this document is the product of the work of the Decentralized Identity Foundation Applied Cryptography Working group, which includes numerous active participants. In particular, the following individuals contributed ideas, feedback and wording that influenced this specification:<a href="#section-9-2" class="pilcrow">¶</a></p>
+<p id="section-9-3">Orie Steele, Christian Paquin, Alessandro Guggino and Tomislav Markovski<a href="#section-9-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<section id="section-10">
       <h2 id="name-normative-references">
-<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
       </h2>
 <dl class="references">
 <dt id="I-D.irtf-cfrg-hash-to-curve">[I-D.irtf-cfrg-hash-to-curve]</dt>
@@ -2951,14 +2964,22 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 <dd class="break"></dd>
 </dl>
 </section>
-<section id="section-10">
+<section id="section-11">
       <h2 id="name-informative-references">
-<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
       </h2>
 <dl class="references">
 <dt id="ADR02">[ADR02]</dt>
       <dd>
 <span class="refAuthor">An, J. H.</span>, <span class="refAuthor">Dodis, Y.</span>, and <span class="refAuthor">T. Rabin</span>, <span class="refTitle">"On the Security of Joint Signature and Encryption"</span>, <span class="seriesInfo">pages 83-107</span>, <time datetime="2002-04" class="refDate">April 2002</time>, <span>&lt;<a href="https://doi.org/10.1007/3-540-46035-7_6">https://doi.org/10.1007/3-540-46035-7_6</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="ASM06">[ASM06]</dt>
+      <dd>
+<span class="refAuthor">Au, M. H.</span>, <span class="refAuthor">Susilo, W.</span>, and <span class="refAuthor">Y. Mu</span>, <span class="refTitle">"Constant-Size Dynamic k-TAA"</span>, <span class="seriesInfo">Springer, Berlin, Heidelberg</span>, <time datetime="2006" class="refDate">2006</time>, <span>&lt;<a href="https://link.springer.com/chapter/10.1007/11832072_8">https://link.springer.com/chapter/10.1007/11832072_8</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="BBS04">[BBS04]</dt>
+      <dd>
+<span class="refAuthor">Boneh, D.</span>, <span class="refAuthor">Boyen, X.</span>, and <span class="refAuthor">H. Shacham</span>, <span class="refTitle">"Short Group Signatures"</span>, <span class="seriesInfo">pages 41-55</span>, <time datetime="2004" class="refDate">2004</time>, <span>&lt;<a href="https://link.springer.com/chapter/10.1007/978-3-540-28628-8_3">https://link.springer.com/chapter/10.1007/978-3-540-28628-8_3</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="Bowe19">[Bowe19]</dt>
       <dd>
@@ -3281,19 +3302,19 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 <a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
 <address class="vcard">
-        <div dir="auto" class="left"><span class="fn nameRole">Mike Lodder</span></div>
-<div dir="auto" class="left"><span class="org">CryptID</span></div>
-<div class="email">
-<span>Email:</span>
-<a href="mailto:redmike7gmail.com" class="email">redmike7gmail.com</a>
-</div>
-</address>
-<address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Tobias Looker</span></div>
 <div dir="auto" class="left"><span class="org">MATTR</span></div>
 <div class="email">
 <span>Email:</span>
 <a href="mailto:tobias.looker@mattr.global" class="email">tobias.looker@mattr.global</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Vasileios Kalos</span></div>
+<div dir="auto" class="left"><span class="org">MATTR</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:vasilis.kalos@mattr.global" class="email">vasilis.kalos@mattr.global</a>
 </div>
 </address>
 <address class="vcard">
@@ -3304,11 +3325,11 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 </div>
 </address>
 <address class="vcard">
-        <div dir="auto" class="left"><span class="fn nameRole">Vasileios Kalos</span></div>
-<div dir="auto" class="left"><span class="org">MATTR</span></div>
+        <div dir="auto" class="left"><span class="fn nameRole">Mike Lodder</span></div>
+<div dir="auto" class="left"><span class="org">CryptID</span></div>
 <div class="email">
 <span>Email:</span>
-<a href="mailto:vasilis.kalos@mattr.global" class="email">vasilis.kalos@mattr.global</a>
+<a href="mailto:redmike7gmail.com" class="email">redmike7gmail.com</a>
 </div>
 </address>
 </section>
