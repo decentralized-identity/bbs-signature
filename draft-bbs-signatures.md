@@ -132,16 +132,16 @@ L
 : The total number of signed messages.
 
 R
-: The set of message indexes that are retained or hidden in a signature proof of knowledge.
+: The number of message indexes that are disclosed (revealed) in a proof-of-knowledge of a signature.
 
-D
-: The set of message indexes that are disclosed in a signature proof of knowledge.
+U
+: The number of message indexes that are undisclosed in a proof-of-knowledge of a signature.
 
 msg
 : An input message to be signed by the signature scheme.
 
 generator
-: A valid point on the selected sub-group of the curve being used that is used to commit a value.
+: A valid point on the selected subgroup of the curve being used that is employed to commit a value.
 
 H_s
 : A generator for the blinding value in the signature. The value of H_s is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.
@@ -668,9 +668,9 @@ Parameters:
 Definitions:
 
 - R, is the non-negative integer representing the number of disclosed
-     messages, i.e., R = length(disclosedIndexes). If no messages are
-     disclosed, the value of R MUST evaluate to zero (0).
-- U, is the non-negative integer representing the number of hidden
+     (revealed) messages, i.e., R = length(disclosedIndexes). If no 
+     messages are disclosed, the value of R MUST evaluate to zero (0).
+- U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
 
 Outputs:
