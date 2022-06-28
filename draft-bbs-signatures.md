@@ -277,7 +277,8 @@ result = encode_for_hash(input_array)
 
 Inputs:
 
-- input_array, an array of elements to be hashed.
+- input_array, an array of elements to be hashed. All elements of this
+               array that are octet strings MUST be multiples of 8 bits.
 
 Parameters:
 
@@ -296,25 +297,27 @@ Procedure:
 
 3.     if el is an ASCII string: el = utf8(el)
 
-4.     if el is an octet string:
+4.     if el is an octet string representing a public key: el_octs = el
 
-5.         if length(el) > 2^64 - 1, return INVALID
+5.     else if el is an octet string:
 
-6.         el_octs = I2OSP(length(el), 8) || el
+6.         if length(el) > 2^64 - 1, return INVALID
 
-7.     else if el is a Point in G1: el_octs = point_to_octets_g1(el)
+7.         el_octs = I2OSP(length(el), 8) || el
 
-8.     else if el is a Point in G2: el_octs = point_to_octets_g2(el)
+8.     else if el is a Point in G1: el_octs = point_to_octets_g1(el)
 
-9.     else if el is a Scalar: el_octs = I2OSP(el, octet_scalar_length)
+9.     else if el is a Point in G2: el_octs = point_to_octets_g2(el)
 
-10.    else if el is a non-negative integer: el_octs = I2OSP(el, 8)
+10.    else if el is a Scalar: el_octs = I2OSP(el, octet_scalar_length)
 
-11.    else: return INVALID
+11.    else if el is a non-negative integer: el_octs = I2OSP(el, 8)
 
-12.    octets_to_hash = octets_to_hash || el_octs
+12.    else: return INVALID
 
-13. return octets_to_hash
+13.    octets_to_hash = octets_to_hash || el_octs
+
+14. return octets_to_hash
 ```
 
 # Scheme Definition
@@ -468,7 +471,7 @@ Procedure:
 
 4. domain = hash_to_scalar(dom_for_hash, 1)
 
-5. e_s_for_hash = encode_for_hash(SK, domain, msg_1, ..., msg_L)
+5. e_s_for_hash = encode_for_hash((SK, domain, msg_1, ..., msg_L))
 
 6. if e_s_for_hash is INVALID, return INVALID
 
