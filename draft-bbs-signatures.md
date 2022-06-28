@@ -13,15 +13,6 @@ value = "draft-bbs-signatures-latest"
 status = "informational"
 
 [[author]]
-initials = "M."
-surname = "Lodder"
-fullname = "Mike Lodder"
-#role = "editor"
-organization = "CryptID"
-  [author.address]
-  email = "redmike7gmail.com"
-
-[[author]]
 initials = "T."
 surname = "Looker"
 fullname = "Tobias Looker"
@@ -29,6 +20,15 @@ fullname = "Tobias Looker"
 organization = "MATTR"
   [author.address]
   email = "tobias.looker@mattr.global"
+
+[[author]]
+initials = "V."
+surname = "Kalos"
+fullname = "Vasileios Kalos"
+#role = "editor"
+organization = "MATTR"
+  [author.address]
+  email = "vasilis.kalos@mattr.global"
 
 [[author]]
 initials = "A."
@@ -40,13 +40,15 @@ organization = ""
   email = "cywolf@gmail.com"
 
 [[author]]
-initials = "V."
-surname = "Kalos"
-fullname = "Vasileios Kalos"
+initials = "M."
+surname = "Lodder"
+fullname = "Mike Lodder"
 #role = "editor"
-organization = "MATTR"
+organization = "CryptID"
   [author.address]
-  email = "vasilis.kalos@mattr.global"
+  email = "redmike7gmail.com"
+
+
 %%%
 
 .# Abstract
@@ -525,7 +527,7 @@ Outputs:
 
 Precomputations:
 
-1. msg_1, ..., msg_L = messages[1], ..., messages[L]
+1. (msg_1, ..., msg_L) = messages
 
 2. (H_s, H_d, H_1, ..., H_L) = create_generators(generator_seed, L+2)
 
@@ -611,17 +613,17 @@ Precomputations:
 
 2. (j1, ..., jU) = range(1, L) \ disclosedIndexes
 
-3. msg_1, ..., msg_L = messages[1], ..., messages[L]
+3. (msg_1, ..., msg_L) = messages
 
-4. msg_i1, ..., msg_iR = messages[i1], ..., messages[iR]
+4. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
 
-5. msg_j1, ..., msg_jU = messages[j1], ..., messages[jU]
+5. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
 
 6. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
 
-7. H_1, ..., H_L = MsgGenerators[1], ..., MsgGenerators[L]
+7. (H_1, ..., H_L) = MsgGenerators
 
-8. H_j1, ..., H_jU = MsgGenerators[j1], ..., MsgGenerators[jU]
+8. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
 Procedure:
 
@@ -738,15 +740,15 @@ Precomputations:
 
 2. (j1, ..., jU) = range(1, L) \ disclosedIndexes
 
-3. msg_i1, ..., msg_iR = disclosedMessages[1], ..., disclosedMessages[R]
+3. (msg_i1, ..., msg_iR) = disclosedMessages
 
 4. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
 
-5. H_1, ..., H_L = MsgGenerators[1], ..., MsgGenerators[L]
+5. (H_1, ..., H_L) = MsgGenerators
 
-6. H_i1, ..., H_iR = MsgGenerators[i1], ..., MsgGenerators[iR]
+6. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 
-7. H_j1, ..., H_jU = MsgGenerators[j1], ..., MsgGenerators[jU]
+7. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
 Preconditions:
 
@@ -778,7 +780,7 @@ Procedure:
 
 11. T = P1 + H_d * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-12. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+12. C2 = T * c - D * r3^ + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
 13. cv_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
                        msg_i1, ..., msg_iR, domain, ph)
@@ -811,7 +813,7 @@ generators = create_generators(count)
 
 Inputs:
 
-- count (REQUIRED), unsigned integer. Number of generator points to create.
+- count (REQUIRED), unsigned integer. Number of generators to create.
 
 Parameters:
 
@@ -822,7 +824,8 @@ Parameters:
                     hash_to_curve_suite parameter.
 - expand_message, the expand_message operation defined by the suite
                   specified by the hash_to_curve_suite parameter.
-- generator_seed, octet string. A seed value selected by the ciphersuite.
+- generator_seed, octet string. A seed value selected by the
+                  ciphersuite.
 
 Definitions:
 
@@ -846,19 +849,21 @@ Procedure:
 
 3. for i in range(1, count):
 
-4.    generator_i = Identity_G1
+4.    v = expand_message(v || I2OSP(n, 4), seed_dst, seed_len)
 
-5.    while generator_i == Identity_G1 or generator_i == P1:
+5.    n = n + 1
 
-6.        v = expand_message(v || I2OSP(n, 4), seed_dst, seed_len)
+6.    generator_i = Identity_G1
 
-7.        n = n + 1
+7.    candidate = hash_to_curve_g1(v, generator_dst)
 
-8.        candidate = hash_to_curve_g1(v, generator_dst)
+8.    if candidate in (P1, generator_1, ..., generator_i):
 
-9.        if candidate not in generators[1..i-1]: generator_i = candidate
+9.       go back to step 4
 
-10. return (generator_1, ..., generator_count)
+10.   generator_i = candidate
+
+11. return (generator_1, ..., generator_count)
 ```
 
 ## MapMessageToScalar
@@ -875,7 +880,9 @@ result = MapMessageToScalarAsHash(msg, dst)
 Inputs:
 
 - msg (REQUIRED), octet string.
-- dst (REQUIRED), octet string. Domain separation tag; note this is not defined as a function argument as per [@!I-D.irtf-cfrg-hash-to-curve] instead as a parameter.
+- dst (REQUIRED), octet string. Domain separation tag; note this is not
+                  defined as a function argument as per
+                  [@!I-D.irtf-cfrg-hash-to-curve] but as a parameter.
 
 Outputs:
 
@@ -883,11 +890,11 @@ Outputs:
 
 Procedure:
 
-1. If len(dst) > 2^8 - 1 or len(msg) > 2^64 - 1, return INVALID
+1. If length(dst) > 2^8 - 1 or length(msg) > 2^64 - 1, return INVALID
 
-2. dst_prime = I2OSP(len(dst), 1) || dst
+2. dst_prime = I2OSP(length(dst), 1) || dst
 
-3. msg_prime = I2OSP(len(msg), 8) || msg
+3. msg_prime = I2OSP(length(msg), 8) || msg
 
 4. result = hash_to_scalar(msg_prime || dst_prime, 1)
 
@@ -974,7 +981,7 @@ Procedure:
 
 1. expected_len = octet_point_length + 2 * octet_scalar_length
 
-2. if len(signature_octets) != expected_len, return INVALID
+2. if length(signature_octets) != expected_len, return INVALID
 
 3. A_octets = signature_octets[0..(octet_point_length - 1)]
 
@@ -1163,7 +1170,7 @@ Procedure:
 9. return proof_octets
 ```
 
-### Octets to Public Key
+### OctetsToPublicKey
 
 This operation decodes an octet string representing a public key, validates it and returns the corresponding point in G2. Steps 2 to 5 check if the public key is valid. As an optimization, implementations MAY cache the result of those steps, to avoid unnecessarily repeating validation for known public keys.
 
@@ -1196,7 +1203,7 @@ Procedure:
 
 ## Validating public keys
 
-It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [octets\_to\_pubkey](#octets-to-public-key) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure returns INVALID the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
+It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [OctetsToPublicKey](#octetstopublickey) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure (see the [OctetsToPublicKey](#octetstopublickey) section) returns INVALID, the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
 
 ## Point de-serialization
 
@@ -1446,6 +1453,14 @@ Along with the SK value as defined in (#key-pair) as inputs into the Sign operat
 
 This document does not make any requests of IANA.
 
+# Acknowledgements
+
+The authors would like to acknowledge the significant amount of academic work that preceeded the development of this document. In particular the original work of [@BBS04] which was subsequently developed in [@ASM06] and in [@CDL16]. This last academic work is the one mostly used by this document.
+
+The current state of this document is the product of the work of the Decentralized Identity Foundation Applied Cryptography Working group, which includes numerous active participants. In particular, the following individuals contributed ideas, feedback and wording that influenced this specification:
+
+Orie Steele, Christian Paquin, Alessandro Guggino and Tomislav Markovski
+
 {backmatter}
 
 # BLS12-381 hash\_to\_curve definition using SHAKE-256
@@ -1459,11 +1474,13 @@ Note the notation used in the below definitions is sourced from [@!I-D.irtf-cfrg
 The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
 
 ```
-* encoding type: hash_to_curve (Section 3 of [@!I-D.irtf-cfrg-hash-to-curve])
+* encoding type: hash_to_curve (Section 3 of
+                 [@!I-D.irtf-cfrg-hash-to-curve])
 
 * E: y^2 = x^3 + 4
 
-* p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+* p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f624
+     1eabfffeb153ffffb9feffffffffaaab
 
 * r: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
 
@@ -1471,25 +1488,28 @@ The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
 
 * k: 128
 
-* expand_message: expand_message_xof (Section 5.3.2 of [@!I-D.irtf-cfrg-hash-to-curve])
+* expand_message: expand_message_xof (Section 5.3.2 of
+                  [@!I-D.irtf-cfrg-hash-to-curve])
 
 * hash: SHAKE-256
 
 * L: 64
 
-* f: Simplified SWU for AB == 0 (Section 6.6.3 of [@!I-D.irtf-cfrg-hash-to-curve])
+* f: Simplified SWU for AB == 0 (Section 6.6.3 of
+     [@!I-D.irtf-cfrg-hash-to-curve])
 
 * Z: 11
 
 *  E': y'^2 = x'^3 + A' * x' + B', where
 
       -  A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aef
-         d881ac98936f8da0e0f97f5cf428082d584c1d
+                d881ac98936f8da0e0f97f5cf428082d584c1d
 
       -  B' = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14f
-         cef35ef55a23215a316ceaa5d1cc48e98e172be0
+                cef35ef55a23215a316ceaa5d1cc48e98e172be0
 
-*  iso_map: the 11-isogeny map from E' to E given in Appendix E.2 of [@!I-D.irtf-cfrg-hash-to-curve]
+*  iso_map: the 11-isogeny map from E' to E given in Appendix E.2 of
+            [@!I-D.irtf-cfrg-hash-to-curve]
 
 *  h_eff: 0xd201000000010001
 ```
@@ -1656,36 +1676,36 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 The following section provides an explanation of how the ProofGen and ProofVerify operations work.
 
-Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/(e + Sk))` where `Sk` the signer's secret key and,
+Let the prover be in possession of a BBS signature `(A, e, s)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
+```
+B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+```
+Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = range(1, L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
 
-    B = P1 + h0 * s + h[1] * msg_1 + ... + h[L] * msg_L
-
-(without loss of generality we assume that the messages and generators are indexed from 0 to L). Let `(i1,...,iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1,...,jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1,...,jU) = [L] \ (i1,...,iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
-
-- Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in [1, r-1], and calculate,
+- Hide the signature by randomizing it. To randomize the signature `(A, e, s)`, take uniformly random `r1`, `r2` in `[1, r-1]`, and calculate,
 
         1.  A' = A * r1,
         2.  Abar = A' * (-e) + B * r1
         3.  D = B * r1 + H0 * r2.
 
-  Also set,
+    Also set,
 
         4.  r3 = r1 ^ -1 mod r
         5.  s' = r2 * r3 + s mod r.
 
-  The values `(A', Abar, d)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', Pk) = e(Abar, P2)` where `Pk` the signer's public key and P2 the base element in G2 (used to create the signer’s `Pk`, see [SkToPk](#sktopk)). This also serves to bind the proof to the signer's `Pk`.
+    The values `(A', Abar, D)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', PK) = e(Abar, P2)` where `PK` the signer's public key and `P2` the base element in `G2` (used to create the signer’s `PK`, see [SkToPk](#sktopk)). This also serves to bind the proof to the signer's `PK`.
 
 - Set the following,
 
         1.  C1 = Abar - D
-        2.  C2 = P1 +  H_i1 * msg_i1 + ... + H_iR * msg_iR
+        2.  C2 = P1 + H_d * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 
-  Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1,...,msg_jU` (the undisclosed messages) so that both of the following equalities hold,
+    Create a non-interactive zero-knowledge proof-of-knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1, ..., msg_jU` (the undisclosed messages) so that both of the following equalities hold,
 
         EQ1.  C1 = A' * (-e) - H0 * r2
-        EQ2.  C2 = D * (-r3) + H0 * s' + H_j1 * msg_j1 + ... + H_jU * msg_jU.
+        EQ2.  C2 = H0 * s' - D * r3 + H_j1 * msg_j1 + ... + H_jU * msg_jU.
 
-  If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `Sk`, on the disclosed messages. The proof returned is `(A', Abar, d, nizk)`. To validate the proof, a verifier checks that `e(A', Pk) = e(Abar, P2)` and verifies `nizk`.
+Note that the verifier will know the elements in the left side of the above equations (i.e., `C1` and `C2`) but not in the right side (i.e., `s'`, `r3` and the undisclosed messages: `msg_j1, ..., msg_jU`). However, using the `nizk`, the prover can convince the verifier that they (the prover) know the elements that satisfy those equations, without disclosing them. Then, if both EQ1 and EQ2 hold, and `e(A', PK) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signer's `SK`, on the disclosed messages. The proof returned is `(A', Abar, D, nizk)`. To validate the proof, a verifier checks that `e(A', PK) = e(Abar, P2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as ownership of the undisclosed messages and of the signature.
 
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
@@ -1724,6 +1744,36 @@ Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/
  <seriesInfo name="Springer," value="Cham"/>
 </reference>
 
+<reference anchor="BBS04" target="https://link.springer.com/chapter/10.1007/978-3-540-28628-8_3">
+ <front>
+   <title>Short Group Signatures</title>
+   <author initials="D." surname="Boneh" fullname="Dan Boneh">
+    </author>
+    <author initials="X." surname="Boyen" fullname="Xavier Boyen">
+    </author>
+    <author initials="H." surname="Shacham" fullname="Hovav Scacham">
+    </author>
+    <date year="2004"/>
+ </front>
+ <seriesInfo name="In" value="Advances in Cryptology"/>
+ <seriesInfo name="pages" value="41-55"/>
+</reference>
+
+<reference anchor="ASM06" target="https://link.springer.com/chapter/10.1007/11832072_8">
+ <front>
+   <title>Constant-Size Dynamic k-TAA</title>
+   <author initials="M. H." surname="Au" fullname="Man Ho Au">
+    </author>
+    <author initials="W." surname="Susilo" fullname="Willy Susilo">
+    </author>
+    <author initials="Y." surname="Mu" fullname="Yi Mu">
+    </author>
+    <date year="2006"/>
+ </front>
+ <seriesInfo name="In" value="International Conference on Security and Cryptography for Networks"/>
+ <seriesInfo name="pages" value="111-125"/>
+ <seriesInfo name="Springer," value="Berlin, Heidelberg"/>
+</reference>
 <reference anchor="ZCASH-REVIEW" target="https://research.nccgroup.com/wp-content/uploads/2020/07/NCC_Group_Zcash2018_Public_Report_2019-01-30_v1.3.pdf">
  <front>
    <title>Zcash Overwinter Consensus and Sapling Cryptography Review</title>
