@@ -191,6 +191,9 @@ range(a, b)
 utf8(ascii_string)
 : Encoding the inputted ASCII string to an octet string using UTF-8 character encoding.
 
+encode_for_hash(array)
+: Given an array of elements to be hashed, returns the octet string that will be passed to the hash function. Unique arrays MUST result to unique octet strings. See the [EncodingForHash](#encodingforhash) section for more details and the RECOMMENDED implementation. Each of the inputted array elements must be either a Point, a Scalar, an ASCII string, or an octet string.
+
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -258,70 +261,6 @@ Throughout the operations of this signature scheme, each message that is signed 
 
 Aside from the message generators, the scheme uses two additional generators: `H_s` and `H_d`. The first (`H_s`), is used for the blinding value (`s`) of the signature. The second generator (`H_d`), is used to sign the signature's domain, which binds both the signature and its derived proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
 
-## Encoding of elements to be hashed
-
-This document uses the hash\_to\_scalar function to hash elements to scalars in the multplicative group mod r (see [Section 5.3](#hash-to-scalar)). To avoid ambiguity, each element passed to that operation, must first be encoded to an appropriate format, depending on its type. Specifically,
-
-- Points in G1 or G2 must be encoded using the `point_to_octets_g*` implementation for a particular ciphersuite.
-- Non-negative integers must be encoded using `I2OSP` with an output length of 8 bytes.
-- Scalars must be zero-extended to a fixed length, defined by a particular ciphersuite.
-- Octet strings must be zero-extended to a length that is a multiple of 8 bits. Then, the extended value is encoded directly.
-- ASCII strings must be transformed into octet strings using UTF-8 encoding.
-
-After encoding, octet strings MUST be prepended with a value representing the length of their binary representation in the form of the number of bytes. This length must be encoded to octets using I2OSP with output length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. If the length of the octet string is larger than 2^64 - 1, the octet string MUST be rejected. Similarly, ASCII strings, after encoded to octets (using utf8), must also be appended with the length of their octet-string representation.
-
-Optional input/parameters to operations that feature in a call to hash\_to\_scalar, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `hash(A || X || B)` MUST be evaluated to `hash(A || "" || B)`.
-
-The above procedure is further described in the following operation.
-
-```
-result = encode_for_hash(input_array)
-
-Inputs:
-
-- input_array, an array of elements to be hashed. All elements of this
-               array that are octet strings MUST be multiples of 8 bits.
-
-Parameters:
-
-- octet_scalar_length, non-negative integer. The length of a scalar
-                       octet representation, defined by the ciphersuite.
-
-Outputs:
-
-- result, an octet string or INVALID.
-
-Procedure:
-
-1. let octets_to_hash be an empty octet string.
-
-2. for el in input_array:
-
-3.     if el is an ASCII string: el = utf8(el)
-
-4.     if el is an octet string representing a public key: el_octs = el
-
-5.     else if el is an octet string:
-
-6.         if length(el) > 2^64 - 1, return INVALID
-
-7.         el_octs = I2OSP(length(el), 8) || el
-
-8.     else if el is a Point in G1: el_octs = point_to_octets_g1(el)
-
-9.     else if el is a Point in G2: el_octs = point_to_octets_g2(el)
-
-10.    else if el is a Scalar: el_octs = I2OSP(el, octet_scalar_length)
-
-11.    else if el is a non-negative integer: el_octs = I2OSP(el, 8)
-
-12.    else: return INVALID
-
-13.    octets_to_hash = octets_to_hash || el_octs
-
-14. return octets_to_hash
-```
-
 # Scheme Definition
 
 This section defines the BBS signature scheme, including the parameters required to define a concrete ciphersuite.
@@ -332,9 +271,9 @@ The schemes operations defined in this section depend on the following parameter
 
 * A pairing-friendly elliptic curve, plus associated functionality given in [Section 1.2](#notation).
 
-* hash, a hash function that MUST be a secure cryptographic hash function. For security, hash MUST output at least `ceil(log2(r))` bits, where r is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve. See [encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
+* hash, a hash function that MUST be a secure cryptographic hash function. For security, hash MUST output at least `ceil(log2(r))` bits, where r is the order of the subgroups G1 and G2 defined by the pairing-friendly elliptic curve. See [EncodingForHash](#encodingforhash) for details on how the inputs to the function must be encoded.
 
-* xof, a cryptographically secure extendable-output function like SHAKE128 or SHAKE256. xof outputs any desirable amount of bytes using the `.read(int)` method. See [Encoding of elements to be hashed](#encoding-of-elements-to-be-hashed) for details on how the inputs to the function must be encoded.
+* xof, a cryptographically secure extendable-output function like SHAKE128 or SHAKE256. xof outputs any desirable amount of bytes using the `.read(int)` method. See [EncodingForHash](#encodingforhash) for details on how the inputs to the function must be encoded.
 
 * PRF(n): a pseudo-random function similar to [@!RFC4868]. Returns n pseudo randomly generated bytes.
 
@@ -1199,6 +1138,70 @@ Procedure:
 5. return W
 ```
 
+### EncodingForHash
+
+This document uses the `hash_to_scalar` function to hash elements to scalars in the multplicative group mod r (see [Section 5.3](#hash-to-scalar)). To avoid ambiguity, each element passed to that operation, must first be encoded appropriately using `encode_for_hash` (see [Notation](#notation)). The following procedure provides the RECOMMENDED way to implement `encode_for_hash`. It encodes each element to an appropriate format depending on its type, and concatenates the results. Specifically,
+
+- Points in G1 or G2 will be encoded using the `point_to_octets_g*` implementation for a particular ciphersuite.
+- Non-negative integers will be encoded using `I2OSP` with an output length of 8 bytes.
+- Scalars will be zero-extended to a fixed length, defined by a particular ciphersuite.
+- Octet strings will be zero-extended to a length that is a multiple of 8 bits. Then, the extended value is encoded directly.
+- ASCII strings will be transformed into octet strings using UTF-8 encoding.
+
+After encoding, octet strings will be prepended with a value representing the length of their binary representation in the form of the number of bytes. This length must be encoded to octets using I2OSP with output length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. If the length of the octet string is larger than 2^64 - 1, the octet string must be rejected. Similarly, ASCII strings, after encoded to octets (using utf8), will also be appended with the length of their octet-string representation.
+
+Optional input/parameters to operations that feature in a call to hash\_to\_scalar, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `hash(A || X || B)` MUST be evaluated to `hash(A || "" || B)`.
+
+The above procedure is further described in the following operation.
+
+```
+result = encode_for_hash(input_array)
+
+Inputs:
+
+- input_array, an array of elements to be hashed. All elements of this
+               array that are octet strings MUST be multiples of 8 bits.
+
+Parameters:
+
+- octet_scalar_length, non-negative integer. The length of a scalar
+                       octet representation, defined by the ciphersuite.
+
+Outputs:
+
+- result, an octet string or INVALID.
+
+Procedure:
+
+1. let octets_to_hash be an empty octet string.
+
+2. for el in input_array:
+
+3.     if el is an ASCII string: el = utf8(el)
+
+4.     if el is an octet string representing a public key: el_octs = el
+
+5.     else if el is an octet string:
+
+6.         if length(el) > 2^64 - 1, return INVALID
+
+7.         el_octs = I2OSP(length(el), 8) || el
+
+8.     else if el is a Point in G1: el_octs = point_to_octets_g1(el)
+
+9.     else if el is a Point in G2: el_octs = point_to_octets_g2(el)
+
+10.    else if el is a Scalar: el_octs = I2OSP(el, octet_scalar_length)
+
+11.    else if el is a non-negative integer: el_octs = I2OSP(el, 8)
+
+12.    else: return INVALID
+
+13.    octets_to_hash = octets_to_hash || el_octs
+
+14. return octets_to_hash
+```
+
 # Security Considerations
 
 ## Validating public keys
@@ -1207,7 +1210,7 @@ It is RECOMENDED for any operation in [Core Operations](#core-operations) involv
 
 ## Point de-serialization
 
-This document makes use of `octet_to_point_g*` to parse octet strings to elliptic curve points (either in G1 or G2). It is assumed (even if not explicitly described) that the result of this operation will not be INVALID. If `octet_to_point_g*` returns INVALID, then the calling operation should immediately return INVALID as well and abort the operation. Note that the only place where the output is assumed to be VALID implicitly is in the [Encoding of Elements to be Hashed](#encoding-of-elements-to-be-hashed) section.
+This document makes use of `octet_to_point_g*` to parse octet strings to elliptic curve points (either in G1 or G2). It is assumed (even if not explicitly described) that the result of this operation will not be INVALID. If `octet_to_point_g*` returns INVALID, then the calling operation should immediately return INVALID as well and abort the operation. Note that the only place where the output is assumed to be VALID implicitly is in the [EncodingForHash](#encodingforhash) section.
 
 ## Skipping membership checks
 
