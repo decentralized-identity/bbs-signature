@@ -1613,7 +1613,7 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 The following section provides an explanation of how the ProofGen and ProofVerify operations work.
 
-Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/(e + Sk))` where `Sk` the signer's secret key and,
+Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
 ```
 B = P1 + h0 * s + h[1] * msg_1 + ... + h[L] * msg_L
 ```
