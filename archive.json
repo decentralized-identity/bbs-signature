@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-26T00:10:38.589946+00:00",
+  "timestamp": "2022-06-28T00:10:05.439184+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -1949,7 +1949,7 @@
       "id": "I_kwDOF8lax85C990s",
       "title": "Cite relevant prior academic works",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/52",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -1958,8 +1958,8 @@
       ],
       "body": "The BBS Signature scheme is based on a wealth of prior academic work that should be appropriately referenced. Any deviations from these works should also be documented in an informative appendix while the scheme continues to develop. Lets use this issue to collate these sources",
       "createdAt": "2022-02-03T20:50:48Z",
-      "updatedAt": "2022-04-21T23:30:59Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-27T20:41:56Z",
+      "closedAt": "2022-06-27T20:41:56Z",
       "comments": [
         {
           "author": "tplooker",
@@ -2396,7 +2396,7 @@
       "id": "I_kwDOF8lax85EyHKt",
       "title": "Adding the revealed messages to the chalenge to avoid forgery",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/74",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [
@@ -2408,8 +2408,8 @@
       ],
       "body": "The following is a method that could possibly allow the prover to reveal messages for which they don't have a signature, taking advantage of the Fiat\u2013Shamir challenge not containing the revealed messages. Let the prover with a signature `(A, e, s)` on messages `msg_1`, `msg_2` and `msg_3`, creating an spk revealing only `msg_1`. Going through the spkGen process the prover will calculate\r\n```\r\nC2_prover = D*(-r3~) +H0 * (s~) + H_2 * m~_2 + H_3 * m~_3\r\n```\r\nThe proof value will be,\r\n```\r\nspk = (Abar, A\u2019, D, c, e^, r2^, r3^, s^, m^_2, m^_3)\r\n```\r\nFrom the verification process we know that if `T = P1 + H_1 * msg_1` then \r\n\r\n```\r\n#EQ1: T*c + D * (-r3^) + H0*s^ + H_2 * m^_2 + H_3 * m^_3 = C2_prover\r\n```\r\n\r\nLet the prover now calculate the following,\r\n1.\t`c\u2019  = c ^ -1 mod q`\r\n2.\t`msg_adv  = m^_2 * c'`\r\n\r\nand instead of revealing spk, they send `spk2`,\r\n```\r\nspk2 = (Abar, A\u2019, D, c, e^, r2^, r3^, s^, m^_3)\r\n```\r\nwith revealed messages `msg_1` and `msg_adv`. \r\n\r\nThe verifier receiving `spk2` and `msg_1`, `msg_adv` will calculate `C1_verifier`, `C2_verifier` and check the pairing equality. Note that since `Abar, A\u2019, D, c, e^, r2^` remain the same between `spk` and `spk2`, `C1_prover = C1_verifier` and `e(A', PK) = e(Abar, P2)`. To calculate `C2_verifier` the verifier will first calculate `T2` as,\r\n\r\n```\r\nT2 = P1 + H_1 * msg_1 + H_2 * msg_adv = P1 + H_1 * msg_1 + H_2 * (m^_2 * c')\r\n```\r\nFrom that the verifier will calculate,\r\n```\r\nC2_verifier = T2*c + D * (-r3^) + H0*s^ + H_3 * m^_3 =\r\n   = D * (-r3^) + H0*s^ + (P1 + H_1 * msg_1) * c +  H_2 * (m^_2 * c' * c)  H_3 * m^_3 =  \r\n   = D * (-r3^) + H0*s^ + T * c +  H_2 * m^_2 +  H_3 * m^_3  = C2_prover\r\n```\r\nThe last equality follows from #EQ1. As a result, the verification will succeed for `msg_1` and `msg_adv`.\r\n\r\nObviously, this should not be possible, since this proves knowledge of a signature that the prover doesn't have (which contains `msg_adv`). If I'm correct on the above, most likely the only issue is with the Fiat\u2013Shamir heuristic. Note that if the protocol was interactive, that method will not work, since the prover would have to \"commit\" to the messages prior of getting the challenge `c`. Hence we should also pass the revealed messages to the hash of the challenge during spkGen and spkVerify, to \"commit\" them before the challenge is created. ",
       "createdAt": "2022-02-28T11:37:48Z",
-      "updatedAt": "2022-05-03T21:44:06Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-27T19:45:11Z",
+      "closedAt": "2022-06-27T19:45:11Z",
       "comments": [
         {
           "author": "mikelodder7",
@@ -4063,7 +4063,7 @@
       "id": "I_kwDOF8lax85Jqyb9",
       "title": "Generators ordering",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/141",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
@@ -4072,8 +4072,8 @@
       ],
       "body": "It would be very useful to have a clear way to define the order of the generators in the draft. This would allow us to naturally also define the order of the signed messages that it is also needed.\r\n\r\nTwo options as far as I know are:\r\n1. Based on their index (i.e., the order of which they are created). So, H_1 will be the first generator created, H_2 the second etc.\r\n2. Based on their value (using some metric, maybe Euclidian distance??, or alphabetically using their octet representation??).\r\n\r\nIMO 2 seems to be a fair amount more complicated. \r\n\r\nOn the other hand, using 1, to validate that some generators have the correct \"order\" one will have to re-create them. \r\n\r\nFor that reason, I tent more in the second option, but I do recognize that both have trade-offs.",
       "createdAt": "2022-05-14T11:46:24Z",
-      "updatedAt": "2022-06-25T00:34:33Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-26T15:48:19Z",
+      "closedAt": "2022-06-26T15:48:19Z",
       "comments": [
         {
           "author": "tplooker",
@@ -4081,6 +4081,13 @@
           "body": "@BasileiosKal is this issue resolved now?",
           "createdAt": "2022-06-25T00:34:33Z",
           "updatedAt": "2022-06-25T00:34:33Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Yes! The spec moved with option 1 from above. Closing.\r\n\r\nIf there is other practical issues with the generators ordering in the cache, those will be better discussed in another issue.",
+          "createdAt": "2022-06-26T15:48:19Z",
+          "updatedAt": "2022-06-26T15:48:19Z"
         }
       ]
     },
@@ -4752,7 +4759,7 @@
       "id": "I_kwDOF8lax85MJRuJ",
       "title": "Add an acknowledgements section",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/180",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -4762,8 +4769,8 @@
       ],
       "body": "As captured in the issue title",
       "createdAt": "2022-06-20T23:38:39Z",
-      "updatedAt": "2022-06-20T23:41:24Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-27T20:41:56Z",
+      "closedAt": "2022-06-27T20:41:56Z",
       "comments": []
     },
     {
@@ -14546,21 +14553,21 @@
       "id": "PR_kwDOF8lax843YmXk",
       "title": "Adding revealed messages to challenge hash",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/128",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Closes #74 \r\n\r\nAdding the revealed messages as well as the signature domain value to the challenge hash in ProofGen and ProofVerify.",
       "createdAt": "2022-05-05T23:08:43Z",
-      "updatedAt": "2022-05-23T18:30:18Z",
+      "updatedAt": "2022-06-26T17:44:50Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "2abab63c75fb113468dfb33a5fd2395d99852c0e",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "revealed_messages",
       "headRefOid": "ab604a0cfb8439d3a76713880ec1cf2d9e6c4d26",
-      "closedAt": null,
+      "closedAt": "2022-06-26T17:44:49Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -14578,6 +14585,13 @@
           "body": "Will be addressed after merging of #138 ",
           "createdAt": "2022-05-23T18:30:18Z",
           "updatedAt": "2022-05-23T18:30:18Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Replaced by #188. Closing.",
+          "createdAt": "2022-06-26T17:44:49Z",
+          "updatedAt": "2022-06-26T17:44:49Z"
         }
       ],
       "reviews": [
@@ -18694,7 +18708,7 @@
       "labels": [],
       "body": "I found the same issue as @christianpaquin in #139, and I hope this helps a little bit to make it clearer.",
       "createdAt": "2022-05-19T09:28:22Z",
-      "updatedAt": "2022-06-21T08:21:50Z",
+      "updatedAt": "2022-06-27T09:07:25Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "85a1036b5a0ac8dbec42655798d61274937d21d7",
@@ -23812,7 +23826,7 @@
       "labels": [],
       "body": "Since we don't use HKDF anywhere else and aren't trying to be compatible with the BLS signatures spec (different salt).\r\n\r\nIt's a bit odd using camel case for the input parameters and snake case for the parameter, but I'm trying to be consistent with the rest of the spec.\r\n\r\nLikewise, I'm not sure if we prefer len() or length(), and either way we might need to define that.",
       "createdAt": "2022-06-24T20:46:21Z",
-      "updatedAt": "2022-06-25T17:28:00Z",
+      "updatedAt": "2022-06-27T17:53:40Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "c7ffa999b125af00bd284dba6c1a953adb6dc149",
@@ -23864,6 +23878,46 @@
               "updatedAt": "2022-06-25T17:27:47Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8481JRq",
+          "commit": {
+            "abbreviatedOid": "71b06f9"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-27T17:46:49Z",
+          "updatedAt": "2022-06-27T17:46:49Z",
+          "comments": [
+            {
+              "originalPosition": 41,
+              "body": "This follows the pattern in MapMessageToScalarAsHash where the parameter is described as a DST, but I'm not opposed to calling it a salt.",
+              "createdAt": "2022-06-27T17:46:49Z",
+              "updatedAt": "2022-06-27T17:46:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8481LRa",
+          "commit": {
+            "abbreviatedOid": "71b06f9"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-27T17:53:39Z",
+          "updatedAt": "2022-06-27T17:53:40Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "There is a similar comment after the method but it could be updated.",
+              "createdAt": "2022-06-27T17:53:40Z",
+              "updatedAt": "2022-06-27T17:53:40Z"
+            }
+          ]
         }
       ]
     },
@@ -23872,25 +23926,35 @@
       "id": "PR_kwDOF8lax846Vjz6",
       "title": "Editorial updates",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/187",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "andrewwhitehead",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "- fix references to `p` as the subgroup order\r\n- define `r` for BLS12-381-G1\r\n- remove BLS12-381-G2 suite definition\r\n",
       "createdAt": "2022-06-24T21:11:06Z",
-      "updatedAt": "2022-06-25T21:43:30Z",
+      "updatedAt": "2022-06-27T19:43:56Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "c7ffa999b125af00bd284dba6c1a953adb6dc149",
       "headRepository": "andrewwhitehead/bbs-signature",
       "headRefName": "fix/edits",
       "headRefOid": "9f953c06e99df5c9f3ecc7e1d8d2ff9ec9cf535a",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
-      "comments": [],
+      "closedAt": "2022-06-27T19:43:56Z",
+      "mergedAt": "2022-06-27T19:43:55Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "98458efdde54309549b235f59daec52b8c22572e"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals, Discussed in the WG call. Merging",
+          "createdAt": "2022-06-27T19:43:43Z",
+          "updatedAt": "2022-06-27T19:43:43Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOF8lax848whz3",
@@ -23904,6 +23968,450 @@
           "createdAt": "2022-06-25T21:43:30Z",
           "updatedAt": "2022-06-25T21:43:30Z",
           "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax848wjkY",
+          "commit": {
+            "abbreviatedOid": "9f953c0"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-26T00:16:10Z",
+          "updatedAt": "2022-06-26T00:16:21Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "Should we move this to the (bbs) ciphersuite maybe?? The [H2C suites](https://www.ietf.org/archive/id/draft-irtf-cfrg-hash-to-curve-16.html#name-defining-a-new-hash-to-curv) don't have an `r` parameter.",
+              "createdAt": "2022-06-26T00:16:10Z",
+              "updatedAt": "2022-06-26T00:16:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8481Rlp",
+          "commit": {
+            "abbreviatedOid": "9f953c0"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-27T18:16:09Z",
+          "updatedAt": "2022-06-27T18:16:09Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax8481RtI",
+          "commit": {
+            "abbreviatedOid": "9f953c0"
+          },
+          "author": "christianpaquin",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-27T18:16:35Z",
+          "updatedAt": "2022-06-27T18:16:35Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 188,
+      "id": "PR_kwDOF8lax846X9Fr",
+      "title": "Add the revealed messages to the challenge",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/188",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #74\r\n\r\nReplaces #128. See the discussion there for more context.\r\n\r\nAdds the revealed indexes, the number of revealed messages and the revealed messages themselves to the Fiat\u2013Shamir challenge hash.",
+      "createdAt": "2022-06-26T17:41:48Z",
+      "updatedAt": "2022-06-27T19:45:11Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "5dda637a99669328d770f7fb783007426305b65e",
+      "headRepository": "BasileiosKal/bbs-signature",
+      "headRefName": "challenge_hash_update",
+      "headRefOid": "e05c31ca5a05a2ba3f44035477596371eec34f13",
+      "closedAt": "2022-06-27T19:45:11Z",
+      "mergedAt": "2022-06-27T19:45:11Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "7e09c0e6cc6027d870a009f0894f0518fe892111"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals. Discussed in the WG call. Merging",
+          "createdAt": "2022-06-27T19:43:21Z",
+          "updatedAt": "2022-06-27T19:43:21Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax848w8yE",
+          "commit": {
+            "abbreviatedOid": "e05c31c"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-26T18:25:40Z",
+          "updatedAt": "2022-06-26T18:25:40Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax8481fQa",
+          "commit": {
+            "abbreviatedOid": "e05c31c"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-27T19:04:24Z",
+          "updatedAt": "2022-06-27T19:04:24Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 189,
+      "id": "PR_kwDOF8lax846YADW",
+      "title": "Add acknowledgements section",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/189",
+      "state": "MERGED",
+      "author": "tplooker",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR re-orders the editors list based on the latest [contributions statistics](https://github.com/decentralized-identity/bbs-signature/graphs/contributors) which needs to be done prior to submission as an internet draft for the CFRG meeting.\r\n\r\nAlso added an acknowledgements section, feel free to comment and add others that I may have missed.\r\n\r\nCloses #180 and closes #52 ",
+      "createdAt": "2022-06-26T18:52:42Z",
+      "updatedAt": "2022-06-27T20:42:01Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "5dda637a99669328d770f7fb783007426305b65e",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "tl/acknowledgements-section",
+      "headRefOid": "c54fdb47226720ce9ee1a83e088446bfb451c9ef",
+      "closedAt": "2022-06-27T20:41:56Z",
+      "mergedAt": "2022-06-27T20:41:56Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "a7f1eecf20de286eee46551bf8023e3c9f473a84"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Multiple approvals, purely editorial, merging.",
+          "createdAt": "2022-06-27T20:41:44Z",
+          "updatedAt": "2022-06-27T20:41:44Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax848w91q",
+          "commit": {
+            "abbreviatedOid": "07203e5"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-26T19:12:26Z",
+          "updatedAt": "2022-06-26T19:42:30Z",
+          "comments": [
+            {
+              "originalPosition": 72,
+              "body": "```suggestion\r\n<reference anchor=\"BBS04\" target=\"https://link.springer.com/chapter/10.1007/978-3-540-28628-8_3\">\r\n```\r\nBecause of my other comment (citing using the authors initials).",
+              "createdAt": "2022-06-26T19:13:05Z",
+              "updatedAt": "2022-06-26T19:45:23Z"
+            },
+            {
+              "originalPosition": 86,
+              "body": "```suggestion\r\n\r\n<reference anchor=\"ASM06\" target=\"https://link.springer.com/chapter/10.1007/11832072_8\">\r\n <front>\r\n   <title>Constant-Size Dynamic k-TAA</title>\r\n   <author initials=\"M. H.\" surname=\"Au\" fullname=\"Man Ho Au\">\r\n    </author>\r\n    <author initials=\"W.\" surname=\"Susilo\" fullname=\"Willy Susilo\">\r\n    </author>\r\n    <author initials=\"Y.\" surname=\"Mu\" fullname=\"Yi Mu\">\r\n    </author>\r\n    <date year=\"2006\"/>\r\n </front>\r\n <seriesInfo name=\"In\" value=\"International Conference on Security and Cryptography for Networks\"/>\r\n <seriesInfo name=\"pages\" value=\"111-125\"/>\r\n <seriesInfo name=\"Springer,\" value=\"Berlin, Heidelberg\"/>\r\n</reference>\r\n```\r\nI think this should maybe be mentioned too. There is also the [[CL04]](https://link.springer.com/content/pdf/10.1007/978-3-540-28628-8_4.pdf) paper that came before, but it was the above that proved security and \"popularized\" BBS+ (this is the one that is referenced by [[CDL16]](https://eprint.iacr.org/2016/663.pdf) for example).",
+              "createdAt": "2022-06-26T19:35:27Z",
+              "updatedAt": "2022-06-26T19:42:30Z"
+            },
+            {
+              "originalPosition": 59,
+              "body": "```suggestion\r\nThe authors would like to acknowledge the significant amount of academic work that preceeded the development of this document. In particular the original work of [@BBS04] which was subsequently developed in [@ASM06] and in [@CDL16]. This last academic work is the one mostly used by this document.\r\n```\r\nAs far as i know of, It's more customary to cite using the authors initials with the year of publishing (at least in this format).\r\n\r\nAlso added one more paper.",
+              "createdAt": "2022-06-26T19:38:15Z",
+              "updatedAt": "2022-06-26T19:42:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax848xBiS",
+          "commit": {
+            "abbreviatedOid": "c54fdb4"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-26T22:23:20Z",
+          "updatedAt": "2022-06-26T22:23:20Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax848x7_3",
+          "commit": {
+            "abbreviatedOid": "c54fdb4"
+          },
+          "author": "alessandroguggino",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Thanks! ",
+          "createdAt": "2022-06-27T07:25:46Z",
+          "updatedAt": "2022-06-27T07:25:46Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 190,
+      "id": "PR_kwDOF8lax846YJZJ",
+      "title": "encode for hash operation",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/190",
+      "state": "OPEN",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #185 using @andrewwhitehead's proposal (introducing an encode_for_hash operation).\r\n\r\nOpened as a draft because of the timetable + the fact that it is not a small pr. Will mark it as ready to review if the other open PRs are merged.\r\n\r\n### NOTES:\r\n1. The `encode_for_hash` function can also substitute the `signature_to_octets` and `proof_to_octets` operations (the results will be the same). I left that for another PR if we decide to go that way (I\u2019m not convinced that it would be the best option myself).\r\n2. Removed the distinction with DSTs. We are explicitly appending their length everywhere in the spec.\r\n3. this pr also closes #74 like pr #188. However, I realize this requires more time and reviews so better to move with #188 first (I will resolve the conflicts).",
+      "createdAt": "2022-06-26T22:44:51Z",
+      "updatedAt": "2022-06-27T22:28:06Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "3db28455680a30d2a6aa2bb748106cdc449e6e1e",
+      "headRepository": "BasileiosKal/bbs-signature",
+      "headRefName": "encode_for_hash",
+      "headRefOid": "0bbb3a055ad744416f5c75d7b1159db2f8526e19",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Discussed in the WG call. Will split the challenge hash input to multiple lines (instead of calling encode_for_hash twice)",
+          "createdAt": "2022-06-27T18:54:14Z",
+          "updatedAt": "2022-06-27T19:05:45Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Ready for review c.c. @andrewwhitehead, @tplooker ^",
+          "createdAt": "2022-06-27T22:28:06Z",
+          "updatedAt": "2022-06-27T22:28:06Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax8481cwU",
+          "commit": {
+            "abbreviatedOid": "b3dfcd3"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-27T18:55:08Z",
+          "updatedAt": "2022-06-27T18:55:08Z",
+          "comments": [
+            {
+              "originalPosition": 139,
+              "body": "```suggestion\r\n8. if dom_for_hash is INVALID, return INVALID\r\n```",
+              "createdAt": "2022-06-27T18:55:08Z",
+              "updatedAt": "2022-06-27T18:55:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8481dCm",
+          "commit": {
+            "abbreviatedOid": "b3dfcd3"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-27T18:56:14Z",
+          "updatedAt": "2022-06-27T18:56:15Z",
+          "comments": [
+            {
+              "originalPosition": 240,
+              "body": "```suggestion\r\n8. if dom_for_hash is INVALID, return INVALID\r\n```",
+              "createdAt": "2022-06-27T18:56:14Z",
+              "updatedAt": "2022-06-27T18:56:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8481dMH",
+          "commit": {
+            "abbreviatedOid": "b3dfcd3"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-27T18:56:48Z",
+          "updatedAt": "2022-06-27T18:56:49Z",
+          "comments": [
+            {
+              "originalPosition": 163,
+              "body": "```suggestion\r\n6. if dom_for_hash is INVALID, return INVALID\r\n```",
+              "createdAt": "2022-06-27T18:56:48Z",
+              "updatedAt": "2022-06-27T18:56:49Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 191,
+      "id": "PR_kwDOF8lax846ZyqZ",
+      "title": "Minor update to terminology",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/191",
+      "state": "MERGED",
+      "author": "alessandroguggino",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fix to stay consistent with the definitions of `R` and `U` in `ProofGen` (and `ProofVerify`)",
+      "createdAt": "2022-06-27T09:57:23Z",
+      "updatedAt": "2022-06-27T20:16:00Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "7e09c0e6cc6027d870a009f0894f0518fe892111",
+      "headRepository": "alessandroguggino/bbs-signature",
+      "headRefName": "update-terminology",
+      "headRefOid": "5ce7780bc51ee835c820908534200643d929b13b",
+      "closedAt": "2022-06-27T19:54:53Z",
+      "mergedAt": "2022-06-27T19:54:53Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "3db28455680a30d2a6aa2bb748106cdc449e6e1e"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Discussed in the WG call. Multiple approvals. Merging! Thanks @alessandroguggino!",
+          "createdAt": "2022-06-27T19:54:46Z",
+          "updatedAt": "2022-06-27T19:54:46Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax8481OuA",
+          "commit": {
+            "abbreviatedOid": "3ebe3ec"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-27T18:05:44Z",
+          "updatedAt": "2022-06-27T18:05:44Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax8481Pgs",
+          "commit": {
+            "abbreviatedOid": "3ebe3ec"
+          },
+          "author": "christianpaquin",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-27T18:08:38Z",
+          "updatedAt": "2022-06-27T18:08:38Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 192,
+      "id": "PR_kwDOF8lax846bs6y",
+      "title": "Consistency updates",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/192",
+      "state": "OPEN",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Changes for consistency:\r\n1. `len()` -> `length()`.\r\n2. Consistent array de-structuring.\r\n3. Make code blocks < 72 chars.\r\n4. Update `create_generators`. Same result, removed the `while` and added a `go back to step 4` for consistency (we where referencing `generator_0` without defining it at the first step where `i = 1`).",
+      "createdAt": "2022-06-27T17:28:47Z",
+      "updatedAt": "2022-06-27T22:10:40Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "3db28455680a30d2a6aa2bb748106cdc449e6e1e",
+      "headRepository": "BasileiosKal/bbs-signature",
+      "headRefName": "consistency-update",
+      "headRefOid": "37ba90551cd8171f3d6f785d2ddc0a06e69cf650",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Discussed on the WG call. The issue of the naming convention for SK and PKs came up (neither the SK not the PK is a point to be capitalized). Will address to another PR to avoid conflicts with #186.",
+          "createdAt": "2022-06-27T19:41:14Z",
+          "updatedAt": "2022-06-27T19:41:14Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax8482MaF",
+          "commit": {
+            "abbreviatedOid": "37ba905"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-27T22:09:37Z",
+          "updatedAt": "2022-06-27T22:09:38Z",
+          "comments": [
+            {
+              "originalPosition": 213,
+              "body": "```suggestion\r\nLet the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/(e + SK))` where `SK` the signer's secret key and,\r\n```",
+              "createdAt": "2022-06-27T22:09:38Z",
+              "updatedAt": "2022-06-27T22:09:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8482MmA",
+          "commit": {
+            "abbreviatedOid": "37ba905"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-27T22:10:40Z",
+          "updatedAt": "2022-06-27T22:10:40Z",
+          "comments": [
+            {
+              "originalPosition": 215,
+              "body": "Maybe we can update this formula to use H_s and H_d? Or are we leaving the domain out of this section?",
+              "createdAt": "2022-06-27T22:10:40Z",
+              "updatedAt": "2022-06-27T22:10:40Z"
+            }
+          ]
         }
       ]
     }
