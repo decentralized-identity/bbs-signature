@@ -1180,7 +1180,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
                     <p id="section-toc.1-1.5.2.4.2.4.1"><a href="#section-5.4.4" class="xref">5.4.4</a>.  <a href="#name-prooftooctets" class="xref">ProofToOctets</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4.2.5">
-                    <p id="section-toc.1-1.5.2.4.2.5.1"><a href="#section-5.4.5" class="xref">5.4.5</a>.  <a href="#name-octets-to-public-key" class="xref">Octets to Public Key</a></p>
+                    <p id="section-toc.1-1.5.2.4.2.5.1"><a href="#section-5.4.5" class="xref">5.4.5</a>.  <a href="#name-octetstopublickey" class="xref">OctetsToPublicKey</a></p>
 </li>
                 </ul>
 </li>
@@ -1603,12 +1603,13 @@ message_octets = 0x4a616e65
 number_octets = I2OSP(25, 4) = 0x0000000000000019
 </code><a href="#section-3.3-5.1" class="pilcrow">¶</a>
 </li>
-          <li class="normal" id="section-3.3-5.2">Calculate the length of the message binary representation (message_octets) and transform it to octets i.e., <code>len(message_octets) = I2OSP(4, 8) = 0x0000000000000004</code>.<a href="#section-3.3-5.2" class="pilcrow">¶</a>
+          <li class="normal" id="section-3.3-5.2">Calculate the length of the message binary representation (message_octets) and transform it to octets i.e., <code>length(message_octets) = I2OSP(4, 8) = 0x0000000000000004</code>.<a href="#section-3.3-5.2" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-3.3-5.3">Prepend the length calculated in the previous step to the message's binary representation and concatenate the result with the octets representing the number <code>25</code>, to get the octets to be hashed,
 <code>
-octets_to_hash = len(message_octets) || message_octets || number_octets =
-              = 0x00000000000000044a616e650000000000000019
+octets_to_hash =
+   = length(message_octets) || message_octets || number_octets =
+   = 0x00000000000000044a616e650000000000000019
 </code><a href="#section-3.3-5.3" class="pilcrow">¶</a>
 </li>
           <li class="normal" id="section-3.3-5.4">hash the result (i.e., <code>hash(octets_to_hash)</code>)<a href="#section-3.3-5.4" class="pilcrow">¶</a>
@@ -1845,7 +1846,7 @@ Outputs:
 
 Precomputations:
 
-1. msg_1, ..., msg_L = messages[1], ..., messages[L]
+1. (msg_1, ..., msg_L) = messages
 
 2. (H_s, H_d, H_1, ..., H_L) = create_generators(generator_seed, L+2)
 
@@ -1932,17 +1933,17 @@ Precomputations:
 
 2. (j1, ..., jU) = range(1, L) \ disclosedIndexes
 
-3. msg_1, ..., msg_L = messages[1], ..., messages[L]
+3. (msg_1, ..., msg_L) = messages
 
-4. msg_i1, ..., msg_iR = messages[i1], ..., messages[iR]
+4. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
 
-5. msg_j1, ..., msg_jU = messages[j1], ..., messages[jU]
+5. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
 
 6. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
 
-7. H_1, ..., H_L = MsgGenerators[1], ..., MsgGenerators[L]
+7. (H_1, ..., H_L) = MsgGenerators
 
-8. H_j1, ..., H_jU = MsgGenerators[j1], ..., MsgGenerators[jU]
+8. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
 Procedure:
 
@@ -2057,15 +2058,15 @@ Precomputations:
 
 2. (j1, ..., jU) = range(1, L) \ disclosedIndexes
 
-3. msg_i1, ..., msg_iR = disclosedMessages[1], ..., disclosedMessages[R]
+3. (msg_i1, ..., msg_iR) = disclosedMessages
 
 4. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
 
-5. H_1, ..., H_L = MsgGenerators[1], ..., MsgGenerators[L]
+5. (H_1, ..., H_L) = MsgGenerators
 
-6. H_i1, ..., H_iR = MsgGenerators[i1], ..., MsgGenerators[iR]
+6. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 
-7. H_j1, ..., H_jU = MsgGenerators[j1], ..., MsgGenerators[jU]
+7. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
 Preconditions:
 
@@ -2095,7 +2096,7 @@ Procedure:
 
 10. T = P1 + H_d * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
 
-11. C2 = T * c + D * (-r3^) + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+11. C2 = T * c - D * r3^ + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 
 12. proof_octs = (A' || Abar || D || C1 || C2)
 
@@ -2135,7 +2136,7 @@ Procedure:
 
 Inputs:
 
-- count (REQUIRED), unsigned integer. Number of generator points to create.
+- count (REQUIRED), unsigned integer. Number of generators to create.
 
 Parameters:
 
@@ -2146,7 +2147,8 @@ Parameters:
                     hash_to_curve_suite parameter.
 - expand_message, the expand_message operation defined by the suite
                   specified by the hash_to_curve_suite parameter.
-- generator_seed, octet string. A seed value selected by the ciphersuite.
+- generator_seed, octet string. A seed value selected by the
+                  ciphersuite.
 
 Definitions:
 
@@ -2170,19 +2172,21 @@ Procedure:
 
 3. for i in range(1, count):
 
-4.    generator_i = Identity_G1
+4.    v = expand_message(v || I2OSP(n, 4), seed_dst, seed_len)
 
-5.    while generator_i == Identity_G1 or generator_i == P1:
+5.    n = n + 1
 
-6.        v = expand_message(v || I2OSP(n, 4), seed_dst, seed_len)
+6.    generator_i = Identity_G1
 
-7.        n = n + 1
+7.    candidate = hash_to_curve_g1(v, generator_dst)
 
-8.        candidate = hash_to_curve_g1(v, generator_dst)
+8.    if candidate in (P1, generator_1, ..., generator_i):
 
-9.        if candidate not in generators[1..i-1]: generator_i = candidate
+9.       go back to step 4
 
-10. return (generator_1, ..., generator_count)
+10.   generator_i = candidate
+
+11. return (generator_1, ..., generator_count)
 </pre><a href="#section-5.1-3" class="pilcrow">¶</a>
 </div>
 </section>
@@ -2205,7 +2209,9 @@ Procedure:
 Inputs:
 
 - msg (REQUIRED), octet string.
-- dst (REQUIRED), octet string. Domain separation tag; note this is not defined as a function argument as per [@!I-D.irtf-cfrg-hash-to-curve] instead as a parameter.
+- dst (REQUIRED), octet string. Domain separation tag; note this is not
+                  defined as a function argument as per
+                  [@!I-D.irtf-cfrg-hash-to-curve] but as a parameter.
 
 Outputs:
 
@@ -2213,11 +2219,11 @@ Outputs:
 
 Procedure:
 
-1. If len(dst) &gt; 2^8 - 1 or len(msg) &gt; 2^64 - 1, return INVALID
+1. If length(dst) &gt; 2^8 - 1 or length(msg) &gt; 2^64 - 1, return INVALID
 
-2. dst_prime = I2OSP(len(dst), 1) || dst
+2. dst_prime = I2OSP(length(dst), 1) || dst
 
-3. msg_prime = I2OSP(len(msg), 8) || msg
+3. msg_prime = I2OSP(length(msg), 8) || msg
 
 4. result = hash_to_scalar(msg_prime || dst_prime, 1)
 
@@ -2317,7 +2323,7 @@ Procedure:
 
 1. expected_len = octet_point_length + 2 * octet_scalar_length
 
-2. if len(signature_octets) != expected_len, return INVALID
+2. if length(signature_octets) != expected_len, return INVALID
 
 3. A_octets = signature_octets[0..(octet_point_length - 1)]
 
@@ -2525,10 +2531,10 @@ Procedure:
 </div>
 </section>
 </div>
-<div id="octets-to-public-key">
+<div id="octetstopublickey">
 <section id="section-5.4.5">
-          <h4 id="name-octets-to-public-key">
-<a href="#section-5.4.5" class="section-number selfRef">5.4.5. </a><a href="#name-octets-to-public-key" class="section-name selfRef">Octets to Public Key</a>
+          <h4 id="name-octetstopublickey">
+<a href="#section-5.4.5" class="section-number selfRef">5.4.5. </a><a href="#name-octetstopublickey" class="section-name selfRef">OctetsToPublicKey</a>
           </h4>
 <p id="section-5.4.5-1">This operation decodes an octet string representing a public key, validates it and returns the corresponding point in G2. Steps 2 to 5 check if the public key is valid. As an optimization, implementations MAY cache the result of those steps, to avoid unnecessarily repeating validation for known public keys.<a href="#section-5.4.5-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-5.4.5-2">
@@ -2572,7 +2578,7 @@ Procedure:
         <h3 id="name-validating-public-keys">
 <a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-validating-public-keys" class="section-name selfRef">Validating public keys</a>
         </h3>
-<p id="section-6.1-1">It is RECOMENDED for any operation in <a href="#core-operations">Core Operations</a> involving public keys, that they deserialize the public key first using the <a href="#octets-to-public-key">octets_to_pubkey</a> operation, even if they only require the octet-string representation of the public key. If the <code>octets_to_pubkey</code> procedure returns INVALID the calling operation should also return INVALID and abort. An example of where this recommendation applies is the <a href="#sign">Sign</a> operation. An example of where an explicit invocation to the <code>octets_to_pubkey</code> operation is already defined and therefore required is the <a href="#verify">Verify</a> operation.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-1">It is RECOMENDED for any operation in <a href="#core-operations">Core Operations</a> involving public keys, that they deserialize the public key first using the <a href="#octetstopublickey">OctetsToPublicKey</a> operation, even if they only require the octet-string representation of the public key. If the <code>octets_to_pubkey</code> procedure (see the <a href="#octetstopublickey">OctetsToPublicKey</a> section) returns INVALID, the calling operation should also return INVALID and abort. An example of where this recommendation applies is the <a href="#sign">Sign</a> operation. An example of where an explicit invocation to the <code>octets_to_pubkey</code> operation is already defined and therefore required is the <a href="#verify">Verify</a> operation.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="point-de-serialization">
@@ -3017,11 +3023,13 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
         </h3>
 <p id="appendix-A.1-1">The suite of <code>BLS12381G1_XOF:SHAKE-256_SSWU_R0_</code> is defined as follows:<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.1-2">
-<pre>* encoding type: hash_to_curve (Section 3 of [@!I-D.irtf-cfrg-hash-to-curve])
+<pre>* encoding type: hash_to_curve (Section 3 of
+                 [@!I-D.irtf-cfrg-hash-to-curve])
 
 * E: y^2 = x^3 + 4
 
-* p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+* p: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f624
+     1eabfffeb153ffffb9feffffffffaaab
 
 * r: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
 
@@ -3029,25 +3037,28 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 
 * k: 128
 
-* expand_message: expand_message_xof (Section 5.3.2 of [@!I-D.irtf-cfrg-hash-to-curve])
+* expand_message: expand_message_xof (Section 5.3.2 of
+                  [@!I-D.irtf-cfrg-hash-to-curve])
 
 * hash: SHAKE-256
 
 * L: 64
 
-* f: Simplified SWU for AB == 0 (Section 6.6.3 of [@!I-D.irtf-cfrg-hash-to-curve])
+* f: Simplified SWU for AB == 0 (Section 6.6.3 of
+     [@!I-D.irtf-cfrg-hash-to-curve])
 
 * Z: 11
 
 *  E': y'^2 = x'^3 + A' * x' + B', where
 
       -  A' = 0x144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aef
-         d881ac98936f8da0e0f97f5cf428082d584c1d
+                d881ac98936f8da0e0f97f5cf428082d584c1d
 
       -  B' = 0x12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14f
-         cef35ef55a23215a316ceaa5d1cc48e98e172be0
+                cef35ef55a23215a316ceaa5d1cc48e98e172be0
 
-*  iso_map: the 11-isogeny map from E' to E given in Appendix E.2 of [@!I-D.irtf-cfrg-hash-to-curve]
+*  iso_map: the 11-isogeny map from E' to E given in Appendix E.2 of
+            [@!I-D.irtf-cfrg-hash-to-curve]
 
 *  h_eff: 0xd201000000010001
 </pre><a href="#appendix-A.1-2" class="pilcrow">¶</a>
@@ -3253,47 +3264,45 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 <a href="#appendix-D" class="section-number selfRef">Appendix D. </a><a href="#name-proof-generation-and-verifi" class="section-name selfRef">Proof Generation and Verification Algorithmic Explanation</a>
       </h2>
 <p id="appendix-D-1">The following section provides an explanation of how the ProofGen and ProofVerify operations work.<a href="#appendix-D-1" class="pilcrow">¶</a></p>
-<p id="appendix-D-2">Let the prover be in possession of a BBS signature <code>(A, e, s)</code> with <code>A = B * (1/(e + Sk))</code> where <code>Sk</code> the signer's secret key and,<a href="#appendix-D-2" class="pilcrow">¶</a></p>
+<p id="appendix-D-2">Let the prover be in possession of a BBS signature <code>(A, e, s)</code> on messages <code>msg_1, ..., msg_L</code> and a <code>domain</code> value (see <a href="#sign">Sign</a>). Let <code>A = B * (1/(e + SK))</code> where <code>SK</code> the signer's secret key and,<a href="#appendix-D-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D-3">
-<pre>B = P1 + h0 * s + h[1] * msg_1 + ... + h[L] * msg_L
+<pre>B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 </pre><a href="#appendix-D-3" class="pilcrow">¶</a>
 </div>
-<p id="appendix-D-4">(without loss of generality we assume that the messages and generators are indexed from 0 to L). Let <code>(i1,...,iR)</code> be the indexes of generators corresponding to messages the prover wants to disclose and <code>(j1,...,jU)</code> be the indexes corresponding to undisclosed messages (i.e., <code>(j1,...,jU) = [L] \ (i1,...,iR)</code>). To prove knowledge of a signature on the disclosed messages, work as follows,<a href="#appendix-D-4" class="pilcrow">¶</a></p>
+<p id="appendix-D-4">Let <code>(i1, ..., iR)</code> be the indexes of generators corresponding to messages the prover wants to disclose and <code>(j1, ..., jU)</code> be the indexes corresponding to undisclosed messages (i.e., <code>(j1, ..., jU) = range(1, L) \ (i1, ..., iR)</code>). To prove knowledge of a signature on the disclosed messages, work as follows,<a href="#appendix-D-4" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-D-5.1">
-          <p id="appendix-D-5.1.1">Randomize the signature <code>(A, e, s)</code>, by taking uniformly random <code>r1</code>, <code>r2</code> in [1, r-1], and calculate,<a href="#appendix-D-5.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-D-5.1.1">Hide the signature by randomizing it. To randomize the signature <code>(A, e, s)</code>, take uniformly random <code>r1</code>, <code>r2</code> in <code>[1, r-1]</code>, and calculate,<a href="#appendix-D-5.1.1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D-5.1.2">
 <pre>1.  A' = A * r1,
 2.  Abar = A' * (-e) + B * r1
 3.  D = B * r1 + H0 * r2.
 </pre><a href="#appendix-D-5.1.2" class="pilcrow">¶</a>
 </div>
-</li>
-      </ul>
-<p id="appendix-D-6">Also set,<a href="#appendix-D-6" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="appendix-D-7">
-<pre>    4.  r3 = r1 ^ -1 mod r
-    5.  s' = r2 * r3 + s mod r.
-</pre><a href="#appendix-D-7" class="pilcrow">¶</a>
+<p id="appendix-D-5.1.3">Also set,<a href="#appendix-D-5.1.3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-D-5.1.4">
+<pre>4.  r3 = r1 ^ -1 mod r
+5.  s' = r2 * r3 + s mod r.
+</pre><a href="#appendix-D-5.1.4" class="pilcrow">¶</a>
 </div>
-<p id="appendix-D-8">The values <code>(A', Abar, d)</code> will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; <code>e(A', Pk) = e(Abar, P2)</code> where <code>Pk</code> the signer's public key and P2 the base element in G2 (used to create the signer's <code>Pk</code>, see <a href="#sktopk">SkToPk</a>). This also serves to bind the proof to the signer's <code>Pk</code>.<a href="#appendix-D-8" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="appendix-D-9.1">
-          <p id="appendix-D-9.1.1">Set the following,<a href="#appendix-D-9.1.1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="appendix-D-9.1.2">
+<p id="appendix-D-5.1.5">The values <code>(A', Abar, D)</code> will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; <code>e(A', PK) = e(Abar, P2)</code> where <code>PK</code> the signer's public key and <code>P2</code> the base element in <code>G2</code> (used to create the signer's <code>PK</code>, see <a href="#sktopk">SkToPk</a>). This also serves to bind the proof to the signer's <code>PK</code>.<a href="#appendix-D-5.1.5" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-D-5.2">
+          <p id="appendix-D-5.2.1">Set the following,<a href="#appendix-D-5.2.1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-D-5.2.2">
 <pre>1.  C1 = Abar - D
-2.  C2 = P1 +  H_i1 * msg_i1 + ... + H_iR * msg_iR
-</pre><a href="#appendix-D-9.1.2" class="pilcrow">¶</a>
+2.  C2 = P1 + H_d * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+</pre><a href="#appendix-D-5.2.2" class="pilcrow">¶</a>
+</div>
+<p id="appendix-D-5.2.3">Create a non-interactive zero-knowledge proof-of-knowledge (<code>nizk</code>) of the values <code>e, r2, r3, s'</code> and <code>msg_j1, ..., msg_jU</code> (the undisclosed messages) so that both of the following equalities hold,<a href="#appendix-D-5.2.3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-D-5.2.4">
+<pre>EQ1.  C1 = A' * (-e) - H0 * r2
+EQ2.  C2 = H0 * s' - D * r3 + H_j1 * msg_j1 + ... + H_jU * msg_jU.
+</pre><a href="#appendix-D-5.2.4" class="pilcrow">¶</a>
 </div>
 </li>
       </ul>
-<p id="appendix-D-10">Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (<code>nizk</code>) of the values <code>e, r2, r3, s'</code> and <code>msg_j1,...,msg_jU</code> (the undisclosed messages) so that both of the following equalities hold,<a href="#appendix-D-10" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="appendix-D-11">
-<pre>    EQ1.  C1 = A' * (-e) - H0 * r2
-    EQ2.  C2 = D * (-r3) + H0 * s' + H_j1 * msg_j1 + ... + H_jU * msg_jU.
-</pre><a href="#appendix-D-11" class="pilcrow">¶</a>
-</div>
-<p id="appendix-D-12">If both EQ1 and EQ2 hold, and <code>e(A', Pk) = e(Abar, P2)</code>, an extractor can return a valid BBS signature from the signers <code>Sk</code>, on the disclosed messages. The proof returned is <code>(A', Abar, d, nizk)</code>. To validate the proof, a verifier checks that <code>e(A', Pk) = e(Abar, P2)</code> and verifies <code>nizk</code>.<a href="#appendix-D-12" class="pilcrow">¶</a></p>
+<p id="appendix-D-6">Note that the verifier will know the elements in the left side of the above equations (i.e., <code>C1</code> and <code>C2</code>) but not in the right side (i.e., <code>s'</code>, <code>r3</code> and the undisclosed messages: <code>msg_j1, ..., msg_jU</code>). However, using the <code>nizk</code>, the prover can convince the verifier that they (the prover) know the elements that satisfy those equations, without disclosing them. Then, if both EQ1 and EQ2 hold, and <code>e(A', PK) = e(Abar, P2)</code>, an extractor can return a valid BBS signature from the signer's <code>SK</code>, on the disclosed messages. The proof returned is <code>(A', Abar, D, nizk)</code>. To validate the proof, a verifier checks that <code>e(A', PK) = e(Abar, P2)</code> and verifies the <code>nizk</code>. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as ownership of the undisclosed messages and of the signature.<a href="#appendix-D-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
