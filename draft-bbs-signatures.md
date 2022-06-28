@@ -1115,7 +1115,7 @@ Procedure:
 9. return proof_octets
 ```
 
-### Octets to Public Key
+### OctetsToPublicKey
 
 This operation decodes an octet string representing a public key, validates it and returns the corresponding point in G2. Steps 2 to 5 check if the public key is valid. As an optimization, implementations MAY cache the result of those steps, to avoid unnecessarily repeating validation for known public keys.
 
@@ -1148,7 +1148,7 @@ Procedure:
 
 ## Validating public keys
 
-It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [octets\_to\_pubkey](#octets-to-public-key) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure returns INVALID the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
+It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [OctetsToPublicKey](#octetstopublickey) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure (see the [OctetsToPublicKey](#octetstopublickey) section) returns INVALID, the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
 
 ## Point de-serialization
 
@@ -1613,36 +1613,36 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 The following section provides an explanation of how the ProofGen and ProofVerify operations work.
 
-Let the prover be in possession of a BBS signature `(A, e, s)` with `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
+Let the prover be in possession of a BBS signature `(A, e, s)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
 ```
-B = P1 + h0 * s + h[1] * msg_1 + ... + h[L] * msg_L
+B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
 ```
-(without loss of generality we assume that the messages and generators are indexed from 0 to L). Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = range(1, L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
+Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = range(1, L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
 
-- Randomize the signature `(A, e, s)`, by taking uniformly random `r1`, `r2` in `[1, r-1]`, and calculate,
+- Hide the signature by randomizing it. To randomize the signature `(A, e, s)`, take uniformly random `r1`, `r2` in `[1, r-1]`, and calculate,
 
         1.  A' = A * r1,
         2.  Abar = A' * (-e) + B * r1
         3.  D = B * r1 + H0 * r2.
 
-  Also set,
+    Also set,
 
         4.  r3 = r1 ^ -1 mod r
         5.  s' = r2 * r3 + s mod r.
 
-  The values `(A', Abar, D)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', PK) = e(Abar, P2)` where `PK` the signer's public key and `P2` the base element in `G2` (used to create the signer’s `PK`, see [SkToPk](#sktopk)). This also serves to bind the proof to the signer's `PK`.
+    The values `(A', Abar, D)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', PK) = e(Abar, P2)` where `PK` the signer's public key and `P2` the base element in `G2` (used to create the signer’s `PK`, see [SkToPk](#sktopk)). This also serves to bind the proof to the signer's `PK`.
 
 - Set the following,
 
         1.  C1 = Abar - D
-        2.  C2 = P1 +  H_i1 * msg_i1 + ... + H_iR * msg_iR
+        2.  C2 = P1 + H_d * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 
-  Create a non-interactive zero-knowledge generalized Schnorr proof of knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1, ..., msg_jU` (the undisclosed messages) so that both of the following equalities hold,
+    Create a non-interactive zero-knowledge proof-of-knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1, ..., msg_jU` (the undisclosed messages) so that both of the following equalities hold,
 
         EQ1.  C1 = A' * (-e) - H0 * r2
         EQ2.  C2 = H0 * s' - D * r3 + H_j1 * msg_j1 + ... + H_jU * msg_jU.
 
-  If both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signers `SK`, on the disclosed messages. The proof returned is `(A', Abar, d, nizk)`. To validate the proof, a verifier checks that `e(A', PK) = e(Abar, P2)` and verifies the `nizk`.
+Note that the verifier will know the elements in the left side of the above equations (i.e., `C1` and `C2`) but not in the right side (i.e., `s'`, `r3` and the undisclosed messages: `msg_j1, ..., msg_jU`). However, using the `nizk`, the prover can convince the verifier that they (the prover) know the elements that satisfy those equations, without disclosing them. Then, if both EQ1 and EQ2 hold, and `e(A', Pk) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signer's `SK`, on the disclosed messages. The proof returned is `(A', Abar, D, nizk)`. To validate the proof, a verifier checks that `e(A', PK) = e(Abar, P2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as ownership of the undisclosed messages and of the signature.
 
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
