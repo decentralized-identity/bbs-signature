@@ -1250,7 +1250,7 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 ## BLS12-381 Ciphersuite
 
-The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hashtocurve-definition-using-shake-256), which also makes use of the SHAKE-256 function.
+The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
 
 **Basic parameters**:
 
