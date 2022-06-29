@@ -499,7 +499,7 @@ Procedure:
 
 ### ProofGen
 
-This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [presentation header selection](#presentation-header-selection) for more details.
+This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [Presentation header selection](#presentation-header-selection) for more details.
 
 The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosedIndexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosedIndexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
@@ -628,7 +628,7 @@ Procedure:
 
 This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
-The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#sign) (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#sign) (i.e., the `disclosedIndexes` list supplied to [ProodGen](#proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
+The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#sign) (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#sign) (i.e., the `disclosedIndexes` list supplied to [ProofGen](#proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
 ```
 result = ProofVerify(PK, proof, L, header, ph,
@@ -743,7 +743,7 @@ Procedure:
 
 ## Generator point computation
 
-The `create_generators` operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as Sign, Verify, ProofGen and ProofVerify. It takes one input, the number of generator points to create, which is determined in part by the number of signed messages.
+The `create_generators` operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify). It takes one input, the number of generator points to create, which is determined in part by the number of signed messages.
 
 As an optimization, implementations MAY cache the result of `create_generators` for a specific `generator_seed` (determined by the ciphersuite) and `count`. The values `n` and `v` MAY also be cached in order to efficiently extend a existing list of generator points.
 
@@ -807,7 +807,7 @@ Procedure:
 
 ## MapMessageToScalar
 
-There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the Sign, Verify, ProofGen and ProofVerify operations.
+There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify) operations.
 
 ### MapMessageToScalarAsHash
 
@@ -842,7 +842,7 @@ Procedure:
 
 ## Hash to Scalar
 
-This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofgen) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
 This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). Note that, if an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). However, the hash\_to\_curve ciphersuites used by this document, make use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For completeness, we define here the operation making use of the expand\_message function, that will be defined by the hash-to-curve suite used. If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
@@ -953,8 +953,8 @@ Procedure:
 
 This operation describes how to encode a signature to an octet string.
 
-*Note* this operation deliberately does not perform the relevant checks on the inputs `A` `e` and `s`
-because its assumed these are done prior to its invocation, e.g as is the case with the Sign operation.
+*Note* this operation deliberately does not perform the relevant checks on the inputs `A`, `e` and `s`
+because its assumed these are done prior to its invocation, e.g as is the case with the [Sign](#sign) operation.
 
 ```
 signature_octets = signature_to_octets(signature)
@@ -1214,7 +1214,7 @@ This document makes use of `octet_to_point_g*` to parse octet strings to ellipti
 
 ## Skipping membership checks
 
-Some existing implementations skip the subgroup\_check invocation in Verify (#verify), whose purpose is ensuring that the signature is an element of a prime-order subgroup.  This check is REQUIRED of conforming implementations, for two reasons.
+Some existing implementations skip the subgroup\_check invocation in [Verify](#verify), whose purpose is ensuring that the signature is an element of a prime-order subgroup.  This check is REQUIRED of conforming implementations, for two reasons.
 
 1.  For most pairing-friendly elliptic curves used in practice, the pairing operation e (#notation) is undefined when its input points are not in the prime-order subgroups of E1 and E2. The resulting behavior is unpredictable, and may enable forgeries.
 
@@ -1231,8 +1231,6 @@ The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One
 Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.
 
 BBS proofs are nondeterministic, meaning care must be taken against attacks arising from using bad randomness, for example, the nonce reuse attack on ECDSA [@HDWH12]. It is RECOMMENDED that the presentation header used in this specification contain a nonce chosen at random from a trusted source of randomness, see the (#presentation-header-selection) for additional considerations.
-
-BlindSign as discussed in 2.10 uses randomness from two parties so care MUST be taken that both sources of randomness are trusted. If one party uses weak randomness, it could compromise the signature.
 
 When a trusted source of randomness is used, signatures and proofs are much harder to forge or break due to the use of multiple nonces.
 
@@ -1308,7 +1306,7 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 ## BLS12-381 Ciphersuite
 
-The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hashtocurve-definition-using-shake-256), which also makes use of the SHAKE-256 function.
+The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
 
 **Basic parameters**:
 
