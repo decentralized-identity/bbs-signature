@@ -1176,8 +1176,6 @@ Secret keys MAY be generated using other methods; in this case they MUST be infe
 
 BBS proofs are nondeterministic, meaning care must be taken against attacks arising from using bad randomness, for example, the nonce reuse attack on ECDSA [@HDWH12]. It is RECOMMENDED that the presentation header used in this specification contain a nonce chosen at random from a trusted source of randomness, see the (#presentation-header-selection) for additional considerations.
 
-BlindSign as discussed in 2.10 uses randomness from two parties so care MUST be taken that both sources of randomness are trusted. If one party uses weak randomness, it could compromise the signature.
-
 When a trusted source of randomness is used, signatures and proofs are much harder to forge or break due to the use of multiple nonces.
 
 ## Presentation header selection
