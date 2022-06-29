@@ -9,7 +9,7 @@ none                                                           T. Looker
                                                                         
                                                                M. Lodder
                                                                  CryptID
-                                                            28 June 2022
+                                                            29 June 2022
 
 
                         The BBS Signature Scheme
@@ -453,7 +453,7 @@ Table of Contents
    *  hash, a hash function that MUST be a secure cryptographic hash
       function.  For security, hash MUST output at least ceil(log2(r))
       bits, where r is the order of the subgroups G1 and G2 defined by
-      the pairing-friendly elliptic curve.  See encoding of elements to
+      the pairing-friendly elliptic curve.  See Encoding of elements to
       be hashed (#encoding-of-elements-to-be-hashed) for details on how
       the inputs to the function must be encoded.
 
@@ -705,7 +705,7 @@ Procedure:
    This operation computes a zero-knowledge proof-of-knowledge of a
    signature, while optionally selectively disclosing from the original
    set of signed messages.  The "prover" may also supply a presentation
-   header, see presentation header selection (#presentation-header-
+   header, see Presentation header selection (#presentation-header-
    selection) for more details.
 
    The messages supplied in this operation MUST be in the same order as
@@ -842,7 +842,7 @@ Procedure:
    operation also requires the total number of signed messages (L).
    Lastly, it also accepts the indexes that the disclosed messages had
    in the original array of messages supplied to Sign (#sign) (i.e., the
-   disclosedIndexes list supplied to ProodGen (#proofgen)).  Every
+   disclosedIndexes list supplied to ProofGen (#proofgen)).  Every
    element in this list MUST be a non-negative integer in the range from
    1 to L, in ascending order.
 
@@ -954,10 +954,11 @@ Procedure:
 
    The create_generators operation defines how to create a set of
    generators that form a part of the public parameters used by the BBS
-   Signature scheme to accomplish operations such as Sign, Verify,
-   ProofGen and ProofVerify.  It takes one input, the number of
-   generator points to create, which is determined in part by the number
-   of signed messages.
+   Signature scheme to accomplish operations such as Sign (#sign),
+   Verify (#verify), ProofGen (#proofgen) and ProofVerify
+   (#proofverify).  It takes one input, the number of generator points
+   to create, which is determined in part by the number of signed
+   messages.
 
    As an optimization, implementations MAY cache the result of
    create_generators for a specific generator_seed (determined by the
@@ -1024,7 +1025,8 @@ Procedure:
 
    There are multiple ways in which messages can be mapped to their
    respective scalar values, which is their required form to be used
-   with the Sign, Verify, ProofGen and ProofVerify operations.
+   with the Sign (#sign), Verify (#verify), ProofGen (#proofgen) and
+   ProofVerify (#proofverify) operations.
 
 5.2.1.  MapMessageToScalarAsHash
 
@@ -1064,7 +1066,7 @@ Procedure:
    function, used internally in various places within the operations
    described in the spec.  To map a message to a scalar that would be
    passed as input to the Sign (#sign), Verify (#verify), ProofGen
-   (#proofgen) and ProofVerify (#proofgen) functions, one must use
+   (#proofgen) and ProofVerify (#proofverify) functions, one must use
    MapMessageToScalarAsHash (#mapmessagetoscalar) instead.
 
    This operation makes use of expand_message defined in
@@ -1188,8 +1190,9 @@ Procedure:
    string.
 
    _Note_ this operation deliberately does not perform the relevant
-   checks on the inputs A e and s because its assumed these are done
-   prior to its invocation, e.g as is the case with the Sign operation.
+   checks on the inputs A, e and s because its assumed these are done
+   prior to its invocation, e.g as is the case with the Sign (#sign)
+   operation.
 
 signature_octets = signature_to_octets(signature)
 
@@ -1412,14 +1415,14 @@ Procedure:
    not be INVALID.  If octet_to_point_g* returns INVALID, then the
    calling operation should immediately return INVALID as well and abort
    the operation.  Note that the only place where the output is assumed
-   to be VALID implicitly is in the Encoding of Elements to be Hashed
+   to be VALID implicitly is in the Encoding of elements to be hashed
    (#encoding-of-elements-to-be-hashed) section.
 
 6.3.  Skipping membership checks
 
    Some existing implementations skip the subgroup_check invocation in
-   Verify Section 4.3.2, whose purpose is ensuring that the signature is
-   an element of a prime-order subgroup.  This check is REQUIRED of
+   Verify (#verify), whose purpose is ensuring that the signature is an
+   element of a prime-order subgroup.  This check is REQUIRED of
    conforming implementations, for two reasons.
 
    1.  For most pairing-friendly elliptic curves used in practice, the
@@ -1458,10 +1461,6 @@ Procedure:
    presentation header used in this specification contain a nonce chosen
    at random from a trusted source of randomness, see the Section 6.6
    for additional considerations.
-
-   BlindSign as discussed in 2.10 uses randomness from two parties so
-   care MUST be taken that both sources of randomness are trusted.  If
-   one party uses weak randomness, it could compromise the signature.
 
    When a trusted source of randomness is used, signatures and proofs
    are much harder to forge or break due to the use of multiple nonces.
@@ -1600,8 +1599,8 @@ Procedure:
    ciphersuite makes use of an extendable output function, and most
    specifically of SHAKE-256, as defined in Section 6.2 of [SHA3].  It
    also uses the hash-to-curve suite defined by this document in
-   Appendix A.1 (#bls12-381-hashtocurve-definition-using-shake-256),
-   which also makes use of the SHAKE-256 function.
+   Appendix A.1 (#bls12-381-hash_to_curve-def), which also makes use of
+   the SHAKE-256 function.
 
    *Basic parameters*:
 
