@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-28T00:10:05.439184+00:00",
+  "timestamp": "2022-06-30T00:10:16.368069+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -3660,7 +3660,7 @@
       "id": "I_kwDOF8lax85I24sb",
       "title": "Fix inconsistency in array style arguements supplied to operations API",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/113",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -3669,8 +3669,8 @@
       ],
       "body": "Currently sign and verify function signatures look like the following\r\n\r\n```\r\nsignature = Sign(SK, PK, (msg_1,..., msg_L), (H_1,..., H_L))\r\n```\r\n\r\nand\r\n\r\n```\r\nresult = Verify(PK, (msg_1,..., msg_L), (H_1,..., H_L), signature)\r\n```\r\n\r\nWhereas the spkgen operations function signature looks like\r\n\r\n```\r\nspk = SpkGen(PK, (msg_1,..., msg_L), (H_1,..., H_L), RevealedIndexes, signature, pm)\r\n```\r\n\r\nwhere RevealedIndexes is a vector/array.\r\n\r\nWe need to either change the RevealedIndexes to be more like the the destructed syntax for messages and generators e.g `(msg_1,..., msg_L), (H_1,..., H_L)` or convert all array style arguments to inputs like the current definition for RevealedIndexes.",
       "createdAt": "2022-05-02T00:35:51Z",
-      "updatedAt": "2022-05-23T20:00:18Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-28T20:04:38Z",
+      "closedAt": "2022-06-28T20:04:38Z",
       "comments": [
         {
           "author": "BasileiosKal",
@@ -4036,7 +4036,7 @@
       "id": "I_kwDOF8lax85Jp5_6",
       "title": "H_s and H_d not defined in BLS ciphersuite",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/139",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "christianpaquin",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
@@ -4046,8 +4046,8 @@
       ],
       "body": "The terminology section says that the `H_s` and `H_d` generators are defined by each ciphersuite, but they are not defined in the BLS12-381 Ciphersuite section.",
       "createdAt": "2022-05-13T21:16:47Z",
-      "updatedAt": "2022-05-13T22:02:29Z",
-      "closedAt": null,
+      "updatedAt": "2022-06-28T08:07:09Z",
+      "closedAt": "2022-06-28T08:07:09Z",
       "comments": [
         {
           "author": "tplooker",
@@ -4352,9 +4352,17 @@
       ],
       "body": "As noted by @mikelodder7,  in the document we don't yet discuss the integers (i.e., scalars mod r) serialization. More specifically, since we have a description for the byte length of those integers (`octet_scalar_length`), what is missing is the byte order.\r\n\r\nIn general i thing little-endian is preferred (it is mostly used in bls libs like the rust crate and blst) but an issue is that I2OSP uses big-endian if im not mistaken.\r\n\r\nThere are 3 options i can think of;\r\n1. We describe them as 32 bytes (or `octet_scalar_length` in general) in little-endian, with a note for I2OSP.\r\n2. We describe them in a way similar to some libs (i.e., four 64 bit parts in little-endian order), but i don't think something like that is suitable. \r\n3. We leave it up for implementers with some notes for guidance.\r\n\r\nAt the moment I'm leaning more towards option 3. Implementations may elect to use any kind of optimization and this will allow for that. \r\n\r\nAlso for what i know of, other specs like ecdsa and eddsa elect to define the integer's endianness but specs like bls-sigs and h2c adopt option 3, so it does not seem to be any \"absolutely correct\" way to do that.",
       "createdAt": "2022-05-26T19:28:52Z",
-      "updatedAt": "2022-06-25T00:36:03Z",
+      "updatedAt": "2022-06-28T18:26:47Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Discussed in the WG call on 2022-06-27. The direction decided is to check available implementations and either ad a note in the definition of OS2IP and I2OSP, describing that they operate in big-endian order (like [H2C](https://www.ietf.org/archive/id/draft-irtf-cfrg-hash-to-curve-16.html#section-4)) or define a `scalar_to_octets` operation, that on input a scalar will return an octet string in litle-endian order (just a definition possible with no explicit procedure).",
+          "createdAt": "2022-06-28T18:25:59Z",
+          "updatedAt": "2022-06-28T18:26:47Z"
+        }
+      ]
     },
     {
       "number": 159,
@@ -24187,13 +24195,13 @@
       "labels": [],
       "body": "Closes #185 using @andrewwhitehead's proposal (introducing an encode_for_hash operation).\r\n\r\nOpened as a draft because of the timetable + the fact that it is not a small pr. Will mark it as ready to review if the other open PRs are merged.\r\n\r\n### NOTES:\r\n1. The `encode_for_hash` function can also substitute the `signature_to_octets` and `proof_to_octets` operations (the results will be the same). I left that for another PR if we decide to go that way (I\u2019m not convinced that it would be the best option myself).\r\n2. Removed the distinction with DSTs. We are explicitly appending their length everywhere in the spec.\r\n3. this pr also closes #74 like pr #188. However, I realize this requires more time and reviews so better to move with #188 first (I will resolve the conflicts).",
       "createdAt": "2022-06-26T22:44:51Z",
-      "updatedAt": "2022-06-27T22:28:06Z",
+      "updatedAt": "2022-06-29T20:58:47Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "3db28455680a30d2a6aa2bb748106cdc449e6e1e",
+      "baseRefOid": "8d9b9a01fb770975f32c363166259b36904fb68e",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "encode_for_hash",
-      "headRefOid": "0bbb3a055ad744416f5c75d7b1159db2f8526e19",
+      "headRefOid": "d83baf27398aed424cee48f8de14b3f314d49067",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -24212,6 +24220,41 @@
           "body": "Ready for review c.c. @andrewwhitehead, @tplooker ^",
           "createdAt": "2022-06-27T22:28:06Z",
           "updatedAt": "2022-06-27T22:28:06Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "After @tplooker's suggestion, I made the procedure \"informative\" (made it a recommendation) and added the \"normative\" definition to the notation section (maybe we will need to do that for `hash_to_scalar` and `create_generators` as well).\r\n\r\n@andrewwhitehead really sorry to requesting your review again. Any thoughts on that??^",
+          "createdAt": "2022-06-28T23:37:45Z",
+          "updatedAt": "2022-06-28T23:37:45Z"
+        },
+        {
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I don't think it can be only a recommended implementation, as any changes would impact compatibility and the security of the scheme. If variations were supported then I think they would need to be added to the suite identifier.",
+          "createdAt": "2022-06-28T23:52:09Z",
+          "updatedAt": "2022-06-28T23:52:09Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> I don't think it can be only a recommended implementation, as any changes would impact compatibility and the security of the scheme. If variations were supported then I think they would need to be added to the suite identifier.\r\n\r\n@andrewwhitehead that is true. The tradeoff IMO is that if the `encode_for_hash` is \"normative\" we may need to define it more formally. However this will be hard to do in the spec (for example is the line `if el is an octet string representing a public key` formal enough??). I'm afraid that if we make it a requirement with this type of syntax we may face the same negative feedback that the [ZCach encoding](https://www.ietf.org/archive/id/draft-irtf-cfrg-pairing-friendly-curves-10.html#name-zcash-serialization-format-) in the [PFC spec](https://www.ietf.org/archive/id/draft-irtf-cfrg-pairing-friendly-curves-10.html) faced by the CFRG.\r\n\r\nDon't have a perfect solution for now. Should we leave it as normative and revisit this later (i.e., not close #185)?? Thoughts @tplooker??^",
+          "createdAt": "2022-06-29T15:18:34Z",
+          "updatedAt": "2022-06-29T15:18:34Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Also, IMO we can define the properties that every `encode_for_hash` function should have. Bijection is one for sure and we can also require prefix-free encoding to be safe. However do we really want to add the `encode_for_hash` function to the suite id??",
+          "createdAt": "2022-06-29T15:18:50Z",
+          "updatedAt": "2022-06-29T15:18:50Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Apologies I should have been more specific, I think the behaviour of encode_for_hash needs to be normative to promote interoperable implementations as @andrewwhitehead points out. I was more wondering whether we position the procedural definition here as informative because I can imagine there being multiple ways to implement it in practise. I guess that argument could also be applied more broadly to other operations in the scheme too so perhaps its not worth the complication?",
+          "createdAt": "2022-06-29T20:40:26Z",
+          "updatedAt": "2022-06-29T20:40:26Z"
         }
       ],
       "reviews": [
@@ -24272,6 +24315,112 @@
               "body": "```suggestion\r\n6. if dom_for_hash is INVALID, return INVALID\r\n```",
               "createdAt": "2022-06-27T18:56:48Z",
               "updatedAt": "2022-06-27T18:56:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8487MlT",
+          "commit": {
+            "abbreviatedOid": "0bbb3a0"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-28T17:33:29Z",
+          "updatedAt": "2022-06-28T17:33:29Z",
+          "comments": [
+            {
+              "originalPosition": 109,
+              "body": "```suggestion\r\n5. e_s_for_hash = encode_for_hash((SK, domain, msg_1, ..., msg_L))\r\n```",
+              "createdAt": "2022-06-28T17:33:29Z",
+              "updatedAt": "2022-06-28T17:33:29Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8487M6C",
+          "commit": {
+            "abbreviatedOid": "0bbb3a0"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-28T17:34:39Z",
+          "updatedAt": "2022-06-28T17:34:39Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax8487bQr",
+          "commit": {
+            "abbreviatedOid": "0bbb3a0"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-28T18:23:49Z",
+          "updatedAt": "2022-06-28T18:23:50Z",
+          "comments": [
+            {
+              "originalPosition": 109,
+              "body": "Good catch! Thanks!",
+              "createdAt": "2022-06-28T18:23:49Z",
+              "updatedAt": "2022-06-28T18:23:50Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8487kVm",
+          "commit": {
+            "abbreviatedOid": "b97757f"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-28T18:56:55Z",
+          "updatedAt": "2022-06-28T18:56:55Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax8487733",
+          "commit": {
+            "abbreviatedOid": "b97757f"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-28T20:11:12Z",
+          "updatedAt": "2022-06-28T20:11:13Z",
+          "comments": [
+            {
+              "originalPosition": 12,
+              "body": "Should we shift this as an operation under section 5 (https://identity.foundation/bbs-signature/draft-bbs-signatures.html#name-utility-operations)?",
+              "createdAt": "2022-06-28T20:11:12Z",
+              "updatedAt": "2022-06-28T20:11:13Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax84881xH",
+          "commit": {
+            "abbreviatedOid": "b97757f"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-28T23:33:48Z",
+          "updatedAt": "2022-06-28T23:33:48Z",
+          "comments": [
+            {
+              "originalPosition": 12,
+              "body": "Done!\r\n\r\nProbably best since we are referencing `hash_to_scalar` also!",
+              "createdAt": "2022-06-28T23:33:48Z",
+              "updatedAt": "2022-06-28T23:33:48Z"
             }
           ]
         }
@@ -24345,24 +24494,26 @@
       "id": "PR_kwDOF8lax846bs6y",
       "title": "Consistency updates",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/192",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Changes for consistency:\r\n1. `len()` -> `length()`.\r\n2. Consistent array de-structuring.\r\n3. Make code blocks < 72 chars.\r\n4. Update `create_generators`. Same result, removed the `while` and added a `go back to step 4` for consistency (we where referencing `generator_0` without defining it at the first step where `i = 1`).",
       "createdAt": "2022-06-27T17:28:47Z",
-      "updatedAt": "2022-06-27T22:10:40Z",
+      "updatedAt": "2022-06-28T20:04:39Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "3db28455680a30d2a6aa2bb748106cdc449e6e1e",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "consistency-update",
-      "headRefOid": "37ba90551cd8171f3d6f785d2ddc0a06e69cf650",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "5dcc5f3ab5c88bd19f3bdbd118b65d4043d6d520",
+      "closedAt": "2022-06-28T20:04:38Z",
+      "mergedAt": "2022-06-28T20:04:38Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "4818d31bd6d459d018bb3e36c9247561feb61ad4"
+      },
       "comments": [
         {
           "author": "BasileiosKal",
@@ -24370,6 +24521,13 @@
           "body": "Discussed on the WG call. The issue of the naming convention for SK and PKs came up (neither the SK not the PK is a point to be capitalized). Will address to another PR to avoid conflicts with #186.",
           "createdAt": "2022-06-27T19:41:14Z",
           "updatedAt": "2022-06-27T19:41:14Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Multiple approvals, purely editorial, merging",
+          "createdAt": "2022-06-28T20:04:34Z",
+          "updatedAt": "2022-06-28T20:04:34Z"
         }
       ],
       "reviews": [
@@ -24412,6 +24570,175 @@
               "updatedAt": "2022-06-27T22:10:40Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8487LE5",
+          "commit": {
+            "abbreviatedOid": "37ba905"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-28T17:28:15Z",
+          "updatedAt": "2022-06-28T17:28:16Z",
+          "comments": [
+            {
+              "originalPosition": 215,
+              "body": "Yea! Good catch. Updated to use `H_s, H_d` add added `domain` (not explaining what it is, using it like `e, s` etc).",
+              "createdAt": "2022-06-28T17:28:15Z",
+              "updatedAt": "2022-06-28T17:28:16Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8487LPN",
+          "commit": {
+            "abbreviatedOid": "0758d31"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-28T17:28:49Z",
+          "updatedAt": "2022-06-28T17:28:49Z",
+          "comments": [
+            {
+              "originalPosition": 273,
+              "body": "```suggestion\r\nNote that the verifier will know the elements in the left side of the above equations (i.e., `C1` and `C2`) but not in the right side (i.e., `s'`, `r3` and the undisclosed messages: `msg_j1, ..., msg_jU`). However, using the `nizk`, the prover can convince the verifier that they (the prover) know the elements that satisfy those equations, without disclosing them. Then, if both EQ1 and EQ2 hold, and `e(A', PK) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signer's `SK`, on the disclosed messages. The proof returned is `(A', Abar, D, nizk)`. To validate the proof, a verifier checks that `e(A', PK) = e(Abar, P2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as ownership of the undisclosed messages and of the signature.\r\n```",
+              "createdAt": "2022-06-28T17:28:49Z",
+              "updatedAt": "2022-06-28T17:28:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8487LYE",
+          "commit": {
+            "abbreviatedOid": "0758d31"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-28T17:29:19Z",
+          "updatedAt": "2022-06-28T17:29:19Z",
+          "comments": [
+            {
+              "originalPosition": 273,
+              "body": "Last tiny suggestion",
+              "createdAt": "2022-06-28T17:29:19Z",
+              "updatedAt": "2022-06-28T17:29:19Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax8487M2B",
+          "commit": {
+            "abbreviatedOid": "0758d31"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-28T17:34:26Z",
+          "updatedAt": "2022-06-28T17:34:26Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax8487bxa",
+          "commit": {
+            "abbreviatedOid": "0758d31"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-06-28T18:25:46Z",
+          "updatedAt": "2022-06-28T18:25:46Z",
+          "comments": [
+            {
+              "originalPosition": 273,
+              "body": "Thank you!!",
+              "createdAt": "2022-06-28T18:25:46Z",
+              "updatedAt": "2022-06-28T18:25:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax84875A_",
+          "commit": {
+            "abbreviatedOid": "5dcc5f3"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-06-28T20:04:07Z",
+          "updatedAt": "2022-06-28T20:04:07Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 193,
+      "id": "PR_kwDOF8lax846jTAA",
+      "title": "Fix and add links",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/193",
+      "state": "MERGED",
+      "author": "alessandroguggino",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Very little contribution but I hope it is helpful.\r\n- Fixed existing links (removing typos, whitespaces, capitalizing first letter, ...)\r\n- Added missing links to operations\r\n- Removed an old paragraph about BlindSign",
+      "createdAt": "2022-06-29T09:23:31Z",
+      "updatedAt": "2022-06-29T20:55:02Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "4818d31bd6d459d018bb3e36c9247561feb61ad4",
+      "headRepository": "alessandroguggino/bbs-signature",
+      "headRefName": "fix-links",
+      "headRefOid": "9ea88ba87c78e6a3c17cd1a6fd2bc601bdfa482c",
+      "closedAt": "2022-06-29T20:55:02Z",
+      "mergedAt": "2022-06-29T20:55:02Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "8d9b9a01fb770975f32c363166259b36904fb68e"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals! Editorial update! Merging.",
+          "createdAt": "2022-06-29T20:54:57Z",
+          "updatedAt": "2022-06-29T20:54:57Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax849BtMb",
+          "commit": {
+            "abbreviatedOid": "9ea88ba"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "LGTM thanks!",
+          "createdAt": "2022-06-29T19:03:04Z",
+          "updatedAt": "2022-06-29T19:03:04Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax849CP8K",
+          "commit": {
+            "abbreviatedOid": "9ea88ba"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Looks Good! Thanks @alessandroguggino!",
+          "createdAt": "2022-06-29T20:54:37Z",
+          "updatedAt": "2022-06-29T20:54:37Z",
+          "comments": []
         }
       ]
     }
