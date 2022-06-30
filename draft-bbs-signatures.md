@@ -191,9 +191,6 @@ range(a, b)
 utf8(ascii_string)
 : Encoding the inputted ASCII string to an octet string using UTF-8 character encoding.
 
-encode_for_hash(array)
-: Given an array of elements to be hashed, returns the octet string that will be passed to the hash function. Unique arrays MUST result to unique octet strings. See the [EncodingForHash](#encodingforhash) section for more details and the RECOMMENDED implementation. Each of the inputted array elements must be either a Point, a Scalar, an ASCII string, or an octet string.
-
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
 E1, E2
@@ -1140,7 +1137,7 @@ Procedure:
 
 ### EncodingForHash
 
-This document uses the `hash_to_scalar` function to hash elements to scalars in the multplicative group mod r (see [Section 5.3](#hash-to-scalar)). To avoid ambiguity, each element passed to that operation, must first be encoded appropriately using `encode_for_hash` (see [Notation](#notation)). The following procedure provides the RECOMMENDED way to implement `encode_for_hash`. It encodes each element to an appropriate format depending on its type, and concatenates the results. Specifically,
+This document uses the `hash_to_scalar` function to hash elements to scalars in the multiplicative group mod r (see [Section 5.3](#hash-to-scalar)). To avoid ambiguity, elements passed to that operation, must first be encoded appropriately using `encode_for_hash`. The following procedure describes how to encode each element accordingly by serializing it to an appropriate format depending on its type and concatenating the results. Specifically,
 
 - Points in G1 or G2 will be encoded using the `point_to_octets_g*` implementation for a particular ciphersuite.
 - Non-negative integers will be encoded using `I2OSP` with an output length of 8 bytes.
