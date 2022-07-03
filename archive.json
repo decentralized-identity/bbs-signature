@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-06-30T00:10:16.368069+00:00",
+  "timestamp": "2022-07-03T00:10:54.310208+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -24195,13 +24195,13 @@
       "labels": [],
       "body": "Closes #185 using @andrewwhitehead's proposal (introducing an encode_for_hash operation).\r\n\r\nOpened as a draft because of the timetable + the fact that it is not a small pr. Will mark it as ready to review if the other open PRs are merged.\r\n\r\n### NOTES:\r\n1. The `encode_for_hash` function can also substitute the `signature_to_octets` and `proof_to_octets` operations (the results will be the same). I left that for another PR if we decide to go that way (I\u2019m not convinced that it would be the best option myself).\r\n2. Removed the distinction with DSTs. We are explicitly appending their length everywhere in the spec.\r\n3. this pr also closes #74 like pr #188. However, I realize this requires more time and reviews so better to move with #188 first (I will resolve the conflicts).",
       "createdAt": "2022-06-26T22:44:51Z",
-      "updatedAt": "2022-06-29T20:58:47Z",
+      "updatedAt": "2022-06-30T00:31:48Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "8d9b9a01fb770975f32c363166259b36904fb68e",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "encode_for_hash",
-      "headRefOid": "d83baf27398aed424cee48f8de14b3f314d49067",
+      "headRefOid": "c19e9ba3ad15623a413385a0b720436255fbf7fb",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -24255,6 +24255,13 @@
           "body": "Apologies I should have been more specific, I think the behaviour of encode_for_hash needs to be normative to promote interoperable implementations as @andrewwhitehead points out. I was more wondering whether we position the procedural definition here as informative because I can imagine there being multiple ways to implement it in practise. I guess that argument could also be applied more broadly to other operations in the scheme too so perhaps its not worth the complication?",
           "createdAt": "2022-06-29T20:40:26Z",
           "updatedAt": "2022-06-29T20:40:26Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Updated. As far as if the procedure is \"formal enough\" to be normative, I'm not 100% convinced my self but I may be overthinking this. \r\n\r\nIt's true that most likely people will not use a straight line implementation of this procedure, however i do mention that this is just an explanation of the described behavior, and also most likely, to @tplooker's point, people will not use straight line implementations for most things in the spec IMO.\r\n\r\n",
+          "createdAt": "2022-06-30T00:31:48Z",
+          "updatedAt": "2022-06-30T00:31:48Z"
         }
       ],
       "reviews": [
@@ -24691,7 +24698,7 @@
       "labels": [],
       "body": "Very little contribution but I hope it is helpful.\r\n- Fixed existing links (removing typos, whitespaces, capitalizing first letter, ...)\r\n- Added missing links to operations\r\n- Removed an old paragraph about BlindSign",
       "createdAt": "2022-06-29T09:23:31Z",
-      "updatedAt": "2022-06-29T20:55:02Z",
+      "updatedAt": "2022-06-30T10:17:35Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "4818d31bd6d459d018bb3e36c9247561feb61ad4",
