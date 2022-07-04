@@ -1149,7 +1149,7 @@ After encoding, octet strings will be prepended with a value representing the le
 
 Optional input/parameters to operations that feature in a call to hash\_to\_scalar, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `hash(A || X || B)` MUST be evaluated to `hash(A || "" || B)`.
 
-The above procedure is further described in the following operation.
+The above is further described in the following procedure.
 
 ```
 result = encode_for_hash(input_array)
