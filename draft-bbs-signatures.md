@@ -1135,7 +1135,7 @@ Procedure:
 5. return W
 ```
 
-### EncodingForHash
+### EncodeForHash
 
 This document uses the `hash_to_scalar` function to hash elements to scalars in the multiplicative group mod r (see [Section 5.3](#hash-to-scalar)). To avoid ambiguity, elements passed to that operation, must first be encoded appropriately using `encode_for_hash`. The following procedure describes how to encode each element accordingly by serializing it to an appropriate format depending on its type and concatenating the results. Specifically,
 
