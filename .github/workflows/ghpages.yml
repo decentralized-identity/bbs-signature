@@ -44,6 +44,7 @@ jobs:
           mkdir -p "$HOME"/.cache/xml2rfc
           echo "::set-output name=path::$HOME/.cache/xml2rfc"
           date -u "+::set-output name=date::%FT%T"
+
       - name: "Cache References"
         uses: actions/cache@v2
         with:
@@ -54,6 +55,7 @@ jobs:
           restore-keys: |
             refcache-${{ steps.cache-setup.outputs.date }}
             refcache-
+
       - name: "Build Drafts"
         uses: martinthomson/i-d-template@v1
         with:
@@ -61,7 +63,7 @@ jobs:
 
       - name: "Update GitHub Pages"
         uses: martinthomson/i-d-template@v1
-        if: ${{ github.event_name == 'push' }}
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
         with:
           make: gh-pages
           token: ${{ github.token }}
