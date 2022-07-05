@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-07-03T00:10:54.310208+00:00",
+  "timestamp": "2022-07-05T00:08:55.098304+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -3698,11 +3698,12 @@
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [
+        "pending-close",
         "core"
       ],
       "body": "Related to #25 currently the spec has a mix of casing for operation names, inputs, parameters and outputs this should be made consistent including whether short or more descriptive names are used.\r\n\r\nSuggested rules for inputs outputs and parameters \r\n\r\n- use snake case\r\n- use fully qualified names e.g msg -> message PK -> public_key\r\n\r\nSuggested rules for function naming\r\n\r\n- use snake case e.g SpkGen => spk_gen",
       "createdAt": "2022-05-02T00:44:16Z",
-      "updatedAt": "2022-05-03T17:07:53Z",
+      "updatedAt": "2022-07-04T18:56:46Z",
       "closedAt": null,
       "comments": [
         {
@@ -3732,6 +3733,20 @@
           "body": "My proposal for a terminology convention is:\r\n1. All EC points to be capital even in their octets representation (i.e., pub_key -> PK)\r\n3. All special points in G1 will be Pi, i = 1, 2, etc. For example, P1 will be the base point of G1, P2 will be the generator for the blind value (H_s in #95) and P3 the generator for the signature domain (H_d in #95). So B will be\r\n```\r\nB = P1 + P2 * s + P3 * domain + H_1 * msg_1 + .... + H_L * msg_L\r\n```\r\n4. All special points in G2 will be Qi, i = 1, 2, ..etc. This means that the base point in G2 will be Q1 and the pub key will be PK = Q1 * SK.\r\n5. All scalars will be lower case (i.e., SK -> sk)\r\n6. Core functions will be pascal case (i.e., proofVerify -> ProofVerify)\r\n7. Helper functions will be snake case. I'm going back and forward on this one since it will give us consistency with many functions we use from the h2c spec, however as @andrewwhitehead pointed it may be better to be internally consistent. So im also fine with making every function pascal case.",
           "createdAt": "2022-05-03T17:07:53Z",
           "updatedAt": "2022-05-03T17:07:53Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Labeling as pending close ahead of WG call on the 4th of july",
+          "createdAt": "2022-07-04T00:59:54Z",
+          "updatedAt": "2022-07-04T00:59:54Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Updates discussed to WG call:\r\n`Ciphersuite_ID` -> `ciphersuite_id`\r\n`H_s, H_d` -> `Q_1, Q_2`\r\n`MsgGenerators` -> `msgGenerators`",
+          "createdAt": "2022-07-04T18:56:46Z",
+          "updatedAt": "2022-07-04T18:56:46Z"
         }
       ]
     },
@@ -3740,17 +3755,18 @@
       "id": "I_kwDOF8lax85I3Uae",
       "title": "Consider making \"messages\" and therefore \"message generators\" optional to all operation APIs",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/117",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [
+        "pending-close",
         "core"
       ],
       "body": "Now we have introduced the concept of an optional header in #95 I want to consider whether we allow for constructions of BBS signatures which do not make use of the \"selective disclosure\" feature, instead just use BBS as an ordinary group signature. I believe there are several interesting usecases such as privacy preserving access tokens or hardware attestations that would likely use BBS in this form.\r\n\r\nIn short my proposal is for both the header and messages (along with message generators) to be optional. Meaning a signer could create a signature that has neither, either or both a header and array of messages.",
       "createdAt": "2022-05-02T04:18:15Z",
-      "updatedAt": "2022-05-13T16:16:00Z",
-      "closedAt": null,
+      "updatedAt": "2022-07-04T18:35:45Z",
+      "closedAt": "2022-07-04T18:35:45Z",
       "comments": [
         {
           "author": "BasileiosKal",
@@ -3821,6 +3837,20 @@
           "body": "Just for completion, another alternative is to pass the lists of messages and generators, not in a de-structured form, but using \"named lists\", i.e., something like the following,\r\n\r\n```\r\nproof = ProofGen(PK, signature, header, messages, generators, revealedIndexes, ph)\r\n\r\nProcedure:\r\n            .\r\n            .\r\n            .\r\n7. (i1, i2, ..., iU) = revealedIndexes\r\n8. (j1, j2, ..., jR) = [L] \\ revealedIndexes\r\n9. msg_1, ..., msg_L = messages[1], ..., messages[L]\r\n10. msg_i1, ..., msg_iU = messages[i1], ..., messages[iU]\r\n11. H_1, ..., H_L = generators[1], ..., generators[L]\r\n12. H_j1, ..., H_jR = generators[j1], ..., generators[jR]\r\n            .\r\n            .\r\n            .\r\n```\r\nAs you can see, there will be a lot of steps needed to de-structure the input lists. There will be even more steps necessary to check the lengths of the input lists potentially. That said we will be totally explicit on how we get the necessary elements (the revealed messages, the corresponding generators etc.) from the inputs.",
           "createdAt": "2022-05-13T16:16:00Z",
           "updatedAt": "2022-05-13T16:16:00Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Labeling as pending close ahead of WG call on the 4th of july",
+          "createdAt": "2022-07-04T00:59:15Z",
+          "updatedAt": "2022-07-04T00:59:15Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Discussed on 4th of july WG call, closing as resolved via #183",
+          "createdAt": "2022-07-04T18:35:45Z",
+          "updatedAt": "2022-07-04T18:35:45Z"
         }
       ]
     },
@@ -3923,7 +3953,7 @@
       "id": "I_kwDOF8lax85JJk6A",
       "title": "Add an `IsValidPoint` operation",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/126",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -3933,8 +3963,8 @@
       ],
       "body": "As raised by @mikelodder7 in #115 there are numerous cases within existing operations that require validating points, therefore having a single operation that documents these steps rather than repeating them will improve readability.",
       "createdAt": "2022-05-05T22:49:38Z",
-      "updatedAt": "2022-05-11T23:15:13Z",
-      "closedAt": null,
+      "updatedAt": "2022-07-04T18:55:33Z",
+      "closedAt": "2022-07-04T18:55:33Z",
       "comments": [
         {
           "author": "tplooker",
@@ -3949,6 +3979,13 @@
           "body": "The signature related checks for this in the verify function are being captured in #133 ",
           "createdAt": "2022-05-11T23:15:13Z",
           "updatedAt": "2022-05-11T23:15:13Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Duplicate of #179, closing in favour of that issue",
+          "createdAt": "2022-07-04T18:55:32Z",
+          "updatedAt": "2022-07-04T18:55:32Z"
         }
       ]
     },
@@ -3984,7 +4021,7 @@
       "id": "I_kwDOF8lax85JPXkH",
       "title": "Consider splitting operations into Core and Higher level definitions",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/131",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -3993,8 +4030,8 @@
       ],
       "body": "As raised by @BasileiosKal previously, to improved readability around the defined operations we could elect to group the operations into core and non-core, for instance `Sign`, `Verify`, `ProofGen` and `ProofVerify` could become `CoreSign`, `CoreVerify`, `CoreProofGen` and `CoreProofVerify`. We could then define more application specific higher-level operations like `SingleSign` and `MultiSign` where the function signatures could be something like the following\r\n\r\n```\r\nsignature = SingleSign(SK, header)\r\n```\r\n\r\n```\r\nsignature = MultiSign(SK, header, (msg_1,..., msg_L))\r\n```\r\n\r\n**Note** these ^ are just ideas about how we could encapsulate common usage patterns.",
       "createdAt": "2022-05-08T01:25:22Z",
-      "updatedAt": "2022-05-27T21:59:19Z",
-      "closedAt": null,
+      "updatedAt": "2022-07-04T18:57:30Z",
+      "closedAt": "2022-07-04T18:57:30Z",
       "comments": [
         {
           "author": "tplooker",
@@ -4002,6 +4039,13 @@
           "body": "Some of this is being addressed by #154 ",
           "createdAt": "2022-05-27T21:59:19Z",
           "updatedAt": "2022-05-27T21:59:19Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Closing with the merge of #154 which settled the restructure of the sections",
+          "createdAt": "2022-07-04T18:57:30Z",
+          "updatedAt": "2022-07-04T18:57:30Z"
         }
       ]
     },
@@ -4105,7 +4149,7 @@
       ],
       "body": "Currently the spec creates generators using hash-to-curve implemented with `shake256` (for which we describe a h2c ciphersuite).\r\n\r\nLooking at implementations of pairing-friendly-curves though, most of them seem to natively support h2c with `sha256` (like blst). This means that,\r\n1. We may have to implement h2c with `shake256` our self's.\r\n2. Applications that elect to use the natively supported h2c implementation (and will be many of those most likely) will create generators that are not interoperable with the ones we describe in the spec.\r\n\r\nAt the very least we may be creating an implementation barrier by making it hard to use `sha256` for h2c.\r\n\r\nSince efficiency is not an issue when creating generators, and taking into account the wider spread of `sha256`, should we update h2c to use `sha` instead of `shake`?? We can leave the ciphersuite definition for h2c using `shake256` as an alternative, while the bls12-381 ciphersuite will use h2c with `sha256`??",
       "createdAt": "2022-05-17T11:18:01Z",
-      "updatedAt": "2022-05-19T21:37:22Z",
+      "updatedAt": "2022-07-04T21:50:54Z",
       "closedAt": null,
       "comments": [
         {
@@ -4212,6 +4256,20 @@
           "body": "That's true (although it may not always hold). I also agree with Mike in that it may not be a huge barrier, but IMO if we can make things a little bit easier for applications i don't see why not??",
           "createdAt": "2022-05-18T22:32:00Z",
           "updatedAt": "2022-05-18T22:32:00Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Merging #177 and #151 made it possible to define a bbs ciphersuite with only one hash function in the basis of a (single) H2C suite. This addresses this issue. Will close after the next call.",
+          "createdAt": "2022-07-04T17:22:05Z",
+          "updatedAt": "2022-07-04T17:22:05Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Discussed in the 2022-07-04 WG call! Will leave open until we decide if we will define a second sha256 based ciphersuite in the spec.",
+          "createdAt": "2022-07-04T21:50:54Z",
+          "updatedAt": "2022-07-04T21:50:54Z"
         }
       ]
     },
@@ -4369,19 +4427,35 @@
       "id": "I_kwDOF8lax85Kj6wO",
       "title": "API Update",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/159",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [
         "ready-for-pr",
+        "pending-close",
         "core"
       ],
       "body": "Trying to update the API has resulted in mainly two proposals from @andrewwhitehead and @tplooker. The first one using boolean variables to distinquish between revealed and un-revealed messages and the second one using indexes. You can compare the 2 APIs [here](https://github.com/BasileiosKal/dif-bbs-signature-api):\r\n- [API_1](https://github.com/BasileiosKal/dif-bbs-signature-api/tree/main/API_1_Boolean) (using Booleans): [Sign](https://github.com/BasileiosKal/dif-bbs-signature-api/blob/main/API_1_Boolean/draft-bbs-signatures.md#sign), [Verify](https://github.com/BasileiosKal/dif-bbs-signature-api/blob/main/API_1_Boolean/draft-bbs-signatures.md#verify), [ProofGen](https://github.com/BasileiosKal/dif-bbs-signature-api/blob/main/API_1_Boolean/draft-bbs-signatures.md#proofgen), [ProofVerify](https://github.com/BasileiosKal/dif-bbs-signature-api/blob/main/API_1_Boolean/draft-bbs-signatures.md#proofverify)\r\n- [API_2 ](https://github.com/BasileiosKal/dif-bbs-signature-api/tree/main/API_2_Indexes)(using Indexes): [Sign](https://github.com/BasileiosKal/dif-bbs-signature-api/blob/main/API_2_Indexes/draft-bbs-signatures.md#sign), [Verify](https://github.com/BasileiosKal/dif-bbs-signature-api/blob/main/API_2_Indexes/draft-bbs-signatures.md#verify), [ProofGen](https://github.com/BasileiosKal/dif-bbs-signature-api/blob/main/API_2_Indexes/draft-bbs-signatures.md#proofgen), [ProofVerify](https://github.com/BasileiosKal/dif-bbs-signature-api/blob/main/API_2_Indexes/draft-bbs-signatures.md#proofverify)\r\n\r\nWe can somewhat compare the two APIs based on the total number of lines (i.e., everything inside each code block) and the total number of procedure steps,\r\n\r\n### API 1 (Booleans)\r\n\r\n|                  |  lines   | Procedure Steps | \r\n| ----------- | ------ | ----------------- | \r\n| Sign           |   54    |        9                   | \r\n| Verify         |  59     |       11                  | \r\n| ProofGen   |  109   |       26                  | \r\n| ProofVerify |   78    |       14                  | \r\n\r\n### API 2 (Indexes)\r\n\r\n|                   | lines | Procedure Steps |\r\n| ----------   | ---- | ----------------- |\r\n| Sign           |  55  |   10                     |\r\n| Verify         |  59  |   12                     |\r\n| ProofGen   | 101 |    29                    |\r\n| ProofVerify | 81   |   18                     |\r\n\r\nWe can see that there is not much difference between the two or a clear winner. Procedures in API 2 have more steps but the total lines are about the same. So, the choice should be made based on which one is more readable and more tolerant to implementation mistakes.\r\n\r\n### Note:\r\nWhen using API 2 there may be more checks to be done when it comes to the indexes i.e., that are truly between 1 and L. Right now this is only described above the operations. It is important though, especially in `ProofVerify`. \r\n\r\nFor example, if not checked, the prover could reveal an extra message with an \"invalid\" index (like `index = L+1`), and the proof may validate depending on the implementation. So more steps may be needed in `ProofVerify` to make this check explicit.\r\n\r\nCurrently PR #138 proposes the use of API 2. Personally i find that it is a little more clear overall especially when it comes to the ordering of the input lists (see also #117 for some context).",
       "createdAt": "2022-05-27T16:07:02Z",
-      "updatedAt": "2022-05-29T11:19:57Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2022-07-04T18:31:53Z",
+      "closedAt": "2022-07-04T18:31:52Z",
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Labeling as pending close ahead of WG call on the 4th of july",
+          "createdAt": "2022-07-04T00:58:28Z",
+          "updatedAt": "2022-07-04T00:58:28Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Discussed on july 4th WG call resolved via #183 ",
+          "createdAt": "2022-07-04T18:31:52Z",
+          "updatedAt": "2022-07-04T18:31:52Z"
+        }
+      ]
     },
     {
       "number": 162,
@@ -4746,11 +4820,12 @@
       "assignees": [],
       "labels": [
         "ready-for-pr",
+        "pending-close",
         "core"
       ],
       "body": "Currently in the draft there are several key places we need to do subgroup checks on points, for example to validate a public key post de-serialization. However in some places we are implicitly relying on the `octet_to_point` function to perform this role and other places we are doing it as an explicit step in the procedure. We need to make this consistent, the options are\r\n\r\n1) Consistently rely on the `octet_to_point_g*` implementation and add a security consideration that documents this function MUST perform the relevant subgroup check.\r\n2) Explicitly document anywhere in the procedure where a subgroup check is required.\r\n\r\nIMO 2 feels like a safer but more verbose option to me.",
       "createdAt": "2022-06-20T23:36:55Z",
-      "updatedAt": "2022-06-21T18:20:14Z",
+      "updatedAt": "2022-07-04T00:57:49Z",
       "closedAt": null,
       "comments": [
         {
@@ -4759,6 +4834,13 @@
           "body": "Maybe a middle-of-the-road solution would be to define explicitly `octets_to_point` as an operation in the spec, that calls `octets_to_point_g1` and does the checks. For example, something like:\r\n```\r\nresult = octets_to_point_g1(point_octets)\r\n\r\nInputs:\r\n- point_octets, octet string\r\n\r\nParameters:\r\n- SubgroupCheck_g1, a function that on input a point P, returns VALID if P \r\n                    is in the G1 subgroup and INVALID in any other case.\r\n\r\nProcedure:\r\n\r\n1. P = octets_to_point_g1(point_octets)\r\n\r\n2. if P is INVALID, return INVALID\r\n\r\n3. if SubgroupCheck_g1(P) is INVALID, return INVALID\r\n\r\n4. if P = Identity_G1, return INVALID\r\n\r\n5. return P \r\n```\r\n\r\nNote: the identity check is not always necessary above, but it can be nice to have.",
           "createdAt": "2022-06-21T18:20:14Z",
           "updatedAt": "2022-06-21T18:20:14Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Labeling as pending close ahead of WG call on the 4th of july",
+          "createdAt": "2022-07-04T00:57:49Z",
+          "updatedAt": "2022-07-04T00:57:49Z"
         }
       ]
     },
@@ -4786,7 +4868,7 @@
       "id": "I_kwDOF8lax85MedfE",
       "title": "Elements to be hashed update",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/185",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
@@ -4796,8 +4878,8 @@
       ],
       "body": "The current [Encoding of Elements to be Hashed](https://identity.foundation/bbs-signature/draft-bbs-signatures.html#name-encoding-of-elements-to-be-) section needs to be updated. The reason is that elements before they are hashed, they are concatenated with other elements in multiple steps. As @andrewwhitehead noted This is not clearly captured by the section yet.\r\n\r\nSome options: \r\n1. Define a helper `encode_for_hash` function (see @andrewwhitehead's comment [here](https://github.com/decentralized-identity/bbs-signature/pull/183#discussion_r905553694))\r\n2. Say something like `Each time elements are concatenated together, they must first be turned to octet strings. Every time an element other than a scalar, a point or a non-negative integer is transformed to an octet string, the length of the resulting octet string must be appended to itself.`\r\n",
       "createdAt": "2022-06-23T23:02:57Z",
-      "updatedAt": "2022-06-25T00:35:49Z",
-      "closedAt": null,
+      "updatedAt": "2022-07-04T18:15:59Z",
+      "closedAt": "2022-07-04T18:15:59Z",
       "comments": [
         {
           "author": "andrewwhitehead",
@@ -4812,6 +4894,86 @@
           "body": "I'm fine with this approach as well. We may not need to handle variadic arguments. We just need to make sure everything is < 72 chars. For example, something like,\r\n```\r\n7. d_prime = (PK, L, H_s, H_d, H_1, .., H_L, Ciphersuite_ID, header)\r\n\r\n8. domain = hash_to_scalar(encode_for_hash(d_prime), 1)\r\n```\r\nwould work just fine IMO (everything is < 72 chars above). Similar for the challenge hash etc. Then `encode_for_hash` will take a single argument (like `encode_for_hash(input)`) and the procedure will just loop through the elements of that argument (like `for el in input: ...`)\r\n\r\nSomething to note is that the `encode_for_hash` function cannot be 100% explicit. We will have to say something like `if el is a G1 point` and `if el is an octet string` etc. Personally I\u2019m 100% fine with that.",
           "createdAt": "2022-06-24T14:59:45Z",
           "updatedAt": "2022-06-24T15:02:52Z"
+        }
+      ]
+    },
+    {
+      "number": 194,
+      "id": "I_kwDOF8lax85NFoRb",
+      "title": "expand_message domain separation",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/194",
+      "state": "OPEN",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [
+        "core"
+      ],
+      "body": "The current hash_to_scalar construction does not allow for the calling operation to define the DST that will go into the underlying expand_message used. Some operations that need additional domain separation append the DST to the message.\r\n\r\nThe problem is that we cannot prove indistinguishably that way. For example consider the following, lets assume that in a protocol we call hash_to_scalar in the input `msg ||  I2OSP(length(DST2), 1) || DST2` and get `b_1, b_2, ...` where,\r\n\r\n```\r\nb_0 = H(Z_pad || msg ||  I2OSP(length(DST2), 1) || DST2 || I2OSP(len_in_bytes, 2) || I2OSP(0, 1) || DST_prime)\r\nb_1 = H(b_0 || ...)\r\nb_2 = ....\r\n```\r\nThen, in some other place, the protocol returns `h2 = H(Z_pad || msg || I2OSP(length(DST2), 1) || DST2)`. In that case, after observing `h2` I could do a length-extension attack on H, calculate `b_0` and then `b_1`, `b_2` etc. This is not really a practical issue (it becomes less practical -but not impossible- if we also consider padding), but it does stop us from proving security. It also becomes a larger issue if people use a different expand_message (if they just use sha512 with a counter for example).\r\n\r\n## Proposed Solutions\r\n### Solution A\r\nThe currently proposed solution, discussed in the WG call, would be to define an additional optional argument to hash_to_scalar like `dstInfo` and append that to the DST already defined. i.e., inside hash_to_scalar calculate,\r\n```\r\n4. dst_prime = DST || dstInfo || I2OSP(length(dstInfo), 1)\r\n5. expand_message(msg, dst_prime, len_in_bytes)\r\n```\r\nThis is a bit weird because we are prepending the length everywhere else in the spec. However, if we do the same here and calculate `dst_prime = DST || I2SOP(length(dstIfo), 1) || dstInfo` then for example the pairs `DST1 = [4, 2]`, `dstInfo1 = [2]` and `DST2 = [4]`, `dstInfo2 = [1, 2]` will give the same `dst_prime`. \r\n\r\nSimilarly, we can't just concatenate the 2 (i.e., `dst_prime = DST || dstInfo`) because then for example the pairs `DST1 = [1, 2]`, `dstInfo1 = [3]` and `DST2 = [1]`, `dstInfo2 = [2, 3]` will again give the same `dst_prime`\r\n\r\n### Solution B\r\nDon't define the DST in hash_to_scalar but require it as an input. So whatever operation calls hash_to_scalar will also need to specify a DST value to pass it. This is probably the most efficient approach when it comes to a straight line implementation, but IMO the \"ugliest\" looking when it comes to the spec.",
+      "createdAt": "2022-07-04T15:35:54Z",
+      "updatedAt": "2022-07-04T22:08:10Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Also, @andrewwhitehead pointed out that the only place that this method of domain separation (i.e., appending the dst to the msg) is currently used, is in [MapMessageToScalarAsHash](https://identity.foundation/bbs-signature/draft-bbs-signatures.html#name-mapmessagetoscalarashash). That said, it will be a useful thing to resolve in general (see for example PR #186).\r\n\r\nAlso for completeness, another solution (that I'm not a huge fan of) is the following:\r\n### Solution C\r\nAppend the length of both the DST and the dstInfo to create dst_prime, i.e., inside hash_to_scalar do, \r\n```\r\n4. dst_prime = I2OSP(length(DST), 1) || DST  || I2OSP(length(dstInfo), 1) || dstInfo\r\n5. expand_message(msg, dst_prime, len_in_bytes)\r\n```\r\nThis is more consistent with the rest of the spec but it is a bit wasteful since, if `dstInfo` is not supplied, we will be prepending the `DST` with its length twice (once outside and once inside `expand_message`).",
+          "createdAt": "2022-07-04T15:48:54Z",
+          "updatedAt": "2022-07-04T15:48:54Z"
+        },
+        {
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I think a third option is just to add an optional `dst` parameter to `hash_to_scalar`, defaulting to (something like) `BBS_ || ciphersuite_id || HASH_TO_SCALAR`. Then `MapMessageToScalarAsHash` is just `hash_to_scalar` with a DST like `BBS_ || ciphersuite_id || MESSAGE`, and KeyGen could use another DST (with key_info added). Existing uses of `hash_to_scalar` wouldn't need to be updated.",
+          "createdAt": "2022-07-04T19:19:19Z",
+          "updatedAt": "2022-07-04T19:19:19Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "That may be the best solution. I'm not 100% clear as to how a calling operation like MapMessageToScalarAsHash will define the dst for hash_to_scalar?? Will hash_to_scalar be a parameter for that operation and define the dst there?? i.e., something like,\r\n```\r\nresult = MapMessageToScalarAsHash(msg)\r\n\r\nParameters:\r\n\r\n- hash_to_scalar, the hash_to_scalar operation defined in (#hash-to-scalar) with the dst parameter set\r\n                  to \"BBS_ || ciphersuite_id || MESSAGE\"\r\n```\r\nMaybe an easiest option will be to define the dst in hash_to_scalar as an optional input that defaults to `BBS_ || ciphersuite_id || HASH_TO_SCALAR` rather than an optional parameter that does the same?? Or is this more error prone??",
+          "createdAt": "2022-07-04T21:52:02Z",
+          "updatedAt": "2022-07-04T21:52:02Z"
+        },
+        {
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "^ Yes, I meant input, not parameter.",
+          "createdAt": "2022-07-04T21:53:18Z",
+          "updatedAt": "2022-07-04T21:53:18Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Cool! Yea this maybe the best thing to do. I think it is a little more prone to error but that is why we have test vectors. Will give it a shot!",
+          "createdAt": "2022-07-04T22:08:09Z",
+          "updatedAt": "2022-07-04T22:08:09Z"
+        }
+      ]
+    },
+    {
+      "number": 196,
+      "id": "I_kwDOF8lax85NGNBx",
+      "title": "Update security considerations",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/196",
+      "state": "CLOSED",
+      "author": "tplooker",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [
+        "core"
+      ],
+      "body": "There are multiple security considerations that are now out of date in the specification that should be updated.",
+      "createdAt": "2022-07-04T18:28:31Z",
+      "updatedAt": "2022-07-04T18:58:13Z",
+      "closedAt": "2022-07-04T18:58:13Z",
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Closing as it is a duplicate #111 ",
+          "createdAt": "2022-07-04T18:58:13Z",
+          "updatedAt": "2022-07-04T18:58:13Z"
         }
       ]
     }
@@ -23834,13 +23996,13 @@
       "labels": [],
       "body": "Since we don't use HKDF anywhere else and aren't trying to be compatible with the BLS signatures spec (different salt).\r\n\r\nIt's a bit odd using camel case for the input parameters and snake case for the parameter, but I'm trying to be consistent with the rest of the spec.\r\n\r\nLikewise, I'm not sure if we prefer len() or length(), and either way we might need to define that.",
       "createdAt": "2022-06-24T20:46:21Z",
-      "updatedAt": "2022-06-27T17:53:40Z",
+      "updatedAt": "2022-07-04T18:16:14Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "c7ffa999b125af00bd284dba6c1a953adb6dc149",
+      "baseRefOid": "894456f0f24da41abcab823f1d2e1bbe7da8c505",
       "headRepository": "andrewwhitehead/bbs-signature",
       "headRefName": "upd/keygen",
-      "headRefOid": "71b06f9f632e2c985bbb18a1006064bc4eddbf3c",
+      "headRefOid": "6332fa336ebb67cbdaea14f50e9f144977077adb",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -24188,24 +24350,26 @@
       "id": "PR_kwDOF8lax846YJZJ",
       "title": "encode for hash operation",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/190",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Closes #185 using @andrewwhitehead's proposal (introducing an encode_for_hash operation).\r\n\r\nOpened as a draft because of the timetable + the fact that it is not a small pr. Will mark it as ready to review if the other open PRs are merged.\r\n\r\n### NOTES:\r\n1. The `encode_for_hash` function can also substitute the `signature_to_octets` and `proof_to_octets` operations (the results will be the same). I left that for another PR if we decide to go that way (I\u2019m not convinced that it would be the best option myself).\r\n2. Removed the distinction with DSTs. We are explicitly appending their length everywhere in the spec.\r\n3. this pr also closes #74 like pr #188. However, I realize this requires more time and reviews so better to move with #188 first (I will resolve the conflicts).",
       "createdAt": "2022-06-26T22:44:51Z",
-      "updatedAt": "2022-06-30T00:31:48Z",
+      "updatedAt": "2022-07-04T18:16:00Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "8d9b9a01fb770975f32c363166259b36904fb68e",
       "headRepository": "BasileiosKal/bbs-signature",
       "headRefName": "encode_for_hash",
-      "headRefOid": "c19e9ba3ad15623a413385a0b720436255fbf7fb",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "d2c93a47c1b33e898cc7533fe9a15e7b53cc4660",
+      "closedAt": "2022-07-04T18:15:59Z",
+      "mergedAt": "2022-07-04T18:15:59Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "894456f0f24da41abcab823f1d2e1bbe7da8c505"
+      },
       "comments": [
         {
           "author": "BasileiosKal",
@@ -24262,6 +24426,13 @@
           "body": "Updated. As far as if the procedure is \"formal enough\" to be normative, I'm not 100% convinced my self but I may be overthinking this. \r\n\r\nIt's true that most likely people will not use a straight line implementation of this procedure, however i do mention that this is just an explanation of the described behavior, and also most likely, to @tplooker's point, people will not use straight line implementations for most things in the spec IMO.\r\n\r\n",
           "createdAt": "2022-06-30T00:31:48Z",
           "updatedAt": "2022-06-30T00:31:48Z"
+        },
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Multiple approvals, discussed on 4th of July WG call, merging",
+          "createdAt": "2022-07-04T18:15:55Z",
+          "updatedAt": "2022-07-04T18:15:55Z"
         }
       ],
       "reviews": [
@@ -24430,6 +24601,72 @@
               "updatedAt": "2022-06-28T23:33:48Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax849Q36k",
+          "commit": {
+            "abbreviatedOid": "c19e9ba"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-07-04T18:11:58Z",
+          "updatedAt": "2022-07-04T18:11:59Z",
+          "comments": [
+            {
+              "originalPosition": 271,
+              "body": "```suggestion\r\nThe above is further described in the following procedure.\r\n```",
+              "createdAt": "2022-07-04T18:11:58Z",
+              "updatedAt": "2022-07-04T18:11:59Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax849Q38Q",
+          "commit": {
+            "abbreviatedOid": "c19e9ba"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-04T18:12:10Z",
+          "updatedAt": "2022-07-04T18:12:10Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax849Q4DQ",
+          "commit": {
+            "abbreviatedOid": "c19e9ba"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-07-04T18:13:17Z",
+          "updatedAt": "2022-07-04T18:13:18Z",
+          "comments": [
+            {
+              "originalPosition": 257,
+              "body": "```suggestion\r\n### EncodeForHash\r\n```",
+              "createdAt": "2022-07-04T18:13:18Z",
+              "updatedAt": "2022-07-04T18:13:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax849Q4SR",
+          "commit": {
+            "abbreviatedOid": "d2c93a4"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-04T18:15:30Z",
+          "updatedAt": "2022-07-04T18:15:30Z",
+          "comments": []
         }
       ]
     },
@@ -24745,6 +24982,69 @@
           "body": "Looks Good! Thanks @alessandroguggino!",
           "createdAt": "2022-06-29T20:54:37Z",
           "updatedAt": "2022-06-29T20:54:37Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 195,
+      "id": "PR_kwDOF8lax846z9fR",
+      "title": "editorial updates",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/195",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Updates:\r\n\r\n- Removes the new line after every procedure step (couldn\u2019t find another cfrg draft that does that).\r\n- Removes the `hash` and `xof` from the parameters section.\r\n- Defines the inputted messages as a list of scalars than a list of octet-strings.\r\n\r\nOpening this to discuss on the next call. However, it is blocked by #186 and #190. Those should be merged first. Will rebase this after that.\r\n",
+      "createdAt": "2022-07-04T17:20:10Z",
+      "updatedAt": "2022-07-04T21:59:52Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "894456f0f24da41abcab823f1d2e1bbe7da8c505",
+      "headRepository": "BasileiosKal/bbs-signature",
+      "headRefName": "editorial-update",
+      "headRefOid": "3dee1eff327d071003c117ec7c30f020c9315341",
+      "closedAt": "2022-07-04T21:59:51Z",
+      "mergedAt": "2022-07-04T21:59:51Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "c2f24c812e16078cff5c72186201d87cca5f2267"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals. Discussed in the WG call. Merging. Thanks everyone!",
+          "createdAt": "2022-07-04T21:59:47Z",
+          "updatedAt": "2022-07-04T21:59:47Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax849Q42I",
+          "commit": {
+            "abbreviatedOid": "7d52a26"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-04T18:20:51Z",
+          "updatedAt": "2022-07-04T18:20:51Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax849RLJ_",
+          "commit": {
+            "abbreviatedOid": "3dee1ef"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-04T21:57:16Z",
+          "updatedAt": "2022-07-04T21:57:16Z",
           "comments": []
         }
       ]
