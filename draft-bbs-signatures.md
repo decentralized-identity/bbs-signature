@@ -145,12 +145,6 @@ msg
 generator
 : A valid point on the selected subgroup of the curve being used that is employed to commit a value.
 
-H_s
-: A generator for the blinding value in the signature. The value of H_s is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.
-
-H_d
-: A generator for the signature domain, which binds both signature and proof to a specific context. The value of H_d is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.
-
 signature
 : The digital signature output.
 
@@ -190,6 +184,9 @@ range(a, b)
 
 utf8(ascii_string)
 : Encoding the inputted ASCII string to an octet string using UTF-8 character encoding.
+
+length(octet_string)
+: Returning the number of bytes of the inputted octet string.
 
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
@@ -256,7 +253,7 @@ In definition of this signature scheme there are two possible variations based u
 
 Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations (signature verification, proof generation and proof verification).
 
-Aside from the message generators, the scheme uses two additional generators: `H_s` and `H_d`. The first (`H_s`), is used for the blinding value (`s`) of the signature. The second generator (`H_d`), is used to sign the signature's domain, which binds both the signature and its derived proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
+Aside from the message generators, the scheme uses two additional generators: `Q_1` and `Q_2`. The first (`Q_1`), is used for the blinding value (`s`) of the signature. The second generator (`Q_2`), is used to sign the signature's domain, which binds both the signature and its derived proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
 
 # Scheme Definition
 
@@ -369,7 +366,7 @@ Inputs:
 
 Parameters:
 
-- Ciphersuite_ID, ASCII string. The unique ID of the ciphersuite.
+- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - generator_seed, ASCII string. The generators seed defined by the
                   ciphersuite
 
@@ -386,18 +383,18 @@ Outputs:
 Precomputations:
 
 1. msg_1, ..., msg_L = messages[1], ..., messages[L]
-2. (H_s, H_d, H_1, ..., H_L) = create_generators(generator_seed, L+2)
+2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(generator_seed, L+2)
 
 Procedure:
 
-1.  dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
+1.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
 2.  dom_for_hash = encode_for_hash(dom_array)
 3.  if dom_for_hash is INVALID, return INVALID
 4.  domain = hash_to_scalar(dom_for_hash, 1)
 5.  e_s_for_hash = encode_for_hash((SK, domain, msg_1, ..., msg_L))
 6.  if e_s_for_hash is INVALID, return INVALID
 7.  (e, s) = hash_to_scalar(e_s_for_hash, 2)
-8.  B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+8.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 9.  A = B * (1 / (SK + e))
 10. signature_octets = signature_to_octets(A, e, s)
 11. return signature_octets
@@ -426,7 +423,7 @@ Inputs:
 
 Parameters:
 
-- Ciphersuite_ID, ASCII string. The unique ID of the ciphersuite.
+- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - generator_seed, ASCII string. The generators seed defined by the
                   ciphersuite.
 
@@ -443,7 +440,7 @@ Outputs:
 Precomputations:
 
 1. (msg_1, ..., msg_L) = messages
-2. (H_s, H_d, H_1, ..., H_L) = create_generators(generator_seed, L+2)
+2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(generator_seed, L+2)
 
 Procedure:
 
@@ -452,11 +449,11 @@ Procedure:
 3.  (A, e, s) = signature_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
+6.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
 7.  dom_for_hash = encode_for_hash(dom_array)
 8.  if dom_for_hash is INVALID, return INVALID
 9.  domain = hash_to_scalar(dom_for_hash, 1)
-10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+10. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 11. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
 12. return VALID
 ```
@@ -465,10 +462,10 @@ Procedure:
 
 This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [Presentation header selection](#presentation-header-selection) for more details.
 
-The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosedIndexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosedIndexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
+The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
 ```
-proof = ProofGen(PK, signature, header, ph, messages, disclosedIndexes)
+proof = ProofGen(PK, signature, header, ph, messages, disclosed_indexes)
 
 Inputs:
 
@@ -483,14 +480,14 @@ Inputs:
                  supplied, it defaults to an empty string.
 - messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
                        to the empty array "()".
-- disclosedIndexes (OPTIONAL), vector of unsigned integers in ascending
-                              order. Indexes of disclosed messages. If
-                              not supplied, it defaults to the empty
-                              array "()".
+- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
+                                order. Indexes of disclosed messages. If
+                                not supplied, it defaults to the empty
+                                array "()".
 
 Parameters:
 
-- Ciphersuite_ID, ASCII string. The unique ID of the ciphersuite.
+- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - generator_seed, ASCII string. The generators seed defined by the
                   ciphersuite.
 
@@ -500,7 +497,7 @@ Definitions:
      i.e., L = length(messages). If no messages are supplied, the
      value of L MUST evaluate to zero (0).
 - R, is the non-negative integer representing the number of disclosed
-     (revealed) messages, i.e., R = length(disclosedIndexes). If no
+     (revealed) messages, i.e., R = length(disclosed_indexes). If no
      messages are disclosed, R MUST evaluate to zero (0).
 - U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
@@ -512,12 +509,12 @@ Outputs:
 
 Precomputations:
 
-1. (i1, ..., iR) = disclosedIndexes
-2. (j1, ..., jU) = range(1, L) \ disclosedIndexes
+1. (i1, ..., iR) = disclosed_indexes
+2. (j1, ..., jU) = range(1, L) \ disclosed_indexes
 3. (msg_1, ..., msg_L) = messages
 4. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
 5. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
-6. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
+6. (Q_1, Q_2, MsgGenerators) = create_generators(generator_seed, L+2)
 7. (H_1, ..., H_L) = MsgGenerators
 8. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
@@ -526,20 +523,20 @@ Procedure:
 1.  signature_result = octets_to_signature(signature)
 2.  if signature_result is INVALID, return INVALID
 3.  (A, e, s) = signature_result
-4.  dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
+4.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
 5.  dom_for_hash = encode_for_hash(dom_array)
 6.  if dom_for_hash is INVALID, return INVALID
 7.  domain = hash_to_scalar(dom_for_hash, 1)
 8.  (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(prf_len), 6)
 9.  (m~_j1, ..., m~_jU) = hash_to_scalar(PRF(prf_len), U)
-10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+10. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 11. r3 = r1 ^ -1 mod r
 12. A' = A * r1
 13. Abar = A' * (-e) + B * r1
-14. D = B * r1 + H_s * r2
+14. D = B * r1 + Q_1 * r2
 15. s' = r2 * r3 + s mod r
-16. C1 = A' * e~ + H_s * r2~
-17. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+16. C1 = A' * e~ + Q_1 * r2~
+17. C2 = D * (-r3~) + Q_1 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 18. c_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
                        msg_i1, ..., msg_iR, domain, ph)
 19. c_for_hash = encode_for_hash(c_array)
@@ -558,12 +555,12 @@ Procedure:
 
 This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
-The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#sign) (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#sign) (i.e., the `disclosedIndexes` list supplied to [ProofGen](#proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
+The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#sign) (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
 ```
 result = ProofVerify(PK, proof, L, header, ph,
-                     disclosedMessages,
-                     disclosedIndexes)
+                     disclosed_messages,
+                     disclosed_indexes)
 
 Inputs:
 
@@ -577,23 +574,23 @@ Inputs:
                      it defaults to an empty string.
 - ph (OPTIONAL), octet string containing the presentation header. If not
                  supplied, it defaults to an empty string.
-- disclosedMessages (OPTIONAL), a vector of scalars. If not supplied, it
-                                defaults to the empty array "()".
-- disclosedIndexes (OPTIONAL), vector of unsigned integers in ascending
-                               order. Indexes of disclosed messages. If
-                               not supplied, it defaults to the empty
-                               array "()".
+- disclosed_messages (OPTIONAL), a vector of scalars. If not supplied,
+                                 it defaults to the empty array "()".
+- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
+                                order. Indexes of disclosed messages. If
+                                not supplied, it defaults to the empty
+                                array "()".
 
 Parameters:
 
-- Ciphersuite_ID, ASCII string. The unique ID of the ciphersuite.
+- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - generator_seed, ASCII string. The generators seed defined by the
                   ciphersuite.
 
 Definitions:
 
 - R, is the non-negative integer representing the number of disclosed
-     (revealed) messages, i.e., R = length(disclosedIndexes). If no
+     (revealed) messages, i.e., R = length(disclosed_indexes). If no
      messages are disclosed, the value of R MUST evaluate to zero (0).
 - U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
@@ -604,10 +601,10 @@ Outputs:
 
 Precomputations:
 
-1. (i1, ..., iR) = disclosedIndexes
-2. (j1, ..., jU) = range(1, L) \ disclosedIndexes
-3. (msg_i1, ..., msg_iR) = disclosedMessages
-4. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
+1. (i1, ..., iR) = disclosed_indexes
+2. (j1, ..., jU) = range(1, L) \ disclosed_indexes
+3. (msg_i1, ..., msg_iR) = disclosed_messages
+4. (Q_1, Q_2, MsgGenerators) = create_generators(generator_seed, L+2)
 5. (H_1, ..., H_L) = MsgGenerators
 6. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 7. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
@@ -615,7 +612,7 @@ Precomputations:
 Preconditions:
 
 1. for i in (i1, ..., iR), if i < 1 or i > L, return INVALID
-2. if length(disclosedMessages) != R, return INVALID
+2. if length(disclosed_messages) != R, return INVALID
 
 Procedure:
 
@@ -624,13 +621,13 @@ Procedure:
 3.  (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
+6.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
 7.  dom_for_hash = encode_for_hash(dom_array)
 8.  if dom_for_hash is INVALID, return INVALID
 9.  domain = hash_to_scalar(dom_for_hash, 1)
-10. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
-11. T = P1 + H_d * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
-12. C2 = T * c - D * r3^ + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+10. C1 = (Abar - D) * c + A' * e^ + Q_1 * r2^
+11. T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+12. C2 = T * c - D * r3^ + Q_1 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 13. cv_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
                        msg_i1, ..., msg_iR, domain, ph)
 14. cv_for_hash = encode_for_hash(cv_array)
@@ -1083,7 +1080,7 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 
 ### Ciphersuite ID
 
-The following section defines the format of the unique identifier for the ciphersuite denoted `Ciphersuite_ID`. The REQUIRED format for this string is
+The following section defines the format of the unique identifier for the ciphersuite denoted `ciphersuite_id`. The REQUIRED format for this string is
 
 ```
   "BBS_" || H2C_SUITE_ID || ADD_INFO
@@ -1502,7 +1499,7 @@ The following section provides an explanation of how the ProofGen and ProofVerif
 
 Let the prover be in possession of a BBS signature `(A, e, s)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
 ```
-B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 ```
 Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = range(1, L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
 
@@ -1522,7 +1519,7 @@ Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the p
 - Set the following,
 
         1.  C1 = Abar - D
-        2.  C2 = P1 + H_d * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+        2.  C2 = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 
     Create a non-interactive zero-knowledge proof-of-knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1, ..., msg_jU` (the undisclosed messages) so that both of the following equalities hold,
 
