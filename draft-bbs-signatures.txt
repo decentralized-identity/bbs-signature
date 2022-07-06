@@ -2051,7 +2051,7 @@ Authors' Addresses
    Email: tobias.looker@mattr.global
 
 
-   Vasileios Kalos
+   Vasilis Kalos
    MATTR
    Email: vasilis.kalos@mattr.global
 
