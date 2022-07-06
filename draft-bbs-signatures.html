@@ -1053,6 +1053,7 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
 </div>
 <div class="author">
       <div class="author-name">A. Whitehead</div>
+<div class="org">Portage</div>
 </div>
 <div class="author">
       <div class="author-name">M. Lodder</div>
@@ -1506,11 +1507,11 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
           <dd style="margin-left: 1.5em" id="section-1.2-4.16">A cryptographic hash function that takes an arbitrary octet string as input and returns a point in G1, using the hash_to_curve operation defined in <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="xref">I-D.irtf-cfrg-hash-to-curve</a>]</span> and the inputted dst as the domain separation tag for that operation (more specifically, the inputted dst will become the DST parameter for the hash_to_field operation, called by hash_to_curve).<a href="#section-1.2-4.16" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.2-4.17">point_to_octets<em>g1(P) -&gt; ostr, point_to_octets</em>g2(P) -&gt; ostr</dt>
+<dt id="section-1.2-4.17">point_to_octets_g1(P) -&gt; ostr, point_to_octets_g2(P) -&gt; ostr</dt>
           <dd style="margin-left: 1.5em" id="section-1.2-4.18">returns the canonical representation of the point P for the respective subgroup as an octet string. This operation is also known as serialization.<a href="#section-1.2-4.18" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.2-4.19">octets_to_point<em>g1(ostr) -&gt; P, octets_to_point</em>g2(ostr) -&gt; P</dt>
+<dt id="section-1.2-4.19">octets_to_point_g1(ostr) -&gt; P, octets_to_point_g2(ostr) -&gt; P</dt>
           <dd style="margin-left: 1.5em" id="section-1.2-4.20">returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point_to_octets_g* function. This operation is also known as deserialization.<a href="#section-1.2-4.20" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
@@ -2573,7 +2574,7 @@ Procedure:
           <h4 id="name-additional-parameters">
 <a href="#section-7.1.2" class="section-number selfRef">7.1.2. </a><a href="#name-additional-parameters" class="section-name selfRef">Additional Parameters</a>
           </h4>
-<p id="section-7.1.2-1">The parameters that each ciphersuite needs to define are generally divided into three main categories; the basic parameters (a hash function etc.,), the serialization operations (point<em>to</em>octets_g1 etc.,) and the generator parameters. See below for more details.<a href="#section-7.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.1.2-1">The parameters that each ciphersuite needs to define are generally divided into three main categories; the basic parameters (a hash function etc.,), the serialization operations (point_to_octets_g1 etc.,) and the generator parameters. See below for more details.<a href="#section-7.1.2-1" class="pilcrow">¶</a></p>
 <p id="section-7.1.2-2"><strong>Basic parameters</strong>:<a href="#section-7.1.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.1.2-3.1">
@@ -3202,9 +3203,10 @@ EQ2.  C2 = H0 * s' - D * r3 + H_j1 * msg_j1 + ... + H_jU * msg_jU.
 </address>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Andrew Whitehead</span></div>
+<div dir="auto" class="left"><span class="org">Portage</span></div>
 <div class="email">
 <span>Email:</span>
-<a href="mailto:cywolf@gmail.com" class="email">cywolf@gmail.com</a>
+<a href="mailto:andrew.whitehead@portagecybertech.com" class="email">andrew.whitehead@portagecybertech.com</a>
 </div>
 </address>
 <address class="vcard">

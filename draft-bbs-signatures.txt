@@ -6,7 +6,7 @@ none                                                           T. Looker
                                                                 V. Kalos
                                                                    MATTR
                                                             A. Whitehead
-                                                                        
+                                                                 Portage
                                                                M. Lodder
                                                                  CryptID
                                                              6 July 2022
@@ -2057,7 +2057,8 @@ Authors' Addresses
 
 
    Andrew Whitehead
-   Email: cywolf@gmail.com
+   Portage
+   Email: andrew.whitehead@portagecybertech.com
 
 
    Mike Lodder
