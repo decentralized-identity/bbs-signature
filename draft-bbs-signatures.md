@@ -1,7 +1,7 @@
 %%%
 title = "The BBS Signature Scheme"
 abbrev = "The BBS Signature Scheme"
-ipr= "none"
+ipr = "none"
 area = "Internet"
 workgroup = "none"
 submissiontype = "IETF"
@@ -35,9 +35,9 @@ initials = "A."
 surname = "Whitehead"
 fullname = "Andrew Whitehead"
 #role = "editor"
-organization = ""
+organization = "Portage"
   [author.address]
-  email = "cywolf@gmail.com"
+  email = "andrew.whitehead@portagecybertech.com"
 
 [[author]]
 initials = "M."
@@ -217,10 +217,10 @@ Identity\_G1, Identity\_G2, Identity\_GT
 hash\_to\_curve\_g1(ostr, dst) -> P
 : A cryptographic hash function that takes an arbitrary octet string as input and returns a point in G1, using the hash\_to\_curve operation defined in [@!I-D.irtf-cfrg-hash-to-curve] and the inputted dst as the domain separation tag for that operation (more specifically, the inputted dst will become the DST parameter for the hash\_to\_field operation, called by hash\_to\_curve).
 
-point\_to\_octets_g1(P) -> ostr, point\_to\_octets_g2(P) -> ostr
+point\_to\_octets\_g1(P) -> ostr, point\_to\_octets\_g2(P) -> ostr
 : returns the canonical representation of the point P for the respective subgroup as an octet string. This operation is also known as serialization.
 
-octets\_to\_point_g1(ostr) -> P, octets\_to\_point_g2(ostr) -> P
+octets\_to\_point\_g1(ostr) -> P, octets\_to\_point\_g2(ostr) -> P
 : returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g\* function. This operation is also known as deserialization.
 
 subgroup\_check(P) -> VALID or INVALID
@@ -1097,7 +1097,7 @@ The following section defines the format of the unique identifier for the cipher
 
 ### Additional Parameters
 
-The parameters that each ciphersuite needs to define are generally divided into three main categories; the basic parameters (a hash function etc.,), the serialization operations (point_to_octets_g1 etc.,) and the generator parameters. See below for more details.
+The parameters that each ciphersuite needs to define are generally divided into three main categories; the basic parameters (a hash function etc.,), the serialization operations (point\_to\_octets\_g1 etc.,) and the generator parameters. See below for more details.
 
 **Basic parameters**:
 
@@ -1111,16 +1111,16 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 **Serialization functions**:
 
-- point\_to\_octets_g1:
+- point\_to\_octets\_g1:
 a function that returns the canonical representation of the point P for the G1 subgroup as an octet string.
 
-- point\_to\_octets_g2:
+- point\_to\_octets\_g2:
 a function that returns the canonical representation of the point P for the G2 subgroup as an octet string.
 
-- octets\_to\_point_g1:
+- octets\_to\_point\_g1:
 a function that returns the point P in the subgroup G1 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g1`.
 
-- octets\_to\_point_g2:
+- octets\_to\_point\_g2:
 a function that returns the point P in the subgroup G2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g2`.
 
 **Generator parameters**:
@@ -1145,13 +1145,13 @@ The following ciphersuite is based on the BLS12-381 elliptic curve defined in Se
 
 **Serialization functions**:
 
-- point\_to\_octets_g1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_g1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
 
-- point\_to\_octets_g2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_g2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup, using compression (i.e., setting C\_bit = 1).
 
-- octets\_to\_point_g1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
+- octets\_to\_point\_g1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
 
-- octets\_to\_point_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
+- octets\_to\_point\_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
 
 **Generator parameters**:
 
