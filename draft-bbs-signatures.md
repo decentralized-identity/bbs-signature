@@ -24,7 +24,7 @@ organization = "MATTR"
 [[author]]
 initials = "V."
 surname = "Kalos"
-fullname = "Vasileios Kalos"
+fullname = "Vasilis Kalos"
 #role = "editor"
 organization = "MATTR"
   [author.address]
