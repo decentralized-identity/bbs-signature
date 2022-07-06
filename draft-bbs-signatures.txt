@@ -9,7 +9,7 @@ none                                                           T. Looker
                                                                         
                                                                M. Lodder
                                                                  CryptID
-                                                             4 July 2022
+                                                             6 July 2022
 
 
                         The BBS Signature Scheme
