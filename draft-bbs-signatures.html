@@ -1406,40 +1406,32 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
           <dd style="margin-left: 1.5em" id="section-1.1-2.14">A valid point on the selected subgroup of the curve being used that is employed to commit a value.<a href="#section-1.1-2.14" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.1-2.15">H_s</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.16">A generator for the blinding value in the signature. The value of H_s is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.<a href="#section-1.1-2.16" class="pilcrow">¶</a>
+<dt id="section-1.1-2.15">signature</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.16">The digital signature output.<a href="#section-1.1-2.16" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.1-2.17">H_d</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.18">A generator for the signature domain, which binds both signature and proof to a specific context. The value of H_d is defined by each ciphersuite and must always be supplied to the operations listing it as a parameter.<a href="#section-1.1-2.18" class="pilcrow">¶</a>
+<dt id="section-1.1-2.17">nonce</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.18">A cryptographic nonce<a href="#section-1.1-2.18" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.1-2.19">signature</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.20">The digital signature output.<a href="#section-1.1-2.20" class="pilcrow">¶</a>
+<dt id="section-1.1-2.19">presentation_header (ph)</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.20">A payload generated and bound to the context of a specific spk.<a href="#section-1.1-2.20" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.1-2.21">nonce</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.22">A cryptographic nonce<a href="#section-1.1-2.22" class="pilcrow">¶</a>
+<dt id="section-1.1-2.21">nizk</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.22">A non-interactive zero-knowledge proof from fiat-shamir heuristic.<a href="#section-1.1-2.22" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.1-2.23">presentation_header (ph)</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.24">A payload generated and bound to the context of a specific spk.<a href="#section-1.1-2.24" class="pilcrow">¶</a>
+<dt id="section-1.1-2.23">dst</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.24">The domain separation tag.<a href="#section-1.1-2.24" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.1-2.25">nizk</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.26">A non-interactive zero-knowledge proof from fiat-shamir heuristic.<a href="#section-1.1-2.26" class="pilcrow">¶</a>
+<dt id="section-1.1-2.25">I2OSP</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.26">As defined by Section 4 of <span>[<a href="#RFC8017" class="xref">RFC8017</a>]</span><a href="#section-1.1-2.26" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.1-2.27">dst</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.28">The domain separation tag.<a href="#section-1.1-2.28" class="pilcrow">¶</a>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-1.1-2.29">I2OSP</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.30">As defined by Section 4 of <span>[<a href="#RFC8017" class="xref">RFC8017</a>]</span><a href="#section-1.1-2.30" class="pilcrow">¶</a>
-</dd>
-          <dd class="break"></dd>
-<dt id="section-1.1-2.31">OS2IP</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.32">As defined by Section 4 of <span>[<a href="#RFC8017" class="xref">RFC8017</a>]</span>.<a href="#section-1.1-2.32" class="pilcrow">¶</a>
+<dt id="section-1.1-2.27">OS2IP</dt>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.28">As defined by Section 4 of <span>[<a href="#RFC8017" class="xref">RFC8017</a>]</span>.<a href="#section-1.1-2.28" class="pilcrow">¶</a>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1470,6 +1462,10 @@ svg :is([stroke="fill"], [fill^="#fff"]) {
           <dd class="break"></dd>
 <dt id="section-1.2-2.9">utf8(ascii_string)</dt>
           <dd style="margin-left: 1.5em" id="section-1.2-2.10">Encoding the inputted ASCII string to an octet string using UTF-8 character encoding.<a href="#section-1.2-2.10" class="pilcrow">¶</a>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-1.2-2.11">length(octet_string)</dt>
+          <dd style="margin-left: 1.5em" id="section-1.2-2.12">Returning the number of bytes of the inputted octet string.<a href="#section-1.2-2.12" class="pilcrow">¶</a>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1578,7 +1574,7 @@ document, are to be interpreted as described in <span>[<a href="#RFC2119" class=
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-messages-and-generators" class="section-name selfRef">Messages and generators</a>
         </h3>
 <p id="section-3.2-1">Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator <code>H_1</code> is multiplied with <code>msg_1</code> during signing, then <code>H_1</code> MUST be multiplied with <code>msg_1</code> in all other operations (signature verification, proof generation and proof verification).<a href="#section-3.2-1" class="pilcrow">¶</a></p>
-<p id="section-3.2-2">Aside from the message generators, the scheme uses two additional generators: <code>H_s</code> and <code>H_d</code>. The first (<code>H_s</code>), is used for the blinding value (<code>s</code>) of the signature. The second generator (<code>H_d</code>), is used to sign the signature's domain, which binds both the signature and its derived proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.2-2">Aside from the message generators, the scheme uses two additional generators: <code>Q_1</code> and <code>Q_2</code>. The first (<code>Q_1</code>), is used for the blinding value (<code>s</code>) of the signature. The second generator (<code>Q_2</code>), is used to sign the signature's domain, which binds both the signature and its derived proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).<a href="#section-3.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1716,7 +1712,7 @@ Inputs:
 
 Parameters:
 
-- Ciphersuite_ID, ASCII string. The unique ID of the ciphersuite.
+- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - generator_seed, ASCII string. The generators seed defined by the
                   ciphersuite
 
@@ -1733,18 +1729,18 @@ Outputs:
 Precomputations:
 
 1. msg_1, ..., msg_L = messages[1], ..., messages[L]
-2. (H_s, H_d, H_1, ..., H_L) = create_generators(generator_seed, L+2)
+2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(generator_seed, L+2)
 
 Procedure:
 
-1.  dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
+1.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
 2.  dom_for_hash = encode_for_hash(dom_array)
 3.  if dom_for_hash is INVALID, return INVALID
 4.  domain = hash_to_scalar(dom_for_hash, 1)
 5.  e_s_for_hash = encode_for_hash((SK, domain, msg_1, ..., msg_L))
 6.  if e_s_for_hash is INVALID, return INVALID
 7.  (e, s) = hash_to_scalar(e_s_for_hash, 2)
-8.  B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+8.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 9.  A = B * (1 / (SK + e))
 10. signature_octets = signature_to_octets(A, e, s)
 11. return signature_octets
@@ -1776,7 +1772,7 @@ Inputs:
 
 Parameters:
 
-- Ciphersuite_ID, ASCII string. The unique ID of the ciphersuite.
+- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - generator_seed, ASCII string. The generators seed defined by the
                   ciphersuite.
 
@@ -1793,7 +1789,7 @@ Outputs:
 Precomputations:
 
 1. (msg_1, ..., msg_L) = messages
-2. (H_s, H_d, H_1, ..., H_L) = create_generators(generator_seed, L+2)
+2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(generator_seed, L+2)
 
 Procedure:
 
@@ -1802,11 +1798,11 @@ Procedure:
 3.  (A, e, s) = signature_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
+6.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
 7.  dom_for_hash = encode_for_hash(dom_array)
 8.  if dom_for_hash is INVALID, return INVALID
 9.  domain = hash_to_scalar(dom_for_hash, 1)
-10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+10. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 11. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
 12. return VALID
 </pre><a href="#section-4.3.2-2" class="pilcrow">¶</a>
@@ -1819,9 +1815,9 @@ Procedure:
 <a href="#section-4.3.3" class="section-number selfRef">4.3.3. </a><a href="#name-proofgen" class="section-name selfRef">ProofGen</a>
           </h4>
 <p id="section-4.3.3-1">This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see <a href="#presentation-header-selection">Presentation header selection</a> for more details.<a href="#section-4.3.3-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.3-2">The messages supplied in this operation MUST be in the same order as when supplied to <a href="#sign">Sign</a>. To specify which of those messages will be disclosed, the prover can supply the list of indexes (<code>disclosedIndexes</code>) that the disclosed messages have in the array of signed messages. Each element in <code>disclosedIndexes</code> MUST be a non-negative integer, in the range from 1 to <code>length(messages)</code>.<a href="#section-4.3.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.3-2">The messages supplied in this operation MUST be in the same order as when supplied to <a href="#sign">Sign</a>. To specify which of those messages will be disclosed, the prover can supply the list of indexes (<code>disclosed_indexes</code>) that the disclosed messages have in the array of signed messages. Each element in <code>disclosed_indexes</code> MUST be a non-negative integer, in the range from 1 to <code>length(messages)</code>.<a href="#section-4.3.3-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3.3-3">
-<pre>proof = ProofGen(PK, signature, header, ph, messages, disclosedIndexes)
+<pre>proof = ProofGen(PK, signature, header, ph, messages, disclosed_indexes)
 
 Inputs:
 
@@ -1836,14 +1832,14 @@ Inputs:
                  supplied, it defaults to an empty string.
 - messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
                        to the empty array "()".
-- disclosedIndexes (OPTIONAL), vector of unsigned integers in ascending
-                              order. Indexes of disclosed messages. If
-                              not supplied, it defaults to the empty
-                              array "()".
+- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
+                                order. Indexes of disclosed messages. If
+                                not supplied, it defaults to the empty
+                                array "()".
 
 Parameters:
 
-- Ciphersuite_ID, ASCII string. The unique ID of the ciphersuite.
+- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - generator_seed, ASCII string. The generators seed defined by the
                   ciphersuite.
 
@@ -1853,7 +1849,7 @@ Definitions:
      i.e., L = length(messages). If no messages are supplied, the
      value of L MUST evaluate to zero (0).
 - R, is the non-negative integer representing the number of disclosed
-     (revealed) messages, i.e., R = length(disclosedIndexes). If no
+     (revealed) messages, i.e., R = length(disclosed_indexes). If no
      messages are disclosed, R MUST evaluate to zero (0).
 - U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
@@ -1865,12 +1861,12 @@ Outputs:
 
 Precomputations:
 
-1. (i1, ..., iR) = disclosedIndexes
-2. (j1, ..., jU) = range(1, L) \ disclosedIndexes
+1. (i1, ..., iR) = disclosed_indexes
+2. (j1, ..., jU) = range(1, L) \ disclosed_indexes
 3. (msg_1, ..., msg_L) = messages
 4. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
 5. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
-6. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
+6. (Q_1, Q_2, MsgGenerators) = create_generators(generator_seed, L+2)
 7. (H_1, ..., H_L) = MsgGenerators
 8. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
@@ -1879,20 +1875,20 @@ Procedure:
 1.  signature_result = octets_to_signature(signature)
 2.  if signature_result is INVALID, return INVALID
 3.  (A, e, s) = signature_result
-4.  dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
+4.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
 5.  dom_for_hash = encode_for_hash(dom_array)
 6.  if dom_for_hash is INVALID, return INVALID
 7.  domain = hash_to_scalar(dom_for_hash, 1)
 8.  (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(prf_len), 6)
 9.  (m~_j1, ..., m~_jU) = hash_to_scalar(PRF(prf_len), U)
-10. B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+10. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 11. r3 = r1 ^ -1 mod r
 12. A' = A * r1
 13. Abar = A' * (-e) + B * r1
-14. D = B * r1 + H_s * r2
+14. D = B * r1 + Q_1 * r2
 15. s' = r2 * r3 + s mod r
-16. C1 = A' * e~ + H_s * r2~
-17. C2 = D * (-r3~) + H_s * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+16. C1 = A' * e~ + Q_1 * r2~
+17. C2 = D * (-r3~) + Q_1 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 18. c_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
                        msg_i1, ..., msg_iR, domain, ph)
 19. c_for_hash = encode_for_hash(c_array)
@@ -1915,11 +1911,11 @@ Procedure:
 <a href="#section-4.3.4" class="section-number selfRef">4.3.4. </a><a href="#name-proofverify" class="section-name selfRef">ProofVerify</a>
           </h4>
 <p id="section-4.3.4-1">This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).<a href="#section-4.3.4-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.4-2">The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to <a href="#sign">Sign</a> (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to <a href="#sign">Sign</a> (i.e., the <code>disclosedIndexes</code> list supplied to <a href="#proofgen">ProofGen</a>). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.<a href="#section-4.3.4-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.4-2">The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to <a href="#sign">Sign</a> (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to <a href="#sign">Sign</a> (i.e., the <code>disclosed_indexes</code> list supplied to <a href="#proofgen">ProofGen</a>). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.<a href="#section-4.3.4-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3.4-3">
 <pre>result = ProofVerify(PK, proof, L, header, ph,
-                     disclosedMessages,
-                     disclosedIndexes)
+                     disclosed_messages,
+                     disclosed_indexes)
 
 Inputs:
 
@@ -1933,23 +1929,23 @@ Inputs:
                      it defaults to an empty string.
 - ph (OPTIONAL), octet string containing the presentation header. If not
                  supplied, it defaults to an empty string.
-- disclosedMessages (OPTIONAL), a vector of scalars. If not supplied, it
-                                defaults to the empty array "()".
-- disclosedIndexes (OPTIONAL), vector of unsigned integers in ascending
-                               order. Indexes of disclosed messages. If
-                               not supplied, it defaults to the empty
-                               array "()".
+- disclosed_messages (OPTIONAL), a vector of scalars. If not supplied,
+                                 it defaults to the empty array "()".
+- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
+                                order. Indexes of disclosed messages. If
+                                not supplied, it defaults to the empty
+                                array "()".
 
 Parameters:
 
-- Ciphersuite_ID, ASCII string. The unique ID of the ciphersuite.
+- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - generator_seed, ASCII string. The generators seed defined by the
                   ciphersuite.
 
 Definitions:
 
 - R, is the non-negative integer representing the number of disclosed
-     (revealed) messages, i.e., R = length(disclosedIndexes). If no
+     (revealed) messages, i.e., R = length(disclosed_indexes). If no
      messages are disclosed, the value of R MUST evaluate to zero (0).
 - U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
@@ -1960,10 +1956,10 @@ Outputs:
 
 Precomputations:
 
-1. (i1, ..., iR) = disclosedIndexes
-2. (j1, ..., jU) = range(1, L) \ disclosedIndexes
-3. (msg_i1, ..., msg_iR) = disclosedMessages
-4. (H_s, H_d, MsgGenerators) = create_generators(generator_seed, L+2)
+1. (i1, ..., iR) = disclosed_indexes
+2. (j1, ..., jU) = range(1, L) \ disclosed_indexes
+3. (msg_i1, ..., msg_iR) = disclosed_messages
+4. (Q_1, Q_2, MsgGenerators) = create_generators(generator_seed, L+2)
 5. (H_1, ..., H_L) = MsgGenerators
 6. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 7. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
@@ -1971,7 +1967,7 @@ Precomputations:
 Preconditions:
 
 1. for i in (i1, ..., iR), if i &lt; 1 or i &gt; L, return INVALID
-2. if length(disclosedMessages) != R, return INVALID
+2. if length(disclosed_messages) != R, return INVALID
 
 Procedure:
 
@@ -1980,13 +1976,13 @@ Procedure:
 3.  (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  dom_array = (PK, L, H_s, H_d, H_1, ..., H_L, Ciphersuite_ID, header)
+6.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
 7.  dom_for_hash = encode_for_hash(dom_array)
 8.  if dom_for_hash is INVALID, return INVALID
 9.  domain = hash_to_scalar(dom_for_hash, 1)
-10. C1 = (Abar - D) * c + A' * e^ + H_s * r2^
-11. T = P1 + H_d * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
-12. C2 = T * c - D * r3^ + H_s * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+10. C1 = (Abar - D) * c + A' * e^ + Q_1 * r2^
+11. T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+12. C2 = T * c - D * r3^ + Q_1 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 13. cv_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
                        msg_i1, ..., msg_iR, domain, ph)
 14. cv_for_hash = encode_for_hash(cv_array)
@@ -2551,7 +2547,7 @@ Procedure:
           <h4 id="name-ciphersuite-id">
 <a href="#section-7.1.1" class="section-number selfRef">7.1.1. </a><a href="#name-ciphersuite-id" class="section-name selfRef">Ciphersuite ID</a>
           </h4>
-<p id="section-7.1.1-1">The following section defines the format of the unique identifier for the ciphersuite denoted <code>Ciphersuite_ID</code>. The REQUIRED format for this string is<a href="#section-7.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-7.1.1-1">The following section defines the format of the unique identifier for the ciphersuite denoted <code>ciphersuite_id</code>. The REQUIRED format for this string is<a href="#section-7.1.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-7.1.1-2">
 <pre>  "BBS_" || H2C_SUITE_ID || ADD_INFO
 </pre><a href="#section-7.1.1-2" class="pilcrow">¶</a>
@@ -3141,7 +3137,7 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 <p id="appendix-D-1">The following section provides an explanation of how the ProofGen and ProofVerify operations work.<a href="#appendix-D-1" class="pilcrow">¶</a></p>
 <p id="appendix-D-2">Let the prover be in possession of a BBS signature <code>(A, e, s)</code> on messages <code>msg_1, ..., msg_L</code> and a <code>domain</code> value (see <a href="#sign">Sign</a>). Let <code>A = B * (1/(e + SK))</code> where <code>SK</code> the signer's secret key and,<a href="#appendix-D-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D-3">
-<pre>B = P1 + H_s * s + H_d * domain + H_1 * msg_1 + ... + H_L * msg_L
+<pre>B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 </pre><a href="#appendix-D-3" class="pilcrow">¶</a>
 </div>
 <p id="appendix-D-4">Let <code>(i1, ..., iR)</code> be the indexes of generators corresponding to messages the prover wants to disclose and <code>(j1, ..., jU)</code> be the indexes corresponding to undisclosed messages (i.e., <code>(j1, ..., jU) = range(1, L) \ (i1, ..., iR)</code>). To prove knowledge of a signature on the disclosed messages, work as follows,<a href="#appendix-D-4" class="pilcrow">¶</a></p>
@@ -3166,7 +3162,7 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
           <p id="appendix-D-5.2.1">Set the following,<a href="#appendix-D-5.2.1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D-5.2.2">
 <pre>1.  C1 = Abar - D
-2.  C2 = P1 + H_d * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+2.  C2 = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 </pre><a href="#appendix-D-5.2.2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-D-5.2.3">Create a non-interactive zero-knowledge proof-of-knowledge (<code>nizk</code>) of the values <code>e, r2, r3, s'</code> and <code>msg_j1, ..., msg_jU</code> (the undisclosed messages) so that both of the following equalities hold,<a href="#appendix-D-5.2.3" class="pilcrow">¶</a></p>
