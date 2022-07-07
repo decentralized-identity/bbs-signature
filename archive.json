@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-07-05T00:08:55.098304+00:00",
+  "timestamp": "2022-07-07T00:10:47.381855+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -23996,13 +23996,13 @@
       "labels": [],
       "body": "Since we don't use HKDF anywhere else and aren't trying to be compatible with the BLS signatures spec (different salt).\r\n\r\nIt's a bit odd using camel case for the input parameters and snake case for the parameter, but I'm trying to be consistent with the rest of the spec.\r\n\r\nLikewise, I'm not sure if we prefer len() or length(), and either way we might need to define that.",
       "createdAt": "2022-06-24T20:46:21Z",
-      "updatedAt": "2022-07-04T18:16:14Z",
+      "updatedAt": "2022-07-05T19:02:36Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
-      "baseRefOid": "894456f0f24da41abcab823f1d2e1bbe7da8c505",
+      "baseRefOid": "c2f24c812e16078cff5c72186201d87cca5f2267",
       "headRepository": "andrewwhitehead/bbs-signature",
       "headRefName": "upd/keygen",
-      "headRefOid": "6332fa336ebb67cbdaea14f50e9f144977077adb",
+      "headRefOid": "539ba03237a1d3ba9732e4d8e9c9fa3d48b757a2",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -25045,6 +25045,250 @@
           "body": "",
           "createdAt": "2022-07-04T21:57:16Z",
           "updatedAt": "2022-07-04T21:57:16Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 197,
+      "id": "PR_kwDOF8lax8464EPN",
+      "title": "Only run GH-pages update on push to main branch",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/197",
+      "state": "MERGED",
+      "author": "andrewwhitehead",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes GHA errors on cloned repositories (assuming you don't touch the main branch)",
+      "createdAt": "2022-07-05T19:35:01Z",
+      "updatedAt": "2022-07-06T18:09:06Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "c2f24c812e16078cff5c72186201d87cca5f2267",
+      "headRepository": "andrewwhitehead/bbs-signature",
+      "headRefName": "fix/gha-local",
+      "headRefOid": "3baab9ec5b02249a2250b754b345c7506cab8dae",
+      "closedAt": "2022-07-06T18:09:06Z",
+      "mergedAt": "2022-07-06T18:09:06Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "75a22987676395fb48eb74c929756cd4cbdb8fad"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Thanks @andrewwhitehead ",
+          "createdAt": "2022-07-06T18:09:01Z",
+          "updatedAt": "2022-07-06T18:09:01Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax849WRh7",
+          "commit": {
+            "abbreviatedOid": "3baab9e"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "LGTM",
+          "createdAt": "2022-07-05T21:49:09Z",
+          "updatedAt": "2022-07-05T21:49:09Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax849bFzZ",
+          "commit": {
+            "abbreviatedOid": "3baab9e"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-06T18:08:50Z",
+          "updatedAt": "2022-07-06T18:08:50Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 198,
+      "id": "PR_kwDOF8lax8469ody",
+      "title": "Update my contact info",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/198",
+      "state": "MERGED",
+      "author": "andrewwhitehead",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Also fixes a few unescaped underscores",
+      "createdAt": "2022-07-06T19:55:11Z",
+      "updatedAt": "2022-07-06T20:20:40Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "75a22987676395fb48eb74c929756cd4cbdb8fad",
+      "headRepository": "andrewwhitehead/bbs-signature",
+      "headRefName": "upd/andrew",
+      "headRefOid": "d736c4aaef80ebc7873e5f7f9af41286e4c24c15",
+      "closedAt": "2022-07-06T20:20:40Z",
+      "mergedAt": "2022-07-06T20:20:40Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "f57d378547113c6f698fafd664c09a9ebe48673b"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals! Merging!",
+          "createdAt": "2022-07-06T20:20:35Z",
+          "updatedAt": "2022-07-06T20:20:35Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax849bmiz",
+          "commit": {
+            "abbreviatedOid": "d736c4a"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-06T20:14:50Z",
+          "updatedAt": "2022-07-06T20:14:50Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax849bn2X",
+          "commit": {
+            "abbreviatedOid": "d736c4a"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-06T20:20:14Z",
+          "updatedAt": "2022-07-06T20:20:14Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 199,
+      "id": "PR_kwDOF8lax84697sg",
+      "title": "consistency updates",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/199",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Updates discussed in the last (on 2022-07-04) WG call:\r\n\r\n1. `H_s`, `H_d` -> `Q_1`, `Q_2`\r\n2. `messageIndexes`, `disclosedMessages` -> `message_indexes`, `disclosed_messages`\r\n3. `Ciphersuite__ID` -> `ciphersuite_id`\r\n4. Added `length` definition\r\n5. Removed the `H_s` and `H_d` definitions\r\n\r\nSome of the updates that i didn't make:\r\n1. Didn\u2019t change `MsgGenerators` to `msg_generators` (it looks better this way to me, but this is the only reason. Happy to make the update if people prefer it)\r\n2. Didn\u2019t update `P1` to `Q_1`. I\u2019m worried about the security of that change in some scenarios, and I think we should think a little more about it. Will open an issue to discuss more and explain my worries.",
+      "createdAt": "2022-07-06T20:33:15Z",
+      "updatedAt": "2022-07-06T21:06:39Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "f57d378547113c6f698fafd664c09a9ebe48673b",
+      "headRepository": "BasileiosKal/bbs-signature",
+      "headRefName": "consistency-updates",
+      "headRefOid": "d9c7465159c29e54103b7b840e4373c72de3435b",
+      "closedAt": "2022-07-06T21:06:39Z",
+      "mergedAt": "2022-07-06T21:06:38Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "4f2a9fa6e0a165f84c4225603e8f8252a9f8c306"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Multiple approvals, proposal discussed on WG call, merging.",
+          "createdAt": "2022-07-06T21:06:33Z",
+          "updatedAt": "2022-07-06T21:06:33Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax849bvmS",
+          "commit": {
+            "abbreviatedOid": "d9c7465"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-06T20:45:26Z",
+          "updatedAt": "2022-07-06T20:45:26Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax849b0np",
+          "commit": {
+            "abbreviatedOid": "d9c7465"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-06T21:06:09Z",
+          "updatedAt": "2022-07-06T21:06:09Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 200,
+      "id": "PR_kwDOF8lax846-C2Z",
+      "title": "Updating my name in the spec",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/200",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-07-06T20:49:26Z",
+      "updatedAt": "2022-07-06T21:01:44Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "f57d378547113c6f698fafd664c09a9ebe48673b",
+      "headRepository": "BasileiosKal/bbs-signature",
+      "headRefName": "name-update",
+      "headRefOid": "002e27265586b7e44ad1e4d41d261fc0cb1c63a4",
+      "closedAt": "2022-07-06T21:01:44Z",
+      "mergedAt": "2022-07-06T21:01:44Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "085436d75423debea72aad31f9c71d7ed511e600"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax849bw25",
+          "commit": {
+            "abbreviatedOid": "002e272"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-06T20:50:32Z",
+          "updatedAt": "2022-07-06T20:50:32Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax849bzl-",
+          "commit": {
+            "abbreviatedOid": "002e272"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-06T21:01:39Z",
+          "updatedAt": "2022-07-06T21:01:39Z",
           "comments": []
         }
       ]
