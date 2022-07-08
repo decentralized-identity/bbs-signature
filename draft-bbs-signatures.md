@@ -185,8 +185,8 @@ range(a, b)
 utf8(ascii_string)
 : Encoding the inputted ASCII string to an octet string using UTF-8 character encoding.
 
-length(octet_string)
-: Returning the number of bytes of the inputted octet string.
+length(input)
+: Takes as input either an array or an octet string. If the input is an array, returns the number of elements of the array. If the input is an octet string, returns the number of bytes of the inputted octet string.
 
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
 
