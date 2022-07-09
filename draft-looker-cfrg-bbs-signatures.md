@@ -1,14 +1,12 @@
 %%%
 title = "The BBS Signature Scheme"
 abbrev = "The BBS Signature Scheme"
-ipr = "none"
+ipr= "trust200902"
 area = "Internet"
-workgroup = "none"
-submissiontype = "IETF"
-keyword = [""]
+workgroup = "CFRG"
 
 [seriesInfo]
-name = "Individual-Draft"
+name = "Internet-Draft"
 value = "draft-looker-cfrg-bbs-signatures-latest"
 status = "informational"
 
