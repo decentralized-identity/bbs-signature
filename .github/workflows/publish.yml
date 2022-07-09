@@ -13,6 +13,10 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v2
 
+      # See https://github.com/actions/checkout/issues/290
+      - name: "Get Tag Annotations"
+        run: git fetch -f origin ${{ github.ref }}:${{ github.ref }}
+
       - name: "Install and build message generator CLI"
         run: cargo build
         working-directory: ./tooling/message-generators
@@ -28,10 +32,6 @@ jobs:
       - name: "Populate fixtures Yarn"
         run: yarn populate-fixtures
         working-directory: ./tooling/fixtures
-
-      # See https://github.com/actions/checkout/issues/290
-      - name: "Get Tag Annotations"
-        run: git fetch -f origin ${{ github.ref }}:${{ github.ref }}
 
       - name: "Cache Setup"
         id: cache-setup
