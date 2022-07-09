@@ -44,8 +44,7 @@ fullname = "Mike Lodder"
 #role = "editor"
 organization = "CryptID"
   [author.address]
-  email = "redmike7gmail.com"
-
+  email = "redmike7@gmail.com"
 
 %%%
 
