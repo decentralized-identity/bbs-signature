@@ -1496,7 +1496,7 @@ Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the p
 
         1.  A' = A * r1,
         2.  Abar = A' * (-e) + B * r1
-        3.  D = B * r1 + H0 * r2.
+        3.  D = B * r1 + Q_1 * r2.
 
     Also set,
 
@@ -1512,8 +1512,8 @@ Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the p
 
     Create a non-interactive zero-knowledge proof-of-knowledge (`nizk`) of the values `e, r2, r3, s'` and `msg_j1, ..., msg_jU` (the undisclosed messages) so that both of the following equalities hold,
 
-        EQ1.  C1 = A' * (-e) - H0 * r2
-        EQ2.  C2 = H0 * s' - D * r3 + H_j1 * msg_j1 + ... + H_jU * msg_jU.
+        EQ1.  C1 = A' * (-e) - Q_1 * r2
+        EQ2.  C2 = Q_1 * s' - D * r3 + H_j1 * msg_j1 + ... + H_jU * msg_jU.
 
 Note that the verifier will know the elements in the left side of the above equations (i.e., `C1` and `C2`) but not in the right side (i.e., `s'`, `r3` and the undisclosed messages: `msg_j1, ..., msg_jU`). However, using the `nizk`, the prover can convince the verifier that they (the prover) know the elements that satisfy those equations, without disclosing them. Then, if both EQ1 and EQ2 hold, and `e(A', PK) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signer's `SK`, on the disclosed messages. The proof returned is `(A', Abar, D, nizk)`. To validate the proof, a verifier checks that `e(A', PK) = e(Abar, P2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as ownership of the undisclosed messages and of the signature.
 
