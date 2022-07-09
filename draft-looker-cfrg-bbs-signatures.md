@@ -9,7 +9,7 @@ keyword = [""]
 
 [seriesInfo]
 name = "Individual-Draft"
-value = "draft-bbs-signatures-latest"
+value = "draft-looker-cfrg-bbs-signatures-latest"
 status = "informational"
 
 [[author]]
