@@ -1523,6 +1523,10 @@ Note that the verifier will know the elements in the left side of the above equa
 
 * Initial version
 
+-01
+
+* Populated fixtures
+
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
     <title>Faster subgroup checks for BLS12-381</title>
