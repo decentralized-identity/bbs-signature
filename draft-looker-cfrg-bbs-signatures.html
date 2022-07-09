@@ -3177,7 +3177,7 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 <div class="alignLeft art-text artwork" id="appendix-D-5.1.2">
 <pre>1.  A' = A * r1,
 2.  Abar = A' * (-e) + B * r1
-3.  D = B * r1 + H0 * r2.
+3.  D = B * r1 + Q_1 * r2.
 </pre><a href="#appendix-D-5.1.2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-D-5.1.3">Also set,<a href="#appendix-D-5.1.3" class="pilcrow">¶</a></p>
@@ -3197,8 +3197,8 @@ ab19bd40525e36bb4e132378e0596f21b32d7455de969862f3a48864eb9e2dd4c1e8bc903ceea686
 </div>
 <p id="appendix-D-5.2.3">Create a non-interactive zero-knowledge proof-of-knowledge (<code>nizk</code>) of the values <code>e, r2, r3, s'</code> and <code>msg_j1, ..., msg_jU</code> (the undisclosed messages) so that both of the following equalities hold,<a href="#appendix-D-5.2.3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D-5.2.4">
-<pre>EQ1.  C1 = A' * (-e) - H0 * r2
-EQ2.  C2 = H0 * s' - D * r3 + H_j1 * msg_j1 + ... + H_jU * msg_jU.
+<pre>EQ1.  C1 = A' * (-e) - Q_1 * r2
+EQ2.  C2 = Q_1 * s' - D * r3 + H_j1 * msg_j1 + ... + H_jU * msg_jU.
 </pre><a href="#appendix-D-5.2.4" class="pilcrow">¶</a>
 </div>
 </li>
