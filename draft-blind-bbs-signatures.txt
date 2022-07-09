@@ -7,7 +7,7 @@ none                                                           M. Lodder
                                                                T. Looker
                                                                    Mattr
                                                             A. Whitehead
-                                                             8 July 2022
+                                                             9 July 2022
 
 
          Blind Signatures extension of the BBS Signature Scheme
@@ -348,7 +348,7 @@ Procedure:
    [BBS-DRAFT]
               Lodder, M., Looker, T., Whitehead, A., and V. Kalos, "The
               BBS Signature Scheme", <https://identity.foundation/bbs-
-              signature/draft-bbs-signatures.html>.
+              signature/draft-looker-cfrg-bbs-signatures.html>.
 
 Appendix A.  Appendix
 

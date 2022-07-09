@@ -9,11 +9,11 @@ none                                                           T. Looker
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
-                                                             8 July 2022
+                                                             9 July 2022
 
 
                         The BBS Signature Scheme
-                      draft-bbs-signatures-latest
+                draft-looker-cfrg-bbs-signatures-latest
 
 Abstract
 
