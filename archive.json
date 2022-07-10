@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-07-07T00:10:47.381855+00:00",
+  "timestamp": "2022-07-10T00:11:31.285134+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -22756,7 +22756,7 @@
       "labels": [],
       "body": "This removes several of the ciphersuite parameters in favor of a generator creation procedure which reuses the `expand_message` operation defined by hash-to-curve suite. Additional PRs would be needed to update the use of generators in the suite's operations, and to update the test vectors. I'm trying to avoid conflicts with open PRs.\r\n\r\nThe operation currently defines a `hash_output_bytes` value, but this would likely switch to `expand_length` used in #151.\r\n\r\nSupersedes #161 and the discussion on that PR.",
       "createdAt": "2022-06-16T21:44:40Z",
-      "updatedAt": "2022-06-20T21:41:04Z",
+      "updatedAt": "2022-07-07T22:53:00Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "337f3b03caa246c0ed9265fae44b0ab78d94fa72",
@@ -24103,7 +24103,7 @@
       "labels": [],
       "body": "- fix references to `p` as the subgroup order\r\n- define `r` for BLS12-381-G1\r\n- remove BLS12-381-G2 suite definition\r\n",
       "createdAt": "2022-06-24T21:11:06Z",
-      "updatedAt": "2022-06-27T19:43:56Z",
+      "updatedAt": "2022-07-07T22:50:13Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "c7ffa999b125af00bd284dba6c1a953adb6dc149",
@@ -25289,6 +25289,209 @@
           "body": "",
           "createdAt": "2022-07-06T21:01:39Z",
           "updatedAt": "2022-07-06T21:01:39Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 201,
+      "id": "PR_kwDOF8lax847E5fH",
+      "title": "Editorial updates before submission",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/201",
+      "state": "MERGED",
+      "author": "tplooker",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Minor updates prior to IETF submission for 114 meeting.\r\n\r\n- Remove usage of the word derive when referring to proofs, instead using generate\r\n- Minor language and gramma tweaks\r\n- Moved considerations under scheme definition instead of it being its own section\r\n- Added basic description for selective disclosure use case for identity credentials\r\n- Added document history section",
+      "createdAt": "2022-07-08T03:26:47Z",
+      "updatedAt": "2022-07-08T23:10:21Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "4f2a9fa6e0a165f84c4225603e8f8252a9f8c306",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "tl/edits",
+      "headRefOid": "b497ec9f4807b724d1a36a57e3c8439071031ba2",
+      "closedAt": "2022-07-08T23:10:21Z",
+      "mergedAt": "2022-07-08T23:10:21Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "c90bb232e0aa73ee1b3a5e35ba1c8d798eeec48a"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Multiple approvals, merging",
+          "createdAt": "2022-07-08T23:10:16Z",
+          "updatedAt": "2022-07-08T23:10:16Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax849jZpQ",
+          "commit": {
+            "abbreviatedOid": "24dc9b3"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "LGTM!",
+          "createdAt": "2022-07-08T10:00:30Z",
+          "updatedAt": "2022-07-08T10:05:50Z",
+          "comments": [
+            {
+              "originalPosition": 142,
+              "body": "```suggestion\r\nBBS Signatures ofter an alternative model that solves the same problems that proof of cryptographic key possession schemes do for bearer based schemes, but in a way that doesn't introduce new up-front protocol complexity. In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the client providing this access token as issued, in their request to a resource server, they generate a unique proof from the original access token and include that in the request instead. Because the access token is not shared in a request to a resource server, attacks such as MITM are mitigated. A resource server also obtains the ability to detect a replay attack by ensuring the proof presented is unique.\r\n```\r\n\r\nNitpicking but wouldn't the holder/prover be an RP only in the context of OIDC?? In the context of OAuth2.0 wouldn't \"client\" be more appropriate??",
+              "createdAt": "2022-07-08T10:00:30Z",
+              "updatedAt": "2022-07-08T10:05:50Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax849kqxB",
+          "commit": {
+            "abbreviatedOid": "24dc9b3"
+          },
+          "author": "christianpaquin",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-08T14:49:44Z",
+          "updatedAt": "2022-07-08T14:49:44Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax849mDvF",
+          "commit": {
+            "abbreviatedOid": "24dc9b3"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-08T21:12:06Z",
+          "updatedAt": "2022-07-08T21:12:06Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax849mQjb",
+          "commit": {
+            "abbreviatedOid": "24dc9b3"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-07-08T23:09:52Z",
+          "updatedAt": "2022-07-08T23:09:52Z",
+          "comments": [
+            {
+              "originalPosition": 142,
+              "body": "yes good catch",
+              "createdAt": "2022-07-08T23:09:52Z",
+              "updatedAt": "2022-07-08T23:09:52Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 202,
+      "id": "PR_kwDOF8lax847H_hK",
+      "title": "length definition fix",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/202",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Small fix in the definition of length (length is used for both arrays and octet strings).",
+      "createdAt": "2022-07-08T18:50:51Z",
+      "updatedAt": "2022-07-08T23:11:28Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "4f2a9fa6e0a165f84c4225603e8f8252a9f8c306",
+      "headRepository": "BasileiosKal/bbs-signature",
+      "headRefName": "notation-fix",
+      "headRefOid": "fb2eed0294aeb8726a14b8e1d8f96d94f8965aec",
+      "closedAt": "2022-07-08T23:11:10Z",
+      "mergedAt": "2022-07-08T23:11:10Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "b7c17f075a481d15ff29e54c868f2d98407058cf"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Minor clarification, merging",
+          "createdAt": "2022-07-08T23:11:28Z",
+          "updatedAt": "2022-07-08T23:11:28Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax849mQpi",
+          "commit": {
+            "abbreviatedOid": "fb2eed0"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-08T23:11:01Z",
+          "updatedAt": "2022-07-08T23:11:01Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 203,
+      "id": "PR_kwDOF8lax847JOv0",
+      "title": "Fix old H0 references",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/203",
+      "state": "MERGED",
+      "author": "andrewwhitehead",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-07-09T17:27:44Z",
+      "updatedAt": "2022-07-09T23:21:14Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "95a35b05a5f59960c62fb46cf07be99fa3ba19aa",
+      "headRepository": "andrewwhitehead/bbs-signature",
+      "headRefName": "fix/h0",
+      "headRefOid": "0ae42b888cd7b6091ed48413b6fc94d9e1101bfe",
+      "closedAt": "2022-07-09T23:21:14Z",
+      "mergedAt": "2022-07-09T23:21:14Z",
+      "mergedBy": "tplooker",
+      "mergeCommit": {
+        "oid": "20a01df627432de5acd0b6ef3cdc585164d497de"
+      },
+      "comments": [
+        {
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "body": "Minor change, fixes typo, merging",
+          "createdAt": "2022-07-09T23:21:10Z",
+          "updatedAt": "2022-07-09T23:21:10Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax849mx6M",
+          "commit": {
+            "abbreviatedOid": "0ae42b8"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-07-09T23:20:52Z",
+          "updatedAt": "2022-07-09T23:20:52Z",
           "comments": []
         }
       ]
