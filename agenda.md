@@ -18,7 +18,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 27th June 2022 - (6pm UTC)
+## Meeting - Monday 18th June 2022 - (6pm UTC)
 
 ### Chair
 
@@ -29,7 +29,6 @@ Tobias Looker
 - IPR reminder, and Introductions
 - Agenda bashing
 - Other items
-    - Reminder IETF submission for CFRG due start of july
 - PR review
 - Issue Review
 
@@ -39,6 +38,9 @@ Tobias Looker
 
 ## Previous Meetings
 
+- [11th July 2022](./meetings/2022-07-11/agenda.md)
+- [4th July 2022](./meetings/2022-07-04/agenda.md)
+- [27th June 2022](./meetings/2022-06-27/agenda.md)
 - [20th June 2022](./meetings/2022-06-20/agenda.md)
 - [13th June 2022](./meetings/2022-06-13/agenda.md)
 - [6th June 2022](./meetings/2022-06-06/agenda.md)
