@@ -18,7 +18,7 @@
 - Issue Review
 - Additional Topics
 
-## Meeting - Monday 18th June 2022 - (6pm UTC)
+## Meeting - Monday 15th August 2022 - (6pm UTC)
 
 ### Chair
 
@@ -38,6 +38,7 @@ Tobias Looker
 
 ## Previous Meetings
 
+- [8th August 2022](./meetings/2022-08-08/agenda.md)
 - [11th July 2022](./meetings/2022-07-11/agenda.md)
 - [4th July 2022](./meetings/2022-07-04/agenda.md)
 - [27th June 2022](./meetings/2022-06-27/agenda.md)
