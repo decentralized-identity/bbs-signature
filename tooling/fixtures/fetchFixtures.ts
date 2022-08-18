@@ -15,6 +15,23 @@ const resolveFixtures = (subDirectory: string) =>
     },
   });
 
+export interface ProofFixtureData {
+  readonly caseName: string;
+  readonly signerPublicKey: string;
+  readonly header: string;
+  readonly presentationMessage: string;
+  readonly revealedMessages: { [index: string]: string };
+  readonly totalMessageCount: number;
+  readonly proof: string;
+  readonly signature: string;
+  result: { valid: false; reason: string } | { valid: true };
+}
+
+export interface ProofFixture {
+  readonly name: string;
+  readonly value: ProofFixtureData;
+}
+
 export interface SignatureFixtureData {
   readonly caseName: string;
   readonly signature: string;
@@ -54,6 +71,17 @@ const fetchNestedFixtures = <T>(name: string, input: any): ReadonlyArray<T> => {
 export const signatureFixtures = fetchNestedFixtures<SignatureFixture>(
   "",
   resolveFixtures("signature")
+).reduce((map, item) => {
+  map = {
+    ...map,
+    [item.name]: item.value,
+  };
+  return map;
+}, {});
+
+export const proofFixtures = fetchNestedFixtures<ProofFixture>(
+  "",
+  resolveFixtures("proof")
 ).reduce((map, item) => {
   map = {
     ...map,

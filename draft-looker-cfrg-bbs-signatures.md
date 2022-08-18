@@ -1271,6 +1271,156 @@ Along with the SK value as defined in (#key-pair) as inputs into the Sign operat
 {{ $signatureFixtures.signature004.signature }}
 ```
 
+### Valid Single Message Proof
+
+Using the following signature
+
+```
+{{ $proofFixtures.proof001.signature }}
+```
+
+Which signed the following message
+
+```
+{{ $proofFixtures.proof001.messages[0] }}
+```
+
+And header
+
+```
+{{ $proofFixtures.proof001.header }}
+```
+
+And generating a proof revealing the only message signed in the generated proof with the following presentation header
+
+```
+{{ $proofFixtures.proof001.presentationMessage }}
+```
+
+And public key of the signer
+
+```
+{{ $proofFixtures.proof001.signerPublicKey }}
+```
+
+Yields the following proof
+
+```
+{{ $proofFixtures.proof001.proof }}
+```
+
+### Valid Multi-Message Proof All Messages Revealed
+
+Using the following signature
+
+```
+{{ $proofFixtures.proof002.signature }}
+```
+
+Which signed the following messages
+
+```
+{{ $proofFixtures.proof002.messages[0] }}
+
+{{ $proofFixtures.proof002.messages[1] }}
+
+{{ $proofFixtures.proof002.messages[2] }}
+
+{{ $proofFixtures.proof002.messages[3] }}
+
+{{ $proofFixtures.proof002.messages[4] }}
+
+{{ $proofFixtures.proof002.messages[5] }}
+
+{{ $proofFixtures.proof002.messages[6] }}
+
+{{ $proofFixtures.proof002.messages[7] }}
+
+{{ $proofFixtures.proof002.messages[8] }}
+
+{{ $proofFixtures.proof002.messages[9] }}
+```
+
+And header
+
+```
+{{ $proofFixtures.proof002.header }}
+```
+
+And generating a proof revealing all the message signed in the generated proof with the following presentation header
+
+```
+{{ $proofFixtures.proof002.presentationMessage }}
+```
+
+And public key of the signer
+
+```
+{{ $proofFixtures.proof002.signerPublicKey }}
+```
+
+Yields the following proof
+
+```
+{{ $proofFixtures.proof002.proof }}
+```
+
+### Valid Multi-Message Proof Some Messages Revealed
+
+Using the following signature
+
+```
+{{ $proofFixtures.proof003.signature }}
+```
+
+Which signed the following messages
+
+```
+{{ $proofFixtures.proof003.messages[0] }}
+
+{{ $proofFixtures.proof003.messages[1] }}
+
+{{ $proofFixtures.proof003.messages[2] }}
+
+{{ $proofFixtures.proof003.messages[3] }}
+
+{{ $proofFixtures.proof003.messages[4] }}
+
+{{ $proofFixtures.proof003.messages[5] }}
+
+{{ $proofFixtures.proof003.messages[6] }}
+
+{{ $proofFixtures.proof003.messages[7] }}
+
+{{ $proofFixtures.proof003.messages[8] }}
+
+{{ $proofFixtures.proof003.messages[9] }}
+```
+
+And header
+
+```
+{{ $proofFixtures.proof003.header }}
+```
+
+And generating a proof revealing only the messages at the 0,2,4 and 6 indexes in the generated proof with the following presentation header
+
+```
+{{ $proofFixtures.proof003.presentationMessage }}
+```
+
+And public key of the signer
+
+```
+{{ $proofFixtures.proof003.signerPublicKey }}
+```
+
+Yields the following proof
+
+```
+{{ $proofFixtures.proof003.proof }}
+```
+
 # IANA Considerations
 
 This document does not make any requests of IANA.
@@ -1555,6 +1705,126 @@ And the following signature
 ```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed
+
+## Modified Presentation Header Proof
+
+Using the following revealed messages
+
+```
+Index 0 Value: {{ $proofFixtures.proof004.messages[0] }}
+
+Index 2 Value: {{ $proofFixtures.proof004.messages[2] }}
+
+Index 4 Value: {{ $proofFixtures.proof004.messages[4] }}
+
+Index 6 Value: {{ $proofFixtures.proof004.messages[6] }}
+```
+
+And header
+
+```
+{{ $proofFixtures.proof004.header }}
+```
+
+And presentation header
+
+```
+{{ $proofFixtures.proof004.presentationMessage }}
+```
+
+And public key of the signer
+
+```
+{{ $proofFixtures.proof004.signerPublicKey }}
+```
+
+With the following proof
+
+```
+{{ $proofFixtures.proof004.proof }}
+```
+
+Should yield a failed result in the verify proof operation due to the presentation header being modified from the original
+
+## Wrong Public Key Proof
+
+Using the following revealed messages
+
+```
+Index 0 Value: {{ $proofFixtures.proof005.messages[0] }}
+
+Index 2 Value: {{ $proofFixtures.proof005.messages[2] }}
+
+Index 4 Value: {{ $proofFixtures.proof005.messages[4] }}
+
+Index 6 Value: {{ $proofFixtures.proof005.messages[6] }}
+```
+
+And header
+
+```
+{{ $proofFixtures.proof005.header }}
+```
+
+And presentation header
+
+```
+{{ $proofFixtures.proof005.presentationMessage }}
+```
+
+And public key of the signer
+
+```
+{{ $proofFixtures.proof005.signerPublicKey }}
+```
+
+With the following proof
+
+```
+{{ $proofFixtures.proof005.proof }}
+```
+
+Should yield a failed result in the verify proof operation due to the public key used being incorrect
+
+## Modified Messages Proof
+
+Using the following revealed messages
+
+```
+Index 0 Value: {{ $proofFixtures.proof006.messages[0] }}
+
+Index 2 Value: {{ $proofFixtures.proof006.messages[2] }}
+
+Index 4 Value: {{ $proofFixtures.proof006.messages[4] }}
+
+Index 6 Value: {{ $proofFixtures.proof006.messages[6] }}
+```
+
+And header
+
+```
+{{ $proofFixtures.proof006.header }}
+```
+
+And presentation header
+
+```
+{{ $proofFixtures.proof006.presentationMessage }}
+```
+
+And public key of the signer
+
+```
+{{ $proofFixtures.proof006.signerPublicKey }}
+```
+
+With the following proof
+
+```
+{{ $proofFixtures.proof006.proof }}
+```
+
+Should yield a failed result in the verify proof operation due to the messages revelaed being modified from their originally signed form
 
 # Proof Generation and Verification Algorithmic Explanation
 
