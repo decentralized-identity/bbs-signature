@@ -18,6 +18,7 @@ const resolveFixtures = (subDirectory: string) =>
 export interface SignatureFixtureData {
   readonly caseName: string;
   readonly signature: string;
+  readonly header: string;
   readonly messages: string[];
   result: { valid: false; reason: string } | { valid: true };
   readonly signerKeyPair: {
