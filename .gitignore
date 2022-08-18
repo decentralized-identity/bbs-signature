@@ -13,4 +13,4 @@ draft-looker-cfrg-bbs-signatures.xml
 lib
 report.xml
 venv/
-/node_modules
+**/node_modules
