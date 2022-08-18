@@ -363,8 +363,6 @@ Inputs:
 Parameters:
 
 - ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
-- generator_seed, ASCII string. The generators seed defined by the
-                  ciphersuite
 
 Definitions:
 
@@ -379,7 +377,7 @@ Outputs:
 Precomputations:
 
 1. msg_1, ..., msg_L = messages[1], ..., messages[L]
-2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(generator_seed, L+2)
+2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(L+2)
 
 Procedure:
 
@@ -420,8 +418,6 @@ Inputs:
 Parameters:
 
 - ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
-- generator_seed, ASCII string. The generators seed defined by the
-                  ciphersuite.
 
 Definitions:
 
@@ -436,7 +432,7 @@ Outputs:
 Precomputations:
 
 1. (msg_1, ..., msg_L) = messages
-2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(generator_seed, L+2)
+2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(L+2)
 
 Procedure:
 
@@ -484,8 +480,6 @@ Inputs:
 Parameters:
 
 - ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
-- generator_seed, ASCII string. The generators seed defined by the
-                  ciphersuite.
 
 Definitions:
 
@@ -510,7 +504,7 @@ Precomputations:
 3. (msg_1, ..., msg_L) = messages
 4. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
 5. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
-6. (Q_1, Q_2, MsgGenerators) = create_generators(generator_seed, L+2)
+6. (Q_1, Q_2, MsgGenerators) = create_generators(L+2)
 7. (H_1, ..., H_L) = MsgGenerators
 8. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
@@ -580,8 +574,6 @@ Inputs:
 Parameters:
 
 - ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
-- generator_seed, ASCII string. The generators seed defined by the
-                  ciphersuite.
 
 Definitions:
 
@@ -600,7 +592,7 @@ Precomputations:
 1. (i1, ..., iR) = disclosed_indexes
 2. (j1, ..., jU) = range(1, L) \ disclosed_indexes
 3. (msg_i1, ..., msg_iR) = disclosed_messages
-4. (Q_1, Q_2, MsgGenerators) = create_generators(generator_seed, L+2)
+4. (Q_1, Q_2, MsgGenerators) = create_generators(L+2)
 5. (H_1, ..., H_L) = MsgGenerators
 6. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 7. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
