@@ -614,7 +614,7 @@ Procedure:
 8.  if dom_for_hash is INVALID, return INVALID
 9.  domain = hash_to_scalar(dom_for_hash, 1)
 10. C1 = (Abar - D) * c + A' * e^ + Q_1 * r2^
-11. T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... H_iR * msg_iR
+11. T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 12. C2 = T * c - D * r3^ + Q_1 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
 13. cv_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
                        msg_i1, ..., msg_iR, domain, ph)
