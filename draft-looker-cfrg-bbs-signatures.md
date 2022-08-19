@@ -1113,9 +1113,17 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 - generator\_seed: The seed used to determine the generator points which form part of the public parameters used by the BBS signature scheme. Note there are multiple possible scopes for this seed, including: a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); and a signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operation to any others.
 
-## BLS12-381 Ciphersuite
+## BLS12-381 Ciphersuites
 
-The following ciphersuite is based on the BLS12-381 elliptic curve defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of the suite in bits is `k = 128`. The ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
+The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`.
+
+The first ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
+
+The second ciphersuite uses SHA-256, as defined in Section 6.2 of [@!SHA2] and the BLS12-381 G1 hash-to-curve suite defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] document.
+
+Note that this two ciphersuites differ only in the hash function (SHAKE-256 vs SHA-256) and in the hash-to-curve suites used. The different hash-to-curve suites, differ in the `expand_message` variant and underlying hash function themselves. More concretely, the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite makes use of `expand_message_xof` with SHAKE-256, whyle [BLS12-381-SHA-256](#bls12-381-sha-256) makes use of `expand_message_xmd` with SHA-256. Curve parameters are common between the two ciphersuites.
+
+### BLS12-381-SHAKE-256
 
 **Basic parameters**:
 
@@ -1142,6 +1150,36 @@ The following ciphersuite is based on the BLS12-381 elliptic curve defined in Se
 **Generator parameters**:
 
 - generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
+
+
+### BLS12-381-SHA-256
+
+**Basic parameters**:
+
+- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_"
+
+- hash: SHA-256 as defined in [@!SHA2].
+
+- octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
+
+- octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
+
+- hash\_to\_curve\_suite: "BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_" as defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] for the G1 subgroup.
+
+**Serialization functions**:
+
+- point\_to\_octets\_g1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
+
+- point\_to\_octets\_g2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup, using compression (i.e., setting C\_bit = 1).
+
+- octets\_to\_point\_g1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
+
+- octets\_to\_point\_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
+
+**Generator parameters**:
+
+- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
+
 
 ### Test Vectors
 
@@ -1532,6 +1570,13 @@ Note that the verifier will know the elements in the left side of the above equa
 <reference anchor="SHA3" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf">
  <front>
    <title>SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions</title>
+   <author><organization>NIST</organization></author>
+ </front>
+</reference>
+
+<reference anchor="SHA2" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf">
+ <front>
+   <title>Secure Hash Standard (SHS)</title>
    <author><organization>NIST</organization></author>
  </front>
 </reference>
