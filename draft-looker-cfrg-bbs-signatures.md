@@ -705,10 +705,9 @@ result = MapMessageToScalarAsHash(msg, dst)
 Inputs:
 
 - msg (REQUIRED), octet string.
-- dst (OPTIONAL), an octet string representing an ASCII encoded domain
-                  separation tag. If not supplied, it defaults to the
-                  octet string given by
-                  utf8(ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_"),
+- dst (OPTIONAL), an octet string representing a domain separation tag.
+                  If not supplied, it default to the octet string
+                  utf8(ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_")
                   where ciphersuite_id is defined by the ciphersuite.
 
 Outputs:
@@ -739,10 +738,10 @@ Inputs:
 - msg_octets (REQUIRED), octet string. The message to be hashed.
 - count (REQUIRED), an integer greater or equal to 1. The number of
                     scalars to output.
-- dst (OPTIONAL), an octet string, representing an ASCII encoded domain
-                  separation tag. If not supplied, it defaults to the
-                  octet string given by utf8(ciphersuite_id || "H2S_"),
-                  where ciphersuite_id is defined by the ciphersuite.
+- dst (OPTIONAL), an octet string representing a domain separation tag.
+                  If not supplied, it defaults to the octet string given
+                  by utf8(ciphersuite_id || "H2S_"), where
+                  ciphersuite_id is defined by the ciphersuite.
 
 Parameters:
 
