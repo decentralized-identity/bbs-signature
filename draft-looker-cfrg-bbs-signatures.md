@@ -697,7 +697,7 @@ There are multiple ways in which messages can be mapped to their respective scal
 
 ### MapMessageToScalarAsHash
 
-This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the ASCII string (ciphersuite\_id || "MAP\_MESSAGE\_TO\_SCALAR\_AS\_HASH\_"), where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite.
+This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from utf8(ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_"), where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite.
 
 ```
 result = MapMessageToScalarAsHash(msg, dst)
@@ -705,9 +705,10 @@ result = MapMessageToScalarAsHash(msg, dst)
 Inputs:
 
 - msg (REQUIRED), octet string.
-- dst (OPTIONAL), an ASCII string representing a domain separation tag.
-                  If not supplied, it defaults to the ASCII string
-                  (ciphersuite_id || "MAP_MESSAGE_TO_SCALAR_AS_HASH_"),
+- dst (OPTIONAL), an octet string representing an ASCII encoded domain
+                  separation tag. If not supplied, it defaults to the
+                  octet string given by
+                  utf8(ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_"),
                   where ciphersuite_id is defined by the ciphersuite.
 
 Outputs:
@@ -718,18 +719,17 @@ Procedure:
 
 1. msg_for_hash = encode_for_hash(msg)
 2. if msg_for_hash is INVALID, return INVALID
-3. dst_prime = utf8(dst)
-4. if length(dst_prime) > 255, return INVALID
-5. return hash_to_scalar(msg_for_hash, 1, dst_prime)
+3. if length(dst) > 255, return INVALID
+4. return hash_to_scalar(msg_for_hash, 1, dst)
 ```
 
 ## Hash to Scalar
 
 This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
-This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). If an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). Note however, that the hash\_to\_curve document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For completeness, we define here the operation, making use of the expand\_message function, that will be defined by the hash-to-curve suite used (i.e., either expand\_message\_xmd or expand\_message\_xof). If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
+This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). If an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). Note however, that the hash\_to\_curve document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For this reason, we don’t directly use hash\_to\_field here, rather we define a similar operation (hash\_to\_scalar), making direct use of the expand\_message function, that will be defined by the hash-to-curve suite used (i.e., either expand\_message\_xmd or expand\_message\_xof). If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
-The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). If a dst is not supplied, its value MUST default to the ASCII string (ciphersuit\_id || "H2S\_"), where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite.
+The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from utf8(ciphersuit\_id || "H2S\_"), where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite.
 
 ```
 scalars = hash_to_scalar(msg_octets, count, dst)
@@ -739,10 +739,10 @@ Inputs:
 - msg_octets (REQUIRED), octet string. The message to be hashed.
 - count (REQUIRED), an integer greater or equal to 1. The number of
                     scalars to output.
-- dst (OPTIONAL), an ASCII string representing a domain separation tag.
-                  If not supplied, it defaults to the ASCII string
-                  (ciphersuite_id || "H2S_"), where ciphersuite_id is
-                  defined by the ciphersuite.
+- dst (OPTIONAL), an octet string, representing an ASCII encoded domain
+                  separation tag. If not supplied, it defaults to the
+                  octet string given by utf8(ciphersuite_id || "H2S_"),
+                  where ciphersuite_id is defined by the ciphersuite.
 
 Parameters:
 
@@ -765,15 +765,14 @@ Procedure:
 1.  len_in_bytes = count * expand_len
 2.  t = 0
 3.  msg_prime = msg_octets || I2OSP(t, 1) || I2OSP(count, 4)
-4.  dst_prime = utf8(dst)
-5.  uniform_bytes = expand_message(msg_prime, dst_prime, len_in_bytes)
-6.  for i in (1, ..., count):
-7.      tv = uniform_bytes[(i-1)*expand_len..i*expand_len-1]
-8.      scalar_i = OS2IP(tv) mod r
-9.  if 0 in (scalar_1, ..., scalar_count):
-10.     t = t + 1
-11.     go back to step 3
-12. return (scalar_1, ..., scalar_count)
+4.  uniform_bytes = expand_message(msg_prime, dst, len_in_bytes)
+5.  for i in (1, ..., count):
+6.      tv = uniform_bytes[(i-1)*expand_len..i*expand_len-1]
+7.      scalar_i = OS2IP(tv) mod r
+8.  if 0 in (scalar_1, ..., scalar_count):
+9.      t = t + 1
+10.     go back to step 3
+11. return (scalar_1, ..., scalar_count)
 ```
 
 ## Serialization
