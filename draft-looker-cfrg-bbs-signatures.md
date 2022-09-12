@@ -1207,9 +1207,9 @@ a dst of
 BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_
 ```
 
-and a length value of `10`
+and a length value of 12
 
-Outputs the following values
+Outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 ```
 {{ $generators[0] }}
@@ -1231,6 +1231,10 @@ Outputs the following values
 {{ $generators[8] }}
 
 {{ $generators[9] }}
+
+{{ $generators[10] }}
+
+{{ $generators[11] }}
 ```
 
 #### Key Pair
