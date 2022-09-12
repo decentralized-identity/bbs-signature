@@ -363,6 +363,7 @@ Inputs:
 Parameters:
 
 - ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
+- P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
 
@@ -418,6 +419,7 @@ Inputs:
 Parameters:
 
 - ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
+- P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
 
@@ -480,6 +482,7 @@ Inputs:
 Parameters:
 
 - ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
+- P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
 
@@ -574,6 +577,7 @@ Inputs:
 Parameters:
 
 - ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
+- P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
 
@@ -653,6 +657,7 @@ Parameters:
                   specified by the hash_to_curve_suite parameter.
 - generator_seed, octet string. A seed value selected by the
                   ciphersuite.
+- P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
 
@@ -677,7 +682,7 @@ Procedure:
 5.     n = n + 1
 6.     generator_i = Identity_G1
 7.     candidate = hash_to_curve_g1(v, generator_dst)
-8.     if candidate in (P1, generator_1, ..., generator_i):
+8.     if candidate in (generator_1, ..., generator_i):
 9.        go back to step 4
 10.    generator_i = candidate
 11. return (generator_1, ..., generator_count)
@@ -1097,6 +1102,8 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the [Notation](#notation) section) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
 
+- P1: A fixed point in the G1 subgroup.
+
 **Serialization functions**:
 
 - point\_to\_octets\_g1:
@@ -1139,6 +1146,12 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - hash\_to\_curve\_suite: "BLS12381G1\_XOF:SHAKE-256\_SSWU\_R0\_" as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
+- P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+    ```
+    P1 = 0x93a18d666efaaa35c317283d6f090667a4062ed42dab79d2a4c318f742d6
+           c45ef10b303eb9c418d37400c0c3816accc1
+    ```
+
 **Serialization functions**:
 
 - point\_to\_octets\_g1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
@@ -1167,6 +1180,12 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 - octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
 - hash\_to\_curve\_suite: "BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_" as defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] for the G1 subgroup.
+
+- P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+    ```
+    P1 = 0xad98180923a716ac626a3f7e7ffd3faa71820074bb7ae221fd01c406a6a5
+           636540ef3a3e18b21619a3bdff69e81d5da7
+    ```
 
 **Serialization functions**:
 

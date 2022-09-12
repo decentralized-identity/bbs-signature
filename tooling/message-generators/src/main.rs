@@ -1,6 +1,6 @@
-use bls12_381_plus::{ExpandMsgXof, G1Projective, G2Projective, Scalar};
+use bls12_381_plus::{ExpandMsg, ExpandMsgXof, G1Projective, G2Projective, Scalar};
 use ff::Field;
-use group::Curve;
+use group::{Curve};
 use sha3::digest::{ExtendableOutput, Update, XofReader};
 use sha3::Shake256;
 use structopt::StructOpt;
@@ -8,12 +8,20 @@ use std::env;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
-const GLOBAL_SEED: &[u8] =
-    b"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED";
+mod ciphersuites;
+use ciphersuites::{BbsCiphersuite, Bls12381Shake256, Bls12381Sha256};
+
 const DST: &[u8] = b"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_";
+
+struct Generators {
+    g1_base_point: G1Projective,
+    message_generators: Vec<G1Projective>
+}
 
 #[derive(StructOpt, Debug)]
 struct Opt {
+    #[structopt(short, long, default_value = "Shake")]
+    suite: Ciphersuite,
     #[structopt(short, long, default_value = "10")]
     length: usize,
     #[structopt(short, long, default_value = "Global")]
@@ -34,6 +42,12 @@ enum OutputType {
 enum GenType {
     Global,
     SignerSpecific,
+}
+
+#[derive(Debug)]
+enum Ciphersuite {
+    SHA256,
+    SHAKE256
 }
 
 impl std::str::FromStr for GenType {
@@ -60,12 +74,31 @@ impl std::str::FromStr for OutputType {
     }
 }
 
+impl std::str::FromStr for Ciphersuite {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "sha" | "sha2" | "sha25" | "sha256" | "xmd" => Ok(Ciphersuite::SHA256),
+            "shake" | "shake2" | "shake25" | "shake256" | "xof" => Ok(Ciphersuite::SHAKE256),
+            _ => Err("Invalid Value".to_string())
+        }
+    }
+}
+
+
 fn main() {
     let opt: Opt = Opt::from_args();
-    
+
+    // Suite specific create generators function
+    let get_generators_fn = match opt.suite {
+        Ciphersuite::SHAKE256 => make_generators::<Bls12381Shake256>,
+        Ciphersuite::SHA256 => make_generators::<Bls12381Sha256>,
+    };
+
     let generators = match opt.generator_type {
-        GenType::Global => global_generators(opt.length),
-        GenType::SignerSpecific => signer_specific_generators(opt.length),
+        GenType::Global => global_generators(get_generators_fn, opt.length),
+        GenType::SignerSpecific => signer_specific_generators(get_generators_fn, opt.length),
     };
 
     match opt.out_type {
@@ -74,18 +107,28 @@ fn main() {
     }
 }
 
-fn global_generators(len: usize) -> Vec<G1Projective> {
-    make_generators(GLOBAL_SEED, len)
+fn global_generators<F>(make_generators_fn: F, len: usize) -> Generators
+where
+    F: for<'r> Fn(Option<&'r [u8]>, usize) -> Generators
+{
+    make_generators_fn(None, len)
 }
 
-fn signer_specific_generators(len: usize) -> Vec<G1Projective> {
+fn signer_specific_generators<F>(make_generators_fn: F, len: usize) -> Generators
+where
+    F: for<'r> Fn(Option<&'r [u8]>, usize) -> Generators
+{
     let sk = Scalar::random(rand::thread_rng());
     let pk = G2Projective::generator() * sk;
-    make_generators(&pk.to_affine().to_compressed(), len)
+    make_generators_fn(Some(&pk.to_affine().to_compressed()), len)
 }
 
-fn print_generators(generators: &[G1Projective]) {
-    generators.iter().enumerate().for_each(|(i, g)| {
+fn print_generators(generators: &Generators) {
+    println!("G1 BP = {}", hex::encode(
+        generators.g1_base_point.to_affine().to_compressed()
+    ));
+    
+    generators.message_generators.iter().enumerate().for_each(|(i, g)| {
         println!(
             "G_{} = {}",
             i + 1,
@@ -94,12 +137,13 @@ fn print_generators(generators: &[G1Projective]) {
     });
 }
 
-fn write_generators_to_file(generators: &[G1Projective], file_name: String) {
+fn write_generators_to_file(generators: &Generators, file_name: String) {
     let path = env::current_dir().unwrap();
 
     let file_path = path.join(file_name);
 
-    let result: Vec<String> = generators.iter().map(|item| hex::encode(item.to_affine().to_compressed())).collect();
+    let result: Vec<String> = generators.message_generators.iter()
+        .map(|item| hex::encode(item.to_affine().to_compressed())).collect();
 
     let file = File::create(file_path).unwrap();
 
@@ -110,7 +154,16 @@ fn write_generators_to_file(generators: &[G1Projective], file_name: String) {
     writer.flush().unwrap();
 }
 
-fn make_generators(seed: &[u8], len: usize) -> Vec<G1Projective> {
+fn make_generators<'a, X>(seed: Option<&[u8]>, len: usize) -> Generators
+where
+    X: BbsCiphersuite<'a>
+{
+
+    let default_seed = &X::generator_seed();
+    let seed = seed.unwrap_or(default_seed);
+
+    let base_point = make_g1_base_point::<X>();
+
     let mut reader = Shake256::default()
         .chain(seed)
         .finalize_xof();
@@ -122,5 +175,27 @@ fn make_generators(seed: &[u8], len: usize) -> Vec<G1Projective> {
         let gi = G1Projective::hash::<ExpandMsgXof<Shake256>>(&buffer, DST);
         generators.push(gi);
     }
-    generators
+
+    Generators {
+        g1_base_point: base_point,
+        message_generators: generators
+    }
+}
+
+fn make_g1_base_point<'a, X>() -> G1Projective
+where
+    X: BbsCiphersuite<'a>
+{
+    let mut v = [0u8; 48];
+    X::Expander::expand_message(&X::bp_generator_seed(), &X::generator_seed_dst(), &mut v);
+
+    // TODO: implement a proper I2OSP
+    let extra = 0usize.to_be_bytes()[4..].to_vec();
+    let buffer = [v.as_ref(), &extra].concat();
+
+    X::Expander::expand_message(&buffer, &X::generator_seed_dst(), &mut v);
+
+    G1Projective::hash::<<X as BbsCiphersuite>::Expander>(
+        &v, &X::generator_dst()
+    )
 }
