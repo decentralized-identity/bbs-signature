@@ -1259,7 +1259,13 @@ Following the procedure defined in (#sktopk) with an input SK value as above pro
 
 #### Valid Single Message Signature
 
-Using the following message
+Using the following header
+
+```
+{{ $signatureFixtures.signature001.header }}
+```
+
+And the following message
 
 ```
 {{ $signatureFixtures.signature001.messages[0] }}
@@ -1273,7 +1279,13 @@ Along with the SK value as defined in (#key-pair) as inputs into the Sign operat
 
 #### Valid Multi-Message Signature
 
-Using the following messages (**Note** the ordering of the messages MUST be preserved)
+Using the following header
+
+```
+{{ $signatureFixtures.signature004.header }}
+```
+
+And the following messages (**Note** the ordering of the messages MUST be preserved)
 
 ```
 {{ $signatureFixtures.signature004.messages[0] }}
@@ -1400,7 +1412,13 @@ BBS signatures when applied to the problem space of identity credentials can hel
 
 ## Modified Message Signature
 
-Using the following message
+Using the following header
+
+```
+{{ $signatureFixtures.signature002.header }}
+```
+
+And the following message
 
 ```
 {{ $signatureFixtures.signature002.messages[0] }}
@@ -1416,7 +1434,13 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 ## Extra Unsigned Message Signature
 
-Using the following messages
+Using the following header
+
+```
+{{ $signatureFixtures.signature003.header }}
+```
+
+And the following messages
 
 ```
 {{ $signatureFixtures.signature003.messages[0] }}
@@ -1434,7 +1458,13 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 ## Missing Message Signature
 
-Using the following messages
+Using the following header
+
+```
+{{ $signatureFixtures.signature005.header }}
+```
+
+And the following messages
 
 ```
 {{ $signatureFixtures.signature005.messages[0] }}
@@ -1452,7 +1482,13 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 ## Reordered Message Signature
 
-Using the following messages
+Using the following header
+
+```
+{{ $signatureFixtures.signature006.header }}
+```
+
+And the following messages
 
 ```
 {{ $signatureFixtures.signature006.messages[0] }}
@@ -1486,7 +1522,13 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 
 ## Wrong Public Key Signature
 
-Using the following messages
+Using the following header
+
+```
+{{ $signatureFixtures.signature007.header }}
+```
+
+And the following messages
 
 ```
 {{ $signatureFixtures.signature007.messages[0] }}
@@ -1517,6 +1559,46 @@ And the following signature
 ```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct
+
+## Wrong Public Key Signature
+
+Using the following header
+
+```
+{{ $signatureFixtures.signature008.header }}
+```
+
+And the following messages
+
+```
+{{ $signatureFixtures.signature008.messages[0] }}
+
+{{ $signatureFixtures.signature008.messages[1] }}
+
+{{ $signatureFixtures.signature008.messages[2] }}
+
+{{ $signatureFixtures.signature008.messages[3] }}
+
+{{ $signatureFixtures.signature008.messages[4] }}
+
+{{ $signatureFixtures.signature008.messages[5] }}
+
+{{ $signatureFixtures.signature008.messages[6] }}
+
+{{ $signatureFixtures.signature008.messages[7] }}
+
+{{ $signatureFixtures.signature008.messages[8] }}
+
+{{ $signatureFixtures.signature008.messages[9] }}
+```
+
+And the following signature
+
+```
+{{ $signatureFixtures.signature008.signature }}
+```
+
+Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed
 
 # Proof Generation and Verification Algorithmic Explanation
 
