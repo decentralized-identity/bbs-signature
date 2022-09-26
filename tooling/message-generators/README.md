@@ -39,12 +39,16 @@ FLAGS:
 OPTIONS:
     -g, --generator-type <generator-type>     [default: Global]
     -l, --length <length>                     [default: 10]
+    -s, --suite <suite>                       [default: Shake]
 ```
 
 1. `-g` accepted values are Global and Signer
    1. Global creates the generators for a global setting
    2. Signer creates the generators for a signer specific setting
 2. `-l` accepts any positive integer
+3. `-s` accepted values are Shake, xof, Sha and xmd
+   1. Shake or xof creates generators for the [BLS12-381-SHAKE-256](https://identity.foundation/bbs-signature/draft-looker-cfrg-bbs-signatures.html#name-bls12-381-shake-256) ciphersuite
+   2. Sha or xmd creates generators for the [BLS12-381-SHA-256](https://identity.foundation/bbs-signature/draft-looker-cfrg-bbs-signatures.html#name-bls12-381-sha-256) ciphersuite
 
 The demo will output the generators in compressed format hex encoded, an example of which is
 
