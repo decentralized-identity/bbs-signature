@@ -661,11 +661,12 @@ Parameters:
 
 Definitions:
 
-- seed_dst, the octet string representing the ASCII encoded characters:
-           "BBS_" || hash_to_curve_suite || "SIG_GENERATOR_SEED_".
-- generator_dst, the octet string representing:
-                 "BBS_" || hash_to_curve_suite || "SIG_GENERATOR_DST_",
-                 in the ASCII characters encoding.
+- seed_dst, octet string representing the domain seperation tag:
+            utf8(ciphersuite_id || "SIG_GENERATOR_SEED_"), where
+            ciphersuite_id is defined by the ciphersuite.
+- generator_dst, octet string representing the domain seperation tag:
+                 utf8(ciphersuite_id || "SIG_GENERATOR_DST_"), where
+                 ciphersuite_id is defined by the ciphersuite.
 - seed_len = ceil((ceil(log2(r)) + k)/8), where r and k are defined by
                                           the ciphersuite.
 
@@ -981,6 +982,8 @@ This document uses the `hash_to_scalar` function to hash elements to scalars in 
 
 After encoding, octet strings will be prepended with a value representing the length of their binary representation in the form of the number of bytes. This length must be encoded to octets using I2OSP with output length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. If the length of the octet string is larger than 2^64 - 1, the octet string must be rejected. Similarly, ASCII strings, after encoded to octets (using utf8), will also be appended with the length of their octet-string representation.
 
+An exception to the above rule is octet strings that represent a public key or ASCII strings that represent a ciphersuite ID, since those have a constant, well defined by each ciphersuite, length.
+
 Optional input/parameters to operations that feature in a call to hash\_to\_scalar, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `hash(A || X || B)` MUST be evaluated to `hash(A || "" || B)`.
 
 The above is further described in the following procedure.
@@ -1007,12 +1010,15 @@ Procedure:
 1.  let octets_to_hash be an empty octet string.
 2.  for el in input_array:
 3.      if el is an ASCII string: el = utf8(el)
-4.      if el is an octet string representing a public key: el_octs = el
-5.      else if el is an octet string:
-6.          if length(el) > 2^64 - 1, return INVALID
-7.          el_octs = I2OSP(length(el), 8) || el
-8.      else if el is a Point in G1: el_octs = point_to_octets_g1(el)
-9.      else if el is a Point in G2: el_octs = point_to_octets_g2(el)
+4.      if el is an octet string representing a public key:
+5.          el_octs = el
+6.      else if el is representing a utf8 encoded Ciphersuite ID:
+7.          el_octs = el
+8.      else if el is an octet string:
+9.          if length(el) > 2^64 - 1, return INVALID
+10.         el_octs = I2OSP(length(el), 8) || el
+11.     else if el is a Point in G1: el_octs = point_to_octets_g1(el)
+12.     else if el is a Point in G2: el_octs = point_to_octets_g2(el)
 10.     else if el is a Scalar: el_octs = I2OSP(el, octet_scalar_length)
 11.     else if el is a non-negative integer: el_octs = I2OSP(el, 8)
 12.     else: return INVALID
@@ -1164,7 +1170,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
+- generator\_seed: A global seed value of utf8("BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED") which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
 
 
 ### BLS12-381-SHA-256
@@ -1199,7 +1205,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
+- generator\_seed: A global seed value of utf8("BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED") which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
 
 
 ### Test Vectors
@@ -1214,21 +1220,8 @@ Further fixtures are available in (#additional-bls12-381-ciphersuite-test-vector
 
 #### Message Generators
 
-Following the procedure defined in (#generator-point-computation) with an input seed value of
+Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
 
-```
-BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_MESSAGE_GENERATOR_SEED
-```
-
-a dst of
-
-```
-BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_
-```
-
-and a length value of 12
-
-Outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 ```
 {{ $generators[0] }}
