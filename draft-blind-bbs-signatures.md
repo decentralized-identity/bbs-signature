@@ -302,7 +302,7 @@ This document does not make any requests of IANA.
 
 //TODO
 
-<reference anchor="BBS-DRAFT" target="https://identity.foundation/bbs-signature/draft-looker-cfrg-bbs-signatures.html">
+<reference anchor="BBS-DRAFT" target="https://identity.foundation/bbs-signature/draft-irtf-cfrg-bbs-signatures.html">
  <front>
    <title>The BBS Signature Scheme</title>
    <author initials="M." surname="Lodder" fullname="Mike Lodder">

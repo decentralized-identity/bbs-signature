@@ -5,7 +5,7 @@ import get from "lodash.get";
 
 const VARIABLE_REGEX = /^({{ \$)([a-zA-Z|.|\d|\[|\]]*)( }})$/gm;
 
-const DRAFT_NAME = "../../draft-looker-cfrg-bbs-signatures.md";
+const DRAFT_NAME = "../../draft-irtf-cfrg-bbs-signatures.md";
 
 const main = async () => {
   // Read the text of the draft out

@@ -47,8 +47,8 @@ OPTIONS:
    2. Signer creates the generators for a signer specific setting
 2. `-l` accepts any positive integer
 3. `-s` accepted values are Shake, xof, Sha and xmd
-   1. Shake or xof creates generators for the [BLS12-381-SHAKE-256](https://identity.foundation/bbs-signature/draft-looker-cfrg-bbs-signatures.html#name-bls12-381-shake-256) ciphersuite
-   2. Sha or xmd creates generators for the [BLS12-381-SHA-256](https://identity.foundation/bbs-signature/draft-looker-cfrg-bbs-signatures.html#name-bls12-381-sha-256) ciphersuite
+   1. Shake or xof creates generators for the [BLS12-381-SHAKE-256](https://identity.foundation/bbs-signature/draft-irtf-cfrg-bbs-signatures.html#name-bls12-381-shake-256) ciphersuite
+   2. Sha or xmd creates generators for the [BLS12-381-SHA-256](https://identity.foundation/bbs-signature/draft-irtf-cfrg-bbs-signatures.html#name-bls12-381-sha-256) ciphersuite
 
 The demo will output the generators in compressed format hex encoded, an example of which is
 
