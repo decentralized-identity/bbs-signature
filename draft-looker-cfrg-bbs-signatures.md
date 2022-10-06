@@ -1008,7 +1008,7 @@ Procedure:
 4.      if el is an octet string representing a public key:
 5.          el_octs = el
 6.      else if el is representing a utf8 encoded Ciphersuite ID:
-7.          el_octs = utf8(el)
+7.          el_octs = el
 8.      else if el is an octet string:
 9.          if length(el) > 2^64 - 1, return INVALID
 10.         el_octs = I2OSP(length(el), 8) || el
