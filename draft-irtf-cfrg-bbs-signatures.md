@@ -7,7 +7,7 @@ workgroup = "CFRG"
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-looker-cfrg-bbs-signatures-latest"
+value = "draft-irtf-cfrg-bbs-signatures-latest"
 status = "informational"
 
 [[author]]
