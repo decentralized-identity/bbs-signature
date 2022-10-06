@@ -9,7 +9,7 @@
 .targets.mk
 /*-[0-9][0-9].xml
 archive.json
-draft-looker-cfrg-bbs-signatures.xml
+draft-irtf-cfrg-bbs-signatures.xml
 lib
 report.xml
 venv/

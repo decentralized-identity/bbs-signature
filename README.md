@@ -6,7 +6,7 @@ This repository is home to multiple internet drafts around the BBS Signature sch
 
 This draft defines the core operations, cryptographic structures and overall protocol for the BBS Signature scheme
 
-* [Latest Draft](https://decentralized-identity.github.io/bbs-signature/#go.draft-looker-cfrg-bbs-signatures.html)
+* [Latest Draft](https://decentralized-identity.github.io/bbs-signature/#go.draft-irtf-cfrg-bbs-signatures.html)
 * [Compare Drafts](https://decentralized-identity.github.io/bbs-signature)
 
 ## Blind Sign BBS Signature Scheme Extension
