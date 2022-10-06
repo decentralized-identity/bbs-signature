@@ -657,7 +657,7 @@ Parameters:
 Definitions:
 
 - seed_dst, octet string representing the domain seperation tag:
-            urtf8(ciphersuite_id || "SIG_GENERATOR_SEED_"), where
+            utf8(ciphersuite_id || "SIG_GENERATOR_SEED_"), where
             ciphersuite_id is defined by the ciphersuite.
 - generator_dst, octet string representing the domain seperation tag:
                  utf8(ciphersuite_id || "SIG_GENERATOR_DST_"), where
