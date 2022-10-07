@@ -172,7 +172,7 @@ where
     let mut buffer = [0u8; 64];
     for _ in 0..len {
         reader.read(&mut buffer);
-        let gi = G1Projective::hash::<ExpandMsgXof<Shake256>>(&buffer, DST);
+        let gi = G1Projective::hash::<ExpandMsgXof<Shake256>>(&buffer, &X::generator_dst());
         generators.push(gi);
     }
 
