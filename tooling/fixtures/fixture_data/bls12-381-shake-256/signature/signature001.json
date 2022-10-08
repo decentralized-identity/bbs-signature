@@ -6,12 +6,10 @@
   },
   "header": "11223344556677889900aabbccddeeff",
   "messages": [
-    "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02",
-    "87a8bd656d49ee07b8110e1d8fd4f1dcef6fb9bc368c492d9bc8c4f98a739ac6"
+    "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02"
   ],
-  "signature": "8791800d401cbf3b6edb9947b33775262cfca2c2af94e3c11809b53b20c6eca1a0466504ea057fe4d56952c3de99cbda4c15220babfa31cf9a1bcd0376c865d96bdf64e76edd4cfc06613af8eb3c638d3406272b38f5e87deabd4e4955fdd1abe2e1ee6ef2f106e35b4aadbb3d5ce4b5",
+  "signature": "96c55d18ecaedcac89d66a53f21e72eb561740e22ba00cedd96d245ade25d85b22327e0fc7f1996d236eeb0bbe793b040ea5b462278d22a1fae04aad9b6ae07d22cdfb9c6c3918c3ddf3bad6b6795eaa6eeafeedbeafc0f896482dcae35d1b818879baa6772b490447e57b786f89dd29",
   "result": {
-    "valid": false,
-    "reason": "extra unsigned message"
+    "valid": true
   }
 }

@@ -1,19 +1,26 @@
-import * as keyPair from "./keyPair.json";
-import * as generators from "./generators.json";
+import * as keyPair from "./fixture_data/keyPair.json";
+import * as messages from "./fixture_data/messages.json";
 import * as path from "path";
+import { readdirSync  } from 'fs';
+
+const FIXTURES_FILE = "./fixture_data"
 
 const isObject = (value: unknown) => value && typeof value === "object";
 
 // tslint:disable-next-line:no-var-requires
-const resolveFixtures = (subDirectory: string) =>
+const resolveFixtures = (subDirectory: string, filter: any) =>
   require("require-all")({
     dirname: `${__dirname}/${subDirectory}`,
-    filter: /.json$/,
+    filter: filter,
     excludeDirs: [".github", "tests"],
     map: (__: unknown, path: unknown) => {
       return `${path}`;
     },
   });
+
+const suites = readdirSync(FIXTURES_FILE, { withFileTypes: true })
+                .filter(dirent => dirent.isDirectory())
+                .map(dirent => dirent.name);
 
 export interface SignatureFixtureData {
   readonly caseName: string;
@@ -27,13 +34,31 @@ export interface SignatureFixtureData {
   };
 }
 
-export interface SignatureFixture {
-  readonly name: string;
-  readonly value: SignatureFixtureData;
+export interface ProofFixtureData {
+  readonly caseName: string;
+  readonly signerPublicKey: string;
+  readonly header: string;
+  readonly presentationMessage: string;
+  readonly revealedMessages: { [index: string]: string };
+  readonly totalMessageCount: number;
+  readonly proof: string;
+  result: { valid: false; reason: string } | { valid: true };
 }
 
-const fetchNestedFixtures = <T>(name: string, input: any): ReadonlyArray<T> => {
-  if (input.caseName) {
+export interface GeneratorFixtureData {
+  readonly P1: string;
+  readonly Q1: string;
+  readonly Q2: string;
+  readonly MsgGenerators: string[];
+}
+
+export interface Fixture<T> {
+  readonly name: string
+  readonly value: T
+}
+
+const fetchNestedFixtures = <T>(name: string, input: any): ReadonlyArray<Fixture<T>> => {
+  if (input.caseName || input.MsgGenerators) {
     return [
       {
         name: path.basename(name).split(".")[0] as string,
@@ -51,15 +76,32 @@ const fetchNestedFixtures = <T>(name: string, input: any): ReadonlyArray<T> => {
   return Array.prototype.concat.apply([], extractedFixtures);
 };
 
-export const signatureFixtures = fetchNestedFixtures<SignatureFixture>(
-  "",
-  resolveFixtures("signature")
-).reduce((map, item) => {
-  map = {
-    ...map,
-    [item.name]: item.value,
-  };
-  return map;
-}, {});
 
-export { keyPair, generators };
+const fetchPerSuiteFixtures = <T>(dir:string, filter = /.json$/) => {
+  let fixtureMap = {}
+  for (let suite of suites) {
+    let suiteFixturesData = fetchNestedFixtures<T>(
+      "", resolveFixtures(FIXTURES_FILE+"/"+suite+dir, filter)
+      )
+      .reduce((map, item: Fixture<T>) => {
+        map = {
+          ...map,
+          [item.name]: item.value
+        }
+        return map
+      }, {})
+
+    fixtureMap = {
+      ...fixtureMap,
+      [suite]: suiteFixturesData
+    }
+  }
+  
+  return fixtureMap
+}
+
+export const signatureFixtures = fetchPerSuiteFixtures<SignatureFixtureData>("/signature");
+export const proofFixtures = fetchPerSuiteFixtures<ProofFixtureData>("/proof");
+export const generatorFixtures = fetchPerSuiteFixtures<GeneratorFixtureData>("", /generators.json/);
+
+export { keyPair, messages };

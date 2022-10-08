@@ -21,23 +21,23 @@ jobs:
     steps:
       - name: "Checkout"
         uses: actions/checkout@v2
+        
+      # Temporarily disabled until the tool is updated to the latest spec
+      # - name: "Install and build message generator CLI"
+      #   run: cargo build
+      #   working-directory: ./tooling/message-generators
 
-      - name: "Install and build message generator CLI"
-        run: cargo build
-        working-directory: ./tooling/message-generators
-
-      - name: "Update the message generators in the fixtures folder"
-        run: ./target/debug/bbs-signature-generator-demo -o file ../fixtures/generators.json
-        working-directory: ./tooling/message-generators
+      # - name: "Update the message generators in the fixtures folder"
+      #   run: ./target/debug/bbs-signature-generator-demo -o file ../fixtures/generators.json
+      #   working-directory: ./tooling/message-generators
 
       - name: "Install yarn dependencies"
         run: yarn install --frozen-lockfile
         working-directory: ./tooling/fixtures
 
-      # Temporarily disabled until message-generators tooling is updated.
-      # - name: "Populate fixtures Yarn"
-      #   run: yarn populate-fixtures
-      #   working-directory: ./tooling/fixtures
+      - name: "Populate fixtures Yarn"
+        run: yarn populate-fixtures
+        working-directory: ./tooling/fixtures
 
       - name: "Cache Setup"
         id: cache-setup
