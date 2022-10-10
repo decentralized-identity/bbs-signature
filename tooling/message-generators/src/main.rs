@@ -158,22 +158,27 @@ fn make_generators<'a, X>(seed: Option<&[u8]>, len: usize) -> Generators
 where
     X: BbsCiphersuite<'a>
 {
-
+    const EXPAND_LEN: usize = 48; //TODO make a property of X or calculate?
     let default_seed = &X::generator_seed();
-    let seed = seed.unwrap_or(default_seed);
+    let seed = seed.unwrap_or(default_seed); //TODO remove parameter and always use default one?
 
     let base_point = make_g1_base_point::<X>();
-
-    let mut reader = Shake256::default()
-        .chain(seed)
-        .finalize_xof();
-
     let mut generators = Vec::new();
-    let mut buffer = [0u8; 64];
-    for _ in 0..len {
-        reader.read(&mut buffer);
-        let gi = G1Projective::hash::<ExpandMsgXof<Shake256>>(&buffer, &X::generator_dst());
-        generators.push(gi);
+
+    let mut v = vec!(0u8; EXPAND_LEN);
+    let mut buffer = vec!(0u8; EXPAND_LEN);
+    X::Expander::expand_message(seed, &X::generator_seed_dst(), &mut v);
+
+    let mut n = 1u32;
+    while generators.len() < len {
+        v.append(n.to_be_bytes().to_vec().as_mut());
+        X::Expander::expand_message(&v, &X::generator_seed_dst(), &mut buffer);
+        v = buffer.clone();
+        n += 1;
+        let candidate = G1Projective::hash::<ExpandMsgXof<Shake256>>(&v, &X::generator_dst());
+        if !generators.contains(&candidate) {
+            generators.push(candidate);
+        }
     }
 
     Generators {
