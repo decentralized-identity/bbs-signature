@@ -160,7 +160,7 @@ where
 {
     const EXPAND_LEN: usize = 48; //TODO make a property of X or calculate?
     let default_seed = &X::generator_seed();
-    let seed = seed.unwrap_or(default_seed); //TODO remove parameter and always use default one?
+    let seed = seed.unwrap_or(default_seed);
 
     let base_point = make_g1_base_point::<X>();
     let mut generators = Vec::new();
@@ -175,7 +175,7 @@ where
         X::Expander::expand_message(&v, &X::generator_seed_dst(), &mut buffer);
         v = buffer.clone();
         n += 1;
-        let candidate = G1Projective::hash::<ExpandMsgXof<Shake256>>(&v, &X::generator_dst());
+        let candidate = G1Projective::hash::<<X as BbsCiphersuite>::Expander>(&v, &X::generator_dst());
         if !generators.contains(&candidate) {
             generators.push(candidate);
         }
