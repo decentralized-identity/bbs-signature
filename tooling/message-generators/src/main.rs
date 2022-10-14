@@ -1,8 +1,6 @@
-use bls12_381_plus::{ExpandMsg, ExpandMsgXof, G1Projective, G2Projective, Scalar};
+use bls12_381_plus::{ExpandMsg, G1Projective, G2Projective, Scalar};
 use ff::Field;
 use group::{Curve};
-use sha3::digest::{ExtendableOutput, Update, XofReader};
-use sha3::Shake256;
 use structopt::StructOpt;
 use std::env;
 use std::fs::File;
@@ -10,8 +8,6 @@ use std::io::{BufWriter, Write};
 
 mod ciphersuites;
 use ciphersuites::{BbsCiphersuite, Bls12381Shake256, Bls12381Sha256};
-
-const DST: &[u8] = b"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_";
 
 struct Generators {
     g1_base_point: G1Projective,
