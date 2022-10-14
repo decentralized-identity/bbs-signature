@@ -1150,7 +1150,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
-- hash\_to\_curve\_suite: "BLS12381G1\_XOF:SHAKE-256\_SSWU\_R0\_" as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
+- hash\_to\_curve\_suite: "BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_" as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
 - P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
@@ -1349,7 +1349,7 @@ Note the notation used in the below definitions is sourced from [@!I-D.irtf-cfrg
 
 ## BLS12-381 G1
 
-The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_R0_` is defined as follows:
+The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_RO_` is defined as follows:
 
 ```
 * encoding type: hash_to_curve (Section 3 of
