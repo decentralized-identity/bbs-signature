@@ -52,6 +52,25 @@ export interface GeneratorFixtureData {
   readonly MsgGenerators: string[];
 }
 
+export interface H2sFixtureData {
+  readonly caseName: string;
+  readonly message: string;
+  readonly dst: string;
+  readonly count: number;
+  readonly scalars: string[];
+}
+
+export interface MapMessageToScalarCase {
+  message: string;
+  scalar: string;
+}
+
+export interface MapMessageToScalarFixtureData {
+  readonly caseName: string;
+  readonly dst: string;
+  readonly cases: ReadonlyArray<MapMessageToScalarCase>
+}
+
 export interface Fixture<T> {
   readonly name: string
   readonly value: T
@@ -102,6 +121,12 @@ const fetchPerSuiteFixtures = <T>(dir:string, filter = /.json$/) => {
 
 export const signatureFixtures = fetchPerSuiteFixtures<SignatureFixtureData>("/signature");
 export const proofFixtures = fetchPerSuiteFixtures<ProofFixtureData>("/proof");
+export const H2sFixture = fetchPerSuiteFixtures<H2sFixtureData>("/h2s")
 export const generatorFixtures = fetchPerSuiteFixtures<GeneratorFixtureData>("", /generators.json/);
+export const MapMessageToScalarFixtures = 
+  fetchPerSuiteFixtures<MapMessageToScalarFixtureData>("", /MapMessageToScalarAsHash.json/);
+
+console.log("MapMessageToScalarFixtures = ", MapMessageToScalarFixtures);
+console.log("H2sFixture = ", H2sFixture);
 
 export { keyPair, messages };

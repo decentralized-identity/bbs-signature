@@ -1,0 +1,46 @@
+{
+  "caseName": "MapMessageToScalar fixture",
+  "dst": "4242535f424c53313233383147315f584f463a5348414b452d3235365f535357555f524f5f4d41505f4d4553534147455f544f5f5343414c41525f41535f484153485f",
+  "cases": [
+    {
+      "message": "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02",
+      "scalar": "19a2cc1d54ad9cdea2f93fcce73811bfc1879ccda3c9414ea52c4296852d9c43"
+    },
+    {
+      "message": "87a8bd656d49ee07b8110e1d8fd4f1dcef6fb9bc368c492d9bc8c4f98a739ac6",
+      "scalar": "6ee4168caf85f9dbaab3f8857ee63cea7dcb22552be30756479f24d4b7a26236"
+    },
+    {
+      "message": "96012096adda3f13dd4adbe4eea481a4c4b5717932b73b00e31807d3c5894b90",
+      "scalar": "5d88d3965cb74cc28dd3e17131e3b0338d152d42034d878f8b9f88c7f97cf675"
+    },
+    {
+      "message": "ac55fb33a75909edac8994829b250779298aa75d69324a365733f16c333fa943",
+      "scalar": "3b4a92e21d288223092d5d0c5351c531178814861600d0d9ccb2f388ec769bcd"
+    },
+    {
+      "message": "d183ddc6e2665aa4e2f088af9297b78c0d22b4290273db637ed33ff5cf703151",
+      "scalar": "62d76886ae747542aad2f997a4c381aee12d0c9279b3b4e19dfceee446c90d37"
+    },
+    {
+      "message": "515ae153e22aae04ad16f759e07237b43022cb1ced4c176e0999c6a8ba5817cc",
+      "scalar": "641d99120d52518fbdf3839f4981d1da756779ab22f29b0b27df4b1911ccb7dd"
+    },
+    {
+      "message": "496694774c5604ab1b2544eababcf0f53278ff5040c1e77c811656e8220417a2",
+      "scalar": "608f77dc8248641d10b347dfe40e929d55b6ca980d7a993a168f19f42e5130fd"
+    },
+    {
+      "message": "77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c23364568523f8b91",
+      "scalar": "391a78a4052600a4abdbcfe890dff5686df08d50ebe89c8374fb5ca103e5a90f"
+    },
+    {
+      "message": "7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b7320912416",
+      "scalar": "1259ef23a363a90ad13a7d809bc596fe673b5cc2bf5788eca233076f25c117cd"
+    },
+    {
+      "message": "c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80",
+      "scalar": "255a7cac8f7440dbe3166df1a669bb26d4abb7ffda2f2c809df69fcc9f92275d"
+    }
+  ]
+}
