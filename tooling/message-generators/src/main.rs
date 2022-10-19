@@ -222,7 +222,7 @@ where
     X::Expander::expand_message(&X::bp_generator_seed(), &X::generator_seed_dst(), &mut v);
 
     // TODO: implement a proper I2OSP
-    let extra = 1usize.to_be_bytes()[4..].to_vec();
+    let extra = 1u32.to_be_bytes().to_vec();
     let buffer = [v.as_ref(), &extra].concat();
 
     X::Expander::expand_message(&buffer, &X::generator_seed_dst(), &mut v);
