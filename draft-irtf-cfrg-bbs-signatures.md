@@ -1985,6 +1985,11 @@ Note that the verifier will know the elements in the left side of the above equa
 -01
 
 * Populated fixtures
+* Added SHA-256 based ciphersuite
+* Fixed typo in ProofVerify
+* Clarify ASCII string usage in DST
+* Added MapMessageToScalar test vectors
+* Fix typo in ciphersuite name
 
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
