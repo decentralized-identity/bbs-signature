@@ -3,7 +3,7 @@ import * as path from "path";
 import * as fixtures from "./fetchFixtures";
 import get from "lodash.get";
 
-const VARIABLE_REGEX = /^({{ \$)([a-zA-Z|.|\d|\[|\]]*)( }})$/gm;
+const VARIABLE_REGEX = /({{ \$)([a-zA-Z|.|\-|\d|\[|\]]*)( }})$/gm;
 
 const DRAFT_NAME = "../../draft-irtf-cfrg-bbs-signatures.md";
 
@@ -19,7 +19,12 @@ const main = async () => {
   );
 
   results.forEach((result) => {
-    const value = get(fixtures, result.path);
+    var value = get(fixtures, result.path);
+
+    // make everything 72 chars
+    for (let i = 0; i < ~~(value.length/72); i++) {
+      value = value.slice(0, i*73 + 72) + "\n" + value.slice(i*73 + 72);
+    }
 
     if (value) {
       fileContents = fileContents.replace(result.match, value);

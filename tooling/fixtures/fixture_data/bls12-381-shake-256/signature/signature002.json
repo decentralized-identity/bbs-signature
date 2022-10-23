@@ -6,10 +6,11 @@
   },
   "header": "11223344556677889900aabbccddeeff",
   "messages": [
-    "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02"
+    "c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80"
   ],
-  "signature": "8791800d401cbf3b6edb9947b33775262cfca2c2af94e3c11809b53b20c6eca1a0466504ea057fe4d56952c3de99cbda4c15220babfa31cf9a1bcd0376c865d96bdf64e76edd4cfc06613af8eb3c638d3406272b38f5e87deabd4e4955fdd1abe2e1ee6ef2f106e35b4aadbb3d5ce4b5",
+  "signature": "8d80b2aab1e4ddaa15194313e55e28b22cf09e42e5d47819720d56d9cb2f85b5a84918a00fcc1e21d95f9b80fb66cd4a66bdea8d576240067be369751a7359b1d2318531a29fbdfe58e59a13e1e3d803627cb3197313b3b891a5facf95ad4cf8d7750fc99e036da6d1f8267f163986b6",
   "result": {
-    "valid": true
+    "valid": false,
+    "reason": "modified message"
   }
 }

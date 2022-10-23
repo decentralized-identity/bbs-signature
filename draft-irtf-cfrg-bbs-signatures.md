@@ -1154,8 +1154,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
-    P1 = 0x93a18d666efaaa35c317283d6f090667a4062ed42dab79d2a4c318f742d6
-           c45ef10b303eb9c418d37400c0c3816accc1
+    P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.BP }}
     ```
 
 **Serialization functions**:
@@ -1189,8 +1188,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
-    P1 = 0xad98180923a716ac626a3f7e7ffd3faa71820074bb7ae221fd01c406a6a5
-           636540ef3a3e18b21619a3bdff69e81d5da7
+    P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.BP }}
     ```
 
 **Serialization functions**:
@@ -1208,7 +1206,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 - generator\_seed: A global seed value of utf8("BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED") which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
 
 
-### Test Vectors
+# Test Vectors
 
 The following section details a basic set of test vectors that can be used to confirm an implementations correctness
 
@@ -1216,40 +1214,11 @@ The following section details a basic set of test vectors that can be used to co
 
 **NOTE** These fixtures are a work in progress and subject to change
 
-Further fixtures are available in (#additional-bls12-381-ciphersuite-test-vectors)
+## Key Pair
 
-#### Message Generators
+The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#keygen) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
 
-Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
-
-
-```
-{{ $generators[0] }}
-
-{{ $generators[1] }}
-
-{{ $generators[2] }}
-
-{{ $generators[3] }}
-
-{{ $generators[4] }}
-
-{{ $generators[5] }}
-
-{{ $generators[6] }}
-
-{{ $generators[7] }}
-
-{{ $generators[8] }}
-
-{{ $generators[9] }}
-
-{{ $generators[10] }}
-
-{{ $generators[11] }}
-```
-
-#### Key Pair
+**NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
 
 Following the procedure defined in (#keygen) with an input IKM value as follows
 
@@ -1269,62 +1238,236 @@ Following the procedure defined in (#sktopk) with an input SK value as above pro
 {{ $keyPair.keyPair.publicKey }}
 ```
 
-#### Valid Single Message Signature
+## Messages
+
+The following messages are used by the test vectors of both ciphersuites (unless otherwise stated).
+
+```
+{{ $messages[0] }}
+
+{{ $messages[1] }}
+
+{{ $messages[2] }}
+
+{{ $messages[3] }}
+
+{{ $messages[4] }}
+
+{{ $messages[5] }}
+
+{{ $messages[6] }}
+
+{{ $messages[7] }}
+
+{{ $messages[8] }}
+
+{{ $messages[9] }}
+```
+
+## BLS12-381-SHAKE-256 Test Vectors
+
+Test vectors of the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite. Further fixtures are available in [additional BLS12-381-SHAKE-256 test vectors](#additional-bls12-381-shake-256-ciphersuite-test-vectors).
+
+### Map Messages to Scalars
+
+The messages in (#messages) must be mapped to scalars before passed to the Sign, Verify, ProofGen and ProofVerify operations. For the purpose of the test vectors presented in this document we are using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation to map each message to a scalar. For the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite, on input each message in (#messages) and the following default dst
+
+```
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.dst }}
+```
+
+The output scalars, encoded to octets using I2OSP and represented in big endian order, are the following,
+
+```
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[0].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[1].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[2].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[3].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[4].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[5].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[6].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[7].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[8].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[9].scalar }}
+```
+
+Note that in both the following test vectors, as well as the additional [BLS12-381-SHAKE-256](#bls12-381-shake-256) test vectors in (#bls12-381-shake-256-ciphersuite), when we are referring to a message that will be passed to one of the Sign, Verify, ProofGen or ProofVerify operations, we assume that it will first be mapped into one of the above scalars, using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation.
+
+### Message Generators
+
+Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
+
+
+```
+{{ $generatorFixtures.bls12-381-shake-256.generators.Q1 }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.Q2 }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[0] }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[1] }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[2] }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[3] }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[4] }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[5] }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[6] }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[7] }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[8] }}
+
+{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[9] }}
+```
+
+### Valid Single Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.signature001.header }}
+{{ $signatureFixtures.bls12-381-sha-256.signature001.header }}
 ```
 
-And the following message
+And the following message (the first message defined in (#messages))
 
 ```
-{{ $signatureFixtures.signature001.messages[0] }}
+{{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}
 ```
 
-Along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+After it is mapped to the first scalar in (#map-messages-to-scalars), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
-{{ $signatureFixtures.signature001.signature }}
+{{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
 ```
 
-#### Valid Multi-Message Signature
+### Valid Multi-Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.signature004.header }}
+{{ $signatureFixtures.bls12-381-shake-256.signature004.header }}
 ```
 
-And the following messages (**Note** the ordering of the messages MUST be preserved)
+And the messages defined in (#messages) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
-{{ $signatureFixtures.signature004.messages[0] }}
-
-{{ $signatureFixtures.signature004.messages[1] }}
-
-{{ $signatureFixtures.signature004.messages[2] }}
-
-{{ $signatureFixtures.signature004.messages[3] }}
-
-{{ $signatureFixtures.signature004.messages[4] }}
-
-{{ $signatureFixtures.signature004.messages[5] }}
-
-{{ $signatureFixtures.signature004.messages[6] }}
-
-{{ $signatureFixtures.signature004.messages[7] }}
-
-{{ $signatureFixtures.signature004.messages[8] }}
-
-{{ $signatureFixtures.signature004.messages[9] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
 ```
 
-Along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+## BLS12381-SHA-256 Test Vectors
+
+Test vectors of the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersuite. Further fixtures are available in [additional BLS12-381-SHA-256 test vectors](#additional-bls12-381-sha-256-ciphersuite-test-vectors).
+
+### Map Messages to Scalars
+
+Similarly to how messages are mapped to scalars in [BLS12381-SHAKE-256 Test Vectors](#bls12381-sha-256-test-vectors), we are using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation to map each message to a scalar. For the [BLS12-381-SHA-256](#bls12-381-shake-256-ciphersuite) ciphersuite, on input each message in (#messages) and the following default dst
 
 ```
-{{ $signatureFixtures.signature004.signature }}
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.dst }}
+```
+
+The output scalars, encoded to octets using I2OSP and represented in big endian order, are the following,
+
+```
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[0].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[1].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[2].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[3].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[4].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[5].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[6].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[7].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[8].scalar }}
+
+{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[9].scalar }}
+```
+
+Note that in both the following test vectors, as well as the additional [BLS12-381-SHA-256](#bls12-381-shake-256) test vectors in (#bls12-381-sha-256-ciphersuite), when we are referring to a message that will be passed to one of the Sign, Verify, ProofGen or ProofVerify operations, we assume that it will first be mapped into one of the above scalars, using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation.
+
+### Message Generators
+
+Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHA-256](#bls12-381-sha-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
+
+
+```
+{{ $generatorFixtures.bls12-381-sha-256.generators.Q1 }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.Q2 }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[0] }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[1] }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[2] }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[3] }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[4] }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[5] }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[6] }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[7] }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[8] }}
+
+{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[9] }}
+```
+
+### Valid Single Message Signature
+
+Using the following header
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature001.header }}
+```
+
+And the following message (the first message defined in (#messages))
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}
+```
+
+After it is mapped to the first scalar in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+
+```
+{{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
+```
+
+### Valid Multi-Message Signature
+
+Using the following header
+
+```
+{{ $signatureFixtures.bls12-381-shake-256.signature004.header }}
+```
+
+And the messages defined in (#messages) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+
+```
+{{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
 ```
 
 # IANA Considerations
@@ -1418,199 +1561,385 @@ BBS Signatures ofter an alternative model that solves the same problems that pro
 
 BBS signatures when applied to the problem space of identity credentials can help to enhance user privacy. For example a digital drivers license that is cryptographically signed with a BBS signature, allows the holder or subject of the license to disclose different claims from their drivers license to different parties. Furthermore, the unlinkable presentations property of proofs generated by the scheme remove an important possible source of correlation for the holder across multiple presentations.
 
-# Additional BLS12-381 Ciphersuite Test Vectors
+# Additional Test Vectors
 
 **NOTE** These fixtures are a work in progress and subject to change
 
-## Modified Message Signature
+## BLS12-381-SHAKE-256 Ciphersuite
+
+### Modified Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.signature002.header }}
+{{ $signatureFixtures.bls12-381-shake-256.signature002.header }}
 ```
 
-And the following message
+And the following message (the first message defined in (#messages))
 
 ```
-{{ $signatureFixtures.signature002.messages[0] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature002.messages[0] }}
 ```
 
-And the following signature
+After is mapped to the first scalar in (#map-messages-to-scalars), and with the following signature
 
 ```
-{{ $signatureFixtures.signature002.signature }}
+{{ $signatureFixtures.bls12-381-shake-256.signature002.signature }}
 ```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed
 
-## Extra Unsigned Message Signature
+### Extra Unsigned Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.signature003.header }}
+{{ $signatureFixtures.bls12-381-shake-256.signature003.header }}
 ```
 
-And the following messages
+And the following messages (the two first messages defined in (#messages))
 
 ```
-{{ $signatureFixtures.signature003.messages[0] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature003.messages[0] }}
 
-{{ $signatureFixtures.signature003.messages[1] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature003.messages[1] }}
 ```
 
-And the following signature
+After they are mapped to the first 2 scalars in (#map-messages-to-scalars), and with the following signature (which is a signature to only the first of the above two messages)
 
 ```
-{{ $signatureFixtures.signature002.signature }}
+{{ $signatureFixtures.bls12-381-shake-256.signature003.signature }}
 ```
 
-Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed
+Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
 
-## Missing Message Signature
+### Missing Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.signature005.header }}
+{{ $signatureFixtures.bls12-381-shake-256.signature005.header }}
 ```
 
-And the following messages
+And the following messages (the two first messages defined in (#messages))
 
 ```
-{{ $signatureFixtures.signature005.messages[0] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature005.messages[0] }}
 
-{{ $signatureFixtures.signature005.messages[1] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature005.messages[1] }}
 ```
 
-And the following signature
+After they are mapped to the first 2 scalars in (#map-messages-to-scalars), and with the following signature (which is a signature on all the messages defined in (#messages))
 
 ```
-{{ $signatureFixtures.signature005.signature }}
+{{ $signatureFixtures.bls12-381-shake-256.signature005.signature }}
 ```
 
-Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing
+Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
 
-## Reordered Message Signature
+### Reordered Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.signature006.header }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.header }}
 ```
 
-And the following messages
+And the following messages (re-ordering of the messages defined in (#messages))
 
 ```
-{{ $signatureFixtures.signature006.messages[0] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[0] }}
 
-{{ $signatureFixtures.signature006.messages[1] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[1] }}
 
-{{ $signatureFixtures.signature006.messages[2] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[2] }}
 
-{{ $signatureFixtures.signature006.messages[3] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[3] }}
 
-{{ $signatureFixtures.signature006.messages[4] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[4] }}
 
-{{ $signatureFixtures.signature006.messages[5] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[5] }}
 
-{{ $signatureFixtures.signature006.messages[6] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[6] }}
 
-{{ $signatureFixtures.signature006.messages[7] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[7] }}
 
-{{ $signatureFixtures.signature006.messages[8] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[8] }}
 
-{{ $signatureFixtures.signature006.messages[9] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[9] }}
 ```
 
-And the following signature
+After they are mapped to the corresponding scalars in (#map-messages-to-scalars), and with the following signature
 
 ```
-{{ $signatureFixtures.signature006.signature }}
+{{ $signatureFixtures.bls12-381-shake-256.signature006.signature }}
 ```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed
 
-## Wrong Public Key Signature
+### Wrong Public Key Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.signature007.header }}
+{{ $signatureFixtures.bls12-381-shake-256.signature007.header }}
 ```
 
-And the following messages
+And the messages as defined in (#messages), mapped to the scalars in (#map-messages-to-scalars) and with the following signature
 
 ```
-{{ $signatureFixtures.signature007.messages[0] }}
-
-{{ $signatureFixtures.signature007.messages[1] }}
-
-{{ $signatureFixtures.signature007.messages[2] }}
-
-{{ $signatureFixtures.signature007.messages[3] }}
-
-{{ $signatureFixtures.signature007.messages[4] }}
-
-{{ $signatureFixtures.signature007.messages[5] }}
-
-{{ $signatureFixtures.signature007.messages[6] }}
-
-{{ $signatureFixtures.signature007.messages[7] }}
-
-{{ $signatureFixtures.signature007.messages[8] }}
-
-{{ $signatureFixtures.signature007.messages[9] }}
-```
-
-And the following signature
-
-```
-{{ $signatureFixtures.signature007.signature }}
+{{ $signatureFixtures.bls12-381-shake-256.signature007.signature }}
 ```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct
 
-## Wrong Public Key Signature
+### Wrong Header Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.signature008.header }}
+{{ $signatureFixtures.bls12-381-shake-256.signature008.header }}
 ```
 
-And the following messages
+And the messages as defined in (#messages), mapped to the scalars in (#map-messages-to-scalars) and with the following signature
 
 ```
-{{ $signatureFixtures.signature008.messages[0] }}
-
-{{ $signatureFixtures.signature008.messages[1] }}
-
-{{ $signatureFixtures.signature008.messages[2] }}
-
-{{ $signatureFixtures.signature008.messages[3] }}
-
-{{ $signatureFixtures.signature008.messages[4] }}
-
-{{ $signatureFixtures.signature008.messages[5] }}
-
-{{ $signatureFixtures.signature008.messages[6] }}
-
-{{ $signatureFixtures.signature008.messages[7] }}
-
-{{ $signatureFixtures.signature008.messages[8] }}
-
-{{ $signatureFixtures.signature008.messages[9] }}
-```
-
-And the following signature
-
-```
-{{ $signatureFixtures.signature008.signature }}
+{{ $signatureFixtures.bls12-381-shake-256.signature008.signature }}
 ```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed
+
+### Hash to Scalar Test Vectors
+
+Using the following input message,
+
+```
+{{ $H2sFixture.bls12-381-shake-256.h2s001.message }}
+```
+
+And the default dst defined in [hash-to-scalar](#hash-to-scalar), i.e.,
+
+```
+{{ $H2sFixture.bls12-381-shake-256.h2s001.dst }}
+```
+
+With an output count of `1`, we get the following scalar, encoded with I2OSP and represented in big endian order,
+
+```
+{{ $H2sFixture.bls12-381-shake-256.h2s001.scalars[0] }}
+```
+
+With the same input message and dst but with an output count of `10` we get the following scalars (again encoded with I2OSP and represented in big endian order),
+
+```
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[0] }}
+
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[1] }}
+
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[2] }}
+
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[3] }}
+
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[4] }}
+
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[5] }}
+
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[6] }}
+
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[7] }}
+
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[8] }}
+
+{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[9] }}
+```
+
+## BLS12-381-SHA-256 Ciphersuite
+
+### Modified Message Signature
+
+Using the following header
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature002.header }}
+```
+
+And the following message (the first message defined in (#messages))
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature002.messages[0] }}
+```
+
+After is maped to the first scalar in (#map-messages-to-scalars-1), and with the following signature
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature002.signature }}
+```
+
+Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed.
+
+### Extra Unsigned Message Signature
+
+Using the following header
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature003.header }}
+```
+
+And the following messages (the two first messages defined in (#messages))
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature003.messages[0] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature003.messages[1] }}
+```
+
+After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), and with the following signature (which is a signature to only the first of the above two messages)
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature003.signature }}
+```
+
+Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
+
+### Missing Message Signature
+
+Using the following header
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature005.header }}
+```
+
+And the following messages (the two first messages defined in (#messages))
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature005.messages[0] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature005.messages[1] }}
+```
+
+After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), and with the following signature (which is a signature on all the messages defined in (#messages))
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature005.signature }}
+```
+
+Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
+
+### Reordered Message Signature
+
+Using the following header
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature006.header }}
+```
+
+And the following messages (re-ordering of the messages defined in (#messages))
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[0] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[1] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[2] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[3] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[4] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[5] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[6] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[7] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[8] }}
+
+{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[9] }}
+```
+
+After they are mapped to the corresponding scalars in (#map-messages-to-scalars-1), and with the following signature
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature006.signature }}
+```
+
+Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed.
+
+### Wrong Public Key Signature
+
+Using the following header
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature007.header }}
+```
+
+And the messages as defined in (#messages), mapped to the scalars in (#map-messages-to-scalars-1) and with the following signature
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature007.signature }}
+```
+
+Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct.
+
+### Wrong Header Signature
+
+Using the following header
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature008.header }}
+```
+
+And the messages as defined in (#messages), mapped to the scalars in (#map-messages-to-scalars-1) and with the following signature
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature008.signature }}
+```
+
+Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed.
+
+### Hash to Scalar Test Vectors
+
+Using the following input message,
+
+```
+{{ $H2sFixture.bls12-381-sha-256.h2s001.message }}
+```
+
+And the default dst defined in [hash-to-scalar](#hash-to-scalar), i.e.,
+
+```
+{{ $H2sFixture.bls12-381-sha-256.h2s001.dst }}
+```
+
+With an output count of `1`, we get the following scalar, encoded with I2OSP and represented in big endian order,
+
+```
+{{ $H2sFixture.bls12-381-sha-256.h2s001.scalars[0] }}
+```
+
+With the same input message and dst but with an output count of `10` we get the following scalars (again encoded with I2OSP and represented in big endian order),
+
+```
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[0] }}
+
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[1] }}
+
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[2] }}
+
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[3] }}
+
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[4] }}
+
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[5] }}
+
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[6] }}
+
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[7] }}
+
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[8] }}
+
+{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[9] }}
+```
 
 # Proof Generation and Verification Algorithmic Explanation
 
