@@ -853,13 +853,14 @@ Procedure:
 3.  if length(ph) > 2^64 - 1, return INVALID
 4.  (i1, ..., iR) = i_array
 5.  (msg_i1, ..., msg_iR) = msg_array
-6.  c_array = (A', Abar, D, C1, C2, R, i1, ..., iR, msg_i1, ..., msg_iR)
+6.  c_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
+                                   msg_i1, ..., msg_iR, domain)
 7.  c_octs = serialize(c_array)
 8.  if c_octs is INVALID, return INVALID
-9.  c_for_hash = c_octs || domain || I2OSP(length(ph), 8) || ph
-10. return hash_to_scalar(c_for_hash, 1)
+9.  c_input = c_octs || I2OSP(length(ph), 8) || ph
+10. return hash_to_scalar(c_input, 1)
 ```
-**Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied, 8 bytes representing a length of 0, must still be appended after the `domain` value, during the concatenation step of the above procedure (step 9).
+**Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `get_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 9).
 
 ## Serialization
 
@@ -923,7 +924,7 @@ Inputs:
 
 Outputs:
 
-- signature_octets, octet string.
+- signature_octets, octet string or INVALID.
 
 Procedure:
 
@@ -993,7 +994,7 @@ Parameters:
 
 Outputs:
 
-- proof_octets, octet string.
+- proof_octets, octet string or INVALID.
 
 Procedure:
 
