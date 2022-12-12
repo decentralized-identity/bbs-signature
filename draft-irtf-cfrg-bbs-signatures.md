@@ -142,6 +142,9 @@ msg
 generator
 : A valid point on the selected subgroup of the curve being used that is employed to commit a value.
 
+scalar
+: An integer between 0 and r-1, where r is the prime order of the selected groups, defined by each ciphersuite (see also [Notation](#notation)).
+
 signature
 : The digital signature output.
 
@@ -152,7 +155,7 @@ presentation\_header (ph)
 : A payload generated and bound to the context of a specific spk.
 
 nizk
-: A non-interactive zero-knowledge proof from fiat-shamir heuristic.
+: A non-interactive zero-knowledge proof from Fiat-Shamir heuristic.
 
 dst
 : The domain separation tag.
@@ -265,6 +268,23 @@ Throughout the operations of this signature scheme, each message that is signed 
 
 Aside from the message generators, the scheme uses two additional generators: `Q_1` and `Q_2`. The first (`Q_1`), is used for the blinding value (`s`) of the signature. The second generator (`Q_2`), is used to sign the signature's domain, which binds both the signature and generated proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
 
+### Serializing to octet strings
+
+When serializing different types of elements (i.e., Points, Scalars etc.) to get their octet representation, each element will be serialized with a specific operation, depending on its type. More concretely,
+
+- Points in `G*` will be serialized using the `point_to_octets_g*` implementation for a particular ciphersuite.
+- Non-negative integers will be serialized using `I2OSP` with an output length of 8 bytes.
+- Scalars will be serialized using `I2OSP` with a constant output length defined by a particular ciphersuite.
+- ASCII strings will be transformed into octet strings using UTF-8 encoding.
+
+Variable length octet strings, will be prepended with a value representing the length of their binary representation in the form of the number of bytes. This length must be encoded to octets using I2OSP with output length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. If the length of the octet string is larger than 2^64 - 1, the octet string must be rejected. Similarly, ASCII strings, after encoded to octets (using utf8), will also be appended with the length of their octet-string representation.
+
+Constant length octet strings (e.g., the ciphersuite id octet representation), will be encoded directly.
+
+Optional input/parameters to operations that feature in a call to hash\_to\_scalar, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `hash(A || X || B)` MUST be evaluated to `hash(A || "" || B)`.
+
+Those rules will be used explicitly on every operation. See also [Serialize](#serialize).
+
 ## Key Generation Operations
 
 ### KeyGen
@@ -339,7 +359,13 @@ Procedure:
 
 ## Core Operations
 
-The operations in this section make use of a “Precomputations” set of steps. The “Precomputations” steps must be executed before the steps in the “Procedure” of each operation and include computations that can be cached and re-used multiple times (like creating the generators etc.) or procedural steps like de-structuring inputted arrays.
+The operations in this section make use of a "Precomputations" set of steps. The "Precomputations" steps must be executed before the steps in the "Procedure" of each operation and include computations that can be cached and re-used multiple times (like creating the generators etc.) or procedural steps like de-structuring inputted arrays.
+
+The operations of this section make use of functions and sub-routines defined in [Utility Operations](#utility-operations). More specifically,
+
+- `hash_to_scalar` is defined in [Section 4.3](#hash-to-scalar)
+- `get_domain` and `get_challenge` are defined in [Section 4.4](#domain-calculation) and [Section 4.5](#challenge-calculation) correspondingly.
+- `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in [Section 4.6](#serialization)
 
 ### Sign
 
@@ -362,7 +388,6 @@ Inputs:
 
 Parameters:
 
-- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
@@ -382,17 +407,14 @@ Precomputations:
 
 Procedure:
 
-1.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
-2.  dom_for_hash = encode_for_hash(dom_array)
-3.  if dom_for_hash is INVALID, return INVALID
-4.  domain = hash_to_scalar(dom_for_hash, 1)
-5.  e_s_for_hash = encode_for_hash((SK, domain, msg_1, ..., msg_L))
-6.  if e_s_for_hash is INVALID, return INVALID
-7.  (e, s) = hash_to_scalar(e_s_for_hash, 2)
-8.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-9.  A = B * (1 / (SK + e))
-10. signature_octets = signature_to_octets(A, e, s)
-11. return signature_octets
+1. domain = get_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
+2. if domain is INVALID, return INVALID
+3. e_s_for_hash = serialize((SK, domain, msg_1, ..., msg_L))
+4. if e_s_for_hash is INVALID, return INVALID
+5. (e, s) = hash_to_scalar(e_s_for_hash, 2)
+6. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+7. A = B * (1 / (SK + e))
+8. return signature_to_octets(A, e, s)
 ```
 
 **Note** When computing step 9 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
@@ -418,7 +440,6 @@ Inputs:
 
 Parameters:
 
-- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
@@ -443,13 +464,11 @@ Procedure:
 3.  (A, e, s) = signature_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
-7.  dom_for_hash = encode_for_hash(dom_array)
-8.  if dom_for_hash is INVALID, return INVALID
-9.  domain = hash_to_scalar(dom_for_hash, 1)
-10. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-11. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
-12. return VALID
+6.  domain = get_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
+7.  if domain is INVALID, return INVALID
+8.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+9.  if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
+10. return VALID
 ```
 
 ### ProofGen
@@ -481,7 +500,6 @@ Inputs:
 
 Parameters:
 
-- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
@@ -516,32 +534,28 @@ Procedure:
 1.  signature_result = octets_to_signature(signature)
 2.  if signature_result is INVALID, return INVALID
 3.  (A, e, s) = signature_result
-4.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
-5.  dom_for_hash = encode_for_hash(dom_array)
-6.  if dom_for_hash is INVALID, return INVALID
-7.  domain = hash_to_scalar(dom_for_hash, 1)
-8.  (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(prf_len), 6)
-9.  (m~_j1, ..., m~_jU) = hash_to_scalar(PRF(prf_len), U)
-10. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-11. r3 = r1 ^ -1 mod r
-12. A' = A * r1
-13. Abar = A' * (-e) + B * r1
-14. D = B * r1 + Q_1 * r2
-15. s' = r2 * r3 + s mod r
-16. C1 = A' * e~ + Q_1 * r2~
-17. C2 = D * (-r3~) + Q_1 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
-18. c_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
-                       msg_i1, ..., msg_iR, domain, ph)
-19. c_for_hash = encode_for_hash(c_array)
-20. if c_for_hash is INVALID, return INVALID
-21. c = hash_to_scalar(c_for_hash, 1)
-22. e^ = c * e + e~ mod r
-23. r2^ = c * r2 + r2~ mod r
-24. r3^ = c * r3 + r3~ mod r
-25. s^ = c * s' + s~ mod r
-26. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
-27. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
-28. return proof_to_octets(proof)
+4.  domain = get_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
+5.  if domain is INVALID, return INVALID
+6.  (r1, r2, e~, r2~, r3~, s~) = hash_to_scalar(PRF(prf_len), 6)
+7.  (m~_j1, ..., m~_jU) = hash_to_scalar(PRF(prf_len), U)
+8.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+9.  r3 = r1 ^ -1 mod r
+10. A' = A * r1
+11. Abar = A' * (-e) + B * r1
+12. D = B * r1 + Q_1 * r2
+13. s' = r2 * r3 + s mod r
+14. C1 = A' * e~ + Q_1 * r2~
+15. C2 = D * (-r3~) + Q_1 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+16. c = get_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
+                                      (msg_i1, ..., msg_iR), domain, ph)
+17. if c is INVALID, return INVALID
+18. e^ = c * e + e~ mod r
+19. r2^ = c * r2 + r2~ mod r
+20. r3^ = c * r3 + r3~ mod r
+21. s^ = c * s' + s~ mod r
+22. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
+23. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+24. return proof_to_octets(proof)
 ```
 
 ### ProofVerify
@@ -576,7 +590,6 @@ Inputs:
 
 Parameters:
 
-- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
 - P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
@@ -613,22 +626,18 @@ Procedure:
 3.  (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  dom_array = (PK, L, Q_1, Q_2, H_1, ..., H_L, ciphersuite_id, header)
-7.  dom_for_hash = encode_for_hash(dom_array)
-8.  if dom_for_hash is INVALID, return INVALID
-9.  domain = hash_to_scalar(dom_for_hash, 1)
-10. C1 = (Abar - D) * c + A' * e^ + Q_1 * r2^
-11. T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-12. C2 = T * c - D * r3^ + Q_1 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
-13. cv_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
-                       msg_i1, ..., msg_iR, domain, ph)
-14. cv_for_hash = encode_for_hash(cv_array)
-15. if cv_for_hash is INVALID, return INVALID
-16. cv = hash_to_scalar(cv_for_hash, 1)
-17. if c != cv, return INVALID
-18. if A' == Identity_G1, return INVALID
-19. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
-20. return VALID
+6.  domain = get_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
+7.  if domain is INVALID, return INVALID
+8.  C1 = (Abar - D) * c + A' * e^ + Q_1 * r2^
+9.  T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+10. C2 = T * c - D * r3^ + Q_1 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+11. cv = get_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
+                                      (msg_i1, ..., msg_iR), domain, ph)
+12. if cv is INVALID, return INVALID
+13. if c != cv, return INVALID
+14. if A' == Identity_G1, return INVALID
+15. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+16. return VALID
 ```
 
 # Utility Operations
@@ -661,10 +670,10 @@ Parameters:
 
 Definitions:
 
-- seed_dst, octet string representing the domain seperation tag:
+- seed_dst, octet string representing the domain separation tag:
             utf8(ciphersuite_id || "SIG_GENERATOR_SEED_"), where
             ciphersuite_id is defined by the ciphersuite.
-- generator_dst, octet string representing the domain seperation tag:
+- generator_dst, octet string representing the domain separation tag:
                  utf8(ciphersuite_id || "SIG_GENERATOR_DST_"), where
                  ciphersuite_id is defined by the ciphersuite.
 - seed_len = ceil((ceil(log2(r)) + k)/8), where r and k are defined by
@@ -714,15 +723,14 @@ Outputs:
 
 Procedure:
 
-1. msg_for_hash = encode_for_hash(msg)
-2. if msg_for_hash is INVALID, return INVALID
-3. if length(dst) > 255, return INVALID
-4. return hash_to_scalar(msg_for_hash, 1, dst)
+1. if length(msg) > 2^64 - 1 or length(dst) > 255 return INVALID
+2. msg_for_hash = I2OSP(length(msg), 8) || msg
+3. return hash_to_scalar(msg_for_hash, 1, dst)
 ```
 
 ## Hash to Scalar
 
-This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To map a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To hash a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
 This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). If an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). Note however, that the hash\_to\_curve document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For this reason, we don’t directly use hash\_to\_field here, rather we define a similar operation (hash\_to\_scalar), making direct use of the expand\_message function, that will be defined by the hash-to-curve suite used (i.e., either expand\_message\_xmd or expand\_message\_xof). If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
@@ -772,7 +780,156 @@ Procedure:
 11. return (scalar_1, ..., scalar_count)
 ```
 
+## Domain Calculation
+
+This operation calculates the domain value, a scalar encoding public parameter information. Optionally, the domain can also include an additional octet string, called the header, meant to encode any additional information the signer may want to "bind" to the signature (like an expiration date, the targeted audience identifier etc.). The domain value will be signed using a specific generator point (`Q_2`) (see [Sign](#sign)) to protect the integrity of those public parameters. The header, if existing, must be known by all parties (i.e., the signer, the prover and verifier), for both the signature and proof to be validated correctly. This means, that the header can be used to enforce certain values (chosen by the signer) to always be disclosed by the prover.
+
+This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
+
+```
+domain = get_domain(Q_1, Q_2, H_Points, PK, header)
+
+Inputs:
+
+- PK (REQUIRED), octet string, representing the public key of the
+                 Signer of the form outputted by the SkToPk operation.
+- (Q_1, Q_2) (REQUIRED), points of G1 (the first 2 points returned from
+                         create_generators).
+- H_Points (REQUIRED), array of points of G1.
+- header (OPTIONAL), octet string. If not supplied, it must default to
+                     the empty octet string ("").
+
+Parameters:
+
+- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
+
+Outputs:
+
+- domain, a scalar value or INVALID.
+
+Procedure:
+
+1. L = length(H_Points)
+2. if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
+3. (H_1, ..., H_L) = H_Points
+4. dom_array = (Q_1, Q_2, L, H_1, ..., H_L, ciphersuite_id)
+5. dom_octs = serialize(dom_array)
+6. if dom_octs is INVALID, return INVALID
+7. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
+8. return hash_to_scalar(dom_input, 1)
+```
+
+**Note**: If the header is not supplied in `get_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 7), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though the a header value is not provided.
+
+## Challenge Calculation
+
+This operation calculates the challenge scalar value, used during [ProofGen](#proofgen) and [ProofVerify](#proofverify), as part of the Fiat-Shamir heuristic, for making the proof protocol non-interactive (in a interactive sating, the challenge would be a random value supplied by the verifier).
+
+This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
+
+```
+challenge = get_challenge(A', Abar, D, C1, C2, i_array,
+                                                  msg_array, domain, ph)
+
+Inputs:
+
+- (A', Abar, D, C1, C2) (REQUIRED), points of G1, as calculated in
+                                    ProofGen
+- i_array (REQUIRED), array of non-negative integers (the indexes of
+                      the disclosed messages).
+- msg_array (REQUIRED), array of scalars (the disclosed messages).
+- domain (REQUIRED), octet string.
+- ph (OPTIONAL), octet string. If not supplied, it must default to the
+                 empty octet string ("").
+
+Outputs:
+
+- challenge, a scalar or INVALID.
+
+Procedure:
+
+1.  R = length(i_array)
+2.  if R > 2^64 - 1 or R != length(msg_array), return INVALID
+3.  if length(ph) > 2^64 - 1, return INVALID
+4.  (i1, ..., iR) = i_array
+5.  (msg_i1, ..., msg_iR) = msg_array
+6.  c_array = (A', Abar, D, C1, C2, R, i1, ..., iR, msg_i1, ..., msg_iR)
+7.  c_octs = serialize(c_array)
+8.  if c_octs is INVALID, return INVALID
+9.  c_for_hash = c_octs || domain || I2OSP(length(ph), 8) || ph
+10. return hash_to_scalar(c_for_hash, 1)
+```
+**Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied, 8 bytes representing a length of 0, must still be appended after the `domain` value, during the concatenation step of the above procedure (step 9).
+
 ## Serialization
+
+### Serialize
+
+This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see [Section 3.2.3](#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)), ASCII strings or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#sign), [ProofGen](#proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
+
+```
+octets_result = serialize(input_array)
+
+Inputs:
+
+- input_array (REQUIRED), an array of elements to be serialized. Each
+                          element must be either a point of G1 or G2, a
+                          scalar, an ASCII string or an integer value
+                          between 0 and 2^64 - 1.
+
+Parameters:
+
+- octet_scalar_length, non-negative integer. The length of a scalar
+                       octet representation, defined by the ciphersuite.
+- r, the prime order of the subgroups G1 and G2, defined by the
+     ciphersuite.
+- point_to_octets_g*, operations that serialize a point of G1 or G2 to
+                      an octet string of fixed length, defined by the
+                      ciphersuite.
+
+Outputs:
+
+- octets_result, a scalar value or INVALID.
+
+Procedure:
+
+1.  let octets_result be an empty octet string.
+2.  for el in input_array:
+3.      if el is a point of G1: el_octs = point_to_octets_g1(el)
+4.      else if el is a point of G2: el_octs = point_to_octets_g2(el)
+5.      else if el is a scalar: el_octs = I2OSP(el, octet_scalar_length)
+6.      else if el is an integer between 0 and 2^64 - 1:
+7.          el_octs = I2OSP(el, 8)
+8.      else if el is an ASCII string: el_octs = utf8(el)
+9.      else: return INVALID
+10.     octets_result = octets_result || el_octs
+11. return octets_result
+```
+
+### SignatureToOctets
+
+This operation describes how to encode a signature to an octet string.
+
+*Note* this operation deliberately does not perform the relevant checks on the inputs `A`, `e` and `s`
+because its assumed these are done prior to its invocation, e.g as is the case with the [Sign](#sign) operation.
+
+```
+signature_octets = signature_to_octets(signature)
+
+Inputs:
+
+- signature (REQUIRED), a valid signature, in the form (A, e, s), where
+                        A a point in G1 and e, s non-zero scalars mod r.
+
+Outputs:
+
+- signature_octets, octet string.
+
+Procedure:
+
+1. (A, e, s) = signature
+2. return serialize((A, e, s))
+```
 
 ### OctetsToSignature
 
@@ -810,32 +967,38 @@ Procedure:
 15. return (A, e, s)
 ```
 
-### SignatureToOctets
+### ProofToOctets
 
-This operation describes how to encode a signature to an octet string.
+This operation describes how to encode a proof, as computed at step 25 in [ProofGen](#proofgen), to an octet string. The input to the operation MUST be a valid proof.
 
-*Note* this operation deliberately does not perform the relevant checks on the inputs `A`, `e` and `s`
-because its assumed these are done prior to its invocation, e.g as is the case with the [Sign](#sign) operation.
+The inputted proof value must consist of the following components, in that order:
+
+1. Three (3) valid points of the G1 subgroup, different from the identity point of G1 (i.e., `A', Abar, D`, in ProofGen)
+2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive (i.e., `c, e^, r2^, r3^, s^`, in ProofGen).
+3. A number of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the undisclosed from the proof messages (i.e., `m^_j1, ..., m^_jU`, in ProofGen, where U the number of undisclosed messages).
 
 ```
-signature_octets = signature_to_octets(signature)
+proof_octets = proof_to_octets(proof)
 
 Inputs:
 
-- signature (REQUIRED), a valid signature, in the form (A, e, s), where
-                        A a point in G1 and e, s non-zero scalars mod r.
+- proof (REQUIRED), a BBS proof in the form calculated by ProofGen in
+                    step 27 (see above).
+
+Parameters:
+
+- octet_scalar_length (REQUIRED), non-negative integer. The length of
+                                  a scalar octet representation, defined
+                                  by the ciphersuite.
 
 Outputs:
 
-- signature_octets, octet string.
+- proof_octets, octet string.
 
 Procedure:
 
-1. (A, e, s) = signature
-2. A_octets = point_to_octets_g1(A)
-3. e_octets = I2OSP(e, octet_scalar_length)
-4. s_octets = I2OSP(s, octet_scalar_length)
-5. return (A_octets || e_octets || s_octets)
+1. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1, ..., m^_U)) = proof
+2. return serialize((A', Abar, D, c, e^, r2^, r3^, s^, m^_1, ..., m^_U))
 ```
 
 ### OctetsToProof
@@ -900,51 +1063,6 @@ Procedure:
 19. return (A_0, A_1, A_2, s_0, s_1, s_2, s_3, s_4, msg_commitments)
 ```
 
-### ProofToOctets
-
-This operation describes how to encode a proof, as computed at step 25 in [ProofGen](#proofgen), to an octet string. The input to the operation MUST be a valid proof.
-
-The inputed proof value must consist of the following components, in that order:
-
-1. Three (3) valid compressed points of the G1 subgroup, different from the identity point of G1 (i.e., `A', Abar, D`, in ProofGen)
-2. Five (5) integers representing scalars in the range of 1 to r-1 inclusive (i.e., `c, e^, r2^, r3^, s^`, in ProofGen).
-3. A number of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the undisclosed from the proof messages (i.e., `m^_j1, ..., m^_jU`, in ProofGen, where U the number of undisclosed messages).
-
-```
-proof_octets = proof_to_octets(proof)
-
-Inputs:
-
-- proof (REQUIRED), a BBS proof in the form calculated by ProofGen in
-                    step 25 (see above).
-
-Parameters:
-
-- octet_scalar_length (REQUIRED), non-negative integer. The length of
-                                  a scalar octet representation, defined
-                                  by the ciphersuite.
-
-Outputs:
-
-- proof_octets, octet string.
-
-Procedure:
-
-1. (A', Abar, D, c, e^, r2^, r3^, s^, (m^_1, ..., m^_U)) = proof
-2. Let proof_octets be an empty octet string.
-
-// Points Serialization.
-3. for point in (A', Abar, D):
-4.     point_octets = point_to_octets_g1(point)
-5.     proof_octets = proof_octets || point_octets
-
-// Scalar Serialization.
-6. for scalar in (c, e^, r2^, r3^, s^, m^_1, ..., m^_U):
-7.     scalar_octets = I2OSP(scalar, octet_scalar_length)
-8.     proof_octets = proof_octets || scalar_octets
-9. return proof_octets
-```
-
 ### OctetsToPublicKey
 
 This operation describes how to decode an octet string representing a public key, validates it and returns the corresponding point in G2. Steps 2 to 5 check if the public key is valid. As an optimization, implementations MAY cache the result of those steps, to avoid unnecessarily repeating validation for known public keys.
@@ -954,7 +1072,7 @@ W = octets_to_pubkey(PK)
 
 Inputs:
 
-- PK, octet string. A public key in the form ouputted by the SkToPK
+- PK, octet string. A public key in the form outputted by the SkToPK
       operation
 
 Outputs:
@@ -968,62 +1086,6 @@ Procedure:
 3. if subgroup_check(W) is INVALID, return INVALID
 4. If W == Identity_G2, return INVALID
 5. return W
-```
-
-### EncodeForHash
-
-This document uses the `hash_to_scalar` function to hash elements to scalars in the multiplicative group mod r (see [Section 5.3](#hash-to-scalar)). To avoid ambiguity, elements passed to that operation, must first be encoded appropriately using `encode_for_hash`. The following procedure describes how to encode each element accordingly by serializing it to an appropriate format depending on its type and concatenating the results. Specifically,
-
-- Points in G1 or G2 will be encoded using the `point_to_octets_g*` implementation for a particular ciphersuite.
-- Non-negative integers will be encoded using `I2OSP` with an output length of 8 bytes.
-- Scalars will be zero-extended to a fixed length, defined by a particular ciphersuite.
-- Octet strings will be zero-extended to a length that is a multiple of 8 bits. Then, the extended value is encoded directly.
-- ASCII strings will be transformed into octet strings using UTF-8 encoding.
-
-After encoding, octet strings will be prepended with a value representing the length of their binary representation in the form of the number of bytes. This length must be encoded to octets using I2OSP with output length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. If the length of the octet string is larger than 2^64 - 1, the octet string must be rejected. Similarly, ASCII strings, after encoded to octets (using utf8), will also be appended with the length of their octet-string representation.
-
-An exception to the above rule is octet strings that represent a public key or ASCII strings that represent a ciphersuite ID, since those have a constant, well defined by each ciphersuite, length.
-
-Optional input/parameters to operations that feature in a call to hash\_to\_scalar, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `hash(A || X || B)` MUST be evaluated to `hash(A || "" || B)`.
-
-The above is further described in the following procedure.
-
-```
-result = encode_for_hash(input_array)
-
-Inputs:
-
-- input_array, an array of elements to be hashed. All elements of this
-               array that are octet strings MUST be multiples of 8 bits.
-
-Parameters:
-
-- octet_scalar_length, non-negative integer. The length of a scalar
-                       octet representation, defined by the ciphersuite.
-
-Outputs:
-
-- result, an octet string or INVALID.
-
-Procedure:
-
-1.  let octets_to_hash be an empty octet string.
-2.  for el in input_array:
-3.      if el is an ASCII string: el = utf8(el)
-4.      if el is an octet string representing a public key:
-5.          el_octs = el
-6.      else if el is representing a utf8 encoded Ciphersuite ID:
-7.          el_octs = el
-8.      else if el is an octet string:
-9.          if length(el) > 2^64 - 1, return INVALID
-10.         el_octs = I2OSP(length(el), 8) || el
-11.     else if el is a Point in G1: el_octs = point_to_octets_g1(el)
-12.     else if el is a Point in G2: el_octs = point_to_octets_g2(el)
-10.     else if el is a Scalar: el_octs = I2OSP(el, octet_scalar_length)
-11.     else if el is a non-negative integer: el_octs = I2OSP(el, 8)
-12.     else: return INVALID
-13.     octets_to_hash = octets_to_hash || el_octs
-14. return octets_to_hash
 ```
 
 # Security Considerations
