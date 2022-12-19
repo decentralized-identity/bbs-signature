@@ -279,7 +279,7 @@ When serializing different types of elements (i.e., Points, Scalars etc.) to get
 
 Variable length octet strings, will be prepended with a value representing the length of their binary representation in the form of the number of bytes. This length must be encoded to octets using I2OSP with output length of 8 bytes. The combined value (encoded value + length prefix) binary representation is then encoded as a single octet string. For example, the string `0x14d` will be encoded as `0x0000000000000002014d`. If the length of the octet string is larger than 2^64 - 1, the octet string must be rejected. Similarly, ASCII strings, after encoded to octets (using utf8), will also be appended with the length of their octet-string representation.
 
-Constant length octet strings (e.g., the ciphersuite id octet representation), will be encoded directly.
+Constant-length octet strings, including domain separation tags and the ciphersuite ID, will be encoded directly without prefixing with the length.
 
 Optional input/parameters to operations that feature in a call to hash\_to\_scalar, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `hash(A || X || B)` MUST be evaluated to `hash(A || "" || B)`.
 
