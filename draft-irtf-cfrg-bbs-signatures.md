@@ -279,10 +279,6 @@ When serializing one or more values to produce an octet string, each element wil
 
 Variable-length octet strings will be prepended with an integer value representing the number of bytes in the string. This length is encoded to octets using `I2OSP` with an output length of 8 bytes. For example, the octet string `0x14d` is encoded as `0x0000000000000002014d`. If the length of the octet string exceeds `2^64 - 1`, the octet string must be rejected. ASCII strings are also encoded using this process by first converting to an octet string.
 
-Constant-length octet strings, including domain separation tags and the ciphersuite ID, will be encoded directly without prefixing with the length.
-
-Optional input/parameters to operations that feature in a call to hash\_to\_scalar, that are not supplied to the operation should default to an empty octet string. For example, if X is an optional input/parameter that is not supplied, whilst A and B are required, then the procedural step of `hash(A || X || B)` MUST be evaluated to `hash(A || "" || B)`.
-
 Those rules will be used explicitly on every operation. See also [Serialize](#serialize).
 
 ## Key Generation Operations
