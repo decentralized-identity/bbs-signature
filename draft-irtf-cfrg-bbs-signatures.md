@@ -785,7 +785,11 @@ Procedure:
 
 ## Domain Calculation
 
-This operation calculates the domain value, a scalar encoding public parameter information. Optionally, the domain can also include an additional octet string, called the header, meant to encode any additional information the signer may want to "bind" to the signature (like an expiration date, the targeted audience identifier etc.). The domain value will be signed using a specific generator point (`Q_2`) (see [Sign](#sign)) to protect the integrity of those public parameters. The header, if existing, must be known by all parties (i.e., the signer, the prover and verifier), for both the signature and proof to be validated correctly. This means, that the header can be used to enforce certain values (chosen by the signer) to always be disclosed by the prover.
+This operation calculates the domain value, a scalar representing the distillation of all essential contextual information for a signature. The same domain value must be calculated by all parties (the signer, the prover, and the verifier) for both the signature and proofs to be validated.
+
+The input to the domain value includes an octet string called the header, chosen by the signer and meant to encode any information that is required to be revealed by the prover (such as an expiration date, or an identifier for the target audience). This is in contrast to the signed message values, which may be withheld during a proof.
+
+When a signature is calculated, the domain value is combined with a specific generator point (`Q_2`, see [Sign](#sign)) to protect the integrity of the public parameters and the header.
 
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
