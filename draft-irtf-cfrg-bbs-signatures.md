@@ -845,7 +845,7 @@ Inputs:
 - i_array (REQUIRED), array of non-negative integers (the indexes of
                       the disclosed messages).
 - msg_array (REQUIRED), array of scalars (the disclosed messages).
-- domain (REQUIRED), octet string.
+- domain (REQUIRED), a scalar.
 - ph (OPTIONAL), octet string. If not supplied, it must default to the
                  empty octet string ("").
 
