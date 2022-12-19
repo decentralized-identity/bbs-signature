@@ -270,7 +270,7 @@ Aside from the message generators, the scheme uses two additional generators: `Q
 
 ### Serializing to octet strings
 
-When serializing different types of elements (i.e., Points, Scalars etc.) to get their octet representation, each element will be serialized with a specific operation, depending on its type. More concretely,
+When serializing one or more values to produce an octet string, each element will be encoded using a specific operation determined by its type. More concretely,
 
 - Points in `G*` will be serialized using the `point_to_octets_g*` implementation for a particular ciphersuite.
 - Non-negative integers will be serialized using `I2OSP` with an output length of 8 bytes.
