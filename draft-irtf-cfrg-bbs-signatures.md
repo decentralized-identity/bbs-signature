@@ -364,7 +364,7 @@ The operations in this section make use of a "Precomputations" set of steps. The
 The operations of this section make use of functions and sub-routines defined in [Utility Operations](#utility-operations). More specifically,
 
 - `hash_to_scalar` is defined in [Section 4.3](#hash-to-scalar)
-- `get_domain` and `get_challenge` are defined in [Section 4.4](#domain-calculation) and [Section 4.5](#challenge-calculation) correspondingly.
+- `calculate_domain` and `calculate_challenge` are defined in [Section 4.4](#domain-calculation) and [Section 4.5](#challenge-calculation) correspondingly.
 - `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in [Section 4.6](#serialization)
 
 ### Sign
@@ -407,7 +407,7 @@ Precomputations:
 
 Procedure:
 
-1. domain = get_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
+1. domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
 2. if domain is INVALID, return INVALID
 3. e_s_for_hash = serialize((SK, domain, msg_1, ..., msg_L))
 4. if e_s_for_hash is INVALID, return INVALID
@@ -464,7 +464,7 @@ Procedure:
 3.  (A, e, s) = signature_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  domain = get_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
+6.  domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
 7.  if domain is INVALID, return INVALID
 8.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 9.  if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
@@ -539,7 +539,7 @@ Procedure:
 1.  signature_result = octets_to_signature(signature)
 2.  if signature_result is INVALID, return INVALID
 3.  (A, e, s) = signature_result
-4.  domain = get_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
+4.  domain = calculate_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
 5.  if domain is INVALID, return INVALID
 6.  for i in (1, ..., U+6):
 7.      ell_i = OS2IP(PRF(expand_len)) mod r
@@ -553,7 +553,7 @@ Procedure:
 14. s' = r2 * r3 + s mod r
 15. C1 = A' * e~ + Q_1 * r2~
 16. C2 = D * (-r3~) + Q_1 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
-17. c = get_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
+17. c = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
                                       (msg_i1, ..., msg_iR), domain, ph)
 18. if c is INVALID, return INVALID
 19. e^ = c * e + e~ mod r
@@ -633,12 +633,12 @@ Procedure:
 3.  (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  domain = get_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
+6.  domain = calculate_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
 7.  if domain is INVALID, return INVALID
 8.  C1 = (Abar - D) * c + A' * e^ + Q_1 * r2^
 9.  T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 10. C2 = T * c - D * r3^ + Q_1 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
-11. cv = get_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
+11. cv = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
                                       (msg_i1, ..., msg_iR), domain, ph)
 12. if cv is INVALID, return INVALID
 13. if c != cv, return INVALID
@@ -794,7 +794,7 @@ This operation calculates the domain value, a scalar encoding public parameter i
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
 ```
-domain = get_domain(Q_1, Q_2, H_Points, PK, header)
+domain = calculate_domain(PK, Q_1, Q_2, H_Points, header)
 
 Inputs:
 
@@ -826,7 +826,7 @@ Procedure:
 8. return hash_to_scalar(dom_input, 1)
 ```
 
-**Note**: If the header is not supplied in `get_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 7), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though the a header value is not provided.
+**Note**: If the header is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 7), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
 
 ## Challenge Calculation
 
@@ -835,13 +835,13 @@ This operation calculates the challenge scalar value, used during [ProofGen](#pr
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
 ```
-challenge = get_challenge(A', Abar, D, C1, C2, i_array,
+challenge = calculate_challenge(A', Abar, D, C1, C2, i_array,
                                                   msg_array, domain, ph)
 
 Inputs:
 
 - (A', Abar, D, C1, C2) (REQUIRED), points of G1, as calculated in
-                                    ProofGen
+                                    ProofGen.
 - i_array (REQUIRED), array of non-negative integers (the indexes of
                       the disclosed messages).
 - msg_array (REQUIRED), array of scalars (the disclosed messages).
@@ -867,7 +867,7 @@ Procedure:
 9.  c_input = c_octs || I2OSP(length(ph), 8) || ph
 10. return hash_to_scalar(c_input, 1)
 ```
-**Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `get_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 9).
+**Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `calculate_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 9).
 
 ## Serialization
 
