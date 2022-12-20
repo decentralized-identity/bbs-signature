@@ -155,7 +155,7 @@ presentation\_header (ph)
 : A payload generated and bound to the context of a specific spk.
 
 nizk
-: A non-interactive zero-knowledge proof from Fiat-Shamir heuristic.
+: A non-interactive zero-knowledge proof from the Fiat-Shamir heuristic.
 
 dst
 : The domain separation tag.
