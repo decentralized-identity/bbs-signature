@@ -355,13 +355,13 @@ Procedure:
 
 ## Core Operations
 
-The operations in this section make use of a "Precomputations" set of steps. The "Precomputations" steps must be executed before the steps in the "Procedure" of each operation and include computations that can be cached and re-used multiple times (like creating the generators etc.) or procedural steps like de-structuring inputted arrays.
-
 The operations of this section make use of functions and sub-routines defined in [Utility Operations](#utility-operations). More specifically,
 
 - `hash_to_scalar` is defined in [Section 4.3](#hash-to-scalar)
 - `calculate_domain` and `calculate_challenge` are defined in [Section 4.4](#domain-calculation) and [Section 4.5](#challenge-calculation) correspondingly.
 - `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in [Section 4.6](#serialization)
+
+The following operations also make use of the `create_generators` operation defined in [Section 4.1](#generator-point-computation), to create generator points on `G1` (see [Messages and Generators](#messages-and-generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See [Section 4.1](#generator-point-computation) for more details.
 
 ### Sign
 
@@ -389,28 +389,28 @@ Parameters:
 Definitions:
 
 - L, is the non-negative integer representing the number of messages to
-     be signed e.g length(messages). If no messages are supplied as an
-     input, the value of L MUST evaluate to zero (0).
+     be signed.
 
 Outputs:
 
 - signature, a signature encoded as an octet string.
 
-Precomputations:
+Deserialization:
 
-1. msg_1, ..., msg_L = messages[1], ..., messages[L]
-2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(L+2)
+1. L = length(messages)
+2. (msg_1, ..., msg_L) = messages
 
 Procedure:
 
-1. domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
-2. if domain is INVALID, return INVALID
-3. e_s_for_hash = serialize((SK, domain, msg_1, ..., msg_L))
-4. if e_s_for_hash is INVALID, return INVALID
-5. (e, s) = hash_to_scalar(e_s_for_hash, 2)
-6. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-7. A = B * (1 / (SK + e))
-8. return signature_to_octets(A, e, s)
+1. (Q_1, Q_2, H_1, ..., H_L) = create_generators(L+2)
+2. domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
+3. if domain is INVALID, return INVALID
+4. e_s_for_hash = serialize((SK, domain, msg_1, ..., msg_L))
+5. if e_s_for_hash is INVALID, return INVALID
+6. (e, s) = hash_to_scalar(e_s_for_hash, 2)
+7. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+8. A = B * (1 / (SK + e))
+9. return signature_to_octets(A, e, s)
 ```
 
 **Note** When computing step 9 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
@@ -441,30 +441,30 @@ Parameters:
 Definitions:
 
 - L, is the non-negative integer representing the number of messages to
-     be signed e.g length(messages). If no messages are supplied as an
-     input, the value of L MUST evaluate to zero (0).
+     be signed.
 
 Outputs:
 
 - result, either VALID or INVALID.
 
-Precomputations:
+Deserialization:
 
-1. (msg_1, ..., msg_L) = messages
-2. (Q_1, Q_2, H_1, ..., H_L) = create_generators(L+2)
+1. signature_result = octets_to_signature(signature)
+2. if signature_result is INVALID, return INVALID
+3. (A, e, s) = signature_result
+4. W = octets_to_pubkey(PK)
+5. if W is INVALID, return INVALID
+6. L = length(messages)
+7. (msg_1, ..., msg_L) = messages
 
 Procedure:
 
-1.  signature_result = octets_to_signature(signature)
-2.  if signature_result is INVALID, return INVALID
-3.  (A, e, s) = signature_result
-4.  W = octets_to_pubkey(PK)
-5.  if W is INVALID, return INVALID
-6.  domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
-7.  if domain is INVALID, return INVALID
-8.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-9.  if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
-10. return VALID
+1. (Q_1, Q_2, H_1, ..., H_L) = create_generators(L+2)
+2. domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
+3. if domain is INVALID, return INVALID
+4. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+5. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
+6. return VALID
 ```
 
 ### ProofGen
@@ -504,12 +504,9 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages,
-     i.e., L = length(messages). If no messages are supplied, the
-     value of L MUST evaluate to zero (0).
+- L, is the non-negative integer representing the number of messages.
 - R, is the non-negative integer representing the number of disclosed
-     (revealed) messages, i.e., R = length(disclosed_indexes). If no
-     messages are disclosed, R MUST evaluate to zero (0).
+     (revealed) messages.
 - U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
 - expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
@@ -519,28 +516,32 @@ Outputs:
 
 - proof, octet string; or INVALID.
 
-Precomputations:
-
-1. (i1, ..., iR) = disclosed_indexes
-2. (j1, ..., jU) = range(1, L) \ disclosed_indexes
-3. (msg_1, ..., msg_L) = messages
-4. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
-5. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
-6. (Q_1, Q_2, MsgGenerators) = create_generators(L+2)
-7. (H_1, ..., H_L) = MsgGenerators
-8. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
-
-Procedure:
+Deserialization:
 
 1.  signature_result = octets_to_signature(signature)
 2.  if signature_result is INVALID, return INVALID
 3.  (A, e, s) = signature_result
+4.  L = length(messages)
+5.  R = length(disclosed_indexes)
+6.  U = L - R
+7.  (i1, ..., iR) = disclosed_indexes
+8.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
+9.  (msg_1, ..., msg_L) = messages
+10. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
+11. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
+
+Procedure:
+
+1.  (Q_1, Q_2, MsgGenerators) = create_generators(L+2)
+2.  (H_1, ..., H_L) = MsgGenerators
+3.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
+
 4.  domain = calculate_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
 5.  if domain is INVALID, return INVALID
 6.  for i in (1, ..., U+6):
 7.      ell_i = OS2IP(PRF(expand_len)) mod r
 8.  (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU) =
-                                    (ell_1, ell_2, ..., ell_(6+U))
+                                     (ell_1, ell_2, ..., ell_(6+U))
 9.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 10. r3 = r1 ^ -1 mod r
 11. A' = A * r1
@@ -568,7 +569,7 @@ This operation checks that a proof is valid for a header, vector of disclosed me
 The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#sign) (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
 ```
-result = ProofVerify(PK, proof, L, header, ph,
+result = ProofVerify(PK, proof, header, ph,
                      disclosed_messages,
                      disclosed_indexes)
 
@@ -578,7 +579,6 @@ Inputs:
                  operation.
 - proof (REQUIRED), an octet string of the form outputted by the
                     ProofGen operation.
-- L (REQUIRED), non-negative integer. The number of signed messages.
 - header (OPTIONAL), an optional octet string containing context and
                      application specific information. If not supplied,
                      it defaults to an empty string.
@@ -598,24 +598,29 @@ Parameters:
 Definitions:
 
 - R, is the non-negative integer representing the number of disclosed
-     (revealed) messages, i.e., R = length(disclosed_indexes). If no
-     messages are disclosed, the value of R MUST evaluate to zero (0).
+     (revealed) messages.
 - U, is the non-negative integer representing the number of undisclosed
-     messages, i.e., U = L - R.
+     messages.
+- L, is the non-negative integer representing the number of total,
+     messages i.e., L = U + R.
 
 Outputs:
 
 - result, either VALID or INVALID.
 
-Precomputations:
+Deserialization:
 
-1. (i1, ..., iR) = disclosed_indexes
-2. (j1, ..., jU) = range(1, L) \ disclosed_indexes
-3. (msg_i1, ..., msg_iR) = disclosed_messages
-4. (Q_1, Q_2, MsgGenerators) = create_generators(L+2)
-5. (H_1, ..., H_L) = MsgGenerators
-6. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
-7. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
+1.  proof_result = octets_to_proof(proof)
+2.  if proof_result is INVALID, return INVALID
+3.  (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_result
+4.  W = octets_to_pubkey(PK)
+5.  if W is INVALID, return INVALID
+6.  U  = length((m^_1, ..., m^_U))
+7.  R = length(disclosed_indexes)
+8.  L = R + U
+9.  (i1, ..., iR) = disclosed_indexes
+10. (j1, ..., jU) = range(1, L) \ disclosed_indexes
+11. (msg_i1, ..., msg_iR) = disclosed_messages
 
 Preconditions:
 
@@ -624,23 +629,23 @@ Preconditions:
 
 Procedure:
 
-1.  proof_result = octets_to_proof(proof)
-2.  if proof_result is INVALID, return INVALID
-3.  (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_result
-4.  W = octets_to_pubkey(PK)
-5.  if W is INVALID, return INVALID
-6.  domain = calculate_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
-7.  if domain is INVALID, return INVALID
-8.  C1 = (Abar - D) * c + A' * e^ + Q_1 * r2^
-9.  T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-10. C2 = T * c - D * r3^ + Q_1 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
-11. cv = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
+1.  (Q_1, Q_2, MsgGenerators) = create_generators(L+2)
+2.  (H_1, ..., H_L) = MsgGenerators
+3.  (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
+4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
+
+5.  domain = calculate_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
+6.  if domain is INVALID, return INVALID
+7.  C1 = (Abar - D) * c + A' * e^ + Q_1 * r2^
+8.  T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+9.  C2 = T * c - D * r3^ + Q_1 * s^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
+10. cv = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
                                       (msg_i1, ..., msg_iR), domain, ph)
-12. if cv is INVALID, return INVALID
-13. if c != cv, return INVALID
-14. if A' == Identity_G1, return INVALID
-15. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
-16. return VALID
+11. if cv is INVALID, return INVALID
+12. if c != cv, return INVALID
+13. if A' == Identity_G1, return INVALID
+14. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
+15. return VALID
 ```
 
 # Utility Operations
@@ -649,7 +654,13 @@ Procedure:
 
 This operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify). It takes one input, the number of generator points to create, which is determined in part by the number of signed messages.
 
-As an optimization, implementations MAY cache the result of `create_generators` for a specific `generator_seed` (determined by the ciphersuite) and `count`. The values `n` and `v` MAY also be cached in order to efficiently extend a existing list of generator points.
+As an optimization, implementations MAY cache the result of `create_generators` for a specific `generator_seed` (determined by the ciphersuite) and `count` (which can be arbitrarily large, depending on the application). Then, during the execution of one of the [Core Operations](#core-operations), if `K` generators are needed with `K <= count`, the application can use the `K` first of the cached generators (in place of the direct call to `create_generators(K)`).
+
+**NOTE**: If cached, the order with which the generator points will be retrieved from the cache MUST be the same as the order they where originally returned by the `create_generators` operation.
+
+For example, an application can save 100 generator points `H_1, H_2, ..., H_100` returned from `create_generators(100)`. Then if one of the core operations needs 30 of them, the application instead of calling `create_generators` again, can just retrieve the 30 first generators `H_1, H_2, ..., H_30` from the cache instead, in the same order they where originally created (starting from the first one).
+
+The values `n` and `v` MAY also be cached in order to efficiently extend a existing list of cached generator points.
 
 ```
 generators = create_generators(count)
