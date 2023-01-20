@@ -35,6 +35,10 @@ enum OutputType {
 
 impl std::str::FromStr for OutputType {
     type Err = String;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1d0b342 (keygen tool and fixtures update)
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "f" | "fi" | "fil" | "file" => Ok(OutputType::File),
@@ -43,7 +47,10 @@ impl std::str::FromStr for OutputType {
         }
     }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1d0b342 (keygen tool and fixtures update)
 #[derive(StructOpt, Debug)]
 struct Opt {
     #[structopt(long, default_value = &IKM)]
@@ -52,7 +59,7 @@ struct Opt {
     key_info: String,
     #[structopt(short, long, default_value = "Print")]
     out: OutputType,
-    #[structopt(short, long)]
+    #[structopt(short, long)] //default_value = "../fixtures/fixture_data/keyPair.json"
     file: Option<String>,
 }
 
@@ -129,7 +136,11 @@ fn main() {
     }
 }
 
+<<<<<<< HEAD
 // write to file
+=======
+// wright to file
+>>>>>>> 1d0b342 (keygen tool and fixtures update)
 fn write_keypair_to_file(ikm: &str, key_info: Option<&str>, key_pair: KeyPair, file: Option<String>)
 {
     println!("writhing to file...");
