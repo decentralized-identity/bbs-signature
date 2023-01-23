@@ -612,17 +612,18 @@ Deserialization:
 
 1.  proof_result = octets_to_proof(proof)
 2.  if proof_result is INVALID, return INVALID
-3.  (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1,...,m^_jU)) = proof_result
+3.  (A', Abar, D, c, e^, r2^, r3^, s^, commitments) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  U  = length((m^_1, ..., m^_U))
+6.  U  = length(commitments)
 7.  R = length(disclosed_indexes)
 8.  L = R + U
 9.  (i1, ..., iR) = disclosed_indexes
 10. (j1, ..., jU) = range(1, L) \ disclosed_indexes
 11. (msg_i1, ..., msg_iR) = disclosed_messages
+12. (m^_j1, ...., m^_jU) = commitments
 
-Preconditions:
+Preconditions:s
 
 1. for i in (i1, ..., iR), if i < 1 or i > L, return INVALID
 2. if length(disclosed_messages) != R, return INVALID
