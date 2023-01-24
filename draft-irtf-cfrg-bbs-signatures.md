@@ -254,7 +254,7 @@ The schemes operations defined in this section depend on the following parameter
 
 * A hash-to-curve suite as defined in [@!I-D.irtf-cfrg-hash-to-curve], using the aforementioned pairing-friendly curve. This defines the hash\_to\_curve and expand\_message operations, used by this document.
 
-* get\_random(n): returns a random octet string with a length of n bytes, sampled uniformly at random using a cryptographically secure pseudo-random number generator (CSPRNG) or a pseudo random function. See [@!RFC4086] for recommendations and requirements on the generation of random numbers
+* get\_random(n): returns a random octet string with a length of n bytes, sampled uniformly at random using a cryptographically secure pseudo-random number generator (CSPRNG) or a pseudo random function. See [@!RFC4086] for recommendations and requirements on the generation of random numbers.
 
 ## Considerations
 
