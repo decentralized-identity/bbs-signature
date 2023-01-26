@@ -408,6 +408,7 @@ Procedure:
 3. e_s_for_hash = serialize((SK, domain, msg_1, ..., msg_L))
 4. if e_s_for_hash is INVALID, return INVALID
 5. (e, s) = hash_to_scalar(e_s_for_hash, 2)
+6. if e or s is INVALID, return INVALID
 6. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 7. A = B * (1 / (SK + e))
 8. return signature_to_octets(A, e, s)
@@ -757,8 +758,9 @@ Outputs:
 Procedure:
 
 1. if length(msg) > 2^64 - 1 or length(dst) > 255 return INVALID
-2. msg_for_hash = I2OSP(length(msg), 8) || msg
-3. return hash_to_scalar(msg_for_hash, 1, dst)
+2. msg_scalar = hash_to_scalar(msg, 1, dst)
+3. if msg_scalar is INVALID, return INVALID
+4. return msg_scalar
 ```
 
 ## Hash to Scalar
@@ -768,6 +770,8 @@ This operation describes how to hash an arbitrary octet string to `n` scalar val
 This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). If an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). Note however, that the hash\_to\_curve document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For this reason, we don’t directly use hash\_to\_field here, rather we define a similar operation (hash\_to\_scalar), making direct use of the expand\_message function, that will be defined by the hash-to-curve suite used (i.e., either expand\_message\_xmd or expand\_message\_xof). If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
 The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from utf8(ciphersuit\_id || "H2S\_"), where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite.
+
+**Note** It is possible that the `hash_to_scalar` procedure will return an error, if the underlying `expand_message` operation aborts. See [@!I-D.irtf-cfrg-hash-to-curve], Section 5.3, for more details on the cases that `expand_message` will abort (note that the input term `len_in_bytes` of `expand_message` in the Hash-to-Curve document equals `count * expand_len` in our case).
 
 ```
 scalars = hash_to_scalar(msg_octets, count, dst)
@@ -804,13 +808,14 @@ Procedure:
 2.  t = 0
 3.  msg_prime = msg_octets || I2OSP(t, 1) || I2OSP(count, 4)
 4.  uniform_bytes = expand_message(msg_prime, dst, len_in_bytes)
-5.  for i in (1, ..., count):
-6.      tv = uniform_bytes[(i-1)*expand_len..i*expand_len-1]
-7.      scalar_i = OS2IP(tv) mod r
-8.  if 0 in (scalar_1, ..., scalar_count):
-9.      t = t + 1
-10.     go back to step 3
-11. return (scalar_1, ..., scalar_count)
+5.  if uniform_bytes is INVALID, return INVALID
+6.  for i in (1, ..., count):
+7.      tv = uniform_bytes[(i-1)*expand_len..i*expand_len-1]
+8.      scalar_i = OS2IP(tv) mod r
+9.  if 0 in (scalar_1, ..., scalar_count):
+10.     t = t + 1
+11.     go back to step 3
+12. return (scalar_1, ..., scalar_count)
 ```
 
 ## Domain Calculation
@@ -846,14 +851,16 @@ Outputs:
 
 Procedure:
 
-1. L = length(H_Points)
-2. if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
-3. (H_1, ..., H_L) = H_Points
-4. dom_array = (Q_1, Q_2, L, H_1, ..., H_L, ciphersuite_id)
-5. dom_octs = serialize(dom_array)
-6. if dom_octs is INVALID, return INVALID
-7. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
-8. return hash_to_scalar(dom_input, 1)
+1.  L = length(H_Points)
+2.  if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
+3.  (H_1, ..., H_L) = H_Points
+4.  dom_array = (Q_1, Q_2, L, H_1, ..., H_L, ciphersuite_id)
+5.  dom_octs = serialize(dom_array)
+6.  if dom_octs is INVALID, return INVALID
+7.  dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
+8.  domain = hash_to_scalar(dom_input, 1)
+9.  if domain is INVALID, return INVALID
+10. return domain
 ```
 
 **Note**: If the header is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 7), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
@@ -895,7 +902,9 @@ Procedure:
 7.  c_octs = serialize(c_array)
 8.  if c_octs is INVALID, return INVALID
 9.  c_input = c_octs || I2OSP(length(ph), 8) || ph
-10. return hash_to_scalar(c_input, 1)
+10. challenge = hash_to_scalar(c_input, 1)
+11. is challenge is INVALID, return INVALID
+12. return challenge
 ```
 **Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `calculate_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 9).
 
