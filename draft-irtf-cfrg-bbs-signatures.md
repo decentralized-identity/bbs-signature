@@ -1328,7 +1328,7 @@ Each proof test vector will define a `SEED` (as a nothing-up-my-sleeve value) an
 
 ```
 mocked_calculate_random_scalars(count) :=
-                             seeded_random_scalars(count, SEED)
+                             seeded_random_scalars(SEED, count)
 ```
 
 in place of `calculate_random_scalars` during the operation's procedure.
@@ -1336,7 +1336,7 @@ in place of `calculate_random_scalars` during the operation's procedure.
 **Note** For the [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuite if more than 170 mocked random scalars are required, the operation will return INVALID. Similarly, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite, if more than 1365 mocked random scalars are required, the operation will return INVALID. For the purpose of describing [ProofGen](#proofgen) test vectors, those limits are inconsequential.
 
 ```
-seeded_scalars = seeded_random_scalars(count, SEED)
+seeded_scalars = seeded_random_scalars(SEED, count)
 
 Inputs:
 
@@ -1530,19 +1530,19 @@ And the messages defined in (#messages) (**Note** the ordering of the messages M
 
 ### Proof fixtures
 
-For the generation of fixtures the mocked rng defined in [Mocked Random Scalars](#mocked-random-scalars) is used with the following seed value, which is the hex encoding of `utf8("I'M BATMAN")`.
+For the generation of fixtures the mocked rng defined in [Mocked Random Scalars](#mocked-random-scalars) is used with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
 
 ```
-SEED = "49274d204241544d414e"
+SEED = "332e313431353932363533353839373933323338343632363433333833323739"
 ```
 
-### single message proof fixture
+#### single message proof fixture
 TBD
 
-### multi-message, all revealed, proof fixture
+#### multi-message, all revealed, proof fixture
 TBD
 
-### multi-message, half revealed, proof fixture
+#### multi-message, half revealed, proof fixture
 TBD
 
 ## BLS12381-SHA-256 Test Vectors
@@ -1648,19 +1648,21 @@ And the messages defined in (#messages) (**Note** the ordering of the messages M
 {{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
 ```
 
-For the generation of fixtures the mocked rng defined in [Mocked Random Scalars](#mocked-random-scalars) is used with the following seed value, which is the hex encoding of `utf8("I'M BATMAN")`.
+### Proof fixtures
+
+For the generation of fixtures the mocked rng defined in [Mocked Random Scalars](#mocked-random-scalars) is used with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
 
 ```
-SEED = "49274d204241544d414e"
+SEED = "332e313431353932363533353839373933323338343632363433333833323739"
 ```
 
-### single message proof fixture
+#### single message proof fixture
 TBD
 
-### multi-message, all revealed, proof fixture
+#### multi-message, all revealed, proof fixture
 TBD
 
-### multi-message, half revealed, proof fixture
+#### multi-message, half revealed, proof fixture
 TBD
 
 # IANA Considerations
