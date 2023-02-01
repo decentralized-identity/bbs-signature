@@ -1493,19 +1493,20 @@ Following the procedure defined in (#generator-point-computation) with an input 
 
 {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[9] }}
 ```
+### Signature Fixtures
 
-### Valid Single Message Signature
+#### Valid Single Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.bls12-381-sha-256.signature001.header }}
+{{ $signatureFixtures.bls12-381-shake-256.signature001.header }}
 ```
 
 And the following message (the first message defined in (#messages))
 
 ```
-{{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature001.messages[0] }}
 ```
 
 After it is mapped to the first scalar in (#map-messages-to-scalars), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
@@ -1514,7 +1515,7 @@ After it is mapped to the first scalar in (#map-messages-to-scalars), along with
 {{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
 ```
 
-### Valid Multi-Message Signature
+#### Valid Multi-Message Signature
 
 Using the following header
 
@@ -1530,20 +1531,53 @@ And the messages defined in (#messages) (**Note** the ordering of the messages M
 
 ### Proof fixtures
 
-For the generation of fixtures the mocked rng defined in [Mocked Random Scalars](#mocked-random-scalars) is used with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
+For the generation of the following fixtures the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
 
 ```
 SEED = "332e313431353932363533353839373933323338343632363433333833323739"
 ```
 
-#### single message proof fixture
-TBD
+#### Valid Single Message Proof
 
-#### multi-message, all revealed, proof fixture
-TBD
+Using the header, message and signature used in [Valid Single Message Signature](#valid-single-message-signature) to create a proof disclosing the message, with the following presentation header
 
-#### multi-message, half revealed, proof fixture
-TBD
+```
+{{ $proofFixtures.bls12-381-shake-256.proof001.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof001.proof }}
+```
+
+#### Valid Multi-Message, All Messages Disclosed Proof
+
+Using the header, messages and signature used in [Valid Multi Message Signature](#valid-multi-message-signature) to create a proof disclosing all the messages, with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof002.proof }}
+```
+
+#### Valid Multi-Message, Half of Messages Disclosed Proof
+
+Using the same header, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof) but this time with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof003.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof003.proof }}
+```
 
 ## BLS12381-SHA-256 Test Vectors
 
@@ -1614,7 +1648,9 @@ Following the procedure defined in (#generator-point-computation) with an input 
 {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[9] }}
 ```
 
-### Valid Single Message Signature
+### Signature Fixtures
+
+#### Valid Single Message Signature
 
 Using the following header
 
@@ -1634,36 +1670,69 @@ After it is mapped to the first scalar in (#map-messages-to-scalars-1), along wi
 {{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
 ```
 
-### Valid Multi-Message Signature
+#### Valid Multi-Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.bls12-381-shake-256.signature004.header }}
+{{ $signatureFixtures.bls12-381-sha-256.signature004.header }}
 ```
 
 And the messages defined in (#messages) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
-{{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
+{{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}
 ```
 
 ### Proof fixtures
 
-For the generation of fixtures the mocked rng defined in [Mocked Random Scalars](#mocked-random-scalars) is used with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
+Similarly to the proof fixtures for the BLS12381-SHA-256 ciphersuite, the generation of the following fixtures uses the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars), in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
 
 ```
 SEED = "332e313431353932363533353839373933323338343632363433333833323739"
 ```
 
-#### single message proof fixture
-TBD
+#### Valid Single Message Proof
 
-#### multi-message, all revealed, proof fixture
-TBD
+Using the header, message and signature used in [Valid Single Message Signature](#valid-single-message-signature-1) to create a proof disclosing the message, with the following presentation header
 
-#### multi-message, half revealed, proof fixture
-TBD
+```
+{{ $proofFixtures.bls12-381-sha-256.proof001.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof001.proof }}
+```
+
+#### Valid Multi-Message, All Messages Disclosed Proof
+
+Using the header, messages and signature used in [Valid Multi Message Signature](#valid-multi-message-signature-1) to create a proof disclosing all the messages, with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof002.proof }}
+```
+
+#### Valid Multi-Message, Half of Messages Disclosed Proof
+
+Using the same header, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof-1) but this time with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof003.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof003.proof }}
+```
 
 # IANA Considerations
 
