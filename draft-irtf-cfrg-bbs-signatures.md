@@ -1296,10 +1296,14 @@ The following key pair will be used for the test vectors of both ciphersuites. N
 
 **NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
 
-Following the procedure defined in (#keygen) with an input IKM value as follows
+Following the procedure defined in (#keygen) with an input `IKM` value as follows
 
 ```
-{{ $keyPair.seed }}
+{{ $keyPair.ikm }}
+```
+and the following `key_info` value
+```
+{{ $keyPair.keyInfo }}
 ```
 
 Outputs the following SK value
