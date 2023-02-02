@@ -873,7 +873,7 @@ Procedure:
 8.  if c_octs is INVALID, return INVALID
 9.  c_input = c_octs || I2OSP(length(ph), 8) || ph
 10. challenge = hash_to_scalar(c_input, 1)
-11. is challenge is INVALID, return INVALID
+11. if challenge is INVALID, return INVALID
 12. return challenge
 ```
 **Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `calculate_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 9).
