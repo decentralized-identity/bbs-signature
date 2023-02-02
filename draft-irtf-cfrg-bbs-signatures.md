@@ -623,7 +623,7 @@ Deserialization:
 11. (msg_i1, ..., msg_iR) = disclosed_messages
 12. (m^_j1, ...., m^_jU) = commitments
 
-Preconditions:s
+Preconditions:
 
 1. for i in (i1, ..., iR), if i < 1 or i > L, return INVALID
 2. if length(disclosed_messages) != R, return INVALID
