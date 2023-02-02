@@ -409,9 +409,9 @@ Procedure:
 4. if e_s_for_hash is INVALID, return INVALID
 5. (e, s) = hash_to_scalar(e_s_for_hash, 2)
 6. if e or s is INVALID, return INVALID
-6. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-7. A = B * (1 / (SK + e))
-8. return signature_to_octets(A, e, s)
+7. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+8. A = B * (1 / (SK + e))
+9. return signature_to_octets(A, e, s)
 ```
 
 **Note** When computing step 9 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
