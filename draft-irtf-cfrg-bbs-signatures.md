@@ -161,7 +161,7 @@ dst
 : The domain separation tag.
 
 I2OSP
-: Transform an non-negative integer to an octet string, defined in Section 4 of [@!RFC8017]. Note, the output of this operation is in big-endian order.
+: An operation that transforms a non-negative integer into an octet string, defined in Section 4 of [@!RFC8017]. Note, the output of this operation is in big-endian order.
 
 OS2IP
 : Transform an octet string to an non-negative integer, defined in Section 4 of [@!RFC8017]. Note, the input of this operation must be in big-endian order.
