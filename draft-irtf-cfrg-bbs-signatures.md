@@ -657,7 +657,7 @@ This operation defines how to create a set of generators that form a part of the
 
 As an optimization, implementations MAY cache the result of `create_generators` for a specific `generator_seed` (determined by the ciphersuite) and `count` (which can be arbitrarily large, depending on the application). Then, during the execution of one of the [Core Operations](#core-operations), if `K` generators are needed with `K <= count`, the application can use the `K` first of the cached generators (in place of the direct call to `create_generators(K)`).
 
-**NOTE**: If cached, the order with which the generator points will be retrieved from the cache MUST be the same as the order they where originally returned by the `create_generators` operation.
+**NOTE**: If the generator points are retrieved from cache, the order in which they are retrieved MUST be the same as the order they were originally returned by the `create_generators` operation.
 
 For example, an application can save 100 generator points `H_1, H_2, ..., H_100` returned from `create_generators(100)`. Then if one of the core operations needs 30 of them, the application instead of calling `create_generators` again, can just retrieve the 30 first generators `H_1, H_2, ..., H_30` from the cache instead, in the same order they where originally created (starting from the first one).
 
