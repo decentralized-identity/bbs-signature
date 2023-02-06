@@ -643,11 +643,11 @@ Procedure:
 
 ## Random scalars computation
 
-This operation returns the requested number of pseudo-random scalars, using a pseudo random function (PRF) with extendable output (see [Parameters](#parameters)). The operation makes multiple calls to the PRF. It is REQUIRED that each call will be independent from each other, as to ensure independence of the returned pseudo-random scalars.
+This operation returns the requested number of pseudo-random scalars, using the `get_random` operation (see [Parameters](#parameters)). The operation makes multiple calls to `get_random`. It is REQUIRED that each call will be independent from each other, as to ensure independence of the returned pseudo-random scalars.
 
-The required length of the PRF output is defined as `expand_len`. Each value returned by the PRF is reduced modulo the group order `r`. To avoid biased results when creating the random scalars, the output of the PRF MUST be at least `(ceil(log2(r))+k` bytes long, where `k` is the targeted security level, specified by the ciphersuite (see Section 5 in [@!I-D.irtf-cfrg-hash-to-curve] for more details). ProofGen defines `expand_len = ceil((ceil(log2(r))+k)/8)`. For both the [BLS12-381-SHAKE-256](#bls12-381-shake-256) and [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuites, `log2(r) = 255`, `k = 128` and as a result `expand_len = 48`.
+The required length of the `get_random` output is defined as `expand_len`. Each value returned by the `get_random` function is reduced modulo the group order `r`. To avoid biased results when creating the random scalars, the output of `get_random` MUST be at least `(ceil(log2(r))+k` bytes long, where `k` is the targeted security level specified by the ciphersuite (see Section 5 in [@!I-D.irtf-cfrg-hash-to-curve] for more details). ProofGen defines `expand_len = ceil((ceil(log2(r))+k)/8)`. For both the [BLS12-381-SHAKE-256](#bls12-381-shake-256) and [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuites, `log2(r) = 255` and `k = 128` resulting to `expand_len = 48`. See [Section 5.10](#randomness-requirements) for further security considerations and requirements around the generated randomness.
 
-**Note**: The security of the proof generation algorithm ([ProofGen](#proofgen)) is highly dependant on the quality of the PRF. Care must be taken to ensure that a cryptographically secure PRF is chosen, and that its outputs are not leaked to an adversary. See also [Section 5.10](#randomness-requirements) for more details.
+**Note**: The security of the proof generation algorithm ([ProofGen](#proofgen)) is highly dependant on the quality of the `get_random` function. Care must be taken to ensure that a cryptographically secure pseudo-random generator is chosen, and that its outputs are not leaked to an adversary. See also [Section 5.10](#randomness-requirements) for more details.
 
 ```
 random_scalars = calculate_random_scalars(count)
@@ -659,19 +659,19 @@ Inputs:
 
 Parameters:
 
-- PRF, a pseudo random function with extendable output, returning pseudo
-       random uniformly distributed bytes.
+- get_random, a pseudo random function with extendable output, returning
+              uniformly distributed pseudo random bytes.
 - expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
                                           the ciphersuite.
 
 Outputs:
 
-- random_scalars, a list of pseudo random,
+- random_scalars, a list of pseudo random scalars,
 
 Procedure:
 
 1. for i in (1, ..., count):
-2.     r_i = OS2IP(PRF(expand_len)) mod r
+2.     r_i = OS2IP(get_random(expand_len)) mod r
 3. return (r_1, r_2, ..., r_count)
 ```
 
@@ -1322,16 +1322,16 @@ The following section details a basic set of test vectors that can be used to co
 
 ## Mocked random scalars
 
-For the purpose of presenting fixtures for the [ProofGen](#proofgen) operation we present here a way to mock the `calculate_random_scalars` operation ([Random scalars computation](#random-scalars-computation)), used by `ProofGen` to create all the necessary random scalars.
+For the purpose of presenting fixtures for the [ProofGen](#proofgen) operation we describe here a way to mock the `calculate_random_scalars` operation ([Random scalars computation](#random-scalars-computation)), used by `ProofGen` to create all the necessary random scalars.
 
-Each proof test vector will define a `SEED` (as a nothing-up-my-sleeve value) and set
+To that end, the `seeded_random_scalars(SEED)` operation is defined, which will deterministically calculate `count` random-looking scalars from a single `SEED`. The proof test vector will then define a `SEED` (as a nothing-up-my-sleeve value) and set
 
 ```
 mocked_calculate_random_scalars(count) :=
                              seeded_random_scalars(SEED, count)
 ```
 
-in place of `calculate_random_scalars` during the operation's procedure.
+The `mocked_calculate_random_scalars` operation will then be used in place of `calculate_random_scalars` during the [ProofGen](#proofgen) operation's procedure.
 
 **Note** For the [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuite if more than 170 mocked random scalars are required, the operation will return INVALID. Similarly, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite, if more than 1365 mocked random scalars are required, the operation will return INVALID. For the purpose of describing [ProofGen](#proofgen) test vectors, those limits are inconsequential.
 
