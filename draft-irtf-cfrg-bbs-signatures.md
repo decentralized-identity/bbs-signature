@@ -661,7 +661,7 @@ As an optimization, implementations MAY cache the result of `create_generators` 
 
 For example, an application can save 100 generator points `H_1, H_2, ..., H_100` returned from `create_generators(100)`. Then if one of the core operations needs 30 of them, the application instead of calling `create_generators` again, can just retrieve the 30 first generators `H_1, H_2, ..., H_30` from the cache instead, in the same order they where originally created (starting from the first one).
 
-The values `n` and `v` MAY also be cached in order to efficiently extend a existing list of cached generator points.
+The values `n` and `v` MAY also be cached in order to efficiently extend an existing list of cached generator points.
 
 ```
 generators = create_generators(count)
