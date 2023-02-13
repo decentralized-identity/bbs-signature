@@ -679,7 +679,7 @@ Definitions:
 - seed_dst, octet string representing the domain separation tag:
             ciphersuite_id || "SIG_GENERATOR_SEED_" where
             ciphersuite_id is defined by the ciphersuite and
-            "SIG_GENERATOR_SEED_" is an ASCII string comprising of 19
+            "SIG_GENERATOR_SEED_" is an ASCII string comprised of 19
             bytes.
 - generator_dst, octet string representing the domain separation tag:
                  ciphersuite_id || "SIG_GENERATOR_DST_", where
