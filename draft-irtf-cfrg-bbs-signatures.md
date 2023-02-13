@@ -277,7 +277,6 @@ When serializing one or more values to produce an octet string, each element wil
 - Non-negative integers will be serialized using `I2OSP` with an output length of 8 bytes.
 - Scalars will be serialized using `I2OSP` with a constant output length defined by a particular ciphersuite.
 
-Variable-length octet strings will be prepended with an integer value representing the number of bytes in the string. This length is encoded to octets using `I2OSP` with an output length of 8 bytes. For example, the octet string `0x14d` is encoded as `0x0000000000000002014d`. If the length of the octet string exceeds `2^64 - 1`, the octet string must be rejected.
 
 We also use strings in double quotes to represent ASCII-encoded literals. For example "BBS" will be used to refer to the octet string, `010000100100001001010011`.
 
