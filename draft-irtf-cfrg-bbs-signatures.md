@@ -1293,7 +1293,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (i.e., an ASCII string comprising of 57 bytes) which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
+- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (an ASCII string comprised of 57 bytes) which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
 
 
 # Test Vectors
