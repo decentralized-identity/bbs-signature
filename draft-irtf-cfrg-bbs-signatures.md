@@ -684,7 +684,7 @@ Definitions:
 - generator_dst, octet string representing the domain separation tag:
                  ciphersuite_id || "SIG_GENERATOR_DST_", where
                  ciphersuite_id is defined by the ciphersuite and
-                 "SIG_GENERATOR_DST_" is an ASCII string comprising of
+                 "SIG_GENERATOR_DST_" is an ASCII string comprised of
                  18 bytes.
 - seed_len = ceil((ceil(log2(r)) + k)/8), where r and k are defined by
                                           the ciphersuite.
