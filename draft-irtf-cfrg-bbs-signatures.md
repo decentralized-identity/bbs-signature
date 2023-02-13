@@ -1300,7 +1300,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 The following section details a basic set of test vectors that can be used to confirm an implementations correctness
 
-**NOTE** All binary data below are represented as octet strings in big endian order, encoded in hexadecimal format.
+**NOTE** All binary data below is represented as octet strings in big endian order, encoded in hexadecimal format.
 
 **NOTE** These fixtures are a work in progress and subject to change.
 
