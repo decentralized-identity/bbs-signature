@@ -415,10 +415,10 @@ Procedure:
 4.  e_s_octs = serialize((SK, domain, msg_1, ..., msg_L))
 5.  if e_s_octs is INVALID, return INVALID
 6.  e_s_expand = expand_message(e_s_octs, expand_dst, expand_len * 2)
-7.  e = hash_to_scalar(e_s_expand[0..(expand_len - 1)])
-8.  if e is INVALID, return INVALID
+7.  if es_expand is INVALID, return INVALID
+8.  e = hash_to_scalar(e_s_expand[0..(expand_len - 1)])
 9.  s = hash_to_scalar(e_s_expand[expand_len..(expand_len * 2 - 1)])
-10. if s is INVALID, return INVALID
+10. if e or s is INVALID, return INVALID
 11. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 12. A = B * (1 / (SK + e))
 13. return signature_to_octets(A, e, s)
