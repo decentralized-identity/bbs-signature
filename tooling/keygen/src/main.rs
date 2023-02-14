@@ -52,7 +52,7 @@ struct Opt {
     key_info: String,
     #[structopt(short, long, default_value = "Print")]
     out: OutputType,
-    #[structopt(short, long)] //default_value = "../fixtures/fixture_data/keyPair.json"
+    #[structopt(short, long)]
     file: Option<String>,
 }
 
@@ -129,7 +129,7 @@ fn main() {
     }
 }
 
-// wright to file
+// write to file
 fn write_keypair_to_file(ikm: &str, key_info: Option<&str>, key_pair: KeyPair, file: Option<String>)
 {
     println!("writhing to file...");
