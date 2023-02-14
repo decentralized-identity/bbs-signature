@@ -161,10 +161,10 @@ dst
 : The domain separation tag.
 
 I2OSP
-: As defined by Section 4 of [@!RFC8017]
+: An operation that transforms a non-negative integer into an octet string, defined in Section 4 of [@!RFC8017]. Note, the output of this operation is in big-endian order.
 
 OS2IP
-: As defined by Section 4 of [@!RFC8017].
+: An operation that transforms a octet string into an non-negative integer, defined in Section 4 of [@!RFC8017]. Note, the input of this operation must be in big-endian order.
 
 ## Notation
 
@@ -181,9 +181,6 @@ X\[a..b\]
 
 range(a, b)
 : For integers a and b, with a <= b, denotes the ascending ordered list of all integers between a and b inclusive (i.e., the integers "i" such that a <= i <= b).
-
-utf8(ascii_string)
-: Encoding the inputted ASCII string to an octet string using UTF-8 character encoding.
 
 length(input)
 : Takes as input either an array or an octet string. If the input is an array, returns the number of elements of the array. If the input is an octet string, returns the number of bytes of the inputted octet string.
@@ -262,7 +259,11 @@ The schemes operations defined in this section depend on the following parameter
 
 In definition of this signature scheme there are two possible variations based upon the sub-group selection, namely where public keys are defined in G2 and signatures in G1 OR the opposite where public keys are defined in G1 and signatures in G2. Some pairing cryptography based digital signature schemes such as [@I-D.irtf-cfrg-bls-signature] elect to allow for both variations, because they optimize for different things. However, in the case of this scheme, due to the operations involved in both signature and proof generation being computational in-efficient when performed in G2 and in the pursuit of simplicity, the scheme is limited to a construction where public keys are in G2 and signatures in G1.
 
-### Messages and generators
+### Messages
+
+Each of the core operations of the BBS signature scheme expect the inputted messages to be scalar values within a given range (specifically 1 and r-1, where r is the prime order of the G1 and G2 subgroups, defined by each ciphersuite, see [Notation](#notation)). There are multiple ways to transform a message from an octet string to a scalar value. This document defines the `MapMessageToScalarAsHash` operation, which hashes an octet string to a scalar (see [MapMessageToScalarAsHash](#mapmessagetoscalarashash)). An application can use a different `MapMessageToScalar` operation, but it MUST be clearly and unambiguously defined, for all parties involved. Before using the core operations, all messages MUST be mapped to their respective scalars using the same operation. The defined [MapMessageToScalarAsHash](#mapmessagetoscalarashash) is the RECOMMENDED way of mapping octet strings to scalar values.
+
+### Generators
 
 Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations (signature verification, proof generation and proof verification).
 
@@ -275,9 +276,9 @@ When serializing one or more values to produce an octet string, each element wil
 - Points in `G*` will be serialized using the `point_to_octets_g*` implementation for a particular ciphersuite.
 - Non-negative integers will be serialized using `I2OSP` with an output length of 8 bytes.
 - Scalars will be serialized using `I2OSP` with a constant output length defined by a particular ciphersuite.
-- ASCII strings will be transformed into octet strings using UTF-8 encoding.
 
-Variable-length octet strings will be prepended with an integer value representing the number of bytes in the string. This length is encoded to octets using `I2OSP` with an output length of 8 bytes. For example, the octet string `0x14d` is encoded as `0x0000000000000002014d`. If the length of the octet string exceeds `2^64 - 1`, the octet string must be rejected. ASCII strings are also encoded using this process by first converting to an octet string.
+
+We also use strings in double quotes to represent ASCII-encoded literals. For example "BBS" will be used to refer to the octet string, `010000100100001001010011`.
 
 Those rules will be used explicitly on every operation. See also [Serialize](#serialize).
 
@@ -365,7 +366,7 @@ The following operations also make use of the `create_generators` operation defi
 
 ### Sign
 
-This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages.
+This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages (as scalar values, see [Messages](#messages)).
 
 ```
 signature = Sign(SK, PK, header, messages)
@@ -687,11 +688,15 @@ Parameters:
 Definitions:
 
 - seed_dst, octet string representing the domain separation tag:
-            utf8(ciphersuite_id || "SIG_GENERATOR_SEED_"), where
-            ciphersuite_id is defined by the ciphersuite.
+            ciphersuite_id || "SIG_GENERATOR_SEED_" where
+            ciphersuite_id is defined by the ciphersuite and
+            "SIG_GENERATOR_SEED_" is an ASCII string comprised of 19
+            bytes.
 - generator_dst, octet string representing the domain separation tag:
-                 utf8(ciphersuite_id || "SIG_GENERATOR_DST_"), where
-                 ciphersuite_id is defined by the ciphersuite.
+                 ciphersuite_id || "SIG_GENERATOR_DST_", where
+                 ciphersuite_id is defined by the ciphersuite and
+                 "SIG_GENERATOR_DST_" is an ASCII string comprised of
+                 18 bytes.
 - seed_len = ceil((ceil(log2(r)) + k)/8), where r and k are defined by
                                           the ciphersuite.
 
@@ -720,7 +725,7 @@ There are multiple ways in which messages can be mapped to their respective scal
 
 ### MapMessageToScalarAsHash
 
-This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from utf8(ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_"), where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite.
+This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_", where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_" is an ASCII string comprised of 26 bytes.
 
 ```
 result = MapMessageToScalarAsHash(msg, dst)
@@ -730,8 +735,8 @@ Inputs:
 - msg (REQUIRED), octet string.
 - dst (OPTIONAL), an octet string representing a domain separation tag.
                   If not supplied, it default to the octet string
-                  utf8(ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_")
-                  where ciphersuite_id is defined by the ciphersuite.
+                  ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_" where
+                  ciphersuite_id is defined by the ciphersuite.
 
 Outputs:
 
@@ -751,7 +756,7 @@ This operation describes how to hash an arbitrary octet string to `n` scalar val
 
 This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). If an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). Note however, that the hash\_to\_curve document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For this reason, we don’t directly use hash\_to\_field here, rather we define a similar operation (hash\_to\_scalar), making direct use of the expand\_message function, that will be defined by the hash-to-curve suite used (i.e., either expand\_message\_xmd or expand\_message\_xof). If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
-The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from utf8(ciphersuit\_id || "H2S\_"), where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite.
+The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuit\_id || "H2S\_", where ciphersuite\_id is the octet string representing the unique ID of the ciphersuite and "H2S_" is an ASCII string comprised of 4 bytes.
 
 **Note** It is possible that the `hash_to_scalar` procedure will return an error, if the underlying `expand_message` operation aborts. See [@!I-D.irtf-cfrg-hash-to-curve], Section 5.3, for more details on the cases that `expand_message` will abort (note that the input term `len_in_bytes` of `expand_message` in the Hash-to-Curve document equals `count * expand_len` in our case).
 
@@ -765,8 +770,8 @@ Inputs:
                     scalars to output.
 - dst (OPTIONAL), an octet string representing a domain separation tag.
                   If not supplied, it defaults to the octet string given
-                  by utf8(ciphersuite_id || "H2S_"), where
-                  ciphersuite_id is defined by the ciphersuite.
+                  by ciphersuite_id || "H2S_", where ciphersuite_id is
+                  defined by the ciphersuite.
 
 Parameters:
 
@@ -825,7 +830,7 @@ Inputs:
 
 Parameters:
 
-- ciphersuite_id, ASCII string. The unique ID of the ciphersuite.
+- ciphersuite_id, octet string. The unique ID of the ciphersuite.
 
 Outputs:
 
@@ -836,8 +841,8 @@ Procedure:
 1.  L = length(H_Points)
 2.  if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
 3.  (H_1, ..., H_L) = H_Points
-4.  dom_array = (Q_1, Q_2, L, H_1, ..., H_L, ciphersuite_id)
-5.  dom_octs = serialize(dom_array)
+4.  dom_array = (Q_1, Q_2, L, H_1, ..., H_L)
+5.  dom_octs = serialize(dom_array) || ciphersuite_id
 6.  if dom_octs is INVALID, return INVALID
 7.  dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
 8.  domain = hash_to_scalar(dom_input, 1)
@@ -894,7 +899,7 @@ Procedure:
 
 ### Serialize
 
-This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see [Section 3.2.3](#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)), ASCII strings or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#sign), [ProofGen](#proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
+This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see [Section 3.2.3](#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#sign), [ProofGen](#proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
 
 ```
 octets_result = serialize(input_array)
@@ -929,10 +934,9 @@ Procedure:
 5.      else if el is a scalar: el_octs = I2OSP(el, octet_scalar_length)
 6.      else if el is an integer between 0 and 2^64 - 1:
 7.          el_octs = I2OSP(el, 8)
-8.      else if el is an ASCII string: el_octs = utf8(el)
-9.      else: return INVALID
-10.     octets_result = octets_result || el_octs
-11. return octets_result
+8.      else: return INVALID
+9.      octets_result = octets_result || el_octs
+10. return octets_result
 ```
 
 ### SignatureToOctets
@@ -1181,7 +1185,7 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 
 ### Ciphersuite ID
 
-The following section defines the format of the unique identifier for the ciphersuite denoted `ciphersuite_id`. The REQUIRED format for this string is
+The following section defines the format of the unique identifier for the ciphersuite denoted `ciphersuite_id`, which will be represented as an ASCII encoded octet string. The REQUIRED format for this string is
 
 ```
   "BBS_" || H2C_SUITE_ID || ADD_INFO
@@ -1189,7 +1193,7 @@ The following section defines the format of the unique identifier for the cipher
 
   *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
 
-  *  ADD\_INFO is an optional string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
+  *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
 
 ### Additional Parameters
 
@@ -1266,7 +1270,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- generator\_seed: A global seed value of utf8("BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED") which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
+- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (an ASCII string comprised of 59 bytes) which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
 
 
 ### BLS12-381-SHA-256
@@ -1300,16 +1304,16 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- generator\_seed: A global seed value of utf8("BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED") which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
+- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (an ASCII string comprised of 57 bytes) which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
 
 
 # Test Vectors
 
 The following section details a basic set of test vectors that can be used to confirm an implementations correctness
 
-**NOTE** All binary data below is represented as octet strings encoded in hexadecimal format
+**NOTE** All binary data below is represented as octet strings in big endian order, encoded in hexadecimal format.
 
-**NOTE** These fixtures are a work in progress and subject to change
+**NOTE** These fixtures are a work in progress and subject to change.
 
 ## Key Pair
 
