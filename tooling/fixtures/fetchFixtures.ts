@@ -71,13 +71,17 @@ export interface MapMessageToScalarFixtureData {
   readonly cases: ReadonlyArray<MapMessageToScalarCase>
 }
 
+export interface MockRngFixtureData {
+  readonly mockedScalars: string[];
+}
+
 export interface Fixture<T> {
   readonly name: string
   readonly value: T
 }
 
 const fetchNestedFixtures = <T>(name: string, input: any): ReadonlyArray<Fixture<T>> => {
-  if (input.caseName || input.MsgGenerators) {
+  if (input.caseName || input.MsgGenerators || input.mockedScalars) {
     return [
       {
         name: path.basename(name).split(".")[0] as string,
@@ -125,8 +129,10 @@ export const H2sFixture = fetchPerSuiteFixtures<H2sFixtureData>("/h2s")
 export const generatorFixtures = fetchPerSuiteFixtures<GeneratorFixtureData>("", /generators.json/);
 export const MapMessageToScalarFixtures = 
   fetchPerSuiteFixtures<MapMessageToScalarFixtureData>("", /MapMessageToScalarAsHash.json/);
+export const MockRngFixtures = fetchPerSuiteFixtures<MockRngFixtureData>("", /mockedRng.json/);
 
 console.log("MapMessageToScalarFixtures = ", MapMessageToScalarFixtures);
 console.log("H2sFixture = ", H2sFixture);
+console.log("MockRngFixtures = ", MockRngFixtures);
 
 export { keyPair, messages };

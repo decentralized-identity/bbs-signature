@@ -1562,6 +1562,21 @@ For the generation of the following fixtures the `mocked_calculate_random_scalar
 SEED = "332e313431353932363533353839373933323338343632363433333833323739"
 ```
 
+Given the above seed the first 10 scalars returned by the `mocked_calculate_random_scalars` operation will be,
+
+```
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[0] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[1] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[2] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[3] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[4] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[5] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[6] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[7] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[8] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[9] }}
+```
+
 #### Valid Single Message Proof
 
 Using the header, message and signature used in [Valid Single Message Signature](#valid-single-message-signature) to create a proof disclosing the message, with the following presentation header
@@ -1715,6 +1730,21 @@ Similarly to the proof fixtures for the BLS12381-SHA-256 ciphersuite, the genera
 
 ```
 SEED = "332e313431353932363533353839373933323338343632363433333833323739"
+
+```
+Given the above seed the first 10 scalars returned by the `mocked_calculate_random_scalars` operation will be,
+
+```
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[0] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[1] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[2] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[3] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[4] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[5] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[6] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[7] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[8] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[9] }}
 ```
 
 #### Valid Single Message Proof
