@@ -386,11 +386,18 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
+- expand_message, the expand_message operation defined by the suite
+                  specified by the hash_to_curve_suite parameter.
 
 Definitions:
 
 - L, is the non-negative integer representing the number of messages to
      be signed.
+- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
+                                          the ciphersuite.
+- expand_dst, octet string representing the domain separation tag:
+            utf8(ciphersuite_id || "SIG_DET_DST_"), where
+            ciphersuite_id is defined by the ciphersuite.
 
 Outputs:
 
@@ -406,16 +413,19 @@ Procedure:
 1.  (Q_1, Q_2, H_1, ..., H_L) = create_generators(L+2)
 2.  domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
 3.  if domain is INVALID, return INVALID
-4.  e_s_for_hash = serialize((SK, domain, msg_1, ..., msg_L))
-5.  if e_s_for_hash is INVALID, return INVALID
-6.  (e, s) = hash_to_scalar(e_s_for_hash, 2)
-7.  if e or s is INVALID, return INVALID
-8.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-9.  A = B * (1 / (SK + e))
-10. return signature_to_octets(A, e, s)
+4.  e_s_octs = serialize((SK, domain, msg_1, ..., msg_L))
+5.  if e_s_octs is INVALID, return INVALID
+6.  e_s_expand = expand_message(e_s_octs, expand_dst, expand_len * 2)
+7.  if e_s_expand is INVALID, return INVALID
+8.  e = hash_to_scalar(e_s_expand[0..(expand_len - 1)])
+9.  s = hash_to_scalar(e_s_expand[expand_len..(expand_len * 2 - 1)])
+10. if e or s is INVALID, return INVALID
+11. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+12. A = B * (1 / (SK + e))
+13. return signature_to_octets(A, e, s)
 ```
 
-**Note** When computing step 9 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
+**Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
 
 ### Verify
 
@@ -728,7 +738,7 @@ There are multiple ways in which messages can be mapped to their respective scal
 This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_", where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_" is an ASCII string comprised of 26 bytes.
 
 ```
-result = MapMessageToScalarAsHash(msg, dst)
+msg_scalar = MapMessageToScalarAsHash(msg, dst)
 
 Inputs:
 
@@ -740,12 +750,12 @@ Inputs:
 
 Outputs:
 
-- result, a scalar value.
+- msg_scalar, a scalar value.
 
 Procedure:
 
 1. if length(msg) > 2^64 - 1 or length(dst) > 255 return INVALID
-2. msg_scalar = hash_to_scalar(msg, 1, dst)
+2. msg_scalar = hash_to_scalar(msg, dst)
 3. if msg_scalar is INVALID, return INVALID
 4. return msg_scalar
 ```
@@ -761,13 +771,11 @@ The operation takes as input an octet string representing the message to hash (m
 **Note** It is possible that the `hash_to_scalar` procedure will return an error, if the underlying `expand_message` operation aborts. See [@!I-D.irtf-cfrg-hash-to-curve], Section 5.3, for more details on the cases that `expand_message` will abort (note that the input term `len_in_bytes` of `expand_message` in the Hash-to-Curve document equals `count * expand_len` in our case).
 
 ```
-scalars = hash_to_scalar(msg_octets, count, dst)
+hashed_scalar = hash_to_scalar(msg_octets, dst)
 
 Inputs:
 
 - msg_octets (REQUIRED), octet string. The message to be hashed.
-- count (REQUIRED), an integer greater or equal to 1. The number of
-                    scalars to output.
 - dst (OPTIONAL), an octet string representing a domain separation tag.
                   If not supplied, it defaults to the octet string given
                   by ciphersuite_id || "H2S_", where ciphersuite_id is
@@ -787,22 +795,20 @@ Definitions:
 
 Outputs:
 
-- scalars, an array of non-zero scalars mod r.
+- hashed_scalar, a non-zero scalar mod r.
 
 Procedure:
 
-1.  len_in_bytes = count * expand_len
-2.  t = 0
-3.  msg_prime = msg_octets || I2OSP(t, 1) || I2OSP(count, 4)
-4.  uniform_bytes = expand_message(msg_prime, dst, len_in_bytes)
-5.  if uniform_bytes is INVALID, return INVALID
-6.  for i in (1, ..., count):
-7.      tv = uniform_bytes[(i-1)*expand_len..i*expand_len-1]
-8.      scalar_i = OS2IP(tv) mod r
-9.  if 0 in (scalar_1, ..., scalar_count):
-10.     t = t + 1
-11.     go back to step 3
-12. return (scalar_1, ..., scalar_count)
+1.  counter = 0
+2.  hashed_scalar = 0
+3.  while hashed_scalar == 0:
+4.      if counter > 255, return INVALID
+5.      msg_prime = msg_octets || I2OSP(counter, 1)
+6.      uniform_bytes = expand_message(msg_prime, dst, expand_len)
+7.      if uniform_bytes is INVALID, return INVALID
+8.      hashed_scalar = OS2IP(uniform_bytes) mod r
+9.      counter = counter + 1
+10. return hashed_scalar
 ```
 
 ## Domain Calculation
@@ -845,7 +851,7 @@ Procedure:
 5.  dom_octs = serialize(dom_array) || ciphersuite_id
 6.  if dom_octs is INVALID, return INVALID
 7.  dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
-8.  domain = hash_to_scalar(dom_input, 1)
+8.  domain = hash_to_scalar(dom_input)
 9.  if domain is INVALID, return INVALID
 10. return domain
 ```
@@ -889,7 +895,7 @@ Procedure:
 7.  c_octs = serialize(c_array)
 8.  if c_octs is INVALID, return INVALID
 9.  c_input = c_octs || I2OSP(length(ph), 8) || ph
-10. challenge = hash_to_scalar(c_input, 1)
+10. challenge = hash_to_scalar(c_input)
 11. if challenge is INVALID, return INVALID
 12. return challenge
 ```
@@ -1822,7 +1828,7 @@ Using the following input message,
 {{ $H2sFixture.bls12-381-shake-256.h2s001.message }}
 ```
 
-And the default dst defined in [hash-to-scalar](#hash-to-scalar), i.e.,
+And the default dst defined in [hash\_to\_scalar](#hash-to-scalar), i.e.,
 
 ```
 {{ $H2sFixture.bls12-381-shake-256.h2s001.dst }}
@@ -2010,7 +2016,7 @@ Using the following input message,
 {{ $H2sFixture.bls12-381-sha-256.h2s001.message }}
 ```
 
-And the default dst defined in [hash-to-scalar](#hash-to-scalar), i.e.,
+And the default dst defined in [hash\_to\_scalar](#hash-to-scalar), i.e.,
 
 ```
 {{ $H2sFixture.bls12-381-sha-256.h2s001.dst }}
