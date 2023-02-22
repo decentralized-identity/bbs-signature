@@ -548,7 +548,7 @@ Procedure:
 2.  (H_1, ..., H_L) = MsgGenerators
 3.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
-4.  domain = calculate_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
+4.  domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
 5.  if domain is INVALID, return INVALID
 6.  for i in (1, ..., U+6):
 7.      ell_i = OS2IP(get_random(expand_len)) mod r
@@ -647,7 +647,7 @@ Procedure:
 3.  (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
-5.  domain = calculate_domain(PK, Q_1, Q_2, L, (H_1, ..., H_L), header)
+5.  domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
 6.  if domain is INVALID, return INVALID
 7.  C1 = (Abar - D) * c + A' * e^ + Q_1 * r2^
 8.  T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
