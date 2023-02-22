@@ -317,7 +317,7 @@ Procedure:
 1. if length(key_material) < 32, return INVALID
 2. if length(key_info) > 65535, return INVALID
 3. derive_input = key_material || I2OSP(length(key_info), 2) || key_info
-4. SK = hash_to_scalar(derive_input, 1, key_dst)
+4. SK = hash_to_scalar(derive_input, key_dst)
 5. if SK is INVALID, return INVALID
 6. return SK
 ```
