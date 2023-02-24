@@ -485,7 +485,7 @@ This operation computes a zero-knowledge proof-of-knowledge of a signature, whil
 
 The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
-The operation calculates multiple random scalars using a `get_random` (see [Parameters](#parameters)). The required length of the `get_random` output is defined as `expand_len`. Each value returned by the `get_random` function is reduced modulo the group order `r`. To avoid biased results when creating the random scalars, the output of the `get_random` MUST be at least `(ceil(log2(r))+k` bytes long, where `k` is the targeted security level, specified by the ciphersuite (see Section 5 in [@!I-D.irtf-cfrg-hash-to-curve] for more details). ProofGen defines `expand_len = ceil((ceil(log2(r))+k)/8)`. For both the [BLS12-381-SHAKE-256](#bls12-381-shake-256) and [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuites, `log2(r) = 255` and `k = 128` resulting to `expand_len = 48`. See [Section 5.10](#randomness-requirements) for further security considerations and requirements around the generated randomness.
+The operation calculates multiple random scalars using the `calculate_random_scalars` utility operation defined in [Section 4.1](#random-scalars-computation). See also [Section 5.10](#randomness-requirements) for considerations and requirements on random scalars generation.
 
 To allow for flexibility in implementations, although ProofGen defines a specific value for `expand_len`, applications may use any value larger than `ceil((ceil(log2(r))+k)/8)` (for example, for the BLS12-381-SHAKE-256 and BLS12-381-SHA-256 ciphersuites, an implementation can elect to use a value of 64, instead of 48, as to allow for certain optimizations).
 
@@ -521,8 +521,6 @@ Definitions:
      (revealed) messages.
 - U, is the non-negative integer representing the number of undisclosed
      messages, i.e., U = L - R.
-- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
-                                          the ciphersuite.
 
 Outputs:
 
@@ -550,28 +548,26 @@ Procedure:
 
 4.  domain = calculate_domain(PK, Q_1, Q_2, (H_1, ..., H_L), header)
 5.  if domain is INVALID, return INVALID
-6.  for i in (1, ..., U+6):
-7.      ell_i = OS2IP(get_random(expand_len)) mod r
-8.  (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU) =
-                                     (ell_1, ell_2, ..., ell_(6+U))
-9.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-10. r3 = r1 ^ -1 mod r
-11. A' = A * r1
-12. Abar = A' * (-e) + B * r1
-13. D = B * r1 + Q_1 * r2
-14. s' = r2 * r3 + s mod r
-15. C1 = A' * e~ + Q_1 * r2~
-16. C2 = D * (-r3~) + Q_1 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
-17. c = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
-                                      (msg_i1, ..., msg_iR), domain, ph)
-18. if c is INVALID, return INVALID
-19. e^ = c * e + e~ mod r
-20. r2^ = c * r2 + r2~ mod r
-21. r3^ = c * r3 + r3~ mod r
-22. s^ = c * s' + s~ mod r
-23. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
-24. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
-25. return proof_to_octets(proof)
+6.  random_scalars = calculate_random_scalars(6+U)
+7.  (r1, r2, e~, r2~, r3~, s~, m~_j1, ..., m~_jU) = random_scalars
+8.  B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+9.  r3 = r1 ^ -1 mod r
+10. A' = A * r1
+11. Abar = A' * (-e) + B * r1
+12. D = B * r1 + Q_1 * r2
+13. s' = r2 * r3 + s mod r
+14. C1 = A' * e~ + Q_1 * r2~
+15. C2 = D * (-r3~) + Q_1 * s~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+16. c = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
+                                     (msg_i1, ..., msg_iR), domain, ph)
+17. if c is INVALID, return INVALID
+18. e^ = c * e + e~ mod r
+19. r2^ = c * r2 + r2~ mod r
+20. r3^ = c * r3 + r3~ mod r
+21. s^ = c * s' + s~ mod r
+22. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
+23. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
+24. return proof_to_octets(proof)
 ```
 
 ### ProofVerify
@@ -662,6 +658,40 @@ Procedure:
 ```
 
 # Utility Operations
+
+## Random scalars computation
+
+This operation returns the requested number of pseudo-random scalars, using the `get_random` operation (see [Parameters](#parameters)). The operation makes multiple calls to `get_random`. It is REQUIRED that each call will be independent from each other, as to ensure independence of the returned pseudo-random scalars.
+
+The required length of the `get_random` output is defined as `expand_len`. Each value returned by the `get_random` function is reduced modulo the group order `r`. To avoid biased results when creating the random scalars, the output of `get_random` MUST be at least `(ceil(log2(r))+k` bytes long, where `k` is the targeted security level specified by the ciphersuite (see Section 5 in [@!I-D.irtf-cfrg-hash-to-curve] for more details). ProofGen defines `expand_len = ceil((ceil(log2(r))+k)/8)`. For both the [BLS12-381-SHAKE-256](#bls12-381-shake-256) and [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuites, `log2(r) = 255` and `k = 128` resulting to `expand_len = 48`. See [Section 5.10](#randomness-requirements) for further security considerations and requirements around the generated randomness.
+
+**Note**: The security of the proof generation algorithm ([ProofGen](#proofgen)) is highly dependant on the quality of the `get_random` function. Care must be taken to ensure that a cryptographically secure pseudo-random generator is chosen, and that its outputs are not leaked to an adversary. See also [Section 5.10](#randomness-requirements) for more details.
+
+```
+random_scalars = calculate_random_scalars(count)
+
+Inputs:
+
+- count (REQUIRED), non negative integer. The number of pseudo random
+                    scalars to return.
+
+Parameters:
+
+- get_random, a pseudo random function with extendable output, returning
+              uniformly distributed pseudo random bytes.
+- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
+                                          the ciphersuite.
+
+Outputs:
+
+- random_scalars, a list of pseudo random scalars,
+
+Procedure:
+
+1. for i in (1, ..., count):
+2.     r_i = OS2IP(get_random(expand_len)) mod r
+3. return (r_1, r_2, ..., r_count)
+```
 
 ## Generator point computation
 
@@ -1321,6 +1351,61 @@ The following section details a basic set of test vectors that can be used to co
 
 **NOTE** These fixtures are a work in progress and subject to change.
 
+## Mocked random scalars
+
+For the purpose of presenting fixtures for the [ProofGen](#proofgen) operation we describe here a way to mock the `calculate_random_scalars` operation ([Random scalars computation](#random-scalars-computation)), used by `ProofGen` to create all the necessary random scalars.
+
+To that end, the `seeded_random_scalars(SEED)` operation is defined, which will deterministically calculate `count` random-looking scalars from a single `SEED`. The proof test vector will then define a `SEED` (as a nothing-up-my-sleeve value) and set
+
+```
+mocked_calculate_random_scalars(count) :=
+                             seeded_random_scalars(SEED, count)
+```
+
+The `mocked_calculate_random_scalars` operation will then be used in place of `calculate_random_scalars` during the [ProofGen](#proofgen) operation's procedure.
+
+**Note** For the [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuite if more than 170 mocked random scalars are required, the operation will return INVALID. Similarly, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite, if more than 1365 mocked random scalars are required, the operation will return INVALID. For the purpose of describing [ProofGen](#proofgen) test vectors, those limits are inconsequential.
+
+```
+seeded_scalars = seeded_random_scalars(SEED, count)
+
+Inputs:
+
+- count (REQUIRED), non negative integer. The number of scalars to
+                    return.
+- SEED (REQUIRED), octet string. The random seed from which to generate
+                   the scalars.
+
+Parameters:
+
+- expand_message, the expand_message operation defined by the
+                  ciphersuite.
+- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
+                                          the ciphersuite.
+- dst = utf8(ciphersuite_id || "MOCK_RANDOM_SCALARS_DST_"), where
+      ciphersuite_id is defined by teh ciphersuite.
+
+Outputs:
+
+- mocked_random_scalars, a list of "count" pseudo random scalars
+
+Preconditions:
+
+1. if count * expand_len > 65535, return INVALID
+
+Procedure:
+
+1. out_len = expand_len * count
+2. v = expand_message(SEED, dst, out_len)
+3. if v is INVALID, return INVALID
+
+4. for i in (1, ..., count):
+5.     start_idx = (i-1) * expand_len
+6.     end_idx = i * expand_len - 1
+7.     r_i = OS2IP(v[start_idx..end_idx]) mod r
+8. return (r_1, ...., r_count)
+```
+
 ## Key Pair
 
 The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#keygen) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
@@ -1443,19 +1528,20 @@ Following the procedure defined in (#generator-point-computation) with an input 
 
 {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[9] }}
 ```
+### Signature Fixtures
 
-### Valid Single Message Signature
+#### Valid Single Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.bls12-381-sha-256.signature001.header }}
+{{ $signatureFixtures.bls12-381-shake-256.signature001.header }}
 ```
 
 And the following message (the first message defined in (#messages))
 
 ```
-{{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}
+{{ $signatureFixtures.bls12-381-shake-256.signature001.messages[0] }}
 ```
 
 After it is mapped to the first scalar in (#map-messages-to-scalars), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
@@ -1464,7 +1550,7 @@ After it is mapped to the first scalar in (#map-messages-to-scalars), along with
 {{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
 ```
 
-### Valid Multi-Message Signature
+#### Valid Multi-Message Signature
 
 Using the following header
 
@@ -1476,6 +1562,71 @@ And the messages defined in (#messages) (**Note** the ordering of the messages M
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
+```
+
+### Proof fixtures
+
+For the generation of the following fixtures the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
+
+```
+SEED = "332e313431353932363533353839373933323338343632363433333833323739"
+```
+
+Given the above seed the first 10 scalars returned by the `mocked_calculate_random_scalars` operation will be,
+
+```
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[0] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[1] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[2] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[3] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[4] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[5] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[6] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[7] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[8] }}
+{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[9] }}
+```
+
+#### Valid Single Message Proof
+
+Using the header, message and signature used in [Valid Single Message Signature](#valid-single-message-signature) to create a proof disclosing the message, with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof001.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof001.proof }}
+```
+
+#### Valid Multi-Message, All Messages Disclosed Proof
+
+Using the header, messages and signature used in [Valid Multi Message Signature](#valid-multi-message-signature) to create a proof disclosing all the messages, with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof002.proof }}
+```
+
+#### Valid Multi-Message, Half of Messages Disclosed Proof
+
+Using the same header, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof) but this time with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof003.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof003.proof }}
 ```
 
 ## BLS12381-SHA-256 Test Vectors
@@ -1547,7 +1698,9 @@ Following the procedure defined in (#generator-point-computation) with an input 
 {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[9] }}
 ```
 
-### Valid Single Message Signature
+### Signature Fixtures
+
+#### Valid Single Message Signature
 
 Using the following header
 
@@ -1567,18 +1720,83 @@ After it is mapped to the first scalar in (#map-messages-to-scalars-1), along wi
 {{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
 ```
 
-### Valid Multi-Message Signature
+#### Valid Multi-Message Signature
 
 Using the following header
 
 ```
-{{ $signatureFixtures.bls12-381-shake-256.signature004.header }}
+{{ $signatureFixtures.bls12-381-sha-256.signature004.header }}
 ```
 
 And the messages defined in (#messages) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
-{{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
+{{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}
+```
+
+### Proof fixtures
+
+Similarly to the proof fixtures for the BLS12381-SHA-256 ciphersuite, the generation of the following fixtures uses the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars), in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
+
+```
+SEED = "332e313431353932363533353839373933323338343632363433333833323739"
+
+```
+Given the above seed the first 10 scalars returned by the `mocked_calculate_random_scalars` operation will be,
+
+```
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[0] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[1] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[2] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[3] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[4] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[5] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[6] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[7] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[8] }}
+{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[9] }}
+```
+
+#### Valid Single Message Proof
+
+Using the header, message and signature used in [Valid Single Message Signature](#valid-single-message-signature-1) to create a proof disclosing the message, with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof001.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof001.proof }}
+```
+
+#### Valid Multi-Message, All Messages Disclosed Proof
+
+Using the header, messages and signature used in [Valid Multi Message Signature](#valid-multi-message-signature-1) to create a proof disclosing all the messages, with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof002.proof }}
+```
+
+#### Valid Multi-Message, Half of Messages Disclosed Proof
+
+Using the same header, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof-1) but this time with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof003.presentationHeader }}
+```
+
+will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof003.proof }}
 ```
 
 # IANA Considerations
