@@ -125,7 +125,7 @@ const fetchPerSuiteFixtures = <T>(dir:string, filter = /.json$/) => {
 
 export const signatureFixtures = fetchPerSuiteFixtures<SignatureFixtureData>("/signature");
 export const proofFixtures = fetchPerSuiteFixtures<ProofFixtureData>("/proof");
-export const H2sFixture = fetchPerSuiteFixtures<H2sFixtureData>("/h2s")
+export const H2sFixture = fetchPerSuiteFixtures<H2sFixtureData>("", /h2s.json/)
 export const generatorFixtures = fetchPerSuiteFixtures<GeneratorFixtureData>("", /generators.json/);
 export const MapMessageToScalarFixtures = 
   fetchPerSuiteFixtures<MapMessageToScalarFixtureData>("", /MapMessageToScalarAsHash.json/);

@@ -1,9 +1,6 @@
 {
-  "caseName": "Hash to curve, 1 scalar output",
+  "caseName": "Hash to scalar output",
   "message": "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02",
   "dst": "4242535f424c53313233383147315f584f463a5348414b452d3235365f535357555f524f5f4832535f",
-  "count": 1,
-  "scalars": [
-    "260cab748e24ccc2bbd66f5b834d692622fa131f5ce898fa57217434c9ed14fa"
-  ]
+  "scalar": "619db5f43cc92d3f5bd71502b99791bc1022c3eced4f1e3058a9c191af0118a4"
 }

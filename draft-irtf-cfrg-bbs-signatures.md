@@ -393,8 +393,8 @@ Definitions:
 
 - L, is the non-negative integer representing the number of messages to
      be signed.
-- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
-                                          the ciphersuite.
+- expand_len = ceil(ceil(log2(r))/8), where r and k are defined by
+                                      the ciphersuite.
 - expand_dst, octet string representing the domain separation tag:
             utf8(ciphersuite_id || "SIG_DET_DST_"), where
             ciphersuite_id is defined by the ciphersuite.
@@ -2043,43 +2043,19 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 Using the following input message,
 
 ```
-{{ $H2sFixture.bls12-381-shake-256.h2s001.message }}
+{{ $H2sFixture.bls12-381-shake-256.h2s.message }}
 ```
 
 And the default dst defined in [hash\_to\_scalar](#hash-to-scalar), i.e.,
 
 ```
-{{ $H2sFixture.bls12-381-shake-256.h2s001.dst }}
+{{ $H2sFixture.bls12-381-shake-256.h2s.dst }}
 ```
 
-With an output count of `1`, we get the following scalar, encoded with I2OSP and represented in big endian order,
+We get the following scalar, encoded with I2OSP and represented in big endian order,
 
 ```
-{{ $H2sFixture.bls12-381-shake-256.h2s001.scalars[0] }}
-```
-
-With the same input message and dst but with an output count of `10` we get the following scalars (again encoded with I2OSP and represented in big endian order),
-
-```
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[0] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[1] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[2] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[3] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[4] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[5] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[6] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[7] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[8] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[9] }}
+{{ $H2sFixture.bls12-381-shake-256.h2s.scalar }}
 ```
 
 ## BLS12-381-SHA-256 Ciphersuite
@@ -2231,43 +2207,19 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 Using the following input message,
 
 ```
-{{ $H2sFixture.bls12-381-sha-256.h2s001.message }}
+{{ $H2sFixture.bls12-381-sha-256.h2s.message }}
 ```
 
 And the default dst defined in [hash\_to\_scalar](#hash-to-scalar), i.e.,
 
 ```
-{{ $H2sFixture.bls12-381-sha-256.h2s001.dst }}
+{{ $H2sFixture.bls12-381-sha-256.h2s.dst }}
 ```
 
-With an output count of `1`, we get the following scalar, encoded with I2OSP and represented in big endian order,
+We get the following scalar, encoded with I2OSP and represented in big endian order,
 
 ```
-{{ $H2sFixture.bls12-381-sha-256.h2s001.scalars[0] }}
-```
-
-With the same input message and dst but with an output count of `10` we get the following scalars (again encoded with I2OSP and represented in big endian order),
-
-```
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[0] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[1] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[2] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[3] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[4] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[5] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[6] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[7] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[8] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[9] }}
+{{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}
 ```
 
 # Proof Generation and Verification Algorithmic Explanation

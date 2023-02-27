@@ -21,9 +21,6 @@ const main = async () => {
   results.forEach((result) => {
     var value = get(fixtures, result.path);
 
-    // console.log("--->>>", fixtures);
-    // console.log("--->>>", result.path);
-
     // make everything 72 chars
     for (let i = 0; i < ~~(value.length/72); i++) {
       value = value.slice(0, i*73 + 72) + "\n" + value.slice(i*73 + 72);
