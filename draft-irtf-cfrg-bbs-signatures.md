@@ -878,7 +878,7 @@ Procedure:
 1.  L = length(H_Points)
 2.  if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
 3.  (H_1, ..., H_L) = H_Points
-4.  dom_array = (Q_1, Q_2, L, H_1, ..., H_L)
+4.  dom_array = (L, Q_1, Q_2, H_1, ..., H_L)
 5.  dom_octs = serialize(dom_array) || ciphersuite_id
 6.  if dom_octs is INVALID, return INVALID
 7.  dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
