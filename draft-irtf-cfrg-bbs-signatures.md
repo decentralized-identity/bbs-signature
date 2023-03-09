@@ -388,16 +388,16 @@ Parameters:
 - P1, fixed point of G1, defined by the ciphersuite.
 - expand_message, the expand_message operation defined by the suite
                   specified by the hash_to_curve_suite parameter.
+- octet_scalar_length, non-negative integer. The length of a scalar
+                       octet representation, defined by the ciphersuite.
 
 Definitions:
 
 - L, is the non-negative integer representing the number of messages to
      be signed.
-- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
-                                          the ciphersuite.
 - expand_dst, octet string representing the domain separation tag:
-            utf8(ciphersuite_id || "SIG_DET_DST_"), where
-            ciphersuite_id is defined by the ciphersuite.
+              utf8(ciphersuite_id || "SIG_DET_DST_"), where
+              ciphersuite_id is defined by the ciphersuite.
 
 Outputs:
 
@@ -415,14 +415,15 @@ Procedure:
 3.  if domain is INVALID, return INVALID
 4.  e_s_octs = serialize((SK, domain, msg_1, ..., msg_L))
 5.  if e_s_octs is INVALID, return INVALID
-6.  e_s_expand = expand_message(e_s_octs, expand_dst, expand_len * 2)
-7.  if e_s_expand is INVALID, return INVALID
-8.  e = hash_to_scalar(e_s_expand[0..(expand_len - 1)])
-9.  s = hash_to_scalar(e_s_expand[expand_len..(expand_len * 2 - 1)])
-10. if e or s is INVALID, return INVALID
-11. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-12. A = B * (1 / (SK + e))
-13. return signature_to_octets(A, e, s)
+6.  e_s_len = octet_scalar_length * 2
+7.  e_s_expand = expand_message(e_s_octs, expand_dst, e_s_len)
+8.  if e_s_expand is INVALID, return INVALID
+9.  e = hash_to_scalar(e_s_expand[0..(octet_scalar_length - 1)])
+10. s = hash_to_scalar(e_s_expand[octet_scalar_length..(e_s_len - 1)])
+11. if e or s is INVALID, return INVALID
+12. B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+13. A = B * (1 / (SK + e))
+14. return signature_to_octets(A, e, s)
 ```
 
 **Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
@@ -877,7 +878,7 @@ Procedure:
 1.  L = length(H_Points)
 2.  if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
 3.  (H_1, ..., H_L) = H_Points
-4.  dom_array = (Q_1, Q_2, L, H_1, ..., H_L)
+4.  dom_array = (L, Q_1, Q_2, H_1, ..., H_L)
 5.  dom_octs = serialize(dom_array) || ciphersuite_id
 6.  if dom_octs is INVALID, return INVALID
 7.  dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
@@ -2043,43 +2044,19 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 Using the following input message,
 
 ```
-{{ $H2sFixture.bls12-381-shake-256.h2s001.message }}
+{{ $H2sFixture.bls12-381-shake-256.h2s.message }}
 ```
 
 And the default dst defined in [hash\_to\_scalar](#hash-to-scalar), i.e.,
 
 ```
-{{ $H2sFixture.bls12-381-shake-256.h2s001.dst }}
+{{ $H2sFixture.bls12-381-shake-256.h2s.dst }}
 ```
 
-With an output count of `1`, we get the following scalar, encoded with I2OSP and represented in big endian order,
+We get the following scalar, encoded with I2OSP and represented in big endian order,
 
 ```
-{{ $H2sFixture.bls12-381-shake-256.h2s001.scalars[0] }}
-```
-
-With the same input message and dst but with an output count of `10` we get the following scalars (again encoded with I2OSP and represented in big endian order),
-
-```
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[0] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[1] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[2] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[3] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[4] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[5] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[6] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[7] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[8] }}
-
-{{ $H2sFixture.bls12-381-shake-256.h2s002.scalars[9] }}
+{{ $H2sFixture.bls12-381-shake-256.h2s.scalar }}
 ```
 
 ## BLS12-381-SHA-256 Ciphersuite
@@ -2231,43 +2208,19 @@ Along with the PK value as defined in (#key-pair) as inputs into the Verify oper
 Using the following input message,
 
 ```
-{{ $H2sFixture.bls12-381-sha-256.h2s001.message }}
+{{ $H2sFixture.bls12-381-sha-256.h2s.message }}
 ```
 
 And the default dst defined in [hash\_to\_scalar](#hash-to-scalar), i.e.,
 
 ```
-{{ $H2sFixture.bls12-381-sha-256.h2s001.dst }}
+{{ $H2sFixture.bls12-381-sha-256.h2s.dst }}
 ```
 
-With an output count of `1`, we get the following scalar, encoded with I2OSP and represented in big endian order,
+We get the following scalar, encoded with I2OSP and represented in big endian order,
 
 ```
-{{ $H2sFixture.bls12-381-sha-256.h2s001.scalars[0] }}
-```
-
-With the same input message and dst but with an output count of `10` we get the following scalars (again encoded with I2OSP and represented in big endian order),
-
-```
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[0] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[1] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[2] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[3] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[4] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[5] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[6] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[7] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[8] }}
-
-{{ $H2sFixture.bls12-381-sha-256.h2s002.scalars[9] }}
+{{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}
 ```
 
 # Proof Generation and Verification Algorithmic Explanation
