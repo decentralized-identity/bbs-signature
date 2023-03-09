@@ -2278,7 +2278,7 @@ Note that the verifier will know the elements in the left side of the above equa
 * Variety of editiorial clarifications
 * Clarified integer endianness
 * Revised the encode for hash operation
-* Shifted to using CSPRING instead of PRF
+* Shifted to using CSPRNG instead of PRF
 * Removed total number of messages from proof verify operation
 * Added deterministic proof fixtures
 * Shifted to multiple CSPRNG calls to calculate random elements, instead of expand_message
