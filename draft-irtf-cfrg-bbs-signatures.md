@@ -395,7 +395,7 @@ Definitions:
      be signed.
 - expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
                                           the ciphersuite.
-- expand_dst, octet string representing the domain separation tag:
+- expand_dst, an octet string representing the domain separation tag:
             utf8(ciphersuite_id || "SIG_DET_DST_"), where
             ciphersuite_id is defined by the ciphersuite.
 
@@ -501,7 +501,7 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- ph (OPTIONAL), octet string containing the presentation header. If not
+- ph (OPTIONAL), an octet string containing the presentation header. If not
                  supplied, it defaults to an empty string.
 - messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
                        to the empty array "()".
@@ -524,7 +524,7 @@ Definitions:
 
 Outputs:
 
-- proof, octet string; or INVALID.
+- proof, an octet string; or INVALID.
 
 Deserialization:
 
@@ -590,7 +590,7 @@ Inputs:
 - header (OPTIONAL), an optional octet string containing context and
                      application specific information. If not supplied,
                      it defaults to an empty string.
-- ph (OPTIONAL), octet string containing the presentation header. If not
+- ph (OPTIONAL), an octet string containing the presentation header. If not
                  supplied, it defaults to an empty string.
 - disclosed_messages (OPTIONAL), a vector of scalars. If not supplied,
                                  it defaults to the empty array "()".
@@ -721,18 +721,18 @@ Parameters:
                     hash_to_curve_suite parameter.
 - expand_message, the expand_message operation defined by the suite
                   specified by the hash_to_curve_suite parameter.
-- generator_seed, octet string. A seed value selected by the
+- generator_seed, an octet string. A seed value selected by the
                   ciphersuite.
 - P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
 
-- seed_dst, octet string representing the domain separation tag:
+- seed_dst, an octet string representing the domain separation tag:
             ciphersuite_id || "SIG_GENERATOR_SEED_" where
             ciphersuite_id is defined by the ciphersuite and
             "SIG_GENERATOR_SEED_" is an ASCII string comprised of 19
             bytes.
-- generator_dst, octet string representing the domain separation tag:
+- generator_dst, an octet string representing the domain separation tag:
                  ciphersuite_id || "SIG_GENERATOR_DST_", where
                  ciphersuite_id is defined by the ciphersuite and
                  "SIG_GENERATOR_DST_" is an ASCII string comprised of
@@ -772,7 +772,7 @@ msg_scalar = MapMessageToScalarAsHash(msg, dst)
 
 Inputs:
 
-- msg (REQUIRED), octet string.
+- msg (REQUIRED), an octet string.
 - dst (OPTIONAL), an octet string representing a domain separation tag.
                   If not supplied, it default to the octet string
                   ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_" where
@@ -805,7 +805,7 @@ hashed_scalar = hash_to_scalar(msg_octets, dst)
 
 Inputs:
 
-- msg_octets (REQUIRED), octet string. The message to be hashed.
+- msg_octets (REQUIRED), an octet string. The message to be hashed.
 - dst (OPTIONAL), an octet string representing a domain separation tag.
                   If not supplied, it defaults to the octet string given
                   by ciphersuite_id || "H2S_", where ciphersuite_id is
@@ -856,17 +856,17 @@ domain = calculate_domain(PK, Q_1, Q_2, H_Points, header)
 
 Inputs:
 
-- PK (REQUIRED), octet string, representing the public key of the
+- PK (REQUIRED), an octet string, representing the public key of the
                  Signer of the form outputted by the SkToPk operation.
 - (Q_1, Q_2) (REQUIRED), points of G1 (the first 2 points returned from
                          create_generators).
 - H_Points (REQUIRED), array of points of G1.
-- header (OPTIONAL), octet string. If not supplied, it must default to
+- header (OPTIONAL), an octet string. If not supplied, it must default to
                      the empty octet string ("").
 
 Parameters:
 
-- ciphersuite_id, octet string. The unique ID of the ciphersuite.
+- ciphersuite_id, an octet string. The unique ID of the ciphersuite.
 
 Outputs:
 
@@ -906,7 +906,7 @@ Inputs:
                       the disclosed messages).
 - msg_array (REQUIRED), array of scalars (the disclosed messages).
 - domain (REQUIRED), a scalar.
-- ph (OPTIONAL), octet string. If not supplied, it must default to the
+- ph (OPTIONAL), an octet string. If not supplied, it must default to the
                  empty octet string ("").
 
 Outputs:
@@ -959,7 +959,7 @@ Parameters:
 
 Outputs:
 
-- octets_result, a scalar value or INVALID.
+- octets_result, an octet string or INVALID.
 
 Procedure:
 
@@ -992,7 +992,7 @@ Inputs:
 
 Outputs:
 
-- signature_octets, octet string or INVALID.
+- signature_octets, an octet string or INVALID.
 
 Procedure:
 
@@ -1009,7 +1009,7 @@ signature = octets_to_signature(signature_octets)
 
 Inputs:
 
-- signature_octets (REQUIRED), octet string of the form output from
+- signature_octets (REQUIRED), an octet string of the form output from
                                signature_to_octets operation.
 
 Outputs:
@@ -1062,7 +1062,7 @@ Parameters:
 
 Outputs:
 
-- proof_octets, octet string or INVALID.
+- proof_octets, an octet string or INVALID.
 
 Procedure:
 
@@ -1085,7 +1085,7 @@ proof = octets_to_proof(proof_octets)
 
 Inputs:
 
-- proof_octets (REQUIRED), octet string of the form outputted from the
+- proof_octets (REQUIRED), an octet string of the form outputted from the
                            proof_to_octets operation.
 
 Parameters:
@@ -1141,7 +1141,7 @@ W = octets_to_pubkey(PK)
 
 Inputs:
 
-- PK, octet string. A public key in the form outputted by the SkToPK
+- PK, an octet string. A public key in the form outputted by the SkToPK
       operation
 
 Outputs:
@@ -1373,7 +1373,7 @@ Inputs:
 
 - count (REQUIRED), non negative integer. The number of scalars to
                     return.
-- SEED (REQUIRED), octet string. The random seed from which to generate
+- SEED (REQUIRED), an octet string. The random seed from which to generate
                    the scalars.
 
 Parameters:
