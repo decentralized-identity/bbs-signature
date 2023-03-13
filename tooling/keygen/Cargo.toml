@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bls12_381 = { version = "0.8.0", features = ["experimental"] }
-ff = "0.13"
+bls12_381 = { version = "0.8.0", default-features = false, features = ["experimental", "groups"] }
+ff = { version = "0.13", default-features = false }
 group = "0.13"
 hex = "0.4"
 sha2 = "0.9"
