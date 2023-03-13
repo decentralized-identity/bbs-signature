@@ -304,8 +304,8 @@ Inputs:
 - key_info (OPTIONAL), an octet string. Defaults to an empty string if
                        not supplied.
 - key_dst (OPTIONAL), an octet string representing the domain separation tag.
-                      Defaults to the ASCII string "BBS-SIG-KEYGEN-SALT-" if
-                      not supplied.
+                      Defaults to the octet string ciphersuite_id || "KEYGEN_DST_"
+                      if not supplied.
 
 Outputs:
 
@@ -2039,7 +2039,7 @@ And the following message (the first message defined in (#messages-1))
 {{ $signatureFixtures.bls12-381-sha-256.signature002.messages[0] }}
 ```
 
-After is maped to the first scalar in (#map-messages-to-scalars-1), and with the following signature
+After is mapped to the first scalar in (#map-messages-to-scalars-1), and with the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature002.signature }}

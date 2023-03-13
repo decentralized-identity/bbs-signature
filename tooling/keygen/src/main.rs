@@ -11,7 +11,7 @@ use sha2::Sha256;
 use structopt::StructOpt;
 
 const DEFAULT_IKM_HEX: &str = "746869732d49532d6a7573742d616e2d546573742d494b4d2d746f2d67656e65726174652d246528724074232d6b6579";
-const KEY_DST: &str = "BBS-SIG-KEYGEN-SALT-";
+const KEY_DST: &str = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_KEYGEN_DST_";
 
 /// Processing error
 #[derive(Debug, Clone)]
