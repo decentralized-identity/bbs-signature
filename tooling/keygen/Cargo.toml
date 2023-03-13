@@ -4,14 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bls12_381 = "0.7.0"
+bls12_381 = { version = "0.8.0", features = ["experimental"] }
 ff = "0.13"
-group = "0.12.1"
+group = "0.13"
 hex = "0.4"
-rand = { version = "0.8", features = ["std_rng"] }
 sha2 = "0.9"
-hkdf = "0.11"
-serde_json = "1.0.91"
+serde_json = "1.0"
 structopt = "0.3"
-serde_derive = "1.0.152"
-serde = "1.0"
+serde = { version = "1.0", features = ["derive"] }

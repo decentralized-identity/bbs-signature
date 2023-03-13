@@ -295,7 +295,7 @@ KeyGen takes an optional input, key\_info. This parameter MAY be used to derive 
 Because KeyGen is deterministic, implementations MAY choose either to store the resulting SK or to store key\_material and key\_info and call KeyGen to derive SK when necessary.
 
 ```
-SK = KeyGen(key_material, key_info)
+SK = KeyGen(key_material, key_info, key_dst)
 
 Inputs:
 
@@ -303,10 +303,9 @@ Inputs:
                            above.
 - key_info (OPTIONAL), an octet string. Defaults to an empty string if
                        not supplied.
-
-Definitions:
-
-- key_dst is the ASCII string "BBS-SIG-KEYGEN-SALT-".
+- key_dst (OPTIONAL), an octet string representing the domain separation tag.
+                      Defaults to the ASCII string "BBS-SIG-KEYGEN-SALT-" if
+                      not supplied.
 
 Outputs:
 
