@@ -80,7 +80,7 @@ fn keygen<C: Ciphersuite>(
     key_dst: Option<&[u8]>,
 ) -> Result<KeyPair, Invalid> {
     let key_info = key_info.unwrap_or_default();
-    let key_dst = key_dst.unwrap_or(C::DST.as_bytes());
+    let key_dst = key_dst.unwrap_or(C::KEYGEN_DST.as_bytes());
 
     if key_material.len() < 32 {
         return Err(Invalid(
@@ -103,7 +103,7 @@ fn keygen<C: Ciphersuite>(
 }
 
 trait Ciphersuite {
-    const DST: &'static str;
+    const KEYGEN_DST: &'static str;
 
     type Expander: ExpandMessage;
 }
@@ -113,7 +113,7 @@ trait Ciphersuite {
 struct Bls12381_XmdSha256;
 
 impl Ciphersuite for Bls12381_XmdSha256 {
-    const DST: &'static str = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_KEYGEN_DST_";
+    const KEYGEN_DST: &'static str = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_KEYGEN_DST_";
 
     type Expander = ExpandMsgXmd<Sha256>;
 }
@@ -123,7 +123,7 @@ impl Ciphersuite for Bls12381_XmdSha256 {
 struct Bls12381_XofShake256;
 
 impl Ciphersuite for Bls12381_XofShake256 {
-    const DST: &'static str = "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_KEYGEN_DST_";
+    const KEYGEN_DST: &'static str = "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_KEYGEN_DST_";
 
     type Expander = ExpandMsgXof<Shake256>;
 }
