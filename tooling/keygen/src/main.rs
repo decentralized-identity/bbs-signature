@@ -1,17 +1,18 @@
-use std::{env, fmt};
+use std::{env, fmt, str::FromStr};
 
 use bls12_381::{
-    hash_to_curve::{ExpandMsgXmd, HashToField},
+    hash_to_curve::{ExpandMessage, ExpandMsgXmd, ExpandMsgXof, HashToField},
     G2Projective, Scalar,
 };
 use ff::Field;
 use group::Curve;
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
+use sha3::Shake256;
 use structopt::StructOpt;
 
 const DEFAULT_IKM_HEX: &str = "746869732d49532d6a7573742d616e2d546573742d494b4d2d746f2d67656e65726174652d246528724074232d6b6579";
-const KEY_DST: &str = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_KEYGEN_DST_";
+const DEFAULT_CIPHERSUITE: &str = "sha256";
 
 /// Processing error
 #[derive(Debug, Clone)]
@@ -56,38 +57,7 @@ impl From<&SecretKey> for KeyPair {
     }
 }
 
-#[derive(Debug)]
-enum OutputType {
-    Print,
-    File,
-}
-
-impl std::str::FromStr for OutputType {
-    type Err = String;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "f" | "fi" | "fil" | "file" => Ok(OutputType::File),
-            "p" | "pr" | "pri" | "print" => Ok(OutputType::Print),
-            _ => Err("Invalid Value".to_string()),
-        }
-    }
-}
-
-#[derive(StructOpt, Debug)]
-struct Opt {
-    #[structopt(long, default_value = &DEFAULT_IKM_HEX)]
-    key_material: String,
-    #[structopt(long)]
-    key_info: Option<String>,
-    #[structopt(long)]
-    key_dst: Option<String>,
-    #[structopt(short, long, default_value = "Print")]
-    out: OutputType,
-    #[structopt(short, long)]
-    file: Option<String>,
-}
-
-fn hash_to_scalar(msg_octets: &[u8], dst: &[u8]) -> Result<Scalar, Invalid> {
+fn hash_to_scalar<X: ExpandMessage>(msg_octets: &[u8], dst: &[u8]) -> Result<Scalar, Invalid> {
     let mut counter: usize = 0;
     let mut hashed_scalar = Scalar::zero();
     let mut msg_prime = Vec::with_capacity(msg_octets.len() + 1);
@@ -98,23 +68,19 @@ fn hash_to_scalar(msg_octets: &[u8], dst: &[u8]) -> Result<Scalar, Invalid> {
         msg_prime.clear();
         msg_prime.extend_from_slice(&msg_octets);
         msg_prime.push(counter as u8);
-        Scalar::hash_to_field::<ExpandMsgXmd<Sha256>>(
-            &msg_prime,
-            dst,
-            std::slice::from_mut(&mut hashed_scalar),
-        );
+        Scalar::hash_to_field::<X>(&msg_prime, dst, std::slice::from_mut(&mut hashed_scalar));
         counter += 1;
     }
     Ok(hashed_scalar)
 }
 
-fn keygen(
+fn keygen<C: Ciphersuite>(
     key_material: &[u8],
     key_info: Option<&[u8]>,
     key_dst: Option<&[u8]>,
 ) -> Result<KeyPair, Invalid> {
     let key_info = key_info.unwrap_or_default();
-    let key_dst = key_dst.unwrap_or(KEY_DST.as_bytes());
+    let key_dst = key_dst.unwrap_or(C::DST.as_bytes());
 
     if key_material.len() < 32 {
         return Err(Invalid(
@@ -132,8 +98,85 @@ fn keygen(
     derive_input.extend_from_slice(&(key_info.len() as u16).to_be_bytes());
     derive_input.extend_from_slice(key_info);
 
-    let sk = SecretKey(hash_to_scalar(&derive_input, key_dst)?);
+    let sk = SecretKey(hash_to_scalar::<C::Expander>(&derive_input, key_dst)?);
     Ok(KeyPair::from(&sk))
+}
+
+trait Ciphersuite {
+    const DST: &'static str;
+
+    type Expander: ExpandMessage;
+}
+
+#[derive(Debug, Clone, Copy)]
+#[allow(non_camel_case_types)]
+struct Bls12381_XmdSha256;
+
+impl Ciphersuite for Bls12381_XmdSha256 {
+    const DST: &'static str = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_KEYGEN_DST_";
+
+    type Expander = ExpandMsgXmd<Sha256>;
+}
+
+#[derive(Debug, Clone, Copy)]
+#[allow(non_camel_case_types)]
+struct Bls12381_XofShake256;
+
+impl Ciphersuite for Bls12381_XofShake256 {
+    const DST: &'static str = "BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_KEYGEN_DST_";
+
+    type Expander = ExpandMsgXof<Shake256>;
+}
+
+#[derive(Debug)]
+enum OutputType {
+    Print,
+    File,
+}
+
+impl std::str::FromStr for OutputType {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "f" | "fi" | "fil" | "file" => Ok(OutputType::File),
+            "p" | "pr" | "pri" | "print" => Ok(OutputType::Print),
+            _ => Err("Invalid Value".to_string()),
+        }
+    }
+}
+
+#[derive(Debug)]
+enum CiphersuiteOpt {
+    SHA256,
+    SHAKE256,
+}
+
+impl FromStr for CiphersuiteOpt {
+    type Err = Invalid;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "sha256" => Ok(Self::SHA256),
+            "shake256" => Ok(Self::SHAKE256),
+            _ => Err(Invalid("Unknown ciphersuite name")),
+        }
+    }
+}
+
+#[derive(StructOpt, Debug)]
+struct Opt {
+    #[structopt(long, default_value = &DEFAULT_CIPHERSUITE)]
+    ciphersuite: CiphersuiteOpt,
+    #[structopt(long, default_value = &DEFAULT_IKM_HEX)]
+    key_material: String,
+    #[structopt(long)]
+    key_info: Option<String>,
+    #[structopt(long)]
+    key_dst: Option<String>,
+    #[structopt(short, long, default_value = "Print")]
+    out: OutputType,
+    #[structopt(short, long)]
+    file: Option<String>,
 }
 
 fn write_keypair_to_file(
@@ -185,8 +228,15 @@ fn main() {
         .as_ref()
         .map(|ki| hex::decode(ki).expect("Invalid key DST"));
 
-    let key_pair = keygen(&key_material, key_info.as_deref(), key_dst.as_deref())
-        .expect("key generation failed");
+    let key_pair = match opt.ciphersuite {
+        CiphersuiteOpt::SHA256 => {
+            keygen::<Bls12381_XmdSha256>(&key_material, key_info.as_deref(), key_dst.as_deref())
+        }
+        CiphersuiteOpt::SHAKE256 => {
+            keygen::<Bls12381_XofShake256>(&key_material, key_info.as_deref(), key_dst.as_deref())
+        }
+    }
+    .expect("key generation failed");
 
     match opt.out {
         OutputType::Print => {
