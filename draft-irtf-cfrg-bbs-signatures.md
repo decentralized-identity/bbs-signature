@@ -377,7 +377,8 @@ Inputs:
                  operation.
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk
                  operation provided the above SK as input.
-- header (OPTIONAL), an octet string containing context and application
+- header (OPTIONAL), an octet string containing protected associated data 
+                     such as context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
 - messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
@@ -427,6 +428,8 @@ Procedure:
 ```
 
 **Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
+
+**Note** When using the `header` field to protect associated data one must be cautious in what to include in the `header` as this information is needed every time the [ProofVerify](#proofverify) procedure is invoked and thus may introduce *linkable* information.
 
 ### Verify
 
@@ -502,7 +505,8 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- ph (OPTIONAL), an octet string containing the presentation header. If not
+- ph (OPTIONAL), an octet string containing the presentation header which 
+                 is protected associated data. If not
                  supplied, it defaults to an empty string.
 - messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
                        to the empty array "()".
@@ -570,6 +574,8 @@ Procedure:
 23. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 24. return proof_to_octets(proof)
 ```
+
+**Note** See section [Presentation header selection](#presentation-header-selection) on usage of the `ph` field.
 
 ### ProofVerify
 
