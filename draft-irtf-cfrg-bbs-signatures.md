@@ -555,17 +555,16 @@ Procedure:
 10. A' = A * r1
 11. Abar = A' * (-e) + B * r1
 12. D = B * r1
-13. s' = r2 * r3 + s mod r
-14. C1 = A' * e~
-15. C2 = D * (-r3~) + H_j1 * m~_j1 + ... + H_jU * m~_jU
-16. c = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
+13. C1 = A' * e~
+14. C2 = D * (-r3~) + H_j1 * m~_j1 + ... + H_jU * m~_jU
+15. c = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
                                      (msg_i1, ..., msg_iR), domain, ph)
-17. if c is INVALID, return INVALID
-18. e^ = c * e + e~ mod r
-20. r3^ = c * r3 + r3~ mod r
-22. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
-23. proof = (A', Abar, D, c, e^, r3^, (m^_j1, ..., m^_jU))
-24. return proof_to_octets(proof)
+16. if c is INVALID, return INVALID
+17. e^ = c * e + e~ mod r
+18. r3^ = c * r3 + r3~ mod r
+19. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
+20. proof = (A', Abar, D, c, e^, r3^, (m^_j1, ..., m^_jU))
+21. return proof_to_octets(proof)
 ```
 
 ### ProofVerify
