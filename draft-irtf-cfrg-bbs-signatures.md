@@ -429,8 +429,6 @@ Procedure:
 
 **Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
 
-**Note** When using the `header` field to protect associated data one must be cautious in what to include in the `header` as this information is needed every time the [ProofVerify](#proofverify) procedure is invoked and thus may introduce *linkable* information.
-
 ### Verify
 
  This operation checks that a signature is valid for a given header and vector of messages against a supplied public key (PK). The messages MUST be supplied in this operation in the same order they were supplied to [Sign](#sign) when creating the signature.
@@ -574,8 +572,6 @@ Procedure:
 23. proof = (A', Abar, D, c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU))
 24. return proof_to_octets(proof)
 ```
-
-**Note** See section [Presentation header selection](#presentation-header-selection) on usage of the `ph` field.
 
 ### ProofVerify
 
