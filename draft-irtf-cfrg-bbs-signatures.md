@@ -284,7 +284,7 @@ Those rules will be used explicitly on every operation. See also [Serialize](#se
 
 ## Key Generation Operations
 
-### KeyGen
+### Secret Key Generation (KeyGen)
 
 This operation generates a secret key (SK) deterministically from a secret octet string (IKM).
 
@@ -333,7 +333,7 @@ Procedure:
 
 **Note** This operation is the RECOMMENDED way of generating a secret key, but its use is not required for compatibility, and implementations MAY use a different KeyGen procedure. For security, such an alternative MUST output a secret key that is statistically close to uniformly random in the range 0 < SK < r.
 
-### SkToPk
+### Public Key Calculation (SkToPk)
 
 This operation takes a secret key (SK) and outputs a corresponding public key (PK).
 
@@ -428,7 +428,7 @@ Procedure:
 
 **Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
 
-### Verify
+### Signature Verification (Verify)
 
  This operation checks that a signature is valid for a given header and vector of messages against a supplied public key (PK). The messages MUST be supplied in this operation in the same order they were supplied to [Sign](#sign) when creating the signature.
 
@@ -480,7 +480,7 @@ Procedure:
 6. return VALID
 ```
 
-### ProofGen
+### Proof Generation (ProofGen)
 
 This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [Presentation header selection](#presentation-header-selection) for more details.
 
@@ -571,7 +571,7 @@ Procedure:
 24. return proof_to_octets(proof)
 ```
 
-### ProofVerify
+### Proof Verification (ProofVerify)
 
 This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
