@@ -1810,7 +1810,7 @@ The authors would like to acknowledge the significant amount of academic work th
 
 The current state of this document is the product of the work of the Decentralized Identity Foundation Applied Cryptography Working group, which includes numerous active participants. In particular, the following individuals contributed ideas, feedback and wording that influenced this specification:
 
-Orie Steele, Christian Paquin, Alessandro Guggino and Tomislav Markovski
+Orie Steele, Christian Paquin, Alessandro Guggino, Tomislav Markovski and Greg Bernstein.
 
 {backmatter}
 
