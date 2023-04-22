@@ -1384,7 +1384,7 @@ Parameters:
 - expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
                                           the ciphersuite.
 - dst = utf8(ciphersuite_id || "MOCK_RANDOM_SCALARS_DST_"), where
-      ciphersuite_id is defined by teh ciphersuite.
+      ciphersuite_id is defined by the ciphersuite.
 
 Outputs:
 
