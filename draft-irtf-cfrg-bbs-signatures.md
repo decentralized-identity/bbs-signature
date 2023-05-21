@@ -936,7 +936,7 @@ Procedure:
 
 ### Serialize
 
-This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see [Section 3.2.3](#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#sign), [ProofGen](#proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
+This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see [Section 3.2.4](#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#sign), [ProofGen](#proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
 
 ```
 octets_result = serialize(input_array)
