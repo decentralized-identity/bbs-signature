@@ -396,8 +396,8 @@ Definitions:
 - L, is the non-negative integer representing the number of messages to
      be signed.
 - expand_dst, an octet string representing the domain separation tag:
-              utf8(ciphersuite_id || "SIG_DET_DST_"), where
-              ciphersuite_id is defined by the ciphersuite.
+              ciphersuite_id || "SIG_DET_DST_", where ciphersuite_id is
+              defined by the ciphersuite.
 
 Outputs:
 
@@ -453,8 +453,8 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to
-     be signed.
+- L, is the non-negative integer representing the number of signed
+     messages.
 
 Outputs:
 
@@ -624,7 +624,7 @@ Deserialization:
 3.  (A', Abar, D, c, e^, r2^, r3^, s^, commitments) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  U  = length(commitments)
+6.  U = length(commitments)
 7.  R = length(disclosed_indexes)
 8.  L = R + U
 9.  (i1, ..., iR) = disclosed_indexes
@@ -754,7 +754,7 @@ Procedure:
 5.     n = n + 1
 6.     generator_i = Identity_G1
 7.     candidate = hash_to_curve_g1(v, generator_dst)
-8.     if candidate in (generator_1, ..., generator_i):
+8.     if candidate in (generator_1, ..., generator_i, P_1):
 9.        go back to step 4
 10.    generator_i = candidate
 11. return (generator_1, ..., generator_count)
@@ -1383,8 +1383,8 @@ Parameters:
                   ciphersuite.
 - expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
                                           the ciphersuite.
-- dst = utf8(ciphersuite_id || "MOCK_RANDOM_SCALARS_DST_"), where
-      ciphersuite_id is defined by the ciphersuite.
+- dst = ciphersuite_id || "MOCK_RANDOM_SCALARS_DST_", where
+        ciphersuite_id is defined by the ciphersuite.
 
 Outputs:
 
@@ -1409,7 +1409,7 @@ Procedure:
 
 ## Key Pair
 
-The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#keygen) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
+The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#keygen) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
 
 **NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
 
@@ -1567,7 +1567,7 @@ And the messages defined in (#messages) (**Note** the ordering of the messages M
 
 ### Proof fixtures
 
-For the generation of the following fixtures the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
+For the generation of the following fixtures the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of the ASCII-encoded 30 first digits of pi)
 
 ```
 SEED = "332e313431353932363533353839373933323338343632363433333833323739"
@@ -1718,7 +1718,7 @@ And the following message (the first message defined in (#messages))
 After it is mapped to the first scalar in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
-{{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
+{{ $signatureFixtures.bls12-381-sha-256.signature001.signature }}
 ```
 
 #### Valid Multi-Message Signature
@@ -1737,7 +1737,7 @@ And the messages defined in (#messages) (**Note** the ordering of the messages M
 
 ### Proof fixtures
 
-Similarly to the proof fixtures for the BLS12381-SHA-256 ciphersuite, the generation of the following fixtures uses the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars), in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
+Similarly to the proof fixtures for the BLS12381-SHA-256 ciphersuite, the generation of the following fixtures uses the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars), in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of the ASCII-encoded 30 first digits of pi).
 
 ```
 SEED = "332e313431353932363533353839373933323338343632363433333833323739"
@@ -1777,13 +1777,13 @@ will result to the following proof value
 Using the header, messages and signature used in [Valid Multi Message Signature](#valid-multi-message-signature-1) to create a proof disclosing all the messages, with the following presentation header
 
 ```
-{{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}
+{{ $proofFixtures.bls12-381-sha-256.proof002.presentationHeader }}
 ```
 
 will result to the following proof value
 
 ```
-{{ $proofFixtures.bls12-381-shake-256.proof002.proof }}
+{{ $proofFixtures.bls12-381-sha-256.proof002.proof }}
 ```
 
 #### Valid Multi-Message, Half of Messages Disclosed Proof
