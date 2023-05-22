@@ -390,6 +390,8 @@ Parameters:
                   specified by the hash_to_curve_suite parameter.
 - octet_scalar_length, non-negative integer. The length of a scalar
                        octet representation, defined by the ciphersuite.
+- create_generators, an operation that returns a number of generator
+                     points, defined by the ciphersuite.
 
 Definitions:
 
@@ -450,6 +452,8 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
+- create_generators, an operation that returns a number of generator
+                     points, defined by the ciphersuite.
 
 Definitions:
 
@@ -514,6 +518,8 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
+- create_generators, an operation that returns a number of generator
+                     points, defined by the ciphersuite.
 
 Definitions:
 
@@ -603,6 +609,8 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
+- create_generators, an operation that returns a number of generator
+                     points, defined by the ciphersuite.
 
 Definitions:
 
