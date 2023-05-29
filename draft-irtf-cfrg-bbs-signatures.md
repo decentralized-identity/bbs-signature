@@ -410,19 +410,14 @@ Deserialization:
 
 Procedure:
 
-1.  (Q_2, H_1, ..., H_L) = create_generators(L+1)
-2.  domain = calculate_domain(PK, Q_2, (H_1, ..., H_L), header)
-3.  if domain is INVALID, return INVALID
-4.  e_octs = serialize((SK, domain, msg_1, ..., msg_L))
-5.  if e_octs is INVALID, return INVALID
-6.  e_len = octet_scalar_length
-7.  e_expand = expand_message(e_octs, expand_dst, e_len)
-8.  if e_expand is INVALID, return INVALID
-9.  e = hash_to_scalar(e_expand)
-11. if e is INVALID, return INVALID
-12. B = P1 + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-13. A = B * (1 / (SK + e))
-14. return signature_to_octets(A, e)
+1. (Q_2, H_1, ..., H_L) = create_generators(L+1)
+2. domain = calculate_domain(PK, Q_2, (H_1, ..., H_L), header)
+3. if domain is INVALID, return INVALID
+4. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)))
+5. if e is INVALID, return INVALID
+6. B = P1 + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+7. A = B * (1 / (SK + e))
+8. return signature_to_octets(A, e)
 ```
 
 **Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
@@ -536,35 +531,32 @@ Deserialization:
 6.  U = L - R
 7.  (i1, ..., iR) = disclosed_indexes
 8.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
-9.  (msg_1, ..., msg_L) = messages
-10. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
-11. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
+9.  (m_1, ..., m_L) = messages
+10. (m_i1, ..., m_iR) = (messages[i1], ..., messages[iR])
+11. (m_j1, ..., m_jU) = (messages[j1], ..., messages[jU])
 
 Procedure:
 
-1.  (Q_2, MsgGenerators) = create_generators(L+1)
+1.  (Q_1, MsgGenerators) = create_generators(L+1)
 2.  (H_1, ..., H_L) = MsgGenerators
 3.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
-
-4.  domain = calculate_domain(PK, Q_2, (H_1, ..., H_L), header)
+4.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 5.  if domain is INVALID, return INVALID
 6.  random_scalars = calculate_random_scalars(3+U)
-7.  (r1, e~, r3~, m~_j1, ..., m~_jU) = random_scalars
-8.  B = P1 + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
-9.  r3 = r1 ^ -1 mod r
-10. A' = A * r1
-11. Abar = A' * (-e) + B * r1
-12. D = B * r1
-13. C1 = A' * e~
-14. C2 = D * (-r3~) + H_j1 * m~_j1 + ... + H_jU * m~_jU
-15. c = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
-                                     (msg_i1, ..., msg_iR), domain, ph)
-16. if c is INVALID, return INVALID
-17. e^ = c * e + e~ mod r
-18. r3^ = c * r3 + r3~ mod r
-19. for j in (j1, ..., jU): m^_j = c * msg_j + m~_j mod r
-20. proof = (A', Abar, D, c, e^, r3^, (m^_j1, ..., m^_jU))
-21. return proof_to_octets(proof)
+7.  (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
+8.  B = P1 + Q_1 * domain + H_1 * m_1 + ... + H_L * m_L
+9.  Abar = A * r1
+10. Bbar = (B - A * e) * r1
+11. U = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
+12. c = calculate_challenge(Abar, Bbar, U, (i1, ..., iR),
+                            (m_i1, ..., m_iR), domain, ph)
+13. if c is INVALID, return INVALID
+14. r4 = r1^-1 (mod r)
+15. r2^ = r2 + r4 * c (mod r)
+16. r3^ = r3 + e * r4 * c (mod r)
+17. for j in (j1, ..., jU): m^_j = m~_j - m_j * c (mod r)
+18. proof = (Abar, Bbar, c, r2^, r3^, (m^_j1, ..., m^_jU))
+19. return proof_to_octets(proof)
 ```
 
 ### ProofVerify
@@ -617,16 +609,16 @@ Deserialization:
 
 1.  proof_result = octets_to_proof(proof)
 2.  if proof_result is INVALID, return INVALID
-3.  (A', Abar, D, c, e^, r2^, r3^, s^, commitments) = proof_result
+3.  (Abar, Bbar, c, r2^, r3^, responses) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
-6.  U  = length(commitments)
+6.  U = length(responses)
 7.  R = length(disclosed_indexes)
 8.  L = R + U
 9.  (i1, ..., iR) = disclosed_indexes
 10. (j1, ..., jU) = range(1, L) \ disclosed_indexes
-11. (msg_i1, ..., msg_iR) = disclosed_messages
-12. (m^_j1, ...., m^_jU) = commitments
+11. (m_i1, ..., m_iR) = disclosed_messages
+12. (m^_j1, ...., m^_jU) = responses
 
 Preconditions:
 
@@ -635,23 +627,21 @@ Preconditions:
 
 Procedure:
 
-1.  (Q_2, MsgGenerators) = create_generators(L+2)
+1.  (Q_1, MsgGenerators) = create_generators(L+1)
 2.  (H_1, ..., H_L) = MsgGenerators
 3.  (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
-5.  domain = calculate_domain(PK, Q_2, (H_1, ..., H_L), header)
+5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 6.  if domain is INVALID, return INVALID
-7.  C1 = (Abar - D) * c + A' * e^
-8.  T = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-9.  C2 = T * c - D * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU
-10. cv = calculate_challenge(A', Abar, D, C1, C2, (i1, ..., iR),
-                                      (msg_i1, ..., msg_iR), domain, ph)
-11. if cv is INVALID, return INVALID
-12. if c != cv, return INVALID
-13. if A' == Identity_G1, return INVALID
-14. if e(A', W) * e(Abar, -P2) != Identity_GT, return INVALID
-15. return VALID
+7.  D = P1 + Q_1 * domain + H_i1 * m_i1 + ... + H_iR * m_iR
+8.  U = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D(-c)
+9.  cv = calculate_challenge(Abar, Bbar, U, (i1, ..., iR),
+                             (m_i1, ..., m_iR), domain, ph)
+10. if cv is INVALID, return INVALID
+11. if c != cv, return INVALID
+12. if e(Abar, W) * e(Bbar, -P2) != Identity_GT, return INVALID
+13. return VALID
 ```
 
 # Utility Operations
