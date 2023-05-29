@@ -267,7 +267,7 @@ Each of the core operations of the BBS signature scheme expect the inputted mess
 
 Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations (signature verification, proof generation and proof verification).
 
-Aside from the message generators, the scheme uses one additional generator `Q_2` to sign the signature's domain, which binds both the signature and generated proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
+Aside from the message generators, the scheme uses one additional generator `Q_1` to sign the signature's domain, which binds both the signature and generated proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
 
 ### Serializing to octet strings
 
@@ -410,12 +410,12 @@ Deserialization:
 
 Procedure:
 
-1. (Q_2, H_1, ..., H_L) = create_generators(L+1)
-2. domain = calculate_domain(PK, Q_2, (H_1, ..., H_L), header)
+1. (Q_1, H_1, ..., H_L) = create_generators(L+1)
+2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 3. if domain is INVALID, return INVALID
 4. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)))
 5. if e is INVALID, return INVALID
-6. B = P1 + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+6. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 7. A = B * (1 / (SK + e))
 8. return signature_to_octets(A, e)
 ```
@@ -466,10 +466,10 @@ Deserialization:
 
 Procedure:
 
-1. (Q_2, H_1, ..., H_L) = create_generators(L+1)
-2. domain = calculate_domain(PK, Q_2, (H_1, ..., H_L), header)
+1. (Q_1, H_1, ..., H_L) = create_generators(L+1)
+2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 3. if domain is INVALID, return INVALID
-4. B = P1 + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+4. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 5. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
 6. return VALID
 ```
@@ -834,18 +834,18 @@ This operation calculates the domain value, a scalar representing the distillati
 
 The input to the domain value includes an octet string called the header, chosen by the signer and meant to encode any information that is required to be revealed by the prover (such as an expiration date, or an identifier for the target audience). This is in contrast to the signed message values, which may be withheld during a proof.
 
-When a signature is calculated, the domain value is combined with a specific generator point (`Q_2`, see [Sign](#sign)) to protect the integrity of the public parameters and the header.
+When a signature is calculated, the domain value is combined with a specific generator point (`Q_1`, see [Sign](#sign)) to protect the integrity of the public parameters and the header.
 
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
 ```
-domain = calculate_domain(PK, Q_2, H_Points, header)
+domain = calculate_domain(PK, Q_1, H_Points, header)
 
 Inputs:
 
 - PK (REQUIRED), an octet string, representing the public key of the
                  Signer of the form outputted by the SkToPk operation.
-- Q_2 (REQUIRED), points of G1 (the first point returned from
+- Q_1 (REQUIRED), points of G1 (the first point returned from
                   create_generators).
 - H_Points (REQUIRED), array of points of G1.
 - header (OPTIONAL), an octet string. If not supplied, it must default to
@@ -864,7 +864,7 @@ Procedure:
 1.  L = length(H_Points)
 2.  if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
 3.  (H_1, ..., H_L) = H_Points
-4.  dom_array = (L, Q_2, H_1, ..., H_L)
+4.  dom_array = (L, Q_1, H_1, ..., H_L)
 5.  dom_octs = serialize(dom_array) || ciphersuite_id
 6.  if dom_octs is INVALID, return INVALID
 7.  dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
@@ -882,12 +882,12 @@ This operation calculates the challenge scalar value, used during [ProofGen](#pr
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
 ```
-challenge = calculate_challenge(A', Abar, D, C1, C2, i_array,
+challenge = calculate_challenge(Abar, Bbar, C, i_array,
                                                   msg_array, domain, ph)
 
 Inputs:
 
-- (A', Abar, D, C1, C2) (REQUIRED), points of G1, as calculated in
+- (Abar, Bbar, C) (REQUIRED), points of G1, as calculated in
                                     ProofGen.
 - i_array (REQUIRED), array of non-negative integers (the indexes of
                       the disclosed messages).
@@ -907,7 +907,7 @@ Procedure:
 3.  if length(ph) > 2^64 - 1, return INVALID
 4.  (i1, ..., iR) = i_array
 5.  (msg_i1, ..., msg_iR) = msg_array
-6.  c_array = (A', Abar, D, C1, C2, R, i1, ..., iR,
+6.  c_array = (Abar, Bbar, C, R, i1, ..., iR,
                                    msg_i1, ..., msg_iR, domain)
 7.  c_octs = serialize(c_array)
 8.  if c_octs is INVALID, return INVALID
@@ -1025,8 +1025,8 @@ This operation describes how to encode a proof, as computed at step 25 in [Proof
 
 The inputted proof value must consist of the following components, in that order:
 
-1. Three (3) valid points of the G1 subgroup, different from the identity point of G1 (i.e., `A', Abar, D`, in ProofGen)
-2. Three (3) integers representing scalars in the range of 1 to r-1 inclusive (i.e., `c, e^, r3^`, in ProofGen).
+1. Two (2) valid points of the G1 subgroup, different from the identity point of G1 (i.e., `Abar, Bbar`, in ProofGen)
+2. Three (3) integers representing scalars in the range of 1 to r-1 inclusive (i.e., `c, r2^, r3^`, in ProofGen).
 3. A number of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the undisclosed from the proof messages (i.e., `m^_j1, ..., m^_jU`, in ProofGen, where U the number of undisclosed messages).
 
 ```
@@ -1049,8 +1049,8 @@ Outputs:
 
 Procedure:
 
-1. (A', Abar, D, c, e^, r3^, (m^_1, ..., m^_U)) = proof
-2. return serialize((A', Abar, D, c, e^, r3^, m^_1, ..., m^_U))
+1. (Abar, Bbar, c, r2^, r3^, (m^_1, ..., m^_U)) = proof
+2. return serialize((Abar, Bbar, c, r2^, r3^, m^_1, ..., m^_U))
 ```
 
 ### OctetsToProof
@@ -1059,7 +1059,7 @@ This operation describes how to decode an octet string representing a proof, val
 
 The proof value outputted by this operation consists of the following components, in that order:
 
-1. Three (3) valid points of the G1 subgroup, each of which must not equal the identity point.
+1. Two (2) valid points of the G1 subgroup, each of which must not equal the identity point.
 2. Three (3) integers representing scalars in the range of 1 to r-1 inclusive.
 3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the undisclosed from the proof message commitments. This set can be empty (i.e., "()").
 
@@ -1088,18 +1088,18 @@ Outputs:
 
 Procedure:
 
-1.  proof_len_floor = 3 * octet_point_length + 3 * octet_scalar_length
+1.  proof_len_floor = 2 * octet_point_length + 3 * octet_scalar_length
 2.  if length(proof_octets) < proof_len_floor, return INVALID
 
-// Points (i.e., (A', Abar, D) in ProofGen) de-serialization.
+// Points (i.e., (Abar, Bbar) in ProofGen) de-serialization.
 3.  index = 0
-4.  for i in range(0, 2):
+4.  for i in range(0, 1):
 5.      end_index = index + octet_point_length - 1
 6.      A_i = octets_to_point_g1(proof_octets[index..end_index])
 7.      if A_i is INVALID or Identity_G1, return INVALID
 8.      index += octet_point_length
 
-// Scalars (i.e., (c, e^, r3^, (m^_j1, ..., m^_jU)) in
+// Scalars (i.e., (c, r2^, r3^, (m^_j1, ..., m^_jU)) in
 // ProofGen) de-serialization.
 9.  j = 0
 10. while index < length(proof_octets):
@@ -1112,7 +1112,7 @@ Procedure:
 16. if index != length(proof_octets), return INVALID
 17. msg_commitments = ()
 18. If j > 3, set msg_commitments = (s_3, ..., s_(j-1))
-19. return (A_0, A_1, A_2, s_0, s_1, s_2, msg_commitments)
+19. return (A_0, A_1, s_0, s_1, s_2, msg_commitments)
 ```
 
 ### OctetsToPublicKey
@@ -1483,11 +1483,11 @@ Note that in both the following test vectors, as well as the additional [BLS12-3
 
 ### Message Generators
 
-Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first one corresponds to `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
+Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 
 ```
-{{ $generatorFixtures.bls12-381-shake-256.generators.Q2 }}
+{{ $generatorFixtures.bls12-381-shake-256.generators.Q1 }}
 
 {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[0] }}
 
@@ -1650,11 +1650,11 @@ Note that in both the following test vectors, as well as the additional [BLS12-3
 
 ### Message Generators
 
-Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHA-256](#bls12-381-sha-256) suite, outputs the following values (note that the first one corresponds to `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
+Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHA-256](#bls12-381-sha-256) suite, outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 
 ```
-{{ $generatorFixtures.bls12-381-sha-256.generators.Q2 }}
+{{ $generatorFixtures.bls12-381-sha-256.generators.Q1 }}
 
 {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[0] }}
 
@@ -2207,7 +2207,7 @@ The following section provides an explanation of how the ProofGen and ProofVerif
 
 Let the prover be in possession of a BBS signature `(A, e)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
 ```
-B = P1 + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
+B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 ```
 Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = range(1, L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
 
@@ -2226,7 +2226,7 @@ Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the p
 - Set the following,
 
         1.  C1 = Abar - D
-        2.  C2 = P1 + Q_2 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+        2.  C2 = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 
     Create a non-interactive zero-knowledge proof-of-knowledge (`nizk`) of the values `e, r3` and `msg_j1, ..., msg_jU` (the undisclosed messages) so that both of the following equalities hold,
 
