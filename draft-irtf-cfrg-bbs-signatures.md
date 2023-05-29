@@ -635,7 +635,7 @@ Procedure:
 5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 6.  if domain is INVALID, return INVALID
 7.  D = P1 + Q_1 * domain + H_i1 * m_i1 + ... + H_iR * m_iR
-8.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D(-c)
+8.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c
 9.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                              (m_i1, ..., m_iR), domain, ph)
 10. if cv is INVALID, return INVALID
