@@ -547,8 +547,8 @@ Procedure:
 8.  B = P1 + Q_1 * domain + H_1 * m_1 + ... + H_L * m_L
 9.  Abar = A * r1
 10. Bbar = (B - A * e) * r1
-11. U = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
-12. c = calculate_challenge(Abar, Bbar, U, (i1, ..., iR),
+11. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
+12. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                             (m_i1, ..., m_iR), domain, ph)
 13. if c is INVALID, return INVALID
 14. r4 = r1^-1 (mod r)
@@ -635,8 +635,8 @@ Procedure:
 5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 6.  if domain is INVALID, return INVALID
 7.  D = P1 + Q_1 * domain + H_i1 * m_i1 + ... + H_iR * m_iR
-8.  U = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D(-c)
-9.  cv = calculate_challenge(Abar, Bbar, U, (i1, ..., iR),
+8.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D(-c)
+9.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                              (m_i1, ..., m_iR), domain, ph)
 10. if cv is INVALID, return INVALID
 11. if c != cv, return INVALID
