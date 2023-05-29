@@ -551,7 +551,7 @@ Procedure:
 12. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                             (m_i1, ..., m_iR), domain, ph)
 13. if c is INVALID, return INVALID
-14. r4 = r1^-1 (mod r)
+14. r4 = - r1^-1 (mod r)
 15. r2^ = r2 + r4 * c (mod r)
 16. r3^ = r3 + e * r4 * c (mod r)
 17. for j in (j1, ..., jU): m^_j = m~_j - m_j * c (mod r)
