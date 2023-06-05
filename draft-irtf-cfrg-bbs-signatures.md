@@ -408,16 +408,18 @@ Deserialization:
 1. L = length(messages)
 2. (msg_1, ..., msg_L) = messages
 
+Preconditions:
+
+1. if L > 2^64 - 1 or length(header) > 2^64 - 1, return INVALID
+
 Procedure:
 
 1. (Q_1, H_1, ..., H_L) = create_generators(L+1)
 2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-3. if domain is INVALID, return INVALID
-4. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)))
-5. if e is INVALID, return INVALID
-6. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-7. A = B * (1 / (SK + e))
-8. return signature_to_octets(A, e)
+3. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)))
+4. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+5. A = B * (1 / (SK + e))
+6. return signature_to_octets(A, e)
 ```
 
 **Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
@@ -464,14 +466,17 @@ Deserialization:
 6. L = length(messages)
 7. (msg_1, ..., msg_L) = messages
 
+Preconditions:
+
+1. if L > 2^64 - 1 or length(header) > 2^64 - 1, return INVALID
+
 Procedure:
 
 1. (Q_1, H_1, ..., H_L) = create_generators(L+1)
 2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-3. if domain is INVALID, return INVALID
-4. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-5. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
-6. return VALID
+3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+4. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
+5. return VALID
 ```
 
 ### Proof Generation (ProofGen)
@@ -496,8 +501,8 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- ph (OPTIONAL), an octet string containing the presentation header. If not
-                 supplied, it defaults to an empty string.
+- ph (OPTIONAL), an octet string containing the presentation header. If
+                 not supplied, it defaults to an empty string.
 - messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
                        to the empty array "()".
 - disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
@@ -528,12 +533,19 @@ Deserialization:
 3.  (A, e) = signature_result
 4.  L = length(messages)
 5.  R = length(disclosed_indexes)
-6.  U = L - R
-7.  (i1, ..., iR) = disclosed_indexes
-8.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
-9.  (msg_1, ..., msg_L) = messages
-10. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
-11. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
+6.  if R > L, return INVALID
+7.  U = L - R
+8.  (i1, ..., iR) = disclosed_indexes
+9.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
+10. (msg_1, ..., msg_L) = messages
+11. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
+12. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
+
+Preconditions:
+
+1. if L > 2^64 - 1 or length(header) > 2^64 - 1, return INVALID
+2. if length(ph) > 2^64 - 1, return INVALID
+3. if R > 2^64 - 1, return INVALID
 
 Procedure:
 
@@ -541,22 +553,20 @@ Procedure:
 2.  (H_1, ..., H_L) = MsgGenerators
 3.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 4.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-5.  if domain is INVALID, return INVALID
-6.  random_scalars = calculate_random_scalars(3+U)
-7.  (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
-8.  B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-9.  Abar = A * r1
-10. Bbar = B * r1 - Abar * e
-11. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
-12. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
-                            (msg_i1, ..., msg_iR), domain, ph)
-13. if c is INVALID, return INVALID
-14. r4 = - r1^-1 (mod r)
-15. r2^ = r2 + r4 * c (mod r)
-16. r3^ = r3 + e * r4 * c (mod r)
-17. for j in (j1, ..., jU): m^_j = m~_j + msg_j * c (mod r)
-18. proof = (Abar, Bbar, c, r2^, r3^, (m^_j1, ..., m^_jU))
-19. return proof_to_octets(proof)
+5.  random_scalars = calculate_random_scalars(3+U)
+6.  (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
+7.  B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+8.  Abar = A * r1
+9.  Bbar = B * r1 - Abar * e
+10. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
+11. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
+                                      (msg_i1, ..., msg_iR), domain, ph)
+12. r4 = - r1^-1 (mod r)
+13. r2^ = r2 + r4 * c (mod r)
+14. r3^ = r3 + e * r4 * c (mod r)
+15. for j in (j1, ..., jU): m^_j = m~_j + msg_j * c (mod r)
+16. proof = (Abar, Bbar, c, r2^, r3^, (m^_j1, ..., m^_jU))
+17. return proof_to_octets(proof)
 ```
 
 ### Proof Verification (ProofVerify)
@@ -622,8 +632,11 @@ Deserialization:
 
 Preconditions:
 
-1. for i in (i1, ..., iR), if i < 1 or i > L, return INVALID
-2. if length(disclosed_messages) != R, return INVALID
+1. if L > 2^64 - 1 or length(header) > 2^64 - 1, return INVALID
+2. if length(ph) > 2^64 - 1, return INVALID
+3. if R > 2^64 - 1, return INVALID
+4. for i in (i1, ..., iR), if i < 1 or i > L, return INVALID
+5. if length(disclosed_messages) != R, return INVALID
 
 Procedure:
 
@@ -631,17 +644,14 @@ Procedure:
 2.  (H_1, ..., H_L) = MsgGenerators
 3.  (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
-
 5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-6.  if domain is INVALID, return INVALID
-7.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-8.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c
-9.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
-                             (msg_i1, ..., msg_iR), domain, ph)
-10. if cv is INVALID, return INVALID
-11. if c != cv, return INVALID
-12. if e(Abar, W) * e(Bbar, -P2) != Identity_GT, return INVALID
-13. return VALID
+6.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+7.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c 
+8.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
+                                      (msg_i1, ..., msg_iR), domain, ph)
+9.  if c != cv, return INVALID
+10. if e(Abar, W) * e(Bbar, -P2) != Identity_GT, return INVALID
+11. return VALID
 ```
 
 # Utility Operations
@@ -772,9 +782,7 @@ Outputs:
 Procedure:
 
 1. if length(msg) > 2^64 - 1 or length(dst) > 255 return INVALID
-2. msg_scalar = hash_to_scalar(msg, dst)
-3. if msg_scalar is INVALID, return INVALID
-4. return msg_scalar
+2. return hash_to_scalar(msg, dst)
 ```
 
 ## Hash to Scalar
@@ -783,7 +791,7 @@ This operation describes how to hash an arbitrary octet string to `n` scalar val
 
 This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). If an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). Note however, that the hash\_to\_curve document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For this reason, we don’t directly use hash\_to\_field here, rather we define a similar operation (hash\_to\_scalar), making direct use of the expand\_message function, that will be defined by the hash-to-curve suite used (i.e., either expand\_message\_xmd or expand\_message\_xof). If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
-The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuit\_id || "H2S\_", where ciphersuite\_id is the octet string representing the unique ID of the ciphersuite and "H2S_" is an ASCII string comprised of 4 bytes.
+The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!I-D.irtf-cfrg-hash-to-curve] for guidance on using larger dst values. If a dst is not supplied, its value MUST default to the octet string returned from ciphersuit\_id || "H2S\_", where ciphersuite\_id is the octet string representing the unique ID of the ciphersuite and "H2S_" is an ASCII string comprised of 4 bytes.
 
 **Note** It is possible that the `hash_to_scalar` procedure will return an error, if the underlying `expand_message` operation aborts. See [@!I-D.irtf-cfrg-hash-to-curve], Section 5.3, for more details on the cases that `expand_message` will abort (note that the input term `len_in_bytes` of `expand_message` in the Hash-to-Curve document equals `count * expand_len` in our case).
 
@@ -816,16 +824,15 @@ Outputs:
 
 Procedure:
 
-1.  counter = 0
-2.  hashed_scalar = 0
-3.  while hashed_scalar == 0:
-4.      if counter > 255, return INVALID
-5.      msg_prime = msg_octets || I2OSP(counter, 1)
-6.      uniform_bytes = expand_message(msg_prime, dst, expand_len)
-7.      if uniform_bytes is INVALID, return INVALID
-8.      hashed_scalar = OS2IP(uniform_bytes) mod r
-9.      counter = counter + 1
-10. return hashed_scalar
+1. counter = 0
+2. hashed_scalar = 0
+3. while hashed_scalar == 0:
+4.     if counter > 255, return INVALID
+5.     msg_prime = msg_octets || I2OSP(counter, 1)
+6.     uniform_bytes = expand_message(msg_prime, dst, expand_len)
+7.     hashed_scalar = OS2IP(uniform_bytes) mod r
+8.     counter = counter + 1
+9. return hashed_scalar
 ```
 
 ## Domain Calculation
@@ -859,18 +866,22 @@ Outputs:
 
 - domain, a scalar value or INVALID.
 
+Deserialization:
+
+1. L = length(H_Points)
+2. (H_1, ..., H_L) = H_Points
+
+Preconditions:
+
+1. if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
+
 Procedure:
 
-1.  L = length(H_Points)
-2.  if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
-3.  (H_1, ..., H_L) = H_Points
-4.  dom_array = (L, Q_1, H_1, ..., H_L)
-5.  dom_octs = serialize(dom_array) || ciphersuite_id
-6.  if dom_octs is INVALID, return INVALID
-7.  dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
-8.  domain = hash_to_scalar(dom_input)
-9.  if domain is INVALID, return INVALID
-10. return domain
+1. dom_array = (L, Q_1, H_1, ..., H_L)
+2. dom_octs = serialize(dom_array) || ciphersuite_id
+3. if dom_octs is INVALID, return INVALID
+4. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
+5. return hash_to_scalar(dom_input)
 ```
 
 **Note**: If the header is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 7), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
@@ -887,8 +898,7 @@ challenge = calculate_challenge(Abar, Bbar, C, i_array,
 
 Inputs:
 
-- (Abar, Bbar, C) (REQUIRED), points of G1, as calculated in
-                                    ProofGen.
+- (Abar, Bbar, C) (REQUIRED), points of G1, as calculated in ProofGen.
 - i_array (REQUIRED), array of non-negative integers (the indexes of
                       the disclosed messages).
 - msg_array (REQUIRED), array of scalars (the disclosed messages).
@@ -900,21 +910,23 @@ Outputs:
 
 - challenge, a scalar or INVALID.
 
+Deserialization:
+
+1. R = length(i_array)
+2. (i1, ..., iR) = i_array
+3. (msg_i1, ..., msg_iR) = msg_array
+
+Preconditions:
+
+1. if R > 2^64 - 1 or R != length(msg_array), return INVALID
+2. if length(ph) > 2^64 - 1, return INVALID
+
 Procedure:
 
-1.  R = length(i_array)
-2.  if R > 2^64 - 1 or R != length(msg_array), return INVALID
-3.  if length(ph) > 2^64 - 1, return INVALID
-4.  (i1, ..., iR) = i_array
-5.  (msg_i1, ..., msg_iR) = msg_array
-6.  c_array = (Abar, Bbar, C, R, i1, ..., iR,
-                                   msg_i1, ..., msg_iR, domain)
-7.  c_octs = serialize(c_array)
-8.  if c_octs is INVALID, return INVALID
-9.  c_input = c_octs || I2OSP(length(ph), 8) || ph
-10. challenge = hash_to_scalar(c_input)
-11. if challenge is INVALID, return INVALID
-12. return challenge
+1. c_arr = (Abar, Bbar, C, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
+2. c_octs = serialize(c_array)
+3. if c_octs is INVALID, return INVALID
+4. return hash_to_scalar(c_octs || I2OSP(length(ph), 8) || ph)
 ```
 **Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `calculate_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 9).
 
@@ -1228,6 +1240,8 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the [Notation](#notation) section) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
 
+- expand\_len: the length to expand a message to, during hash\_to\_scalar in (#hash-to-scalar). This length MUST be defined in a way that will not cause the expand\_message operation specified by the hash\_to\_curve\_suite to abort. It MUST also be defined to be larger than `ceil((ceil(log2(r))+k)/8)`, where `log2(r)` and `k` are defined by each ciphersuite. If both of those restrictions cannot be satisfied, a different hash\_to\_curve suite and curve may be chosen.
+
 - P1: A fixed point in the G1 subgroup.
 
 **Serialization functions**:
@@ -1250,7 +1264,7 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 ## BLS12-381 Ciphersuites
 
-The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`.
+The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. For both suites, the targeted security level in bits is `k = 128` and the length of the group order is `log2(r) = 255`.
 
 The first ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
 
@@ -1271,6 +1285,8 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 - octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
 - hash\_to\_curve\_suite: "BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_" as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
+
+- expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
 - P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
@@ -1305,6 +1321,8 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 - octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
 - hash\_to\_curve\_suite: "BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_" as defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] for the G1 subgroup.
+
+- expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
 - P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
