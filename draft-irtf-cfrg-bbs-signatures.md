@@ -531,9 +531,9 @@ Deserialization:
 6.  U = L - R
 7.  (i1, ..., iR) = disclosed_indexes
 8.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
-9.  (m_1, ..., m_L) = messages
-10. (m_i1, ..., m_iR) = (messages[i1], ..., messages[iR])
-11. (m_j1, ..., m_jU) = (messages[j1], ..., messages[jU])
+9.  (msg_1, ..., msg_L) = messages
+10. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
+11. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
 
 Procedure:
 
