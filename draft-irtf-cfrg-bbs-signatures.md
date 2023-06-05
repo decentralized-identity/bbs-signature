@@ -637,7 +637,7 @@ Procedure:
 7.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 8.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c
 9.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
-                             (m_i1, ..., m_iR), domain, ph)
+                             (msg_i1, ..., msg_iR), domain, ph)
 10. if cv is INVALID, return INVALID
 11. if c != cv, return INVALID
 12. if e(Abar, W) * e(Bbar, -P2) != Identity_GT, return INVALID
