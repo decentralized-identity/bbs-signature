@@ -617,8 +617,8 @@ Deserialization:
 8.  L = R + U
 9.  (i1, ..., iR) = disclosed_indexes
 10. (j1, ..., jU) = range(1, L) \ disclosed_indexes
-11. (m_i1, ..., m_iR) = disclosed_messages
-12. (m^_j1, ...., m^_jU) = responses
+11. (msg_i1, ..., msg_iR) = disclosed_messages
+12. (m^_j1, ...., m^_jU) = commitments
 
 Preconditions:
 
