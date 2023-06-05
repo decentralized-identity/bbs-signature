@@ -554,7 +554,7 @@ Procedure:
 14. r4 = - r1^-1 (mod r)
 15. r2^ = r2 + r4 * c (mod r)
 16. r3^ = r3 + e * r4 * c (mod r)
-17. for j in (j1, ..., jU): m^_j = m~_j + m_j * c (mod r)
+17. for j in (j1, ..., jU): m^_j = m~_j + msg_j * c (mod r)
 18. proof = (Abar, Bbar, c, r2^, r3^, (m^_j1, ..., m^_jU))
 19. return proof_to_octets(proof)
 ```
