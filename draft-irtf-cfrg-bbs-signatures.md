@@ -609,7 +609,7 @@ Deserialization:
 
 1.  proof_result = octets_to_proof(proof)
 2.  if proof_result is INVALID, return INVALID
-3.  (Abar, Bbar, c, r2^, r3^, responses) = proof_result
+3.  (Abar, Bbar, c, r2^, r3^, commitments) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
 6.  U = length(responses)
