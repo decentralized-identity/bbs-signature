@@ -549,7 +549,7 @@ Procedure:
 10. Bbar = (B - A * e) * r1
 11. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
 12. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
-                            (m_i1, ..., m_iR), domain, ph)
+                            (msg_i1, ..., msg_iR), domain, ph)
 13. if c is INVALID, return INVALID
 14. r4 = - r1^-1 (mod r)
 15. r2^ = r2 + r4 * c (mod r)
