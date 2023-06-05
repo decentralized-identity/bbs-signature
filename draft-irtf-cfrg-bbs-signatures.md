@@ -396,8 +396,8 @@ Definitions:
 - L, is the non-negative integer representing the number of messages to
      be signed.
 - expand_dst, an octet string representing the domain separation tag:
-              utf8(ciphersuite_id || "SIG_DET_DST_"), where
-              ciphersuite_id is defined by the ciphersuite.
+              ciphersuite_id || "SIG_DET_DST_", where ciphersuite_id is
+              defined by the ciphersuite.
 
 Outputs:
 
@@ -447,8 +447,8 @@ Parameters:
 
 Definitions:
 
-- L, is the non-negative integer representing the number of messages to
-     be signed.
+- L, is the non-negative integer representing the number of signed
+     messages.
 
 Outputs:
 
@@ -740,7 +740,7 @@ Procedure:
 5.     n = n + 1
 6.     generator_i = Identity_G1
 7.     candidate = hash_to_curve_g1(v, generator_dst)
-8.     if candidate in (generator_1, ..., generator_i):
+8.     if candidate in (generator_1, ..., generator_i, P_1):
 9.        go back to step 4
 10.    generator_i = candidate
 11. return (generator_1, ..., generator_count)
@@ -922,7 +922,7 @@ Procedure:
 
 ### Serialize
 
-This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see [Section 3.2.3](#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#sign), [ProofGen](#proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
+This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see [Section 3.2.4](#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#sign), [ProofGen](#proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
 
 ```
 octets_result = serialize(input_array)
@@ -1365,8 +1365,8 @@ Parameters:
                   ciphersuite.
 - expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
                                           the ciphersuite.
-- dst = utf8(ciphersuite_id || "MOCK_RANDOM_SCALARS_DST_"), where
-      ciphersuite_id is defined by teh ciphersuite.
+- dst = ciphersuite_id || "MOCK_RANDOM_SCALARS_DST_", where
+        ciphersuite_id is defined by the ciphersuite.
 
 Outputs:
 
@@ -1391,7 +1391,7 @@ Procedure:
 
 ## Key Pair
 
-The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#keygen) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
+The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#keygen) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
 
 **NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
 
@@ -1449,7 +1449,7 @@ Test vectors of the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciph
 
 ### Map Messages to Scalars
 
-The messages in (#messages) must be mapped to scalars before passed to the Sign, Verify, ProofGen and ProofVerify operations. For the purpose of the test vectors presented in this document we are using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation to map each message to a scalar. For the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite, on input each message in (#messages) and the following default dst
+The messages in (#messages-1) must be mapped to scalars before passed to the Sign, Verify, ProofGen and ProofVerify operations. For the purpose of the test vectors presented in this document we are using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation to map each message to a scalar. For the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite, on input each message in (#messages-1) and the following default dst
 
 ```
 {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.dst }}
@@ -1519,7 +1519,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature001.header }}
 ```
 
-And the following message (the first message defined in (#messages))
+And the following message (the first message defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature001.messages[0] }}
@@ -1539,7 +1539,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature004.header }}
 ```
 
-And the messages defined in (#messages) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+And the messages defined in (#messages-1) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
@@ -1547,7 +1547,7 @@ And the messages defined in (#messages) (**Note** the ordering of the messages M
 
 ### Proof fixtures
 
-For the generation of the following fixtures the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
+For the generation of the following fixtures the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of the ASCII-encoded 30 first digits of pi)
 
 ```
 SEED = "332e313431353932363533353839373933323338343632363433333833323739"
@@ -1616,7 +1616,7 @@ Test vectors of the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersu
 
 ### Map Messages to Scalars
 
-Similarly to how messages are mapped to scalars in [BLS12381-SHAKE-256 Test Vectors](#bls12381-sha-256-test-vectors), we are using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation to map each message to a scalar. For the [BLS12-381-SHA-256](#bls12-381-shake-256-ciphersuite) ciphersuite, on input each message in (#messages) and the following default dst
+Similarly to how messages are mapped to scalars in [BLS12381-SHAKE-256 Test Vectors](#bls12381-sha-256-test-vectors), we are using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation to map each message to a scalar. For the [BLS12-381-SHA-256](#bls12-381-shake-256-ciphersuite) ciphersuite, on input each message in (#messages-1) and the following default dst
 
 ```
 {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.dst }}
@@ -1687,7 +1687,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature001.header }}
 ```
 
-And the following message (the first message defined in (#messages))
+And the following message (the first message defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}
@@ -1696,7 +1696,7 @@ And the following message (the first message defined in (#messages))
 After it is mapped to the first scalar in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
-{{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
+{{ $signatureFixtures.bls12-381-sha-256.signature001.signature }}
 ```
 
 #### Valid Multi-Message Signature
@@ -1707,7 +1707,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature004.header }}
 ```
 
-And the messages defined in (#messages) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+And the messages defined in (#messages-1) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}
@@ -1715,7 +1715,7 @@ And the messages defined in (#messages) (**Note** the ordering of the messages M
 
 ### Proof fixtures
 
-Similarly to the proof fixtures for the BLS12381-SHA-256 ciphersuite, the generation of the following fixtures uses the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars), in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of `utf8("<30 first digits of pi>")`)
+Similarly to the proof fixtures for the BLS12381-SHA-256 ciphersuite, the generation of the following fixtures uses the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars), in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of the ASCII-encoded 30 first digits of pi).
 
 ```
 SEED = "332e313431353932363533353839373933323338343632363433333833323739"
@@ -1755,13 +1755,13 @@ will result to the following proof value
 Using the header, messages and signature used in [Valid Multi Message Signature](#valid-multi-message-signature-1) to create a proof disclosing all the messages, with the following presentation header
 
 ```
-{{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}
+{{ $proofFixtures.bls12-381-sha-256.proof002.presentationHeader }}
 ```
 
 will result to the following proof value
 
 ```
-{{ $proofFixtures.bls12-381-shake-256.proof002.proof }}
+{{ $proofFixtures.bls12-381-sha-256.proof002.proof }}
 ```
 
 #### Valid Multi-Message, Half of Messages Disclosed Proof
@@ -1788,7 +1788,7 @@ The authors would like to acknowledge the significant amount of academic work th
 
 The current state of this document is the product of the work of the Decentralized Identity Foundation Applied Cryptography Working group, which includes numerous active participants. In particular, the following individuals contributed ideas, feedback and wording that influenced this specification:
 
-Orie Steele, Christian Paquin, Alessandro Guggino and Tomislav Markovski
+Orie Steele, Christian Paquin, Alessandro Guggino, Tomislav Markovski and Greg Bernstein.
 
 {backmatter}
 
@@ -1883,7 +1883,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature002.header }}
 ```
 
-And the following message (the first message defined in (#messages))
+And the following message (the first message defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature002.messages[0] }}
@@ -1905,7 +1905,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature003.header }}
 ```
 
-And the following messages (the two first messages defined in (#messages))
+And the following messages (the two first messages defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature003.messages[0] }}
@@ -1929,7 +1929,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature005.header }}
 ```
 
-And the following messages (the two first messages defined in (#messages))
+And the following messages (the two first messages defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature005.messages[0] }}
@@ -1937,7 +1937,7 @@ And the following messages (the two first messages defined in (#messages))
 {{ $signatureFixtures.bls12-381-shake-256.signature005.messages[1] }}
 ```
 
-After they are mapped to the first 2 scalars in (#map-messages-to-scalars), and with the following signature (which is a signature on all the messages defined in (#messages))
+After they are mapped to the first 2 scalars in (#map-messages-to-scalars), and with the following signature (which is a signature on all the messages defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature005.signature }}
@@ -1953,7 +1953,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature006.header }}
 ```
 
-And the following messages (re-ordering of the messages defined in (#messages))
+And the following messages (re-ordering of the messages defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[0] }}
@@ -1993,7 +1993,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature007.header }}
 ```
 
-And the messages as defined in (#messages), mapped to the scalars in (#map-messages-to-scalars) and with the following signature
+And the messages as defined in (#messages-1), mapped to the scalars in (#map-messages-to-scalars) and with the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature007.signature }}
@@ -2009,7 +2009,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature008.header }}
 ```
 
-And the messages as defined in (#messages), mapped to the scalars in (#map-messages-to-scalars) and with the following signature
+And the messages as defined in (#messages-1), mapped to the scalars in (#map-messages-to-scalars) and with the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature008.signature }}
@@ -2047,7 +2047,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature002.header }}
 ```
 
-And the following message (the first message defined in (#messages))
+And the following message (the first message defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature002.messages[0] }}
@@ -2069,7 +2069,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature003.header }}
 ```
 
-And the following messages (the two first messages defined in (#messages))
+And the following messages (the two first messages defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature003.messages[0] }}
@@ -2093,7 +2093,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature005.header }}
 ```
 
-And the following messages (the two first messages defined in (#messages))
+And the following messages (the two first messages defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature005.messages[0] }}
@@ -2101,7 +2101,7 @@ And the following messages (the two first messages defined in (#messages))
 {{ $signatureFixtures.bls12-381-sha-256.signature005.messages[1] }}
 ```
 
-After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), and with the following signature (which is a signature on all the messages defined in (#messages))
+After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), and with the following signature (which is a signature on all the messages defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature005.signature }}
@@ -2117,7 +2117,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature006.header }}
 ```
 
-And the following messages (re-ordering of the messages defined in (#messages))
+And the following messages (re-ordering of the messages defined in (#messages-1))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[0] }}
@@ -2157,7 +2157,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature007.header }}
 ```
 
-And the messages as defined in (#messages), mapped to the scalars in (#map-messages-to-scalars-1) and with the following signature
+And the messages as defined in (#messages-1), mapped to the scalars in (#map-messages-to-scalars-1) and with the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature007.signature }}
@@ -2173,7 +2173,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature008.header }}
 ```
 
-And the messages as defined in (#messages), mapped to the scalars in (#map-messages-to-scalars-1) and with the following signature
+And the messages as defined in (#messages-1), mapped to the scalars in (#map-messages-to-scalars-1) and with the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature008.signature }}
