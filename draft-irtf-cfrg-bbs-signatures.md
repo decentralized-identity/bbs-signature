@@ -544,7 +544,7 @@ Procedure:
 5.  if domain is INVALID, return INVALID
 6.  random_scalars = calculate_random_scalars(3+U)
 7.  (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
-8.  B = P1 + Q_1 * domain + H_1 * m_1 + ... + H_L * m_L
+8.  B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 9.  Abar = A * r1
 10. Bbar = (B - A * e) * r1
 11. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
