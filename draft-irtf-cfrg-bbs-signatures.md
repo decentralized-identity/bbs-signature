@@ -546,7 +546,7 @@ Procedure:
 7.  (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
 8.  B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 9.  Abar = A * r1
-10. Bbar = (B - A * e) * r1
+10. Bbar = B * r1 - Abar * e
 11. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
 12. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                             (msg_i1, ..., msg_iR), domain, ph)
