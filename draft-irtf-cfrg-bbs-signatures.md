@@ -261,7 +261,7 @@ In definition of this signature scheme there are two possible variations based u
 
 ### Messages
 
-Each of the core operations of the BBS signature scheme expect the inputted messages to be scalar values within a given range (specifically 1 and r-1, where r is the prime order of the G1 and G2 subgroups, defined by each ciphersuite, see [Notation](#notation)). There are multiple ways to transform a message from an octet string to a scalar value. This document defines the `MapMessageToScalarAsHash` operation, which hashes an octet string to a scalar (see [MapMessageToScalarAsHash](#mapmessagetoscalarashash)). An application can use a different `MapMessageToScalar` operation, but it MUST be clearly and unambiguously defined, for all parties involved. Before using the core operations, all messages MUST be mapped to their respective scalars using the same operation. The defined [MapMessageToScalarAsHash](#mapmessagetoscalarashash) is the RECOMMENDED way of mapping octet strings to scalar values.
+Each of the core operations of the BBS signature scheme expect the inputted messages to be scalar values within a given range (specifically 1 and r-1, where r is the prime order of the G1 and G2 subgroups, defined by each ciphersuite, see [Notation](#notation)). There are multiple ways to transform a message from an octet string to a scalar value. This document defines the `MapMessageToScalarAsHash` operation, which hashes an octet string to a scalar (see (#message-to-scalar-as-hash)). An application can use a different `MapMessageToScalar` operation, but it MUST be clearly and unambiguously defined, for all parties involved. Before using the core operations, all messages MUST be mapped to their respective scalars using the same operation. The defined (#message-to-scalar-as-hash) is the RECOMMENDED way of mapping octet strings to scalar values.
 
 ### Generators
 
@@ -284,7 +284,7 @@ Those rules will be used explicitly on every operation. See also [Serialize](#se
 
 ## Key Generation Operations
 
-### Secret Key Generation (KeyGen)
+### Secret Key
 
 This operation generates a secret key (SK) deterministically from a secret octet string (IKM).
 
@@ -333,7 +333,7 @@ Procedure:
 
 **Note** This operation is the RECOMMENDED way of generating a secret key, but its use is not required for compatibility, and implementations MAY use a different KeyGen procedure. For security, such an alternative MUST output a secret key that is statistically close to uniformly random in the range 0 < SK < r.
 
-### Public Key Calculation (SkToPk)
+### Public Key
 
 This operation takes a secret key (SK) and outputs a corresponding public key (PK).
 
@@ -358,13 +358,13 @@ Procedure:
 
 The operations of this section make use of functions and sub-routines defined in [Utility Operations](#utility-operations). More specifically,
 
-- `hash_to_scalar` is defined in [Section 4.3](#hash-to-scalar)
-- `calculate_domain` and `calculate_challenge` are defined in [Section 4.4](#domain-calculation) and [Section 4.5](#challenge-calculation) correspondingly.
-- `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in [Section 4.6](#serialization)
+- `hash_to_scalar` is defined in (#hash-to-scalar)
+- `calculate_domain` and `calculate_challenge` are defined in (#domain-calculation) and (#challenge-calculation) correspondingly.
+- `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization)
 
-The following operations also make use of the `create_generators` operation defined in [Section 4.1](#generator-point-computation), to create generator points on `G1` (see [Messages and Generators](#messages-and-generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See [Section 4.1](#generator-point-computation) for more details.
+The following operations also make use of the `create_generators` operation defined in (#generators-calculation), to create generator points on `G1` (see [Messages and Generators](#generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See (#generators-calculation) for more details.
 
-### Sign
+### Signature Generation (Sign)
 
 This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages (as scalar values, see [Messages](#messages)).
 
@@ -430,7 +430,7 @@ Procedure:
 
 ### Signature Verification (Verify)
 
- This operation checks that a signature is valid for a given header and vector of messages against a supplied public key (PK). The messages MUST be supplied in this operation in the same order they were supplied to [Sign](#sign) when creating the signature.
+ This operation checks that a signature is valid for a given header and vector of messages against a supplied public key (PK). The messages MUST be supplied in this operation in the same order they were supplied to [Sign](#signature-generation-sign) when creating the signature.
 
 ```
 result = Verify(PK, signature, header, messages)
@@ -484,9 +484,9 @@ Procedure:
 
 This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [Presentation header selection](#presentation-header-selection) for more details.
 
-The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
+The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
-The operation calculates multiple random scalars using the `calculate_random_scalars` utility operation defined in [Section 4.1](#random-scalars-computation). See also [Section 5.10](#randomness-requirements) for considerations and requirements on random scalars generation.
+The operation calculates multiple random scalars using the `calculate_random_scalars` utility operation defined in (#random-scalars). See also (#randomness-requirements) for considerations and requirements on random scalars generation.
 
 To allow for flexibility in implementations, although ProofGen defines a specific value for `expand_len`, applications may use any value larger than `ceil((ceil(log2(r))+k)/8)` (for example, for the BLS12-381-SHAKE-256 and BLS12-381-SHA-256 ciphersuites, an implementation can elect to use a value of 64, instead of 48, as to allow for certain optimizations).
 
@@ -575,7 +575,7 @@ Procedure:
 
 This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
-The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#sign) (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
+The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
 ```
 result = ProofVerify(PK, proof, header, ph,
@@ -660,13 +660,13 @@ Procedure:
 
 # Utility Operations
 
-## Random scalars computation
+## Random Scalars
 
 This operation returns the requested number of pseudo-random scalars, using the `get_random` operation (see [Parameters](#parameters)). The operation makes multiple calls to `get_random`. It is REQUIRED that each call will be independent from each other, as to ensure independence of the returned pseudo-random scalars.
 
 The required length of the `get_random` output is defined as `expand_len`. Each value returned by the `get_random` function is reduced modulo the group order `r`. To avoid biased results when creating the random scalars, the output of `get_random` MUST be at least `(ceil(log2(r))+k` bytes long, where `k` is the targeted security level specified by the ciphersuite (see Section 5 in [@!I-D.irtf-cfrg-hash-to-curve] for more details). ProofGen defines `expand_len = ceil((ceil(log2(r))+k)/8)`. For both the [BLS12-381-SHAKE-256](#bls12-381-shake-256) and [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuites, `log2(r) = 255` and `k = 128` resulting to `expand_len = 48`. See [Section 5.10](#randomness-requirements) for further security considerations and requirements around the generated randomness.
 
-**Note**: The security of the proof generation algorithm ([ProofGen](#proofgen)) is highly dependant on the quality of the `get_random` function. Care must be taken to ensure that a cryptographically secure pseudo-random generator is chosen, and that its outputs are not leaked to an adversary. See also [Section 5.10](#randomness-requirements) for more details.
+**Note**: The security of the proof generation algorithm ([ProofGen](#proof-generation-proofgen)) is highly dependant on the quality of the `get_random` function. Care must be taken to ensure that a cryptographically secure pseudo-random generator is chosen, and that its outputs are not leaked to an adversary. See also [Section 5.10](#randomness-requirements) for more details.
 
 ```
 random_scalars = calculate_random_scalars(count)
@@ -694,9 +694,9 @@ Procedure:
 3. return (r_1, r_2, ..., r_count)
 ```
 
-## Generator point computation
+## Generators Calculation
 
-This operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify). It takes one input, the number of generator points to create, which is determined in part by the number of signed messages.
+This operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify). It takes one input, the number of generator points to create, which is determined in part by the number of signed messages.
 
 As an optimization, implementations MAY cache the result of `create_generators` for a specific `generator_seed` (determined by the ciphersuite) and `count` (which can be arbitrarily large, depending on the application). Then, during the execution of one of the [Core Operations](#core-operations), if `K` generators are needed with `K <= count`, the application can use the `K` first of the cached generators (in place of the direct call to `create_generators(K)`).
 
@@ -760,11 +760,11 @@ Procedure:
 11. return (generator_1, ..., generator_count)
 ```
 
-## MapMessageToScalar
+## Message to Scalar
 
-There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify) operations.
+There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) operations.
 
-### MapMessageToScalarAsHash
+### Message to Scalar as Hash
 
 This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_", where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_" is an ASCII string comprised of 26 bytes.
 
@@ -793,7 +793,7 @@ Procedure:
 
 ## Hash to Scalar
 
-This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To hash a message to a scalar that would be passed as input to the [Sign](#sign), [Verify](#verify), [ProofGen](#proofgen) and [ProofVerify](#proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To hash a message to a scalar that would be passed as input to the [Sign](#sisignature-generation-signgn), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
 This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). If an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). Note however, that the hash\_to\_curve document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For this reason, we don’t directly use hash\_to\_field here, rather we define a similar operation (hash\_to\_scalar), making direct use of the expand\_message function, that will be defined by the hash-to-curve suite used (i.e., either expand\_message\_xmd or expand\_message\_xof). If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
@@ -848,7 +848,7 @@ This operation calculates the domain value, a scalar representing the distillati
 
 The input to the domain value includes an octet string called the header, chosen by the signer and meant to encode any information that is required to be revealed by the prover (such as an expiration date, or an identifier for the target audience). This is in contrast to the signed message values, which may be withheld during a proof.
 
-When a signature is calculated, the domain value is combined with a specific generator point (`Q_2`, see [Sign](#sign)) to protect the integrity of the public parameters and the header.
+When a signature is calculated, the domain value is combined with a specific generator point (`Q_2`, see [Sign](#signature-generation-sign)) to protect the integrity of the public parameters and the header.
 
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
@@ -891,7 +891,7 @@ Procedure:
 
 ## Challenge Calculation
 
-This operation calculates the challenge scalar value, used during [ProofGen](#proofgen) and [ProofVerify](#proofverify), as part of the Fiat-Shamir heuristic, for making the proof protocol non-interactive (in a interactive sating, the challenge would be a random value supplied by the verifier).
+This operation calculates the challenge scalar value, used during [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify), as part of the Fiat-Shamir heuristic, for making the proof protocol non-interactive (in a interactive sating, the challenge would be a random value supplied by the verifier).
 
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
@@ -936,7 +936,7 @@ Procedure:
 
 ### Serialize
 
-This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see [Section 3.2.3](#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#sign), [ProofGen](#proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
+This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see [Section 3.2.3](#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#signature-generation-sign), [ProofGen](#proof-generation-proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
 
 ```
 octets_result = serialize(input_array)
@@ -976,12 +976,12 @@ Procedure:
 10. return octets_result
 ```
 
-### SignatureToOctets
+### Signature to Octets
 
 This operation describes how to encode a signature to an octet string.
 
 *Note* this operation deliberately does not perform the relevant checks on the inputs `A`, `e` and `s`
-because its assumed these are done prior to its invocation, e.g as is the case with the [Sign](#sign) operation.
+because its assumed these are done prior to its invocation, e.g as is the case with the [Sign](#signature-generation-sign) operation.
 
 ```
 signature_octets = signature_to_octets(signature)
@@ -1001,7 +1001,7 @@ Procedure:
 2. return serialize((A, e, s))
 ```
 
-### OctetsToSignature
+### Octets to Signature
 
 This operation describes how to decode an octet string, validate it and return the underlying components that make up the signature.
 
@@ -1037,9 +1037,9 @@ Procedure:
 15. return (A, e, s)
 ```
 
-### ProofToOctets
+### Proof to Octets
 
-This operation describes how to encode a proof, as computed at step 25 in [ProofGen](#proofgen), to an octet string. The input to the operation MUST be a valid proof.
+This operation describes how to encode a proof, as computed at step 25 in [ProofGen](#proof-generation-proofgen), to an octet string. The input to the operation MUST be a valid proof.
 
 The inputted proof value must consist of the following components, in that order:
 
@@ -1071,7 +1071,7 @@ Procedure:
 2. return serialize((A', Abar, D, c, e^, r2^, r3^, s^, m^_1, ..., m^_U))
 ```
 
-### OctetsToProof
+### Octets to Proof
 
 This operation describes how to decode an octet string representing a proof, validate it and return the underlying components that make up the proof value.
 
@@ -1133,7 +1133,7 @@ Procedure:
 19. return (A_0, A_1, A_2, s_0, s_1, s_2, s_3, s_4, msg_commitments)
 ```
 
-### OctetsToPublicKey
+### Octets to Public Key
 
 This operation describes how to decode an octet string representing a public key, validates it and returns the corresponding point in G2. Steps 2 to 5 check if the public key is valid. As an optimization, implementations MAY cache the result of those steps, to avoid unnecessarily repeating validation for known public keys.
 
@@ -1162,7 +1162,7 @@ Procedure:
 
 ## Validating public keys
 
-It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [OctetsToPublicKey](#octetstopublickey) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure (see the [OctetsToPublicKey](#octetstopublickey) section) returns INVALID, the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
+It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [OctetsToPublicKey](#octetstopublickey) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure (see the [OctetsToPublicKey](#octetstopublickey) section) returns INVALID, the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#signature-verification-verify) operation.
 
 ## Point de-serialization
 
@@ -1170,7 +1170,7 @@ This document makes use of `octet_to_point_g*` to parse octet strings to ellipti
 
 ## Skipping membership checks
 
-Some existing implementations skip the subgroup\_check invocation in [Verify](#verify), whose purpose is ensuring that the signature is an element of a prime-order subgroup.  This check is REQUIRED of conforming implementations, for two reasons.
+Some existing implementations skip the subgroup\_check invocation in [Verify](#signature-verification-verify), whose purpose is ensuring that the signature is an element of a prime-order subgroup.  This check is REQUIRED of conforming implementations, for two reasons.
 
 1.  For most pairing-friendly elliptic curves used in practice, the pairing operation e (#notation) is undefined when its input points are not in the prime-order subgroups of E1 and E2. The resulting behavior is unpredictable, and may enable forgeries.
 
@@ -1210,7 +1210,7 @@ The proof, as returned by ProofGen, is a zero-knowledge proof-of-knowledge [@CDL
 
 ## Randomness requirements
 
-[ProofGen](#proofgen) is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes ProofGen vulnerable to bad entropy in certain applications. As an example of such application, consider systems that need to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the `get_random` function to create an undetected chanel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed [@!DRBG]. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).
+[ProofGen](#proof-generation-proofgen) is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes ProofGen vulnerable to bad entropy in certain applications. As an example of such application, consider systems that need to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the `get_random` function to create an undetected chanel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed [@!DRBG]. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).
 
 In any case, the randomness used in ProofGen MUST be unique in each call and MUST have a distribution that is indistinguishable from uniform. If the random scalars are re-used, are created from "bad randomness" (for example with a known relationship to each other) or are in any way predictable, an adversary will be able to unveil the undisclosed from the proof messages or the hidden signature value. Naturally, a cryptographically secure pseudorandom number generator or pseudo random function is REQUIRED to implement the `get_random` functionality. See also [@!RFC8937], for recommendations on generating good randomness in cases where the Prover has direct or in-direct access to a secret key.
 
@@ -1307,7 +1307,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (an ASCII string comprised of 59 bytes) which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
+- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (an ASCII string comprised of 59 bytes) which is used by the [create_generators](#generators-calculation) operation to compute the required set of message generators.
 
 
 ### BLS12-381-SHA-256
@@ -1341,7 +1341,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (an ASCII string comprised of 57 bytes) which is used by the [create_generators](#generator-point-computation) operation to compute the required set of message generators.
+- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (an ASCII string comprised of 57 bytes) which is used by the [create_generators](#generators-calculation) operation to compute the required set of message generators.
 
 
 # Test Vectors
@@ -1354,7 +1354,7 @@ The following section details a basic set of test vectors that can be used to co
 
 ## Mocked random scalars
 
-For the purpose of presenting fixtures for the [ProofGen](#proofgen) operation we describe here a way to mock the `calculate_random_scalars` operation ([Random scalars computation](#random-scalars-computation)), used by `ProofGen` to create all the necessary random scalars.
+For the purpose of presenting fixtures for the [ProofGen](#proof-generation-proofgen) operation we describe here a way to mock the `calculate_random_scalars` operation ([Random scalars computation](#random-scalars)), used by `ProofGen` to create all the necessary random scalars.
 
 To that end, the `seeded_random_scalars(SEED)` operation is defined, which will deterministically calculate `count` random-looking scalars from a single `SEED`. The proof test vector will then define a `SEED` (as a nothing-up-my-sleeve value) and set
 
@@ -1363,9 +1363,9 @@ mocked_calculate_random_scalars(count) :=
                              seeded_random_scalars(SEED, count)
 ```
 
-The `mocked_calculate_random_scalars` operation will then be used in place of `calculate_random_scalars` during the [ProofGen](#proofgen) operation's procedure.
+The `mocked_calculate_random_scalars` operation will then be used in place of `calculate_random_scalars` during the [ProofGen](#proof-generation-proofgen) operation's procedure.
 
-**Note** For the [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuite if more than 170 mocked random scalars are required, the operation will return INVALID. Similarly, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite, if more than 1365 mocked random scalars are required, the operation will return INVALID. For the purpose of describing [ProofGen](#proofgen) test vectors, those limits are inconsequential.
+**Note** For the [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuite if more than 170 mocked random scalars are required, the operation will return INVALID. Similarly, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite, if more than 1365 mocked random scalars are required, the operation will return INVALID. For the purpose of describing [ProofGen](#proof-generation-proofgen) test vectors, those limits are inconsequential.
 
 ```
 seeded_scalars = seeded_random_scalars(SEED, count)
@@ -1409,11 +1409,11 @@ Procedure:
 
 ## Key Pair
 
-The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#keygen) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
+The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#secret-key) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
 
 **NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
 
-Following the procedure defined in (#keygen) with an input `IKM` value as follows
+Following the procedure defined in (#secret-key) with an input `IKM` value as follows
 
 ```
 {{ $keyPair.ikm }}
@@ -1429,7 +1429,7 @@ Outputs the following SK value
 {{ $keyPair.keyPair.secretKey }}
 ```
 
-Following the procedure defined in (#sktopk) with an input SK value as above produces the following PK value
+Following the procedure defined in (#public-key) with an input SK value as above produces the following PK value
 
 ```
 {{ $keyPair.keyPair.publicKey }}
@@ -1501,7 +1501,7 @@ Note that in both the following test vectors, as well as the additional [BLS12-3
 
 ### Message Generators
 
-Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
+Following the procedure defined in [](#) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 
 ```
@@ -1670,7 +1670,7 @@ Note that in both the following test vectors, as well as the additional [BLS12-3
 
 ### Message Generators
 
-Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHA-256](#bls12-381-sha-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
+Following the procedure defined in (#generators-calculation) with an input count value of 12, for the [BLS12-381-SHA-256](#bls12-381-sha-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 
 ```
@@ -2227,7 +2227,7 @@ We get the following scalar, encoded with I2OSP and represented in big endian or
 
 The following section provides an explanation of how the ProofGen and ProofVerify operations work.
 
-Let the prover be in possession of a BBS signature `(A, e, s)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
+Let the prover be in possession of a BBS signature `(A, e, s)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#signature-generation-sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
 ```
 B = P1 + Q_1 * s + Q_2 * domain + H_1 * msg_1 + ... + H_L * msg_L
 ```
@@ -2244,7 +2244,7 @@ Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the p
         4.  r3 = r1 ^ -1 mod r
         5.  s' = r2 * r3 + s mod r.
 
-    The values `(A', Abar, D)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', PK) = e(Abar, P2)` where `PK` the signer's public key and `P2` the base element in `G2` (used to create the signer’s `PK`, see [SkToPk](#sktopk)). This also serves to bind the proof to the signer's `PK`.
+    The values `(A', Abar, D)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', PK) = e(Abar, P2)` where `PK` the signer's public key and `P2` the base element in `G2` (used to create the signer’s `PK`, see (#public-key)). This also serves to bind the proof to the signer's `PK`.
 
 - Set the following,
 
