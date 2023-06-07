@@ -1483,7 +1483,7 @@ Note that in both the following test vectors, as well as the additional [BLS12-3
 
 ### Message Generators
 
-Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
+Following the procedure defined in (#generator-point-computation) with an input count value of 11, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 
 ```
@@ -1650,7 +1650,7 @@ Note that in both the following test vectors, as well as the additional [BLS12-3
 
 ### Message Generators
 
-Following the procedure defined in (#generator-point-computation) with an input count value of 12, for the [BLS12-381-SHA-256](#bls12-381-sha-256) suite, outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
+Following the procedure defined in (#generator-point-computation) with an input count value of 11, for the [BLS12-381-SHA-256](#bls12-381-sha-256) suite, outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 
 ```
