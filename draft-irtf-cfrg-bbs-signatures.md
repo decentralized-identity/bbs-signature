@@ -845,7 +845,7 @@ Inputs:
 
 - PK (REQUIRED), an octet string, representing the public key of the
                  Signer of the form outputted by the SkToPk operation.
-- Q_1 (REQUIRED), points of G1 (the first point returned from
+- Q_1 (REQUIRED), point of G1 (the first point returned from
                   create_generators).
 - H_Points (REQUIRED), array of points of G1.
 - header (OPTIONAL), an octet string. If not supplied, it must default to
