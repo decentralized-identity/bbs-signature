@@ -1002,7 +1002,7 @@ Inputs:
 Outputs:
 
 signature, a signature in the form (A, e), where A is a point in G1
-           and e is non-zero scalars mod r.
+           and e is a non-zero scalar mod r.
 
 Procedure:
 
