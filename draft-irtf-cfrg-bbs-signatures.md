@@ -1501,7 +1501,7 @@ Note that in both the following test vectors, as well as the additional [BLS12-3
 
 ### Message Generators
 
-Following the procedure defined in [](#) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
+Following the procedure defined in (#generators-calculation) with an input count value of 12, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first 2 correspond to `Q_1` and `Q_2`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 
 ```
