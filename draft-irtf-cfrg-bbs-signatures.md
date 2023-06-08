@@ -220,7 +220,7 @@ octets\_to\_point\_g1(ostr) -> P, octets\_to\_point\_g2(ostr) -> P
 subgroup\_check(P) -> VALID or INVALID
 : returns VALID when the point P is an element of the subgroup of order r, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element. In some cases, faster checks may also exist, e.g., [@Bowe19].
 
-## Organization of this document
+## Document Organization
 
 This document is organized as follows:
 
@@ -269,7 +269,7 @@ Throughout the operations of this signature scheme, each message that is signed 
 
 Aside from the message generators, the scheme uses two additional generators: `Q_1` and `Q_2`. The first (`Q_1`), is used for the blinding value (`s`) of the signature. The second generator (`Q_2`), is used to sign the signature's domain, which binds both the signature and generated proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
 
-### Serializing to octet strings
+### Serializing to Octets
 
 When serializing one or more values to produce an octet string, each element will be encoded using a specific operation determined by its type. More concretely,
 
@@ -760,11 +760,11 @@ Procedure:
 11. return (generator_1, ..., generator_count)
 ```
 
-## Message to Scalar
+# Message to Scalar
 
 There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) operations.
 
-### Message to Scalar as Hash
+## Message to Scalar as Hash
 
 This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_", where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_" is an ASCII string comprised of 26 bytes.
 
@@ -936,7 +936,7 @@ Procedure:
 
 ### Serialize
 
-This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see (#serializing-to-octet-strings)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#signature-generation-sign), [ProofGen](#proof-generation-proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
+This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see (#serializing-to-octets)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#signature-generation-sign), [ProofGen](#proof-generation-proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
 
 ```
 octets_result = serialize(input_array)
@@ -1109,7 +1109,7 @@ Procedure:
 1.  proof_len_floor = 3 * octet_point_length + 5 * octet_scalar_length
 2.  if length(proof_octets) < proof_len_floor, return INVALID
 
-// Points (i.e., (A', Abar, D) in ProofGen) de-serialization.
+// Points (i.e., (A', Abar, D) in ProofGen) deserialization.
 3.  index = 0
 4.  for i in range(0, 2):
 5.      end_index = index + octet_point_length - 1
@@ -1118,7 +1118,7 @@ Procedure:
 8.      index += octet_point_length
 
 // Scalars (i.e., (c, e^, r2^, r3^, s^, (m^_j1, ..., m^_jU)) in
-// ProofGen) de-serialization.
+// ProofGen) deserialization.
 9.  j = 0
 10. while index < length(proof_octets):
 11.     end_index = index + octet_scalar_length - 1
@@ -1160,15 +1160,15 @@ Procedure:
 
 # Security Considerations
 
-## Validating public keys
+## Validating Public Keys
 
 It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [OctetsToPublicKey](#octetstopublickey) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure (see the [OctetsToPublicKey](#octetstopublickey) section) returns INVALID, the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#signature-verification-verify) operation.
 
-## Point de-serialization
+## Point Deserialization
 
 This document makes use of `octet_to_point_g*` to parse octet strings to elliptic curve points (either in G1 or G2). It is assumed (even if not explicitly described) that the result of this operation will not be INVALID. If `octet_to_point_g*` returns INVALID, then the calling operation should immediately return INVALID as well and abort the operation. Note that the only place where the output is assumed to be VALID implicitly is in the [EncodingForHash](#encodingforhash) section.
 
-## Skipping membership checks
+## Skipping Membership Checks
 
 Some existing implementations skip the subgroup\_check invocation in [Verify](#signature-verification-verify), whose purpose is ensuring that the signature is an element of a prime-order subgroup.  This check is REQUIRED of conforming implementations, for two reasons.
 
@@ -1176,11 +1176,11 @@ Some existing implementations skip the subgroup\_check invocation in [Verify](#s
 
 2.  Even if the pairing operation behaves properly on inputs that are outside the correct subgroups, skipping the subgroup check breaks the strong unforgeability property [@ADR02].
 
-## Side channel attacks
+## Side Channel Attacks
 
 Implementations of the signing algorithm SHOULD protect the secret key from side-channel attacks.  One method for protecting against certain side-channel attacks is ensuring that the implementation executes exactly the same sequence of instructions and performs exactly the same memory accesses, for any value of the secret key. In other words, implementations on the underlying pairing-friendly elliptic curve SHOULD run in constant time.
 
-## Randomness considerations
+## Randomness Considerations
 
 The IKM input to KeyGen MUST be infeasible to guess and MUST be kept secret. One possibility is to generate IKM from a trusted source of randomness.  Guidelines on constructing such a source are outside the scope of this document.
 
@@ -1190,7 +1190,7 @@ BBS proofs are nondeterministic, meaning care must be taken against attacks aris
 
 When a trusted source of randomness is used, signatures and proofs are much harder to forge or break due to the use of multiple nonces.
 
-## Presentation header selection
+## Presentation Header Selection
 
 The signature proofs of knowledge generated in this specification are created using a specified presentation header. A verifier-specified cryptographically random value (e.g., a nonce) featuring in the presentation header provides strong protections against replay attacks, and is RECOMMENDED in most use cases. In some settings, proofs can be generated in a non-interactive fashion, in which case verifiers MUST be able to verify the uniqueness of the presentation header values.
 
@@ -1200,15 +1200,15 @@ The security analysis models hash\_to\_curve\_g1 as random oracles.  It is cruci
 
 In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_curve.  Some guidance around defining this can be found in (#ciphersuites).
 
-## Choice of underlying curve
+## Choice of Underlying Curve
 
 BBS signatures can be implemented on any pairing-friendly curve. However care MUST be taken when selecting one that is appropriate, this specification defines a ciphersuite for using the BLS12-381 curve in (#ciphersuites) which as a curve achieves around 117 bits of security according to a recent NCC ZCash cryptography review [@ZCASH-REVIEW].
 
-## Security of proofs generated by ProofGen
+## ProofGen Security
 
 The proof, as returned by ProofGen, is a zero-knowledge proof-of-knowledge [@CDL16]. This guarantees that no information will be revealed about the signature itself or the undisclosed messages, from the output of ProofGen. Note that the security proofs in [@CDL16] work on type 3 pairing setting. This means that G1 should be different from G2 and with no efficient isomorphism between them.
 
-## Randomness requirements
+## Randomness Requirements
 
 [ProofGen](#proof-generation-proofgen) is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes ProofGen vulnerable to bad entropy in certain applications. As an example of such application, consider systems that need to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the `get_random` function to create an undetected chanel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed [@!DRBG]. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).
 
@@ -1352,7 +1352,7 @@ The following section details a basic set of test vectors that can be used to co
 
 **NOTE** These fixtures are a work in progress and subject to change.
 
-## Mocked random scalars
+## Mocked Random Scalars
 
 For the purpose of presenting fixtures for the [ProofGen](#proof-generation-proofgen) operation we describe here a way to mock the `calculate_random_scalars` operation ([Random scalars computation](#random-scalars)), used by `ProofGen` to create all the necessary random scalars.
 
@@ -1565,7 +1565,7 @@ And the messages defined in (#messages-1) (**Note** the ordering of the messages
 {{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
 ```
 
-### Proof fixtures
+### Proof Fixtures
 
 For the generation of the following fixtures the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of the ASCII-encoded 30 first digits of pi)
 
@@ -1735,7 +1735,7 @@ And the messages defined in (#messages-1) (**Note** the ordering of the messages
 {{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}
 ```
 
-### Proof fixtures
+### Proof Fixtures
 
 Similarly to the proof fixtures for the BLS12381-SHA-256 ciphersuite, the generation of the following fixtures uses the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars), in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of the ASCII-encoded 30 first digits of pi).
 
@@ -1814,7 +1814,7 @@ Orie Steele, Christian Paquin, Alessandro Guggino, Tomislav Markovski and Greg B
 
 {backmatter}
 
-# BLS12-381 hash\_to\_curve definition using SHAKE-256
+# BLS12-381 hash\_to\_curve Definition Using SHAKE-256
 
 The following defines a hash\_to\_curve suite [@!I-D.irtf-cfrg-hash-to-curve] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (xof) of SHAKE-256 as per the guidance defined in section 8.9 of [@!I-D.irtf-cfrg-hash-to-curve].
 
