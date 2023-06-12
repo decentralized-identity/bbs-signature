@@ -364,6 +364,8 @@ The operations of this section make use of functions and sub-routines defined in
 
 The following operations also make use of the `create_generators` operation defined in (#generators-calculation), to create generator points on `G1` (see [Messages and Generators](#generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See (#generators-calculation) for more details.
 
+**Note** The utility functions used by the core operations of this section could fail (return INVALID). In that case, the calling operation MUST also immediately return INVALID and abort. Because under normal execution (i.e., given the correctness of the input arguments and execution of the procedure's steps), the conditions for a sub-routine to return INVALID will not be met, to increase readability the core operations do not perform explicit checks on the sub-routines results. However, an implementation should be able to catch such errors (i.e., a sub-routine returning INVALID) and abort execution.
+
 ### Signature Generation (Sign)
 
 This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages (as scalar values, see [Messages](#messages)).
@@ -791,7 +793,7 @@ This operation describes how to hash an arbitrary octet string to `n` scalar val
 
 This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). If an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). Note however, that the hash\_to\_curve document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For this reason, we don’t directly use hash\_to\_field here, rather we define a similar operation (hash\_to\_scalar), making direct use of the expand\_message function, that will be defined by the hash-to-curve suite used (i.e., either expand\_message\_xmd or expand\_message\_xof). If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
 
-The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!I-D.irtf-cfrg-hash-to-curve] for guidance on using larger dst values. If a dst is not supplied, its value MUST default to the octet string returned from ciphersuit\_id || "H2S\_", where ciphersuite\_id is the octet string representing the unique ID of the ciphersuite and "H2S_" is an ASCII string comprised of 4 bytes.
+The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!I-D.irtf-cfrg-hash-to-curve] for guidance on using larger dst values. If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "H2S\_", where ciphersuite\_id is the octet string representing the unique ID of the ciphersuite and "H2S_" is an ASCII string comprised of 4 bytes.
 
 **Note** It is possible that the `hash_to_scalar` procedure will return an error, if the underlying `expand_message` operation aborts. See [@!I-D.irtf-cfrg-hash-to-curve], Section 5.3, for more details on the cases that `expand_message` will abort (note that the input term `len_in_bytes` of `expand_message` in the Hash-to-Curve document equals `count * expand_len` in our case).
 
@@ -855,8 +857,8 @@ Inputs:
 - Q_1 (REQUIRED), point of G1 (the first point returned from
                   create_generators).
 - H_Points (REQUIRED), array of points of G1.
-- header (OPTIONAL), an octet string. If not supplied, it must default to
-                     the empty octet string ("").
+- header (OPTIONAL), an octet string. If not supplied, it must default
+                     to the empty octet string ("").
 
 Parameters:
 
@@ -879,12 +881,11 @@ Procedure:
 
 1. dom_array = (L, Q_1, H_1, ..., H_L)
 2. dom_octs = serialize(dom_array) || ciphersuite_id
-3. if dom_octs is INVALID, return INVALID
-4. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
-5. return hash_to_scalar(dom_input)
+3. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
+4. return hash_to_scalar(dom_input)
 ```
 
-**Note**: If the header is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 7), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
+**Note**: If the header is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 3), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
 
 ## Challenge Calculation
 
@@ -920,15 +921,15 @@ Preconditions:
 
 1. if R > 2^64 - 1 or R != length(msg_array), return INVALID
 2. if length(ph) > 2^64 - 1, return INVALID
+3. for i in i_array, if i > 2^64 - 1, return INVALID
 
 Procedure:
 
 1. c_arr = (Abar, Bbar, C, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
 2. c_octs = serialize(c_array)
-3. if c_octs is INVALID, return INVALID
-4. return hash_to_scalar(c_octs || I2OSP(length(ph), 8) || ph)
+3. return hash_to_scalar(c_octs || I2OSP(length(ph), 8) || ph)
 ```
-**Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `calculate_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 9).
+**Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `calculate_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 3).
 
 ## Serialization
 
@@ -1240,7 +1241,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the [Notation](#notation) section) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
 
-- expand\_len: the length to expand a message to, during hash\_to\_scalar in (#hash-to-scalar). This length MUST be defined in a way that will not cause the expand\_message operation specified by the hash\_to\_curve\_suite to abort. It MUST also be defined to be larger than `ceil((ceil(log2(r))+k)/8)`, where `log2(r)` and `k` are defined by each ciphersuite. If both of those restrictions cannot be satisfied, a different hash\_to\_curve suite and curve may be chosen.
+- expand\_len: The length to expand a message to, during hash\_to\_scalar in (#hash-to-scalar). This length MUST be defined in a way that will not cause the expand\_message operation specified by the hash\_to\_curve\_suite to abort. It MUST also be defined to be larger than `ceil((ceil(log2(r))+k)/8)`, where `log2(r)` and `k` are defined by each ciphersuite. If both of those restrictions cannot be satisfied, a different hash\_to\_curve suite and curve may be chosen.
 
 - P1: A fixed point in the G1 subgroup.
 
