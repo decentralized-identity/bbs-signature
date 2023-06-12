@@ -217,8 +217,8 @@ point\_to\_octets\_g1(P) -> ostr, point\_to\_octets\_g2(P) -> ostr
 octets\_to\_point\_g1(ostr) -> P, octets\_to\_point\_g2(ostr) -> P
 : returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g\* function. This operation is also known as deserialization.
 
-subgroup\_check(P) -> VALID or INVALID
-: returns VALID when the point P is an element of the subgroup of order r, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element. In some cases, faster checks may also exist, e.g., [@Bowe19].
+subgroup\_check\_g2(P) -> VALID or INVALID
+: returns VALID if the point P is in a subgroup of order `r` of E2, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element of E2. In some cases, faster checks may also exist, e.g., [@Bowe19].
 
 ## Organization of this document
 
@@ -350,8 +350,7 @@ Outputs:
 
 Procedure:
 
-1. W = SK * P2
-2. return point_to_octets_g2(W)
+1. return SK * P2
 ```
 
 ## Core Operations
@@ -364,6 +363,8 @@ The operations of this section make use of functions and sub-routines defined in
 
 The following operations also make use of the `create_generators` operation defined in [Section 4.1](#generator-point-computation), to create generator points on `G1` (see [Messages and Generators](#messages-and-generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See [Section 4.1](#generator-point-computation) for more details.
 
+All core operations defined in this section, accept as input the Issuer's public key (PK), as point of G2 different from the `Identity_G2`. Checking the public key validity, before passing it to one of the core operations is crucial. The PK MUST be checked using the `public_key_validate` operation defined in (#public-key-validation). Not checking the PK, creates severe security vulnerabilities. See (#validating-public-keys) for more details.
+
 ### Sign
 
 This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages (as scalar values, see [Messages](#messages)).
@@ -375,8 +376,9 @@ Inputs:
 
 - SK (REQUIRED), a non negative integer mod r outputted by the KeyGen
                  operation.
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk
-                 operation provided the above SK as input.
+- PK (REQUIRED), a point of G2, different from the Identity_G2 point,
+                 outputted by the SkToPk operation provided the above SK
+                 as input.
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
@@ -431,8 +433,7 @@ result = Verify(PK, signature, header, messages)
 
 Inputs:
 
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk
-                 operation.
+- PK (REQUIRED), a point of G2, different from the Identity_G2 point.
 - signature (REQUIRED), an octet string of the form outputted by the
                         Sign operation.
 - header (OPTIONAL), an octet string containing context and application
@@ -459,10 +460,8 @@ Deserialization:
 1. signature_result = octets_to_signature(signature)
 2. if signature_result is INVALID, return INVALID
 3. (A, e) = signature_result
-4. W = octets_to_pubkey(PK)
-5. if W is INVALID, return INVALID
-6. L = length(messages)
-7. (msg_1, ..., msg_L) = messages
+4. L = length(messages)
+5. (msg_1, ..., msg_L) = messages
 
 Procedure:
 
@@ -470,7 +469,7 @@ Procedure:
 2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 3. if domain is INVALID, return INVALID
 4. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-5. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
+5. if e(A, PK + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
 6. return VALID
 ```
 
@@ -489,8 +488,7 @@ proof = ProofGen(PK, signature, header, ph, messages, disclosed_indexes)
 
 Inputs:
 
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk
-                 operation.
+- PK (REQUIRED), a point of G2, different from the Identity_G2 point.
 - signature (REQUIRED), an octet string of the form outputted by the
                         Sign operation.
 - header (OPTIONAL), an octet string containing context and application
@@ -572,8 +570,7 @@ result = ProofVerify(PK, proof, header, ph,
 
 Inputs:
 
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk
-                 operation.
+- PK (REQUIRED), a point of G2, different from the Identity_G2 point.
 - proof (REQUIRED), an octet string of the form outputted by the
                     ProofGen operation.
 - header (OPTIONAL), an optional octet string containing context and
@@ -610,15 +607,13 @@ Deserialization:
 1.  proof_result = octets_to_proof(proof)
 2.  if proof_result is INVALID, return INVALID
 3.  (Abar, Bbar, c, r2^, r3^, commitments) = proof_result
-4.  W = octets_to_pubkey(PK)
-5.  if W is INVALID, return INVALID
-6.  U = length(commitments)
-7.  R = length(disclosed_indexes)
-8.  L = R + U
-9.  (i1, ..., iR) = disclosed_indexes
-10. (j1, ..., jU) = range(1, L) \ disclosed_indexes
-11. (msg_i1, ..., msg_iR) = disclosed_messages
-12. (m^_j1, ...., m^_jU) = commitments
+4.  U = length(commitments)
+5.  R = length(disclosed_indexes)
+6.  L = R + U
+7.  (i1, ..., iR) = disclosed_indexes
+8.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
+9.  (msg_i1, ..., msg_iR) = disclosed_messages
+10. (m^_j1, ...., m^_jU) = commitments
 
 Preconditions:
 
@@ -637,10 +632,10 @@ Procedure:
 7.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 8.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c
 9.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
-                             (msg_i1, ..., msg_iR), domain, ph)
+                                     (msg_i1, ..., msg_iR), domain, ph)
 10. if cv is INVALID, return INVALID
 11. if c != cv, return INVALID
-12. if e(Abar, W) * e(Bbar, -P2) != Identity_GT, return INVALID
+12. if e(Abar, PK) * e(Bbar, -P2) != Identity_GT, return INVALID
 13. return VALID
 ```
 
@@ -830,21 +825,21 @@ Procedure:
 
 ## Domain Calculation
 
-This operation calculates the domain value, a scalar representing the distillation of all essential contextual information for a signature. The same domain value must be calculated by all parties (the signer, the prover, and the verifier) for both the signature and proofs to be validated.
+This operation calculates the domain value, a scalar representing the distillation of all essential contextual information for a signature. The same domain value must be calculated by all parties (the Signer, the Prover, and the Verifier) for both the signature and proofs to be validated.
 
 The input to the domain value includes an octet string called the header, chosen by the signer and meant to encode any information that is required to be revealed by the prover (such as an expiration date, or an identifier for the target audience). This is in contrast to the signed message values, which may be withheld during a proof.
 
 When a signature is calculated, the domain value is combined with a specific generator point (`Q_1`, see [Sign](#sign)) to protect the integrity of the public parameters and the header.
 
-This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
+This operation makes use of the `serialize` and `hash_to_scalar` functions, defined in (#serialize) and (#hash-to-scalar) respectively.
 
 ```
 domain = calculate_domain(PK, Q_1, H_Points, header)
 
 Inputs:
 
-- PK (REQUIRED), an octet string, representing the public key of the
-                 Signer of the form outputted by the SkToPk operation.
+- PK (REQUIRED), a point of G2, different from the Identity_G2 point,
+                 representing the Signer's public key.
 - Q_1 (REQUIRED), point of G1 (the first point returned from
                   create_generators).
 - H_Points (REQUIRED), array of points of G1.
@@ -864,10 +859,10 @@ Procedure:
 1.  L = length(H_Points)
 2.  if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
 3.  (H_1, ..., H_L) = H_Points
-4.  dom_array = (L, Q_1, H_1, ..., H_L)
+4.  dom_array = (PK, L, Q_1, H_1, ..., H_L)
 5.  dom_octs = serialize(dom_array) || ciphersuite_id
 6.  if dom_octs is INVALID, return INVALID
-7.  dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
+7.  dom_input = dom_octs || I2OSP(length(header), 8) || header
 8.  domain = hash_to_scalar(dom_input)
 9.  if domain is INVALID, return INVALID
 10. return domain
@@ -1111,40 +1106,40 @@ Procedure:
 
 16. if index != length(proof_octets), return INVALID
 17. msg_commitments = ()
-18. If j > 3, set msg_commitments = (s_3, ..., s_(j-1))
+18. if j > 3, set msg_commitments = (s_3, ..., s_(j-1))
 19. return (A_0, A_1, s_0, s_1, s_2, msg_commitments)
 ```
 
-### OctetsToPublicKey
+## Public Key Validation
 
-This operation describes how to decode an octet string representing a public key, validates it and returns the corresponding point in G2. Steps 2 to 5 check if the public key is valid. As an optimization, implementations MAY cache the result of those steps, to avoid unnecessarily repeating validation for known public keys.
+This operation describes how to validate the Signer's public key (PK). It uses the `subgroup_check_g2` operation defined in [Notation](#notation). It requires the PK to be a valid point of G2 different from the identity point.
 
 ```
-W = octets_to_pubkey(PK)
+result = public_key_validate(PK)
 
 Inputs:
 
-- PK, an octet string. A public key in the form outputted by the SkToPK
-      operation
+- PK, an elliptic curve point.
 
 Outputs:
 
-- W, a valid point in G2 or INVALID
+- result, either VALID or INVALID
 
 Procedure:
 
-1. W = octets_to_point_g2(PK)
-2. If W is INVALID, return INVALID
-3. if subgroup_check(W) is INVALID, return INVALID
-4. If W == Identity_G2, return INVALID
-5. return W
+1. if PK not a point of E2, return INVALID
+2. if subgroup_check_g2(PK) is INVALID, return INVALID
+3. if PK == Identity_G2, return INVALID
+4. return VALID
 ```
+
+**Note** Checking that a point is on the E2 curve (step 1 of the above operation) can be implemented by validating that the `(x, y)` coordinates of the inputted point `PK = (x, y)`, satisfies the equation of the elliptic curve E2.
 
 # Security Considerations
 
 ## Validating public keys
 
-It is RECOMENDED for any operation in [Core Operations](#core-operations) involving public keys, that they deserialize the public key first using the [OctetsToPublicKey](#octetstopublickey) operation, even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure (see the [OctetsToPublicKey](#octetstopublickey) section) returns INVALID, the calling operation should also return INVALID and abort. An example of where this recommendation applies is the [Sign](#sign) operation. An example of where an explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required is the [Verify](#verify) operation.
+All core algorithms defined in (#core-operations) require the Signer's public key (PK) as input. Note that the core algorithms expect PK to be a valid point of G2 different from the Identity point. It is REQUIRED to use `public_key_validate` defined in (#public-key-validation) to validate the PK. If `public_key_validate` returns INVALID the application MUST abort. As an optimization, implementations MAY cache the result of the `public_key_validate` operation, to avoid unnecessarily repeating validation for known valid public keys.
 
 ## Point de-serialization
 
