@@ -646,7 +646,7 @@ Procedure:
 4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 6.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-7.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c 
+7.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c
 8.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                                       (msg_i1, ..., msg_iR), domain, ph)
 9.  if c != cv, return INVALID
