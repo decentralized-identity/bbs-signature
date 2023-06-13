@@ -1256,7 +1256,7 @@ The following section defines the format of the unique identifier for the cipher
 
   *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
 
-  *  CG\_ID is the ID of the create generators used, i.e., `CREATE_GENERATORS_ID` as defined in the [Create Generators](#generator-point-computation) section.
+  *  CG\_ID is the ID of the create generators used, i.e., `CREATE_GENERATORS_ID` as defined in the (#generators-calculation) section.
 
   *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
 
@@ -1292,7 +1292,7 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 **Generator parameters**:
 
-- create\_generators: the operation with which to create a set of generators. See (#generator-point-computation).
+- create\_generators: the operation with which to create a set of generators. See (#generators-calculation).
 
 ## BLS12-381 Ciphersuites
 
