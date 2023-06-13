@@ -385,8 +385,8 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
-                       to the empty array "()".
+- messages (OPTIONAL), a vector of octet strings. If not supplied, it
+                       defaults to the empty array "()".
 
 Parameters:
 
@@ -411,7 +411,7 @@ Outputs:
 Deserialization:
 
 1. L = length(messages)
-2. (msg_1, ..., msg_L) = messages
+2. (msg_1, ..., msg_L) = messages_to_scalars(messages)
 
 Procedure:
 
@@ -465,7 +465,7 @@ Deserialization:
 4. W = octets_to_pubkey(PK)
 5. if W is INVALID, return INVALID
 6. L = length(messages)
-7. (msg_1, ..., msg_L) = messages
+7. (msg_1, ..., msg_L) = messages_to_scalars(messages)
 
 Procedure:
 
@@ -622,7 +622,7 @@ Deserialization:
 8.  L = R + U
 9.  (i1, ..., iR) = disclosed_indexes
 10. (j1, ..., jU) = range(1, L) \ disclosed_indexes
-11. (msg_i1, ..., msg_iR) = disclosed_messages
+11. (msg_i1, ..., msg_iR) = messages_to_scalars(disclosed_messages)
 12. (m^_j1, ...., m^_jU) = commitments
 
 ABORT if:
@@ -745,12 +745,16 @@ Procedure:
 
 There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) operations.
 
+```
+(scalar_1, ..., scalar_n) = messages_to_scalars(messages, dst)
+```
+
 ### Message to Scalar as Hash
 
 This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_", where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_" is an ASCII string comprised of 26 bytes.
 
 ```
-msg_scalar = MapMessageToScalarAsHash(msg, dst)
+msg_scalar = hash_messages_to_scalars(messages, dst)
 
 Inputs:
 
@@ -772,6 +776,13 @@ Procedure:
 
 1. return hash_to_scalar(msg, dst)
 ```
+
+### Define a new Message to Scalar Map
+
+A new `message_to_scalar` operation is REQUIRED to adhere to the following rules:
+
+1. The operation MUST be a 1-1 mapping between message and scalar values with high probability i.e., the probability of 2 messages resulting to the same scalar is at most 1/2^k, where k the security level of the ciphersuite.
+2. The resulting scalars MUST be independent, i.e., given any subset of those scalars, it should not be possible to derive any information about any of the other scalars or messages that did not result on those scalars.
 
 ## Hash to Scalar
 
