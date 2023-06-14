@@ -700,7 +700,7 @@ As an optimization, implementations MAY cache the result of `create_generators` 
 
 For example, an application can save 100 generator points `H_1, H_2, ..., H_100` returned from `create_generators(100)`. Then if one of the core operations needs 30 of them, the application instead of calling `create_generators` again, can just retrieve the 30 first generators `H_1, H_2, ..., H_30` from the cache instead, in the same order they where originally created (starting from the first one).
 
-The values `n` and `v` MAY also be cached in order to efficiently extend an existing list of cached generator points.
+The value of `v` MAY also be cached in order to efficiently extend an existing list of cached generator points.
 
 ```
 generators = create_generators(count)
@@ -742,17 +742,11 @@ Outputs:
 
 Procedure:
 
-1.  v = expand_message(generator_seed, seed_dst, expand_len)
-2.  n = 1
-3.  for i in range(1, count):
-4.     v = expand_message(v || I2OSP(n, 4), seed_dst, expand_len)
-5.     n = n + 1
-6.     generator_i = Identity_G1
-7.     candidate = hash_to_curve_g1(v, generator_dst)
-8.     if candidate in (generator_1, ..., generator_i, P_1):
-9.        go back to step 4
-10.    generator_i = candidate
-11. return (generator_1, ..., generator_count)
+1. v = expand_message(generator_seed, seed_dst, expand_len)
+2. for i in range(1, count):
+3.    v = expand_message(v || I2OSP(i, 4), seed_dst, expand_len)
+4.    generator_i = hash_to_curve_g1(v, generator_dst)
+5. return (generator_1, ..., generator_count)
 ```
 
 ## Message to Scalar
