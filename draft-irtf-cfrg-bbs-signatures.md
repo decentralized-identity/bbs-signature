@@ -166,6 +166,9 @@ I2OSP
 OS2IP
 : An operation that transforms a octet string into an non-negative integer, defined in Section 4 of [@!RFC8017]. Note, the input of this operation must be in big-endian order.
 
+INVALID, ABORT
+: Error indicators. INVALID refers to an error encountered during the Deserialization or Procedure steps of an operation. An INVALID value can be returned by a subroutine and handled by the calling operation. ABORT refers to an error encountered in one of the Preconditions of an operation. ABORT will cause any operation to stop execution. An operation calling a subroutine that aborted must also immediately abort.
+
 ## Notation
 
 The following notation and primitives are used:
@@ -364,7 +367,7 @@ The operations of this section make use of functions and sub-routines defined in
 
 The following operations also make use of the `create_generators` operation defined in (#generators-calculation), to create generator points on `G1` (see [Messages and Generators](#generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See (#generators-calculation) for more details.
 
-**Note** The utility functions used by the core operations of this section could fail (return INVALID). In that case, the calling operation MUST also immediately return INVALID and abort. Because under normal execution (i.e., given the correctness of the input arguments and execution of the procedure's steps), the conditions for a sub-routine to return INVALID will not be met, to increase readability the core operations do not perform explicit checks on the sub-routines results. However, an implementation should be able to catch such errors (i.e., a sub-routine returning INVALID) and abort execution.
+**Note** Some of the utility functions used by the core operations of this section could fail (ABORT). In that case, the calling operation MUST also immediately abort.
 
 ### Signature Generation (Sign)
 
@@ -412,7 +415,7 @@ Deserialization:
 
 Preconditions:
 
-1. if L > 2^64 - 1 or length(header) > 2^64 - 1, return INVALID
+1. if L > 2^64 - 1 or length(header) > 2^64 - 1, ABORT
 
 Procedure:
 
@@ -470,7 +473,7 @@ Deserialization:
 
 Preconditions:
 
-1. if L > 2^64 - 1 or length(header) > 2^64 - 1, return INVALID
+1. if L > 2^64 - 1 or length(header) > 2^64 - 1, ABORT
 
 Procedure:
 
@@ -545,9 +548,8 @@ Deserialization:
 
 Preconditions:
 
-1. if L > 2^64 - 1 or length(header) > 2^64 - 1, return INVALID
-2. if length(ph) > 2^64 - 1, return INVALID
-3. if R > 2^64 - 1, return INVALID
+1. if L > 2^64 - 1 or R > 2^64 - 1, ABORT
+2. if length(header) > 2^64 - 1 or length(ph) > 2^64 - 1, ABORT
 
 Procedure:
 
@@ -634,11 +636,10 @@ Deserialization:
 
 Preconditions:
 
-1. if L > 2^64 - 1 or length(header) > 2^64 - 1, return INVALID
-2. if length(ph) > 2^64 - 1, return INVALID
-3. if R > 2^64 - 1, return INVALID
-4. for i in (i1, ..., iR), if i < 1 or i > L, return INVALID
-5. if length(disclosed_messages) != R, return INVALID
+1. if L > 2^64 - 1 or R > 2^64 - 1, ABORT
+2. if length(header) > 2^64 - 1 or length(ph) > 2^64 - 1, ABORT
+3. for i in (i1, ..., iR), if i < 1 or i > L, ABORT
+4. if length(disclosed_messages) != R, ABORT
 
 Procedure:
 
@@ -662,8 +663,6 @@ Procedure:
 
 This operation returns the requested number of pseudo-random scalars, using the `get_random` operation (see [Parameters](#parameters)). The operation makes multiple calls to `get_random`. It is REQUIRED that each call will be independent from each other, as to ensure independence of the returned pseudo-random scalars.
 
-The required length of the `get_random` output is defined as `expand_len`. Each value returned by the `get_random` function is reduced modulo the group order `r`. To avoid biased results when creating the random scalars, the output of `get_random` MUST be at least `(ceil(log2(r))+k` bytes long, where `k` is the targeted security level specified by the ciphersuite (see Section 5 in [@!I-D.irtf-cfrg-hash-to-curve] for more details). ProofGen defines `expand_len = ceil((ceil(log2(r))+k)/8)`. For both the [BLS12-381-SHAKE-256](#bls12-381-shake-256) and [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuites, `log2(r) = 255` and `k = 128` resulting to `expand_len = 48`. See [Section 5.10](#randomness-requirements) for further security considerations and requirements around the generated randomness.
-
 **Note**: The security of the proof generation algorithm ([ProofGen](#proof-generation-proofgen)) is highly dependant on the quality of the `get_random` function. Care must be taken to ensure that a cryptographically secure pseudo-random generator is chosen, and that its outputs are not leaked to an adversary. See also [Section 5.10](#randomness-requirements) for more details.
 
 ```
@@ -678,8 +677,7 @@ Parameters:
 
 - get_random, a pseudo random function with extendable output, returning
               uniformly distributed pseudo random bytes.
-- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
-                                          the ciphersuite.
+- expand_len, the expend_len value defined by the ciphersuite.
 
 Outputs:
 
@@ -736,8 +734,7 @@ Definitions:
                  ciphersuite_id is defined by the ciphersuite and
                  "SIG_GENERATOR_DST_" is an ASCII string comprised of
                  18 bytes.
-- seed_len = ceil((ceil(log2(r)) + k)/8), where r and k are defined by
-                                          the ciphersuite.
+- expand_len, the expend_len value defined by the ciphersuite.
 
 Outputs:
 
@@ -745,10 +742,10 @@ Outputs:
 
 Procedure:
 
-1.  v = expand_message(generator_seed, seed_dst, seed_len)
+1.  v = expand_message(generator_seed, seed_dst, expand_len)
 2.  n = 1
 3.  for i in range(1, count):
-4.     v = expand_message(v || I2OSP(n, 4), seed_dst, seed_len)
+4.     v = expand_message(v || I2OSP(n, 4), seed_dst, expand_len)
 5.     n = n + 1
 6.     generator_i = Identity_G1
 7.     candidate = hash_to_curve_g1(v, generator_dst)
@@ -758,11 +755,11 @@ Procedure:
 11. return (generator_1, ..., generator_count)
 ```
 
-# Message to Scalar
+## Message to Scalar
 
 There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) operations.
 
-## Message to Scalar as Hash
+### Message to Scalar as Hash
 
 This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_", where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_" is an ASCII string comprised of 26 bytes.
 
@@ -779,23 +776,24 @@ Inputs:
 
 Outputs:
 
-- msg_scalar, a scalar value.
+- msg_scalar, a scalar.
+
+Preconditions:
+
+1. if length(msg) > 2^64 - 1 or length(dst) > 255, ABORT
 
 Procedure:
 
-1. if length(msg) > 2^64 - 1 or length(dst) > 255 return INVALID
-2. return hash_to_scalar(msg, dst)
+1. return hash_to_scalar(msg, dst)
 ```
 
 ## Hash to Scalar
 
 This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To hash a message to a scalar that would be passed as input to the [Sign](#sisignature-generation-signgn), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
-This operation makes use of expand\_message defined in [@!I-D.irtf-cfrg-hash-to-curve], in a similar way used by the hash\_to\_field operation of Section 5 from the same document (with the additional checks for getting a scalar that is 0). If an implementer wants to use hash\_to\_field instead, they MUST use the multiplicative group of integers mod r (Fr), as the target group (F). Note however, that the hash\_to\_curve document, makes use of hash\_to\_field with the target group being the multiplicative group of integers mod p (Fp). For this reason, we don’t directly use hash\_to\_field here, rather we define a similar operation (hash\_to\_scalar), making direct use of the expand\_message function, that will be defined by the hash-to-curve suite used (i.e., either expand\_message\_xmd or expand\_message\_xof). If someone also has a hash\_to\_field implementation available, with the target group been Fr, they can use this instead (adding the check for a scalar been 0).
-
 The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!I-D.irtf-cfrg-hash-to-curve] for guidance on using larger dst values. If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "H2S\_", where ciphersuite\_id is the octet string representing the unique ID of the ciphersuite and "H2S_" is an ASCII string comprised of 4 bytes.
 
-**Note** It is possible that the `hash_to_scalar` procedure will return an error, if the underlying `expand_message` operation aborts. See [@!I-D.irtf-cfrg-hash-to-curve], Section 5.3, for more details on the cases that `expand_message` will abort (note that the input term `len_in_bytes` of `expand_message` in the Hash-to-Curve document equals `count * expand_len` in our case).
+**Note** This operation makes use of `expand_message` defined in [@!I-D.irtf-cfrg-hash-to-curve]. The operation `expand_message` may fail (abort). In that case, `hash_to_scalar` MUST also ABORT.
 
 ```
 hashed_scalar = hash_to_scalar(msg_octets, dst)
@@ -814,27 +812,22 @@ Parameters:
                        ciphersuite.
 - expand_message, the expand_message operation defined by the suite
                   specified by the hash_to_curve_suite parameter.
-
-Definitions:
-
-- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
-                                          the ciphersuite.
+- expand_len, the expend_len value defined by the ciphersuite.
 
 Outputs:
 
-- hashed_scalar, a non-zero scalar mod r.
+- hashed_scalar, a scalar.
+
+Precoditions:
+
+- if len(dsg) > 255, ABORT
 
 Procedure:
 
-1. counter = 0
-2. hashed_scalar = 0
-3. while hashed_scalar == 0:
-4.     if counter > 255, return INVALID
-5.     msg_prime = msg_octets || I2OSP(counter, 1)
-6.     uniform_bytes = expand_message(msg_prime, dst, expand_len)
-7.     hashed_scalar = OS2IP(uniform_bytes) mod r
-8.     counter = counter + 1
-9. return hashed_scalar
+1. msg_prime = msg_octets || I2OSP(counter, 1)
+2. uniform_bytes = expand_message(msg_prime, dst, expand_len)
+3. hashed_scalar = OS2IP(uniform_bytes) mod r
+4. return hashed_scalar
 ```
 
 ## Domain Calculation
@@ -866,7 +859,7 @@ Parameters:
 
 Outputs:
 
-- domain, a scalar value or INVALID.
+- domain, a scalar.
 
 Deserialization:
 
@@ -875,7 +868,7 @@ Deserialization:
 
 Preconditions:
 
-1. if length(header) > 2^64 - 1 or L > 2^64 - 1, return INVALID
+1. if length(header) > 2^64 - 1 or L > 2^64 - 1, ABORT
 
 Procedure:
 
@@ -909,7 +902,7 @@ Inputs:
 
 Outputs:
 
-- challenge, a scalar or INVALID.
+- challenge, a scalar.
 
 Deserialization:
 
@@ -919,9 +912,9 @@ Deserialization:
 
 Preconditions:
 
-1. if R > 2^64 - 1 or R != length(msg_array), return INVALID
-2. if length(ph) > 2^64 - 1, return INVALID
-3. for i in i_array, if i > 2^64 - 1, return INVALID
+1. if R > 2^64 - 1 or R != length(msg_array), ABORT
+2. if length(ph) > 2^64 - 1, ABORT
+3. for i in i_array, if i > 2^64 - 1, ABORT
 
 Procedure:
 
@@ -929,6 +922,7 @@ Procedure:
 2. c_octs = serialize(c_array)
 3. return hash_to_scalar(c_octs || I2OSP(length(ph), 8) || ph)
 ```
+
 **Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `calculate_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 3).
 
 ## Serialization
@@ -1241,7 +1235,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the [Notation](#notation) section) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
 
-- expand\_len: The length to expand a message to, during hash\_to\_scalar in (#hash-to-scalar). This length MUST be defined in a way that will not cause the expand\_message operation specified by the hash\_to\_curve\_suite to abort. It MUST also be defined to be larger than `ceil((ceil(log2(r))+k)/8)`, where `log2(r)` and `k` are defined by each ciphersuite. If both of those restrictions cannot be satisfied, a different hash\_to\_curve suite and curve may be chosen.
+- expand\_len: Must be defined to be at least `ceil((ceil(log2(r))+k)/8)`, where `log2(r)` and `k` are defined by each ciphersuite (see Section 5 in [@!I-D.irtf-cfrg-hash-to-curve] for a more detailed explanation of this definition).
 
 - P1: A fixed point in the G1 subgroup.
 
