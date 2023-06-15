@@ -1,14 +1,14 @@
 {
-  "caseName": "single message signature",
+  "caseName": "invalid single message signature (modified message)",
   "signerKeyPair": {
-    "secretKey": "4a39afffd624d69e81808b2e84385cc80bf86adadf764e030caa46c231f2a8d7",
-    "publicKey": "aaff983278257afc45fa9d44d156c454d716fb1a250dfed132d65b2009331f618c623c14efa16245f50cc92e60334051087f1ae92669b89690f5feb92e91568f95a8e286d110b011e9ac9923fd871238f57d1295395771331ff6edee43e4ccc6"
+    "secretKey": "63bf6d84ff9dc4822dafb362189b5ef63bd89b8f44f6cefe3dd2dadfa9732e39",
+    "publicKey": "acac86a688f260a1fda6291505e68c36df49684c65abb302b0527c77d1392a7b32954e553e910e93b6cc6c613dc25ed0070dba3a671f82dca905c9a8f2605d2b78a142896e849ce0cbe01f098c14d64809645c87d2b788c198e41db2b862199d"
   },
   "header": "11223344556677889900aabbccddeeff",
   "messages": [
     "c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80"
   ],
-  "signature": "a7386ffaa4e70a9a44483adccc202a658e1c1f02190fb95bfd0f826a0188d73ab910c556fb3c1d9e212dea3c5e9989271a5e578c4625d290a0e7f2355eabe7584af5eb822c72319e588b2c20cd1e8256698d6108f599c2e48cf1be8e4ebfaf7ae397a5733a498d3d466b843c027311bb",
+  "signature": "846e2b50c5dd3aaa2a226dd9b624c698a27dc078f8fb9866d1cb10dcec1f38aefd11bf9fc1f19f936a410c7b3bbff5912c4b3d9b629121566bd7a4d0d6ba77ee2fe135e0db2908492fccd65f04813775",
   "result": {
     "valid": false,
     "reason": "modified message"

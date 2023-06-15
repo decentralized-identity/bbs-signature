@@ -1389,34 +1389,6 @@ Procedure:
 8. return (r_1, ...., r_count)
 ```
 
-## Key Pair
-
-The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#secret-key) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
-
-**NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
-
-Following the procedure defined in (#secret-key) with an input `IKM` value as follows
-
-```
-{{ $keyPair.ikm }}
-```
-and the following `key_info` value
-```
-{{ $keyPair.keyInfo }}
-```
-
-Outputs the following SK value
-
-```
-{{ $keyPair.keyPair.secretKey }}
-```
-
-Following the procedure defined in (#public-key) with an input SK value as above produces the following PK value
-
-```
-{{ $keyPair.keyPair.publicKey }}
-```
-
 ## Messages
 
 The following messages are used by the test vectors of both ciphersuites (unless otherwise stated).
@@ -1446,6 +1418,34 @@ The following messages are used by the test vectors of both ciphersuites (unless
 ## BLS12-381-SHAKE-256 Test Vectors
 
 Test vectors of the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite. Further fixtures are available in [additional BLS12-381-SHAKE-256 test vectors](#additional-bls12-381-shake-256-ciphersuite-test-vectors).
+
+### Key Pair
+
+The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#secret-key) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
+
+**NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
+
+Following the procedure defined in (#secret-key) with an input `IKM` value as follows
+
+```
+{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyMaterial }}
+```
+and the following `key_info` value
+```
+{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyInfo }}
+```
+
+Outputs the following SK value
+
+```
+{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyPair.secretKey }}
+```
+
+Following the procedure defined in (#public-key) with an input SK value as above produces the following PK value
+
+```
+{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyPair.publicKey }}
+```
 
 ### Map Messages to Scalars
 
@@ -1613,6 +1613,34 @@ will result to the following proof value
 
 Test vectors of the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersuite. Further fixtures are available in [additional BLS12-381-SHA-256 test vectors](#additional-bls12-381-sha-256-ciphersuite-test-vectors).
 
+### Key Pair
+
+The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#secret-key) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
+
+**NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
+
+Following the procedure defined in (#secret-key) with an input `IKM` value as follows
+
+```
+{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyMaterial }}
+```
+and the following `key_info` value
+```
+{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyInfo }}
+```
+
+Outputs the following SK value
+
+```
+{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyPair.secretKey }}
+```
+
+Following the procedure defined in (#public-key) with an input SK value as above produces the following PK value
+
+```
+{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyPair.publicKey }}
+```
+
 ### Map Messages to Scalars
 
 Similarly to how messages are mapped to scalars in [BLS12381-SHAKE-256 Test Vectors](#bls12381-sha-256-test-vectors), we are using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation to map each message to a scalar. For the [BLS12-381-SHA-256](#bls12-381-shake-256-ciphersuite) ciphersuite, on input each message in (#messages-1) and the following default dst
@@ -1691,7 +1719,7 @@ And the following message (the first message defined in (#messages-1))
 {{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}
 ```
 
-After it is mapped to the first scalar in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+After it is mapped to the first scalar in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair-1) as inputs into the Sign operations, yields the following output signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature001.signature }}
@@ -1705,7 +1733,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature004.header }}
 ```
 
-And the messages defined in (#messages-1) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+And the messages defined in (#messages-1) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair-1) as inputs into the Sign operations, yields the following output signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}
@@ -2057,7 +2085,7 @@ After is maped to the first scalar in (#map-messages-to-scalars-1), and with the
 {{ $signatureFixtures.bls12-381-sha-256.signature002.signature }}
 ```
 
-Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed.
+Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed.
 
 ### Extra Unsigned Message Signature
 
@@ -2081,7 +2109,7 @@ After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), an
 {{ $signatureFixtures.bls12-381-sha-256.signature003.signature }}
 ```
 
-Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
+Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
 
 ### Missing Message Signature
 
@@ -2105,7 +2133,7 @@ After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), an
 {{ $signatureFixtures.bls12-381-sha-256.signature005.signature }}
 ```
 
-Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
+Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
 
 ### Reordered Message Signature
 
@@ -2145,7 +2173,7 @@ After they are mapped to the corresponding scalars in (#map-messages-to-scalars-
 {{ $signatureFixtures.bls12-381-sha-256.signature006.signature }}
 ```
 
-Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed.
+Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed.
 
 ### Wrong Public Key Signature
 
@@ -2161,7 +2189,7 @@ And the messages as defined in (#messages-1), mapped to the scalars in (#map-mes
 {{ $signatureFixtures.bls12-381-sha-256.signature007.signature }}
 ```
 
-Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct.
+Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct.
 
 ### Wrong Header Signature
 
@@ -2177,7 +2205,7 @@ And the messages as defined in (#messages-1), mapped to the scalars in (#map-mes
 {{ $signatureFixtures.bls12-381-sha-256.signature008.signature }}
 ```
 
-Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed.
+Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed.
 
 ### Hash to Scalar Test Vectors
 
