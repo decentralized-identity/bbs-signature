@@ -1421,11 +1421,9 @@ Test vectors of the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciph
 
 ### Key Pair
 
-The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#secret-key) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
+The following key pair will be used for the test vectors of the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite.
 
-**NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
-
-Following the procedure defined in (#secret-key) with an input `IKM` value as follows
+Following the procedure defined in (#secret-key) with an input `key_material` value as follows
 
 ```
 {{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyMaterial }}
@@ -1615,11 +1613,9 @@ Test vectors of the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersu
 
 ### Key Pair
 
-The following key pair will be used for the test vectors of both ciphersuites. Note that it is made based on the [BLS12-381-SHA-356](#bls12-381-sha-256) ciphersuite, meaning that it uses SHA-256 as a hash function. Although [KeyGen](#secret-key) is not REQUIRED for ciphersuite compatibility, it is RECOMMENDED that implementations will NOT re-use keys across different ciphersuites (even if they are based on the same curve).
+The following key pair will be used for the test vectors of the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersuite.
 
-**NOTE**: this is work in progress and in the future, we may add different key pairs per ciphersuite for the test vectors.
-
-Following the procedure defined in (#secret-key) with an input `IKM` value as follows
+Following the procedure defined in (#secret-key) with an input `key_material` value as follows
 
 ```
 {{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyMaterial }}
