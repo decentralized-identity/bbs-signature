@@ -812,9 +812,9 @@ Outputs:
 
 - hashed_scalar, a scalar.
 
-Precoditions:
+ABORT if:
 
-- if length(dsg) > 255, ABORT
+- length(dst) > 255
 
 Procedure:
 
