@@ -720,7 +720,6 @@ Parameters:
                   specified by the hash_to_curve_suite parameter.
 - generator_seed, an octet string. A seed value selected by the
                   ciphersuite.
-- P1, fixed point of G1, defined by the ciphersuite.
 
 Definitions:
 
