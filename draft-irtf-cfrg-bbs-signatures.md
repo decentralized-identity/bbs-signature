@@ -814,14 +814,12 @@ Outputs:
 
 Precoditions:
 
-- if len(dsg) > 255, ABORT
+- if length(dsg) > 255, ABORT
 
 Procedure:
 
-1. msg_prime = msg_octets || I2OSP(counter, 1)
-2. uniform_bytes = expand_message(msg_prime, dst, expand_len)
-3. hashed_scalar = OS2IP(uniform_bytes) mod r
-4. return hashed_scalar
+1. uniform_bytes = expand_message(msg_octets, dst, expand_len)
+2. return OS2IP(uniform_bytes) mod r
 ```
 
 ## Domain Calculation
