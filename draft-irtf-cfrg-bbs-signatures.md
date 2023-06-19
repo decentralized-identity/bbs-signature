@@ -167,7 +167,7 @@ OS2IP
 : An operation that transforms a octet string into an non-negative integer, defined in Section 4 of [@!RFC8017]. Note, the input of this operation must be in big-endian order.
 
 INVALID, ABORT
-: Error indicators. INVALID refers to an error encountered during the Deserialization or Procedure steps of an operation. An INVALID value can be returned by a subroutine and handled by the calling operation. ABORT refers to an error encountered in one of the Preconditions of an operation. ABORT will cause any operation to stop execution. An operation calling a subroutine that aborted must also immediately abort.
+: Error indicators. INVALID refers to an error encountered during the Deserialization or Procedure steps of an operation. An INVALID value can be returned by a subroutine and handled by the calling operation. ABORT indicates that one of the initial constrains defined by the operation are not met. In that case, the operation will stop execution. An operation calling a subroutine that aborted must also immediately abort.
 
 ## Notation
 
@@ -413,9 +413,9 @@ Deserialization:
 1. L = length(messages)
 2. (msg_1, ..., msg_L) = messages
 
-Preconditions:
+ABORT if:
 
-1. if L > 2^64 - 1 or length(header) > 2^64 - 1, ABORT
+1. L > 2^64 - 1 or length(header) > 2^64 - 1
 
 Procedure:
 
@@ -471,9 +471,9 @@ Deserialization:
 6. L = length(messages)
 7. (msg_1, ..., msg_L) = messages
 
-Preconditions:
+ABORT if:
 
-1. if L > 2^64 - 1 or length(header) > 2^64 - 1, ABORT
+1. L > 2^64 - 1 or length(header) > 2^64 - 1
 
 Procedure:
 
@@ -546,10 +546,10 @@ Deserialization:
 11. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
 12. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
 
-Preconditions:
+ABORT if:
 
-1. if L > 2^64 - 1 or R > 2^64 - 1, ABORT
-2. if length(header) > 2^64 - 1 or length(ph) > 2^64 - 1, ABORT
+1. L > 2^64 - 1 or R > 2^64 - 1
+2. length(header) > 2^64 - 1 or length(ph) > 2^64 - 1
 
 Procedure:
 
@@ -634,12 +634,12 @@ Deserialization:
 11. (msg_i1, ..., msg_iR) = disclosed_messages
 12. (m^_j1, ...., m^_jU) = commitments
 
-Preconditions:
+ABORT if:
 
-1. if L > 2^64 - 1 or R > 2^64 - 1, ABORT
-2. if length(header) > 2^64 - 1 or length(ph) > 2^64 - 1, ABORT
-3. for i in (i1, ..., iR), if i < 1 or i > L, ABORT
-4. if length(disclosed_messages) != R, ABORT
+1. L > 2^64 - 1 or R > 2^64 - 1
+2. length(header) > 2^64 - 1 or length(ph) > 2^64 - 1
+3. for i in (i1, ..., iR), i < 1 or i > L
+4. length(disclosed_messages) != R
 
 Procedure:
 
@@ -772,9 +772,9 @@ Outputs:
 
 - msg_scalar, a scalar.
 
-Preconditions:
+ABORT if:
 
-1. if length(msg) > 2^64 - 1 or length(dst) > 255, ABORT
+1. length(msg) > 2^64 - 1 or length(dst) > 255
 
 Procedure:
 
@@ -858,9 +858,9 @@ Deserialization:
 1. L = length(H_Points)
 2. (H_1, ..., H_L) = H_Points
 
-Preconditions:
+ABORT if:
 
-1. if length(header) > 2^64 - 1 or L > 2^64 - 1, ABORT
+1. length(header) > 2^64 - 1 or L > 2^64 - 1
 
 Procedure:
 
@@ -902,11 +902,11 @@ Deserialization:
 2. (i1, ..., iR) = i_array
 3. (msg_i1, ..., msg_iR) = msg_array
 
-Preconditions:
+ABORT if:
 
-1. if R > 2^64 - 1 or R != length(msg_array), ABORT
-2. if length(ph) > 2^64 - 1, ABORT
-3. for i in i_array, if i > 2^64 - 1, ABORT
+1. R > 2^64 - 1 or R != length(msg_array)
+2. length(ph) > 2^64 - 1
+3. for i in i_array, i > 2^64 - 1
 
 Procedure:
 
@@ -1377,9 +1377,9 @@ Outputs:
 
 - mocked_random_scalars, a list of "count" pseudo random scalars
 
-Preconditions:
+ABORT if:
 
-1. if count * expand_len > 65535, return INVALID
+1. count * expand_len > 65535
 
 Procedure:
 
