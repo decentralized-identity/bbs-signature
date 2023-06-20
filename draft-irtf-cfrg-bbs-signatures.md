@@ -412,7 +412,7 @@ Deserialization:
 
 Procedure:
 
-1. (Q_1, H_1, ..., H_L) = create_generators(L+1, PK, header)
+1. (Q_1, H_1, ..., H_L) = create_generators(L+1, PK)
 2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 3. if domain is INVALID, return INVALID
 4. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)))
@@ -470,7 +470,7 @@ Deserialization:
 
 Procedure:
 
-1. (Q_1, H_1, ..., H_L) = create_generators(L+1, PK, header)
+1. (Q_1, H_1, ..., H_L) = create_generators(L+1, PK)
 2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 3. if domain is INVALID, return INVALID
 4. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
@@ -543,7 +543,7 @@ Deserialization:
 
 Procedure:
 
-1.  (Q_1, MsgGenerators) = create_generators(L+1, PK, header)
+1.  (Q_1, MsgGenerators) = create_generators(L+1, PK)
 2.  (H_1, ..., H_L) = MsgGenerators
 3.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 4.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
@@ -635,7 +635,7 @@ Preconditions:
 
 Procedure:
 
-1.  (Q_1, MsgGenerators) = create_generators(L+1, PK, header)
+1.  (Q_1, MsgGenerators) = create_generators(L+1, PK)
 2.  (H_1, ..., H_L) = MsgGenerators
 3.  (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
@@ -694,27 +694,26 @@ A `create_generators` procedure defines how to create a set of randomly sampled 
 
 - count (REQUIRED), a non-negative integer describing the number of generator points to create, which is determined in part by the number of signed messages.
 - PK (OPTIONAL), a point of G2, representing the Signer's public key.
-- header (OPTIONAL), an octet sting, representing the header of the BBS signature.
 
-As a result, the create\_generators operation MUST have the following signature,
+As a result, the create\_generators operation has the following signature,
 
 ```
-(G_1, G_2, ..., G_count) = create_generators(count, PK, header)
+(G_1, G_2, ..., G_count) = create_generators(count, PK)
 ```
 
-Each procedure MUST also define a unique `CREATE_GENERATORS_ID` to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
+Each procedure MUST define a unique `CREATE_GENERATORS_ID` to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
 
 ### Hash to Generators
 
 The `hash_to_generators` operation makes use of the primitives defined in [@!I-D.irtf-cfrg-hash-to-curve] (more specifically of `hash_to_curve` and `expand_message`) to hash a predefined seed to a set of generators. Those primitives are implicitly defined by the ciphersuite, through the choice of a hash-to-curve suite (see the `hash_to_curve_suite` parameter in (#ciphersuite-format)).
 
-**NOTE**: The `hash_to_generators` operation ignores the PK and header inputs, creating the same generators across different Signers and signatures. The final `create_generators` operation defined by the ciphersuites in (#ciphersuites), will be,
+**NOTE**: The `hash_to_generators` operation ignores the PK input, creating the same generators across different Signers and signatures. The final `create_generators` operation defined by the ciphersuites in (#ciphersuites), will be,
 
 ```
-create_generators(count, PK, header) := hash_to_generator(count)
+create_generators(count, PK) := hash_to_generator(count)
 ```
 
-As an optimization, implementations MAY cache the result of `hash_to_generators` for a specific `count` (which can be arbitrarily large, depending on the application). Care must be taken, to guarantee that the generators will be fetched from the cache in the same order they had when they where created (i.e., an application should not short or in any way rearrange the cached generators).
+Since `hash_to_generator` creates constant points, as an optimization, implementations MAY cache its result for a specific `count` (which can be arbitrarily large, depending on the application). Care must be taken, to guarantee that the generators will be fetched from the cache in the same order they had when they where created (i.e., an application should not short or in any way rearrange the cached generators).
 
 ```
 generators = hash_to_generators(count)
@@ -731,16 +730,11 @@ Parameters:
 - expand_message, the expand_message operation defined by the suite
                   specified by the hash_to_curve_suite parameter of the
                   ciphersuite.
-- P1, fixed point of G1, defined by the ciphersuite.
+- generator_seed, an octet string representing the seed from which the
+                  generators are created, defined by the ciphersuite.
 
 Definitions:
 
-- generator_seed, an octet string representing the seed from which the
-                  generators are created:
-                  ciphersuite_id || "MESSAGE_GENERATOR_SEED" where
-                  ciphersuite_id is defined by the ciphersuite and
-                  "MESSAGE_GENERATOR_SEED" is an ASCII string comprised
-                  of 22 bytes.
 - seed_dst, an octet string representing the domain separation tag:
             ciphersuite_id || "SIG_GENERATOR_SEED_" where
             ciphersuite_id is defined by the ciphersuite and
@@ -782,7 +776,7 @@ CREATE_GENERATORS_ID = "H2G_"
 
 When defining a new `create_generators` procedure, the most important property is that the returned points are pseudo-randomly chosen from the G1 group, given reasonable assumptions and cryptographic primitives. More specifically, the required properties are
 
-- The returned points should be indistinguishable from `count` uniformly radom points of G1. This means that given only the points `H_1, ..., H_i` it should be infeasible to calculate `H_(i+1)` (or any `H_j` with `j > i`), for any `i` between 1 and `count`.
+- The returned points should be indistinguishable from `count` uniformly radom points of G1. This means that given only the points `H_1, ..., H_i` it should be infeasible to guess `H_(i+1)` (or any `H_j` with `j > i`), for any `i` between 1 and `count`.
 - The returned points must be unique with very high probability, that would not lessen the targeted security level of the ciphersuite. Specifically, for a security level `k`, the probability of a collision should be at least `1/2^k`.
 - It should be infeasible to guess the discrete logarithm of the returned points, for any base, even with knowledge of the public parameters that were used to create those generators (like the `generator_seed` value in [Hash to Generators](#hash-to-generators)). Note that pseudo randomness does not necessarily imply this property. For example, an implementation that repeatably hashes a public seed value to create exponents `r_1, r_2, ..., r_count` (where `r_1 = hash(seed), r_2 = hash(r_1), ...`) and then returns the points `H_1 = P1 * r_1, H_2 = P_1 * r_2, ..., H_count = P_1 * r_count` would be insecure (given knowledge of the seed), but given knowledge of only the points `H_1, ..., H_count`, the sequence would appear random.
 - The returned points must be different from the Identity point of G1 as well as the constant point `P1` defined by the ciphersuite.
@@ -1318,7 +1312,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - hash\_to\_curve\_suite: "BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_" as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
-- P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: The G1 point returned from the `hash_to_generators` procedure ((#hash-to-generators)), with `count = 1` and generator\_seed = ciphersuite\_id || "BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
     P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.BP }}
     ```
@@ -1335,10 +1329,10 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite and is defined as,
+- create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with generator\_seed = ciphersuite\_id || "MESSAGE\_GENERATOR\_SEED" and the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite,
 
     ```
-    create_generators(count, PK, header) := hash_to_generators(count)
+    create_generators(count, PK) := hash_to_generators(count)
     ```
 
 ### BLS12-381-SHA-256
@@ -1355,7 +1349,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - hash\_to\_curve\_suite: "BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_" as defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] for the G1 subgroup.
 
-- P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: The G1 point returned from the `hash_to_generators` procedure, with `count = 1` and generator\_seed = ciphersuite\_id || "BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
     P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.BP }}
     ```
@@ -1372,10 +1366,10 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite and is defined as,
+- create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with generator\_seed = ciphersuite\_id || "MESSAGE\_GENERATOR\_SEED" and the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite,
 
     ```
-    create_generators(count, PK, header) := hash_to_generators(count)
+    create_generators(count, PK) := hash_to_generators(count)
     ```
 
 # Test Vectors
