@@ -413,10 +413,6 @@ Deserialization:
 1. L = length(messages)
 2. (msg_1, ..., msg_L) = messages
 
-ABORT if:
-
-1. L > 2^64 - 1 or length(header) > 2^64 - 1
-
 Procedure:
 
 1. (Q_1, H_1, ..., H_L) = create_generators(L+1)
@@ -470,10 +466,6 @@ Deserialization:
 5. if W is INVALID, return INVALID
 6. L = length(messages)
 7. (msg_1, ..., msg_L) = messages
-
-ABORT if:
-
-1. L > 2^64 - 1 or length(header) > 2^64 - 1
 
 Procedure:
 
@@ -548,8 +540,7 @@ Deserialization:
 
 ABORT if:
 
-1. L > 2^64 - 1 or R > 2^64 - 1
-2. length(header) > 2^64 - 1 or length(ph) > 2^64 - 1
+1. for i in (i1, ..., iR), i < 1 or i > L
 
 Procedure:
 
@@ -636,10 +627,8 @@ Deserialization:
 
 ABORT if:
 
-1. L > 2^64 - 1 or R > 2^64 - 1
-2. length(header) > 2^64 - 1 or length(ph) > 2^64 - 1
-3. for i in (i1, ..., iR), i < 1 or i > L
-4. length(disclosed_messages) != R
+1. for i in (i1, ..., iR), i < 1 or i > L
+2. length(disclosed_messages) != R
 
 Procedure:
 
@@ -738,6 +727,10 @@ Definitions:
 Outputs:
 
 - generators, an array of generators.
+
+ABORT if:
+
+1. count > 2^64 - 1
 
 Procedure:
 
@@ -905,7 +898,6 @@ ABORT if:
 
 1. R > 2^64 - 1 or R != length(msg_array)
 2. length(ph) > 2^64 - 1
-3. for i in i_array, i > 2^64 - 1
 
 Procedure:
 
