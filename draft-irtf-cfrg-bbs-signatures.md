@@ -564,7 +564,7 @@ Procedure:
 9.  Bbar = B * r1 - Abar * e
 10. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
 11. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
-                                      (msg_i1, ..., msg_iR), domain, ph)
+                            (msg_i1, ..., msg_iR), domain, ph)
 12. r4 = - r1^-1 (mod r)
 13. r2^ = r2 + r4 * c (mod r)
 14. r3^ = r3 + e * r4 * c (mod r)
@@ -651,7 +651,7 @@ Procedure:
 6.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 7.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c
 8.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
-                                      (msg_i1, ..., msg_iR), domain, ph)
+                             (msg_i1, ..., msg_iR), domain, ph)
 9.  if c != cv, return INVALID
 10. if e(Abar, W) * e(Bbar, -P2) != Identity_GT, return INVALID
 11. return VALID
@@ -677,7 +677,7 @@ Parameters:
 
 - get_random, a pseudo random function with extendable output, returning
               uniformly distributed pseudo random bytes.
-- expand_len, the expend_len value defined by the ciphersuite.
+- expand_len, defined by the ciphersuite.
 
 Outputs:
 
@@ -733,7 +733,7 @@ Definitions:
                  ciphersuite_id is defined by the ciphersuite and
                  "SIG_GENERATOR_DST_" is an ASCII string comprised of
                  18 bytes.
-- expand_len, the expend_len value defined by the ciphersuite.
+- expand_len, defined by the ciphersuite.
 
 Outputs:
 
@@ -805,7 +805,7 @@ Parameters:
                        ciphersuite.
 - expand_message, the expand_message operation defined by the suite
                   specified by the hash_to_curve_suite parameter.
-- expand_len, the expend_len value defined by the ciphersuite.
+- expand_len, defined by the ciphersuite.
 
 Outputs:
 
@@ -1367,8 +1367,7 @@ Parameters:
 
 - expand_message, the expand_message operation defined by the
                   ciphersuite.
-- expand_len = ceil((ceil(log2(r))+k)/8), where r and k are defined by
-                                          the ciphersuite.
+- expand_len, defined by the ciphersuite.
 - dst = ciphersuite_id || "MOCK_RANDOM_SCALARS_DST_", where
         ciphersuite_id is defined by the ciphersuite.
 
