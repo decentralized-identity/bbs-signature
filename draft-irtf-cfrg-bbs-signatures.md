@@ -736,7 +736,7 @@ Procedure:
 
 1. v = expand_message(generator_seed, seed_dst, expand_len)
 2. for i in range(1, count):
-3.    v = expand_message(v || I2OSP(i, 4), seed_dst, expand_len)
+3.    v = expand_message(v || I2OSP(i, 8), seed_dst, expand_len)
 4.    generator_i = hash_to_curve_g1(v, generator_dst)
 5. return (generator_1, ..., generator_count)
 ```
