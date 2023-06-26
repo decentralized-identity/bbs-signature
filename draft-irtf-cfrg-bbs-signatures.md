@@ -378,6 +378,8 @@ Parameters:
                   specified by the hash_to_curve_suite parameter.
 - octet_scalar_length, non-negative integer. The length of a scalar
                        octet representation, defined by the ciphersuite.
+- create_generators, an operation that returns a number of generator
+                     points, defined by the ciphersuite.
 
 Definitions:
 
@@ -398,7 +400,7 @@ Deserialization:
 
 Procedure:
 
-1. (Q_1, H_1, ..., H_L) = create_generators(L+1)
+1. (Q_1, H_1, ..., H_L) = create_generators(L+1, PK)
 2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 3. if domain is INVALID, return INVALID
 4. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)))
@@ -432,6 +434,8 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
+- create_generators, an operation that returns a number of generator
+                     points, defined by the ciphersuite.
 
 Definitions:
 
@@ -454,7 +458,7 @@ Deserialization:
 
 Procedure:
 
-1. (Q_1, H_1, ..., H_L) = create_generators(L+1)
+1. (Q_1, H_1, ..., H_L) = create_generators(L+1, PK)
 2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 3. if domain is INVALID, return INVALID
 4. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
@@ -496,6 +500,8 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
+- create_generators, an operation that returns a number of generator
+                     points, defined by the ciphersuite.
 
 Definitions:
 
@@ -525,7 +531,7 @@ Deserialization:
 
 Procedure:
 
-1.  (Q_1, MsgGenerators) = create_generators(L+1)
+1.  (Q_1, MsgGenerators) = create_generators(L+1, PK)
 2.  (H_1, ..., H_L) = MsgGenerators
 3.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 4.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
@@ -579,6 +585,8 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
+- create_generators, an operation that returns a number of generator
+                     points, defined by the ciphersuite.
 
 Definitions:
 
@@ -615,7 +623,7 @@ Preconditions:
 
 Procedure:
 
-1.  (Q_1, MsgGenerators) = create_generators(L+1)
+1.  (Q_1, MsgGenerators) = create_generators(L+1, PK)
 2.  (H_1, ..., H_L) = MsgGenerators
 3.  (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
@@ -670,18 +678,33 @@ Procedure:
 
 ## Generators Calculation
 
-This operation defines how to create a set of generators that form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify). It takes one input, the number of generator points to create, which is determined in part by the number of signed messages.
+A `create_generators` procedure defines how to create a set of randomly sampled points from the G1 subgroup, called the generators. Generators form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify). A `create_generators` operation takes as input the following arguments,
 
-As an optimization, implementations MAY cache the result of `create_generators` for a specific `generator_seed` (determined by the ciphersuite) and `count` (which can be arbitrarily large, depending on the application). Then, during the execution of one of the [Core Operations](#core-operations), if `K` generators are needed with `K <= count`, the application can use the `K` first of the cached generators (in place of the direct call to `create_generators(K)`).
+- count (REQUIRED), a non-negative integer describing the number of generator points to create, which is determined in part by the number of signed messages.
+- PK (OPTIONAL), a point of G2, representing the Signer's public key.
 
-**NOTE**: If the generator points are retrieved from cache, the order in which they are retrieved MUST be the same as the order they were originally returned by the `create_generators` operation.
-
-For example, an application can save 100 generator points `H_1, H_2, ..., H_100` returned from `create_generators(100)`. Then if one of the core operations needs 30 of them, the application instead of calling `create_generators` again, can just retrieve the 30 first generators `H_1, H_2, ..., H_30` from the cache instead, in the same order they where originally created (starting from the first one).
-
-The values `n` and `v` MAY also be cached in order to efficiently extend an existing list of cached generator points.
+As a result, the create\_generators operation has the following signature,
 
 ```
-generators = create_generators(count)
+(G_1, G_2, ..., G_count) = create_generators(count, PK)
+```
+
+Each procedure MUST define a unique `CREATE_GENERATORS_ID` to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
+
+### Hash to Generators
+
+The `hash_to_generators` operation makes use of the primitives defined in [@!I-D.irtf-cfrg-hash-to-curve] (more specifically of `hash_to_curve` and `expand_message`) to hash a predefined seed to a set of generators. Those primitives are implicitly defined by the ciphersuite, through the choice of a hash-to-curve suite (see the `hash_to_curve_suite` parameter in (#ciphersuite-format)).
+
+**NOTE**: The `hash_to_generators` operation ignores the PK input, creating the same generators across different Signers and signatures. The final `create_generators` operation defined by the ciphersuites in (#ciphersuites), will be,
+
+```
+create_generators(count, PK) := hash_to_generator(count)
+```
+
+Since `hash_to_generator` creates constant points, as an optimization, implementations MAY cache its result for a specific `count` (which can be arbitrarily large, depending on the application). Care must be taken, to guarantee that the generators will be fetched from the cache in the same order they had when they where created (i.e., an application should not short or in any way rearrange the cached generators).
+
+```
+generators = hash_to_generators(count)
 
 Inputs:
 
@@ -689,16 +712,14 @@ Inputs:
 
 Parameters:
 
-- hash_to_curve_suite, the hash to curve suite id defined by the
-                       ciphersuite.
 - hash_to_curve_g1, the hash_to_curve operation for the G1 subgroup,
                     defined by the suite specified by the
-                    hash_to_curve_suite parameter.
+                    hash_to_curve_suite parameter of the ciphersuite.
 - expand_message, the expand_message operation defined by the suite
-                  specified by the hash_to_curve_suite parameter.
-- generator_seed, an octet string. A seed value selected by the
+                  specified by the hash_to_curve_suite parameter of the
                   ciphersuite.
-- P1, fixed point of G1, defined by the ciphersuite.
+- generator_seed, an octet string representing the seed from which the
+                  generators are created, defined by the ciphersuite.
 
 Definitions:
 
@@ -733,12 +754,29 @@ Procedure:
 10.    generator_i = candidate
 11. return (generator_1, ..., generator_count)
 ```
+The values `n` and `v` MAY also be cached in order to efficiently extend an existing list of cached generator points. The `CREATE_GENERATORS_ID` of the above operation is define as,
 
-# Message to Scalar
+```
+CREATE_GENERATORS_ID = "H2G_"
+```
+
+### Defining new ways to create generators
+
+When defining a new `create_generators` procedure, the most important property is that the returned points are pseudo-randomly chosen from the G1 group, given reasonable assumptions and cryptographic primitives. More specifically, the required properties are
+
+- The returned points should be indistinguishable from `count` uniformly radom points of G1. This means that given only the points `H_1, ..., H_i` it should be infeasible to guess `H_(i+1)` (or any `H_j` with `j > i`), for any `i` between 1 and `count`.
+- The returned points must be unique with very high probability, that would not lessen the targeted security level of the ciphersuite. Specifically, for a security level `k`, the probability of a collision should be at least `1/2^k`.
+- It should be infeasible to guess the discrete logarithm of the returned points, for any base, even with knowledge of the public parameters that were used to create those generators (like the `generator_seed` value in [Hash to Generators](#hash-to-generators)). Note that pseudo randomness does not necessarily imply this property. For example, an implementation that repeatably hashes a public seed value to create exponents `r_1, r_2, ..., r_count` (where `r_1 = hash(seed), r_2 = hash(r_1), ...`) and then returns the points `H_1 = P1 * r_1, H_2 = P_1 * r_2, ..., H_count = P_1 * r_count` would be insecure (given knowledge of the seed), but given knowledge of only the points `H_1, ..., H_count`, the sequence would appear random.
+- The returned points must be different from the Identity point of G1 as well as the constant point `P1` defined by the ciphersuite.
+- Must be constant time for a specific `count` value.
+- MUST be deterministic.
+- Must use proper domain separation for both the `create_generators` procedure, as well as all of the internally-called procedures.
+
+## Message to Scalar
 
 There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) operations.
 
-## Message to Scalar as Hash
+### Message to Scalar as Hash
 
 This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_", where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_" is an ASCII string comprised of 26 bytes.
 
@@ -1195,10 +1233,12 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 The following section defines the format of the unique identifier for the ciphersuite denoted `ciphersuite_id`, which will be represented as an ASCII encoded octet string. The REQUIRED format for this string is
 
 ```
-  "BBS_" || H2C_SUITE_ID || ADD_INFO
+  "BBS_" || H2C_SUITE_ID || CG_ID || ADD_INFO
 ```
 
   *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
+
+  *  CG\_ID is the ID of the create generators used, i.e., `CREATE_GENERATORS_ID` as defined in the (#generators-calculation) section.
 
   *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
 
@@ -1234,7 +1274,7 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 **Generator parameters**:
 
-- generator\_seed: The seed used to determine the generator points which form part of the public parameters used by the BBS signature scheme. Note there are multiple possible scopes for this seed, including: a globally shared seed (where the resulting message generators are common across all BBS signatures); a signer specific seed (where the message generators are specific to a signer); and a signature specific seed (where the message generators are specific per signature). The ciphersuite MUST define this seed OR how to compute it as a pre-cursor operation to any others.
+- create\_generators: the operation with which to create a set of generators. See (#generators-calculation).
 
 ## BLS12-381 Ciphersuites
 
@@ -1250,7 +1290,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Basic parameters**:
 
-- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
+- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_H2G\_"
 
 - hash: SHAKE-256 as defined in [@!SHA3].
 
@@ -1260,7 +1300,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - hash\_to\_curve\_suite: "BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_" as defined in [Appendix A.1](#bls12-381-hash-to-curve-definition-using-shake-256) for the G1 subgroup.
 
-- P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: The G1 point returned from the `hash_to_generators` procedure ((#hash-to-generators)), with `count = 1` and generator\_seed = ciphersuite\_id || "BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
     P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.BP }}
     ```
@@ -1277,14 +1317,17 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (an ASCII string comprised of 59 bytes) which is used by the [create_generators](#generators-calculation) operation to compute the required set of message generators.
+- create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with generator\_seed = ciphersuite\_id || "MESSAGE\_GENERATOR\_SEED" and the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite,
 
+    ```
+    create_generators(count, PK) := hash_to_generators(count)
+    ```
 
 ### BLS12-381-SHA-256
 
 **Basic parameters**:
 
-- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_"
+- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_H2G\_"
 
 - hash: SHA-256 as defined in [@!SHA2].
 
@@ -1294,7 +1337,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - hash\_to\_curve\_suite: "BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_" as defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] for the G1 subgroup.
 
-- P1: The G1 point returned from the `create_generators` procedure, with generator\_seed = "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: The G1 point returned from the `hash_to_generators` procedure, with `count = 1` and generator\_seed = ciphersuite\_id || "BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
     P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.BP }}
     ```
@@ -1311,8 +1354,11 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Generator parameters**:
 
-- generator\_seed: A global seed value of "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_MESSAGE\_GENERATOR\_SEED" (an ASCII string comprised of 57 bytes) which is used by the [create_generators](#generators-calculation) operation to compute the required set of message generators.
+- create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with generator\_seed = ciphersuite\_id || "MESSAGE\_GENERATOR\_SEED" and the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite,
 
+    ```
+    create_generators(count, PK) := hash_to_generators(count)
+    ```
 
 # Test Vectors
 
