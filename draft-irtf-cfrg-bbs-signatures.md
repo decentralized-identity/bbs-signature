@@ -782,7 +782,7 @@ When defining a new `create_generators` procedure, the most important property i
 - The returned points must be different from the Identity point of G1 as well as the constant point `P1` defined by the ciphersuite.
 - Must be constant time for a specific `count` value.
 - MUST be deterministic.
-- Must use proper domain separation for both the `create_generator` procedure, as well as all the internally called procedures.
+- Must use proper domain separation for both the `create_generators` procedure, as well as all of the internally-called procedures.
 
 ## Message to Scalar
 
