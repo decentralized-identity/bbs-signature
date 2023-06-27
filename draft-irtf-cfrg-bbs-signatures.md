@@ -385,9 +385,6 @@ Definitions:
 
 - L, is the non-negative integer representing the number of messages to
      be signed.
-- expand_dst, an octet string representing the domain separation tag:
-              ciphersuite_id || "SIG_DET_DST_", where ciphersuite_id is
-              defined by the ciphersuite.
 
 Outputs:
 
