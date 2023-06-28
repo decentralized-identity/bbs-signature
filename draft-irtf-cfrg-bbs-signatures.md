@@ -752,7 +752,7 @@ The signature of the operation is the following,
 (scalar_1, ..., scalar_L) = messages_to_scalars((msg_1, ..., msg_L))
 ```
 
-Every `messages_to_scalars` operation MUST define a unique `MESSAGES_2_SCALARS_ID` value to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
+Every `messages_to_scalars` operation MUST define a unique `MESSAGES_TO_SCALARS_ID` value to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
 
 ### Hash Messages to Scalars
 
