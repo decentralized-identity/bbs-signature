@@ -584,7 +584,7 @@ Inputs:
                      it defaults to an empty string.
 - ph (OPTIONAL), an octet string containing the presentation header. If not
                  supplied, it defaults to an empty string.
-- disclosed_messages (OPTIONAL), a vector of input\_messages. If not
+- disclosed_messages (OPTIONAL), a vector of input_messages. If not
                                  supplied, it defaults to the empty
                                  array "()".
 - disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
