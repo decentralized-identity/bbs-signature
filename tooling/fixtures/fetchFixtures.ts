@@ -1,4 +1,3 @@
-import * as keyPair from "./fixture_data/keyPair.json";
 import * as messages from "./fixture_data/messages.json";
 import * as path from "path";
 import { readdirSync  } from 'fs';
@@ -72,7 +71,21 @@ export interface MapMessageToScalarFixtureData {
 }
 
 export interface MockRngFixtureData {
+  readonly caseName: string,
+  readonly seed: string,
+  readonly dst: string,
+  readonly count: number,
   readonly mockedScalars: string[];
+}
+
+export interface KeyPairFixtureData {
+  readonly caseName: string,
+  readonly keyMaterial: string,
+  readonly keyInfo: string,
+  readonly keyPair: {
+    readonly secretKey: string,
+    readonly publicKey: string
+  }
 }
 
 export interface Fixture<T> {
@@ -130,9 +143,11 @@ export const generatorFixtures = fetchPerSuiteFixtures<GeneratorFixtureData>("",
 export const MapMessageToScalarFixtures = 
   fetchPerSuiteFixtures<MapMessageToScalarFixtureData>("", /MapMessageToScalarAsHash.json/);
 export const MockRngFixtures = fetchPerSuiteFixtures<MockRngFixtureData>("", /mockedRng.json/);
+export const KeyPairFixtures = fetchPerSuiteFixtures<KeyPairFixtureData>("", /keypair.json/);
 
 console.log("MapMessageToScalarFixtures = ", MapMessageToScalarFixtures);
 console.log("H2sFixture = ", H2sFixture);
 console.log("MockRngFixtures = ", MockRngFixtures);
+console.log("KeyPairFixtures = ", KeyPairFixtures);
 
-export { keyPair, messages };
+export { messages };
