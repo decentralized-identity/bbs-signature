@@ -1229,7 +1229,7 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 The following section defines the format of the unique identifier for the ciphersuite denoted `ciphersuite_id`, which will be represented as an ASCII encoded octet string. The REQUIRED format for this string is
 
 ```
-  "BBS_" || H2C_SUITE_ID || MESSAGES_2_SCALARS_ID || ADD_INFO
+  "BBS_" || H2C_SUITE_ID || MESSAGES_TO_SCALARS_ID || ADD_INFO
 ```
 
   *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
