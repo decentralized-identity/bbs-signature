@@ -789,7 +789,7 @@ Procedure:
 7. return (msg_scalar_1, ..., msg_scalar_L)
 ```
 
-The `MESSAGES_2_SCALARS_ID` of the `hash_messages_to_scalar` is defines as,
+The `MESSAGES_TO_SCALARS_ID` of the `hash_messages_to_scalar` is defines as,
 
 ```
 MESSAGES_2_SCALARS_ID = "HM2S_"
