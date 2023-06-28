@@ -139,8 +139,8 @@ U
 scalar
 : An integer between 0 and r-1, where r is the prime order of the selected groups, defined by each ciphersuite (see also [Notation](#notation)).
 
-input_message
-: An input message to be signed by the signature scheme. An input_message can either be either an octet string or a scalar.
+input\_message
+: An input message to be signed by the signature scheme. An input\_message can either be either an octet string or a scalar.
 
 generator
 : A valid point on the selected subgroup of the curve being used that is employed to commit a value.
