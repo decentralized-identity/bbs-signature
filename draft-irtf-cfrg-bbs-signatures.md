@@ -792,7 +792,7 @@ Procedure:
 The `MESSAGES_TO_SCALARS_ID` of the `hash_messages_to_scalar` is defines as,
 
 ```
-MESSAGES_2_SCALARS_ID = "HM2S_"
+MESSAGES_TO_SCALARS_ID = "HM2S_"
 ```
 
 ### Define a new Message to Scalar
