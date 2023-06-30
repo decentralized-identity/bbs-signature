@@ -1349,11 +1349,12 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 **Generator parameters**:
 
 - create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with generator\_seed = ciphersuite\_id || "MESSAGE\_GENERATOR\_SEED" and the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite,
+
     ```
     create_generators(count, PK) := hash_to_generators(count)
     ```
- 
-**Messages to Scalars function**
+
+**Messages to Scalars function**:
 
 - messages\_to\_scalars: hash\_messages\_to\_scalar ((#hash-messages-to-scalars))
 
@@ -1391,11 +1392,12 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 **Generator parameters**:
 
 - create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with generator\_seed = ciphersuite\_id || "MESSAGE\_GENERATOR\_SEED" and the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite,
+
     ```
     create_generators(count, PK) := hash_to_generators(count)
     ```
- 
-**Messages to Scalars function**
+
+**Messages to Scalars function**:
 
 - messages\_to\_scalars: hash\_messages\_to\_scalar ((#hash-messages-to-scalars))
 
