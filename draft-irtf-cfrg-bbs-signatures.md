@@ -766,32 +766,21 @@ When defining a new `create_generators` procedure, the most important property i
 
 ## Messages to Scalars
 
-The `messages_to_scalars` operation is used to map the messages from octet strings, to their respective scalar values, which are required by the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) operations. A `messages_to_scalars` operation accepts the following input
+The `messages_to_scalars` operation is used to map a list of input\_messages (where each input\_message can be either an octet string or a scalar value, as defined in [Terminology](#terminology)) to their respective scalar values, which are required by the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) procedures.
 
-- messages (REQUIRED), a vector of input_messages. Each input_message can be either a scalar or an octet string (see [Terminology](#terminology)).
-
-The signature of the operation is the following,
+This operation uses the `map_to_scalar` sub-routine defined in (#map-to-scalar), to transform each message to a scalar value.
 
 ```
-(scalar_1, ..., scalar_L) = messages_to_scalars((msg_1, ..., msg_L))
-```
-
-Every `messages_to_scalars` operation MUST define a unique `MESSAGES_TO_SCALARS_ID` value to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
-
-### Hash Messages to Scalars
-
-The `hash_messages_to_scalars` operation makes use of `hash_to_scalar` defined in (#hash-to-scalar) to map octet strings to a scalar.
-
-```
-msg_scalar = hash_messages_to_scalars(messages)
+msg_scalar = messages_to_scalars(messages)
 
 Inputs:
 
-- messages (REQUIRED), a list of input_messages.
+- messages (REQUIRED), a vector of input_messages.
 
 Parameters:
 
-- ciphersuite_id, an octet string. The unique ID of the ciphersuite.
+- map_to_scalar, an operation that maps an input_message and its index
+                 to a scalar value, defined by the ciphersuite.
 
 Outputs:
 
@@ -803,30 +792,75 @@ ABORT if:
 
 Procedure:
 
-1. dst = ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_"
-2. for i in (1, ..., length(messages)):
-3.     msg_i = messages[i]
-3.     if msg_i is an octet string:
-4.         msg_scalar_i = hash_to_scalar(msg_i, dst)
-5.     else:
-6.         msg_scalar_i = msg_i
-7. return (msg_scalar_1, ..., msg_scalar_L)
+1. L =  length(messages)
+2. for i in (1, ..., L):
+3.     msg_scalar_i = map_to_scalar(messages[i], i)
+4. return (msg_scalar_1, ..., msg_scalar_L)
 ```
 
-The `MESSAGES_TO_SCALARS_ID` of the `hash_messages_to_scalar` is defines as,
+### Map to Scalar
+
+As defined above, the `messages_to_scalars` operation works by repeatedly calling the `map_to_scalar` operation, that will be defined by the ciphersuite. The `map_to_scalar` operation accepts the following inputs,
+
+- message (REQUIRED), an input_message that can be either a scalar or an octet string (see [Terminology](#terminology)).
+- index (OPTIONAL), a positive integer. The index the message has in the list of signed messages.
+
+The signature of the operation is the following,
 
 ```
-MESSAGES_TO_SCALARS_ID = "HM2S_"
+msg_scalar = map_to_scalar(msg, index)
 ```
 
-### Define a new Message to Scalar
+Every `map_to_scalar` operation MUST define a unique `MAP_TO_SCALAR_ID` value to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
 
-A new `messages_to_scalars` operation is REQUIRED to adhere to the following rules:
+#### Map to Scalar as Hash
 
-1. Each message of the messages vector MUST be uniquely mapped to a specific scalar. As a result the length of the resulting scalars list MUST be the same as the length of the inputted messages list.
-2. The probability of 2 distinct messages resulting to the same scalar MUST be at most 1/2^k, where k the security level of the ciphersuite.
-3. The resulting scalars MUST be independent, i.e., given any subset of those scalars, it should not be possible to derive any information about any of the other scalars or the messages that did not result on those scalars.
-4. The operation MUST be deterministic.
+This document specifies the following `map_to_scalar` operation, called `map_to_scalar_as_hash`, that uses `hash_to_scalar` as defined in (#hash-to-scalar). Although for extendability reasons, the `map_to_scalar` operation accepts messages that can be either an octet string or a scalar value (as to support protocol specific preprocessing of a message), the `map_to_scalar_as_hash` operation used by this document only maps octet string to scalars and will abort if it gets an `input_message` that is already a scalar value. Additionally, the resulting scalar does not depend on the `index` of the message.
+
+```
+scalar = map_to_scalar_as_hash(msg)
+
+Inputs:
+
+- msg (REQUIRED), an input_message
+
+Parameters:
+
+- dst = ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_", where
+        ciphersuite_id is defined by the ciphersuite.
+
+Outputs:
+
+- scalar, a scalar value.
+
+ABORT if:
+
+1. msg not an octet string
+
+Procedure:
+
+1. return hash_to_scalar(msg, dst)
+```
+
+The `map_to_scalar` operation that will be defined by the ciphersuites of this document will be,
+
+```
+map_to_scalar(msg, index) := map_to_scalar_as_hash(msg)
+```
+
+The `MAP_TO_SCALAR_ID` of the `map_to_scalar_as_hash` operation is defines as,
+
+```
+MAP_TO_SCALAR_ID = "HM2S_"
+```
+
+### Define a new Map to Scalar
+
+To define different ways with which messages can be mapped to scalars, an application can define a new `map_to_scalar` operation, as part of a new ciphersuite. A new `map_to_scalar` function is REQUIRED to adhere to the following security rules:
+
+1. It MUST return unique values for different `msg` inputs.
+2. Different outputs MUST be independent. More specifically, knowledge of the `scalar_1 = map_to_scalar(msg_1, idx_1)`, should not give any information on the value of `scalar_2 = map_to_scalar(msg_2, idx_2)`, for any other `(msg_2, idx_2)` input pair.
+3. It MUST be deterministic.
 
 ## Hash to Scalar
 
@@ -1260,7 +1294,7 @@ The following section defines the format of the unique identifier for the cipher
 
   *  CG\_ID is the ID of the create generators used, i.e., `CREATE_GENERATORS_ID` as defined in the (#generators-calculation) section.
 
-  *  MESSAGES\_TO\_SCALARS\_ID is the ID of the messages\_to\_scalars operation, as defined in (#messages-to-scalars).
+  *  MAP\_TO\_SCALAR\_ID is the ID of the map\_to\_scalar operation, as defined in (#map-to-scalar).
 
   *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
 
@@ -1300,10 +1334,10 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 - create\_generators: the operation with which to create a set of generators. See (#generators-calculation).
 
-**Messages to Scalars function**
+**Map to Scalar function**
 
-- messages\_to\_scalars:
-a function that maps a vector of messages to a vector of scalars, as defined in (#messages-to-scalars).
+- map\_to\_scalars:
+a function that maps a message to a scalars value, as defined in (#map-to-scalar).
 
 ## BLS12-381 Ciphersuites
 
@@ -1354,9 +1388,9 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
     create_generators(count, PK) := hash_to_generators(count)
     ```
 
-**Messages to Scalars function**:
+**Map to Scalar function**:
 
-- messages\_to\_scalars: hash\_messages\_to\_scalar ((#hash-messages-to-scalars))
+- map\_to\_scalar: map\_to\_scalar\_as\_hash ((#map-to-scalar-as-hash))
 
 ### BLS12-381-SHA-256
 
@@ -1397,9 +1431,9 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
     create_generators(count, PK) := hash_to_generators(count)
     ```
 
-**Messages to Scalars function**:
+**Map to Scalar function**:
 
-- messages\_to\_scalars: hash\_messages\_to\_scalar ((#hash-messages-to-scalars))
+- map\_to\_scalar: map\_to\_scalar\_as\_hash ((#map-to-scalar-as-hash))
 
 # Test Vectors
 
@@ -1521,13 +1555,7 @@ Following the procedure defined in (#public-key) with an input SK value as above
 
 ### Map Messages to Scalars
 
-The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations, using the messages\_to\_scalars operation defined in (#messages-to-scalars). The [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite defines the use of hash\_messages\_to\_scalars operation defined in (#hash-messages-to-scalars) as the messages\_to\_scalars function, using the following default dst
-
-```
-{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.dst }}
-```
-
-The output scalars, encoded to octets using I2OSP and represented in big endian order, are the following,
+The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages), using the map\_to\_scalar\_as\_hash operation ((#map-to-scalar-as-hash)) as defined by the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
 
 ```
 {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[0].scalar }}
@@ -1711,7 +1739,7 @@ Following the procedure defined in (#public-key) with an input SK value as above
 
 ### Map Messages to Scalars
 
-The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations, using the messages\_to\_scalars operation defined in (#messages-to-scalars). Similarly to the [BLS12381-SHAKE-256 Test Vectors](#bls12381-sha-256-test-vectors), The [BLS12-381-SHA-256](#bls12-381-shake-256-ciphersuite) ciphersuite defines the use of hash\_messages\_to\_scalars operation defined in (#hash-messages-to-scalars) as the messages\_to\_scalars function, using the following default dst
+The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages), using the map\_to\_scalar\_as\_hash operation ((#map-to-scalar-as-hash)) as defined by the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersuite. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
 
 ```
 {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.dst }}
