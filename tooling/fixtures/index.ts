@@ -20,13 +20,14 @@ const main = async () => {
 
   results.forEach((result) => {
     var value = get(fixtures, result.path);
+    value = "\x22" + value + "\x22";
 
     // make everything 72 chars
     for (let i = 0; i < ~~(value.length/72); i++) {
       value = value.slice(0, i*73 + 72) + "\n" + value.slice(i*73 + 72);
     }
 
-    if (value) {
+    if (value || value === '') {
       fileContents = fileContents.replace(result.match, value);
     }
   });
