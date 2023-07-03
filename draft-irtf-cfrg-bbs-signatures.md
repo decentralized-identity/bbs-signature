@@ -1995,7 +1995,17 @@ BBS signatures when applied to the problem space of identity credentials can hel
 
 ## BLS12-381-SHAKE-256 Ciphersuite
 
-### Modified Message Signature
+### Signature Test Vectors
+
+#### No Header Valid Signature
+
+Using the messages defined in (#messages-1), with no header, along with the SK and PK values defined in (#key-pair) results in the following signature value
+
+```
+{{ $signatureFixtures.bls12-381-shake-256.signature010.signature }}
+```
+
+#### Modified Message Signature
 
 Using the following header
 
@@ -2017,7 +2027,7 @@ With the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed
 
-### Extra Unsigned Message Signature
+#### Extra Unsigned Message Signature
 
 Using the following header
 
@@ -2041,7 +2051,7 @@ With the following signature (which is a signature to only the first of the abov
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
 
-### Missing Message Signature
+#### Missing Message Signature
 
 Using the following header
 
@@ -2065,7 +2075,7 @@ With the following signature (which is a signature on all the messages defined i
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
 
-### Reordered Message Signature
+#### Reordered Message Signature
 
 Using the following header
 
@@ -2105,7 +2115,7 @@ With the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed
 
-### Wrong Public Key Signature
+#### Wrong Public Key Signature
 
 Using the following header
 
@@ -2121,7 +2131,7 @@ And the messages as defined in (#messages), mapped to the scalars in (#map-messa
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct
 
-### Wrong Header Signature
+#### Wrong Header Signature
 
 Using the following header
 
@@ -2136,6 +2146,31 @@ And the messages as defined in (#messages) and with the following signature
 ```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed
+
+### Proof Test Vectors
+
+#### No Header Valid Proof
+
+Using messages, PK and signature as in [No Header Valid Signature](#no-header-valid-signature), with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with no header and the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof014.presentationHeader }}
+```
+
+while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof014.proof }}
+```
+
+#### No Presentation Header Valid Proof
+
+Using the same header, PK, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof), with every other message disclosed (messages in index 0, 2, 4 and 6, in that order), with no presentation header, while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof015.proof }}
+```
+
 
 ### Hash to Scalar Test Vectors
 
@@ -2159,7 +2194,17 @@ We get the following scalar, encoded with I2OSP and represented in big endian or
 
 ## BLS12-381-SHA-256 Ciphersuite
 
-### Modified Message Signature
+### Signature Test Vectors
+
+#### No Header Valid Signature
+
+Using the messages defined in (#messages-1), with no header, along with the SK and PK values defined in (#key-pair-1) results in the following signature value
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature010.signature }}
+```
+
+#### Modified Message Signature
 
 Using the following header
 
@@ -2181,7 +2226,7 @@ With the following signature
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed.
 
-### Extra Unsigned Message Signature
+#### Extra Unsigned Message Signature
 
 Using the following header
 
@@ -2205,7 +2250,7 @@ With the following signature (which is a signature to only the first of the abov
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
 
-### Missing Message Signature
+#### Missing Message Signature
 
 Using the following header
 
@@ -2229,7 +2274,7 @@ With the following signature (which is a signature on all the messages defined i
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
 
-### Reordered Message Signature
+#### Reordered Message Signature
 
 Using the following header
 
@@ -2269,7 +2314,7 @@ With the following signature
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed.
 
-### Wrong Public Key Signature
+#### Wrong Public Key Signature
 
 Using the following header
 
@@ -2285,7 +2330,7 @@ And the messages as defined in (#messages) and with the following signature
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct.
 
-### Wrong Header Signature
+#### Wrong Header Signature
 
 Using the following header
 
@@ -2300,6 +2345,30 @@ And the messages as defined in (#messages) and with the following signature
 ```
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed.
+
+### Proof Test Vectors
+
+#### No Header Valid Proof
+
+Using messages, PK and signature as in [No Header Valid Signature](#no-header-valid-signature-1), with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with no header and the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof014.presentationHeader }}
+```
+
+while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof014.proof }}
+```
+
+#### No Presentation Header Valid Proof
+
+Using the same header, PK, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof-1), with every other message disclosed (messages in index 0, 2, 4 and 6, in that order), with no presentation header, while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}
+```
 
 ### Hash to Scalar Test Vectors
 
