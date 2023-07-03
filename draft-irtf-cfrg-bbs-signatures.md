@@ -154,9 +154,6 @@ nonce
 presentation\_header (ph)
 : A payload generated and bound to the context of a specific spk.
 
-nizk
-: A non-interactive zero-knowledge proof from the Fiat-Shamir heuristic.
-
 dst
 : The domain separation tag.
 
@@ -185,10 +182,10 @@ range(a, b)
 length(input)
 : Takes as input either an array or an octet string. If the input is an array, returns the number of elements of the array. If the input is an octet string, returns the number of bytes of the inputted octet string.
 
-Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves]
+Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 E1, E2
-: elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2.
+: elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication.
 
 G1, G2
 : subgroups of E1 and E2 (respectively) having prime order r.
@@ -202,8 +199,8 @@ e
 r
 : The prime order of the G1 and G2 subgroups.
 
-P1, P2
-: points on G1 and G2 respectively. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication. Operations in GT are written in multiplicative notation, i.e., a \* b is field multiplication.
+BP, BP'
+: base (constant) points on the G1 and G2 subgroups respectively.
 
 Identity\_G1, Identity\_G2, Identity\_GT
 : The identity element for the G1, G2, and GT subgroups respectively.
@@ -338,7 +335,7 @@ Outputs:
 
 Procedure:
 
-1. W = SK * P2
+1. W = SK * BP'
 2. return point_to_octets_g2(W)
 ```
 
@@ -374,17 +371,6 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
-- expand_message, the expand_message operation defined by the suite
-                  specified by the hash_to_curve_suite parameter.
-- octet_scalar_length, non-negative integer. The length of a scalar
-                       octet representation, defined by the ciphersuite.
-- create_generators, an operation that returns a number of generator
-                     points, defined by the ciphersuite.
-
-Definitions:
-
-- L, is the non-negative integer representing the number of messages to
-     be signed.
 
 Outputs:
 
@@ -431,13 +417,6 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
-- create_generators, an operation that returns a number of generator
-                     points, defined by the ciphersuite.
-
-Definitions:
-
-- L, is the non-negative integer representing the number of signed
-     messages.
 
 Outputs:
 
@@ -459,13 +438,15 @@ Procedure:
 2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 3. if domain is INVALID, return INVALID
 4. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-5. if e(A, W + P2 * e) * e(B, -P2) != Identity_GT, return INVALID
+5. if e(A, W + BP' * e) * e(B, -BP') != Identity_GT, return INVALID
 6. return VALID
 ```
 
 ### Proof Generation (ProofGen)
 
-This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [Presentation header selection](#presentation-header-selection) for more details.
+This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [Presentation header selection](#presentation-header-selection) for more details. Validating the resulting proof (using the `ProofVerify` algorithm defined in (#proof-verification-proofverify)), guarantees the integrity and authenticity of the revealed messages, as well as the possession of a valid signature (for the public key `PK`) by the prover.
+
+The `ProofGen` operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key `PK`, with the `Verify` operation defined in (#signature-verification-verify).
 
 The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
@@ -485,8 +466,8 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- ph (OPTIONAL), an octet string containing the presentation header. If not
-                 supplied, it defaults to an empty string.
+- ph (OPTIONAL), an octet string containing the presentation header. If
+                 not supplied, it defaults to an empty string.
 - messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
                        to the empty array "()".
 - disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
@@ -497,16 +478,6 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
-- create_generators, an operation that returns a number of generator
-                     points, defined by the ciphersuite.
-
-Definitions:
-
-- L, is the non-negative integer representing the number of messages.
-- R, is the non-negative integer representing the number of disclosed
-     (revealed) messages.
-- U, is the non-negative integer representing the number of undisclosed
-     messages, i.e., U = L - R.
 
 Outputs:
 
@@ -538,7 +509,7 @@ Procedure:
 8.  B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 9.  Abar = A * r1
 10. Bbar = B * r1 - Abar * e
-11. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
+11. T =  Abar * r3 + Bbar * r2 + H_j1 * m~_j1 + ... + H_jU * m~_jU
 12. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                             (msg_i1, ..., msg_iR), domain, ph)
 13. if c is INVALID, return INVALID
@@ -582,17 +553,6 @@ Inputs:
 Parameters:
 
 - P1, fixed point of G1, defined by the ciphersuite.
-- create_generators, an operation that returns a number of generator
-                     points, defined by the ciphersuite.
-
-Definitions:
-
-- R, is the non-negative integer representing the number of disclosed
-     (revealed) messages.
-- U, is the non-negative integer representing the number of undisclosed
-     messages.
-- L, is the non-negative integer representing the number of total,
-     messages i.e., L = U + R.
 
 Outputs:
 
@@ -628,13 +588,14 @@ Procedure:
 5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 6.  if domain is INVALID, return INVALID
 7.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-8.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c
-9.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
+8.  T =  Abar * r3^ + Bbar * r2^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
+9.  T = T + D * c
+10. cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                              (msg_i1, ..., msg_iR), domain, ph)
-10. if cv is INVALID, return INVALID
-11. if c != cv, return INVALID
-12. if e(Abar, W) * e(Bbar, -P2) != Identity_GT, return INVALID
-13. return VALID
+11. if cv is INVALID, return INVALID
+12. if c != cv, return INVALID
+13. if e(Abar, W) * e(Bbar, -BP') != Identity_GT, return INVALID
+14. return VALID
 ```
 
 # Utility Operations
@@ -1225,6 +1186,8 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 
 ## Ciphersuite Format
 
+Each ciphersuite through the definition of a
+
 ### Ciphersuite ID
 
 The following section defines the format of the unique identifier for the ciphersuite denoted `ciphersuite_id`, which will be represented as an ASCII encoded octet string. The REQUIRED format for this string is
@@ -1253,7 +1216,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the [Notation](#notation) section) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
 
-- P1: A fixed point in the G1 subgroup.
+- P1: A fixed point in the G1 subgroup, different from the point BP (i.e., the base point of G1, see (#terminology)). This leaves the base point "free", to be used with other protocols, like key commitment and proof of possession schemes (for example, like the one described in Section 3.3 of [@I-D.irtf-cfrg-bls-signature]).
 
 **Serialization functions**:
 
@@ -1275,7 +1238,7 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 ## BLS12-381 Ciphersuites
 
-The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`.
+The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP` and `BP'` of G1 and G2 are defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 The first ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
 
@@ -2256,38 +2219,51 @@ We get the following scalar, encoded with I2OSP and represented in big endian or
 
 # Proof Generation and Verification Algorithmic Explanation
 
-The following section provides an explanation of how the ProofGen and ProofVerify operations work.
+The following section provides an explanation of how the ProofGen and ProofVerify operations work. ProofGen can be categorized as a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`). A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group point are publicly know, while only the exponent `e_0` is known to the Verifier and the exponents `e_1`, ..., `e_n` are known only by the prover. The `nizk` can be used to prove a relationship of the form,
 
-Let the prover be in possession of a BBS signature `(A, e)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#signature-generation-sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
+```
+J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
+```
+
+While revealing nothing about the secret exponents (i.e., `e_1`, ..., `e_n`).
+
+For BBS, let the prover be in possession of a BBS signature `(A, e)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#signature-generation-sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
 
 ```
 B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 ```
-Let `(i1, ..., iR)` be the indexes of generators corresponding to messages the prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = range(1, L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows,
+Let `(i1, ..., iR)` be the indexes of the messages the prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = range(1, L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows;
 
-- Hide the signature by randomizing it. To randomize the signature `(A, e)`, take uniformly random `r1` in `[1, r-1]`, and calculate,
+- Prove possession of a valid signature. As defined above, a signature `(A, e)`, on messages `msg_1, ..., msg_L` is valid, if `A = B * 1/(e + SK)`, where `B` as is computed above. However we cannot reveal neither `A`, `e` nor `B` to the verifier (signature is uniquely identifiable and `B` can reveal information about the signed messages, even the undisclosed ones). To get around this issue, we need to hide the signature `(A, e)` and the value of `B`, in a way that will allow proving their relationship, without revealing their value. We do this by randomizing them. To do that, take uniformly random `r1` in `[1, r-1]`, and calculate,
 
-        1.  A' = A * r1,
-        2.  Abar = A' * (-e) + B * r1
-        3.  D = B * r1.
+    ```
+    1.  Abar = A * r1,
+    2.  Bbar = B * r1 + A' * (-e)
+    ```
 
     Also set,
 
-        4.  r3 = r1 ^ -1 mod r
+    ```
+    3.  r1' = r1 ^ -1 mod r
+    ```
 
-    The values `(A', Abar, D)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; `e(A', PK) = e(Abar, P2)` where `PK` the signer's public key and `P2` the base element in `G2` (used to create the signer’s `PK`, see (#public-key)). This also serves to bind the proof to the signer's `PK`.
+    The values `(Abar, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signatures as above, then `Abar * SK = Bbar => e(Abar, PK) = e(Bbar, BP')` where `SK`, `PK` the signer's secret and public key and `BP'` the base element in `G2` (used to create the signer’s `PK`, see (#public-key)). This last equation is something that the Verifier can check. This also serves to bind the proof to the signer's `PK`.
 
 - Set the following,
 
-        1.  C1 = Abar - D
-        2.  C2 = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+    ```
+    D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+    ```
 
-    Create a non-interactive zero-knowledge proof-of-knowledge (`nizk`) of the values `e, r3` and `msg_j1, ..., msg_jU` (the undisclosed messages) so that both of the following equalities hold,
+    If the `Abar` and `Bbar` values are constructed using a valid BBS signature as above, then the following equation will hold,
 
-        EQ1.  C1 = A' * (-e)
-        EQ2.  C2 = - D * r3 + H_j1 * msg_j1 + ... + H_jU * msg_jU.
+    ```
+    D = Bbar * r1' + Abar * (e * r1') - H_ji * msg_j1 - ... - H_jU * msg_jU
+    ```
 
-Note that the verifier will know the elements in the left side of the above equations (i.e., `C1` and `C2`) but not in the right side (i.e., `r3` and the undisclosed messages: `msg_j1, ..., msg_jU`). However, using the `nizk`, the prover can convince the verifier that they (the prover) know the elements that satisfy those equations, without disclosing them. Then, if both EQ1 and EQ2 hold, and `e(A', PK) = e(Abar, P2)`, an extractor can return a valid BBS signature from the signer's `SK`, on the disclosed messages. The proof returned is `(A', Abar, D, nizk)`. To validate the proof, a verifier checks that `e(A', PK) = e(Abar, P2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as ownership of the undisclosed messages and of the signature.
+Note that the verifier will know the elements in the left side of the above equation (i.e., `D`, or rather the verifier will know all the values needed to calculate `D`, as it depends on the disclosed messages) but not in the right side (i.e., `r1'`, `e` and the undisclosed messages: `msg_j1, ..., msg_jU`). However, using the `nizk`, the prover can convince the verifier that they (the prover) know the elements that satisfy that equation, without disclosing them.
+
+Then, if the above equation holds, and `e(Abar, PK) = e(Bbar, BP')`, an extractor can return a valid BBS signature from the signer's `SK`, on the disclosed messages. The proof returned is `(Abar, Bbar, nizk)`. To validate the proof, a verifier checks that `e(Abar, PK) = e(Bbar, BP')` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as ownership of the undisclosed messages and of the signature.
 
 # Document History
 
