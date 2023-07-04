@@ -9,7 +9,7 @@
     "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02",
     "c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80"
   ],
-  "signature": "88dfe695f5f8bc9a2e3d0d401ba260c21557d1ae082b135ce62eaef9a8ff1fbfe10d251687acd9abf03bc1312d34fa83107ad5832bf089add71e6738cdc39be5ce28e4d1a00ace9ceaefcfcc27e3c80d",
+  "signature": "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420bfdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd850aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f",
   "result": {
     "valid": false,
     "reason": "missing messages"
