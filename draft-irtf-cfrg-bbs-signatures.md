@@ -549,7 +549,7 @@ Procedure:
 13. r2^ = r2 + r4 * c (mod r)
 14. r3^ = r3 + e * r4 * c (mod r)
 15. for j in (j1, ..., jU): m^_j = m~_j + msg_j * c (mod r)
-16. proof = (Abar, Bbar, c, r2^, r3^, (m^_j1, ..., m^_jU))
+16. proof = (Abar, Bbar, r2^, r3^, (m^_j1, ..., m^_jU), c)
 17. return proof_to_octets(proof)
 ```
 
@@ -606,7 +606,7 @@ Deserialization:
 
 1.  proof_result = octets_to_proof(proof)
 2.  if proof_result is INVALID, return INVALID
-3.  (Abar, Bbar, c, r2^, r3^, commitments) = proof_result
+3.  (Abar, Bbar, r2^, r3^, commitments, c) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
 6.  U = length(commitments)
@@ -1129,8 +1129,8 @@ Outputs:
 
 Procedure:
 
-1. (Abar, Bbar, c, r2^, r3^, (m^_1, ..., m^_U)) = proof
-2. return serialize((Abar, Bbar, c, r2^, r3^, m^_1, ..., m^_U))
+1. (Abar, Bbar, r2^, r3^, (m^_1, ..., m^_U), c) = proof
+2. return serialize((Abar, Bbar, r2^, r3^, m^_1, ..., m^_U), c)
 ```
 
 ### Octets to Proof
@@ -1179,7 +1179,7 @@ Procedure:
 7.      if A_i is INVALID or Identity_G1, return INVALID
 8.      index += octet_point_length
 
-// Scalars (i.e., (c, r2^, r3^, (m^_j1, ..., m^_jU)) in
+// Scalars (i.e., (r2^, r3^, (m^_j1, ..., m^_jU), c) in
 // ProofGen) de-serialization.
 9.  j = 0
 10. while index < length(proof_octets):
@@ -1191,8 +1191,8 @@ Procedure:
 
 16. if index != length(proof_octets), return INVALID
 17. msg_commitments = ()
-18. If j > 3, set msg_commitments = (s_3, ..., s_(j-1))
-19. return (A_0, A_1, s_0, s_1, s_2, msg_commitments)
+18. If j > 3, set msg_commitments = (s_2, ..., s_(j-2))
+19. return (A_0, A_1, s_0, s_1, msg_commitments, s_(j-1))
 ```
 
 ### Octets to Public Key
