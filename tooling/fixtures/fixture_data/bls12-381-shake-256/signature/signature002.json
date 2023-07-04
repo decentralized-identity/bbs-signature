@@ -8,7 +8,7 @@
   "messages": [
     ""
   ],
-  "signature": "b455f298530e3b1bbff91766bfccf80ccd3eda2620f3b047130eb131eba929cdcbbab9efd229108aa331a85f5aae89d92ad868c2167fbccc9bbfcebdf07e02d8787d236badf1d7bd25b47fb20f6b8292",
+  "signature": "98eb37fceb31115bf647f2983aef578ad895e55f7451b1add02fa738224cb89a31b148eace4d20d001be31d162c58d12574f30e68665b6403956a83b23a16f1daceacce8c5fde25d3defd52d6d5ff2e1",
   "result": {
     "valid": false,
     "reason": "modified message"
