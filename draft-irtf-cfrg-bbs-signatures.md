@@ -542,12 +542,12 @@ Procedure:
 7.  B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 8.  Abar = A * r1
 9.  Bbar = B * r1 - Abar * e
-10. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
+10. C =  Abar * r2 + Bbar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
 11. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                             (msg_i1, ..., msg_iR), domain, ph)
 12. r4 = - r1^-1 (mod r)
-13. r2^ = r2 + r4 * c (mod r)
-14. r3^ = r3 + e * r4 * c (mod r)
+13. r2^ = r2 + e * r4 * c (mod r)
+14. r3^ = r3 + r4 * c (mod r)
 15. for j in (j1, ..., jU): m^_j = m~_j + msg_j * c (mod r)
 16. proof = (Abar, Bbar, r2^, r3^, (m^_j1, ..., m^_jU), c)
 17. return proof_to_octets(proof)
@@ -630,7 +630,7 @@ Procedure:
 4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 6.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-7.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c
+7.  C = Abar * r2^ + Bbar * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU + D * c
 8.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                              (msg_i1, ..., msg_iR), domain, ph)
 9.  if c != cv, return INVALID
