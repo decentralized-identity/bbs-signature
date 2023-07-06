@@ -858,7 +858,7 @@ MAP_TO_SCALAR_ID = "HM2S_"
 
 To define different ways with which messages can be mapped to scalars, an application can define a new `map_to_scalar` operation, as part of a new ciphersuite. A new `map_to_scalar` function is REQUIRED to adhere to the following security rules:
 
-1. It MUST return unique values for different `msg` inputs.
+1. It MUST return unique values for different `msg` inputs. More specifically, the probability of a collision under reasonable cryptographic assumptions MUST be at most `1/2^k`, where `k` the security level of the targeted ciphersuite.
 2. Different outputs MUST be independent. More specifically, knowledge of the `scalar_1 = map_to_scalar(msg_1, idx_1)`, should not give any information on the value of `scalar_2 = map_to_scalar(msg_2, idx_2)`, for any other `(msg_2, idx_2)` input pair.
 3. It MUST be deterministic.
 
