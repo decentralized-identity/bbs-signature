@@ -1130,7 +1130,7 @@ Outputs:
 Procedure:
 
 1. (Abar, Bbar, r2^, r3^, (m^_1, ..., m^_U), c) = proof
-2. return serialize((Abar, Bbar, r2^, r3^, m^_1, ..., m^_U), c)
+2. return serialize((Abar, Bbar, r2^, r3^, m^_1, ..., m^_U, c))
 ```
 
 ### Octets to Proof
@@ -1179,7 +1179,7 @@ Procedure:
 7.      if A_i is INVALID or Identity_G1, return INVALID
 8.      index += octet_point_length
 
-// Scalars (i.e., (r2^, r3^, (m^_j1, ..., m^_jU), c) in
+// Scalars (i.e., (r2^, r3^, m^_j1, ..., m^_jU, c) in
 // ProofGen) de-serialization.
 9.  j = 0
 10. while index < length(proof_octets):
