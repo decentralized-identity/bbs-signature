@@ -202,7 +202,7 @@ e
 r
 : The prime order of the G1 and G2 subgroups.
 
-BP, BP'
+BP1, BP2
 : base (constant) points on the G1 and G2 subgroups respectively.
 
 Identity\_G1, Identity\_G2, Identity\_GT
@@ -338,7 +338,7 @@ Outputs:
 
 Procedure:
 
-1. W = SK * BP'
+1. W = SK * BP2
 2. return point_to_octets_g2(W)
 ```
 
@@ -440,7 +440,7 @@ Procedure:
 1. (Q_1, H_1, ..., H_L) = create_generators(L+1, PK)
 2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-4. if e(A, W + BP' * e) * e(B, -BP') != Identity_GT, return INVALID
+4. if e(A, W + BP2 * e) * e(B, -BP2) != Identity_GT, return INVALID
 5. return VALID
 ```
 
@@ -516,7 +516,7 @@ Procedure:
 8.  Abar = A * r1
 9.  Bbar = B * r1 - Abar * e
 10. T =  Abar * r3 + Bbar * r2 + H_j1 * m~_j1 + ... + H_jU * m~_jU
-11. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
+11. c = calculate_challenge(Abar, Bbar, T, (i1, ..., iR),
                             (msg_i1, ..., msg_iR), domain, ph)
 12. r4 = - r1^-1 (mod r)
 13. r2^ = r2 + r4 * c (mod r)
@@ -593,10 +593,10 @@ Procedure:
 6.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
 7.  T =  Abar * r3^ + Bbar * r2^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
 8.  T = T + D * c
-9.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
+9.  cv = calculate_challenge(Abar, Bbar, T, (i1, ..., iR),
                              (msg_i1, ..., msg_iR), domain, ph)
 10. if c != cv, return INVALID
-11. if e(Abar, W) * e(Bbar, -BP') != Identity_GT, return INVALID
+11. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
 12. return VALID
 ```
 
@@ -1209,7 +1209,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - expand\_len: Must be defined to be at least `ceil((ceil(log2(r))+k)/8)`, where `log2(r)` and `k` are defined by each ciphersuite (see Section 5 in [@!I-D.irtf-cfrg-hash-to-curve] for a more detailed explanation of this definition).
 
-- P1: A fixed point in the G1 subgroup, different from the point BP (i.e., the base point of G1, see (#terminology)). This leaves the base point "free", to be used with other protocols, like key commitment and proof of possession schemes (for example, like the one described in Section 3.3 of [@I-D.irtf-cfrg-bls-signature]).
+- P1: A fixed point in the G1 subgroup, different from the point BP1 (i.e., the base point of G1, see (#terminology)). This leaves the base point "free", to be used with other protocols, like key commitment and proof of possession schemes (for example, like the one described in Section 3.3 of [@I-D.irtf-cfrg-bls-signature]).
 
 **Serialization functions**:
 
@@ -1231,7 +1231,7 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 ## BLS12-381 Ciphersuites
 
-The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP` and `BP'` of G1 and G2 are defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
+The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
 The first ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
 
@@ -2215,7 +2215,7 @@ We get the following scalar, encoded with I2OSP and represented in big endian or
 
 # Proof Generation and Verification Algorithmic Explanation
 
-The following section provides an explanation of how the ProofGen and ProofVerify operations work. ProofGen can be categorized as a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`). A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group point are publicly know, while only the exponent `e_0` is known to the verifier and the exponents `e_1`, ..., `e_n` are known only by the prover. The `nizk` can be used to prove a relationship of the form,
+The following section provides a high level explanation of how the ProofGen and ProofVerify operations work. ProofGen can be categorized as a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`). A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group point are publicly known, while only the exponent `e_0` is known to the verifier and the exponents `e_1`, ..., `e_n` are known only by the prover. The `nizk` can be used to prove a relationship of the form,
 
 ```
 J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
@@ -2237,9 +2237,9 @@ Let `(i1, ..., iR)` be the indexes of the messages the prover wants to disclose 
     [3]    Bbar = B * r1 + Abar * (-e)
     ```
 
-    The values `(Abar, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signatures as above, then `Abar * SK = Bbar => e(Abar, PK) = e(Bbar, BP')` where `SK`, `PK` the signer's secret and public key and `BP'` the base element in `G2` (used to create the signer’s `PK`, see (#public-key)). This last equation is something that the verifier can check. This also serves to bind the proof to the signer's `PK`.
+    The values `(Abar, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signatures as above, then `Abar * SK = Bbar => e(Abar, PK) = e(Bbar, BP2)` where `SK`, `PK` the signer's secret and public key and `BP2` the base element in `G2` (used to create the signer’s `PK`, see (#public-key)). This last equation is something that the verifier can check. This also serves to bind the proof to the signer's `PK`.
 
-- Set the following,
+- Prove that the disclosed messages are signed by that signature. Set the following,
 
     ```
     [4]    D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
@@ -2255,15 +2255,15 @@ Let `(i1, ..., iR)` be the indexes of the messages the prover wants to disclose 
 
 Note that the verifier will know the elements in the left side of \[6\] (i.e., `D`, or rather they will know all the values needed to calculate `D`, as it depends on the public `doamin` value and the disclosed messages) but not the exponents in the right side (i.e., `r1'`, `e` and the undisclosed messages: `msg_j1, ..., msg_jU`). However, using a `nizk`, the prover can convince the verifier that they (the prover) know the exponents that satisfy that equation, without disclosing them.
 
-If the above equation (\[6\]) holds, and `e(Abar, PK) = e(Bbar, BP')`, one could solve \[6\] to get `B = Bbar * r1' + Abar * e * r1'` (where `B` as in \[1\]). Then, using the properties of pairings, one can see that,
+If the above equation (\[6\]) holds, and `e(Abar, PK) = e(Bbar, BP2)`, one could solve \[6\] to get `B = Bbar * r1' + Abar * e * r1'` (where `B` as in \[1\]). Note that `B` will also contain the disclosed messages. Then, using the properties of pairings, one can see that,
 
 ```
-e(Abar * r1', PK + BP' * e) = (B, BP')
+e(Abar * r1', PK + BP2 * e) = (B, BP2)
 ```
 
-which is exactly what [Verify](#signature-verification-verify) checks for `A = Abar * r1'`. So seting `A = Abar * r1'`, the values `A`, `e`, `B` will format a valid BBS signature. Note that the verifier doesn't know the `r1'`, `e` and `B` values. However, they know that the prover knows them, and as we saw above, knowledge of those values means knowledge of a valid signature.
+which is exactly what [Verify](#signature-verification-verify) checks for `A = Abar * r1'`. So seting `A = Abar * r1'`, the values `A`, `e`, `B` will format a valid BBS signature. Note that the verifier doesn't know `r1'`, `e` or all the values to compute `B`. However, they know that the prover knows them, and as we saw above, knowledge of those values means knowledge of a valid signature on (among others) the disclosed messages.
 
-To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) = e(Bbar, BP')` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
+To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) = e(Bbar, BP2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
 
 # Document History
 
