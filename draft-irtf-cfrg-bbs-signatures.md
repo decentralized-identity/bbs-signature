@@ -1177,7 +1177,6 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 
 ## Ciphersuite Format
 
-Each ciphersuite through the definition of a
 
 ### Ciphersuite ID
 
