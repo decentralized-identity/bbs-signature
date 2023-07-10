@@ -55,6 +55,25 @@ jobs:
         with:
           token: ${{ github.token }}
 
+      # Build the draft with the test vectors included. 
+      #
+      #   NOTE: this is a "hack" to go around uploaded draft not containing fixtures
+      #
+      #         Use "make next" to build the draft w/ fixtures and the tag
+      #         to give it the correct name. Later, "make upload" will use
+      #         that instead of building a new one from the tagged draft
+      #         (which does not contain the test vectors)
+      - name: "Create Draft w/ Fixtures"
+        uses: martinthomson/i-d-template@v1
+        with:
+          make: next
+      
+      - name: "Re-name File with Correct Version"
+        run:  |
+          sudo mv -v $(basename draft-*-[0-9][0-9].xml) ${{ github.ref_name }}.xml
+          ls .
+        working-directory: ./versioned
+
       - name: "Upload to Datatracker"
         uses: martinthomson/i-d-template@v1
         with:
