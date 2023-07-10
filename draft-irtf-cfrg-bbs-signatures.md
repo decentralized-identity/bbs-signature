@@ -1999,7 +1999,7 @@ BBS signatures when applied to the problem space of identity credentials can hel
 
 #### No Header Valid Signature
 
-Using the messages defined in (#messages-1), with no header, along with the SK and PK values defined in (#key-pair) results in the following signature value
+Using the messages defined in (#messages), with no header, along with the SK and PK values defined in (#key-pair) results in the following signature value
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature010.signature }}
@@ -2198,7 +2198,7 @@ We get the following scalar, encoded with I2OSP and represented in big endian or
 
 #### No Header Valid Signature
 
-Using the messages defined in (#messages-1), with no header, along with the SK and PK values defined in (#key-pair-1) results in the following signature value
+Using the messages defined in (#messages), with no header, along with the SK and PK values defined in (#key-pair-1) results in the following signature value
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature010.signature }}
