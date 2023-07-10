@@ -1140,8 +1140,9 @@ This operation describes how to decode an octet string representing a proof, val
 The proof value outputted by this operation consists of the following components, in that order:
 
 1. Two (2) valid points of the G1 subgroup, each of which must not equal the identity point.
-2. Three (3) integers representing scalars in the range of 1 to r-1 inclusive.
+2. Two (2) integers representing scalars in the range of 1 to r-1 inclusive.
 3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the undisclosed from the proof message commitments. This set can be empty (i.e., "()").
+4. One (1) integer representing a scalar in the range of 1 to r-1 inclusive, corresponding to the proof's challenge (`c`).
 
 ```
 proof = octets_to_proof(proof_octets)
