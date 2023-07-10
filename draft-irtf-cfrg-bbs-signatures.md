@@ -542,14 +542,14 @@ Procedure:
 7.  B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 8.  Abar = A * r1
 9.  Bbar = B * r1 - Abar * e
-10. C = Bbar * r2 + Abar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
+10. C =  Abar * r2 + Bbar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
 11. c = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                             (msg_i1, ..., msg_iR), domain, ph)
 12. r4 = - r1^-1 (mod r)
-13. r2^ = r2 + r4 * c (mod r)
-14. r3^ = r3 + e * r4 * c (mod r)
+13. r2^ = r2 + e * r4 * c (mod r)
+14. r3^ = r3 + r4 * c (mod r)
 15. for j in (j1, ..., jU): m^_j = m~_j + msg_j * c (mod r)
-16. proof = (Abar, Bbar, c, r2^, r3^, (m^_j1, ..., m^_jU))
+16. proof = (Abar, Bbar, r2^, r3^, (m^_j1, ..., m^_jU), c)
 17. return proof_to_octets(proof)
 ```
 
@@ -606,7 +606,7 @@ Deserialization:
 
 1.  proof_result = octets_to_proof(proof)
 2.  if proof_result is INVALID, return INVALID
-3.  (Abar, Bbar, c, r2^, r3^, commitments) = proof_result
+3.  (Abar, Bbar, r2^, r3^, commitments, c) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
 6.  U = length(commitments)
@@ -630,7 +630,7 @@ Procedure:
 4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 6.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-7.  C = Bbar * r2^ + Abar * r3^ + H_j1 * m^_j1 + ... + H_jU * m^_jU + D * c
+7.  C = Abar * r2^ + Bbar * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU + D * c
 8.  cv = calculate_challenge(Abar, Bbar, C, (i1, ..., iR),
                              (msg_i1, ..., msg_iR), domain, ph)
 9.  if c != cv, return INVALID
@@ -1129,8 +1129,8 @@ Outputs:
 
 Procedure:
 
-1. (Abar, Bbar, c, r2^, r3^, (m^_1, ..., m^_U)) = proof
-2. return serialize((Abar, Bbar, c, r2^, r3^, m^_1, ..., m^_U))
+1. (Abar, Bbar, r2^, r3^, (m^_1, ..., m^_U), c) = proof
+2. return serialize((Abar, Bbar, r2^, r3^, m^_1, ..., m^_U, c))
 ```
 
 ### Octets to Proof
@@ -1140,8 +1140,9 @@ This operation describes how to decode an octet string representing a proof, val
 The proof value outputted by this operation consists of the following components, in that order:
 
 1. Two (2) valid points of the G1 subgroup, each of which must not equal the identity point.
-2. Three (3) integers representing scalars in the range of 1 to r-1 inclusive.
+2. Two (2) integers representing scalars in the range of 1 to r-1 inclusive.
 3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the undisclosed from the proof message commitments. This set can be empty (i.e., "()").
+4. One (1) integer representing a scalar in the range of 1 to r-1 inclusive, corresponding to the proof's challenge (`c`).
 
 ```
 proof = octets_to_proof(proof_octets)
@@ -1179,7 +1180,7 @@ Procedure:
 7.      if A_i is INVALID or Identity_G1, return INVALID
 8.      index += octet_point_length
 
-// Scalars (i.e., (c, r2^, r3^, (m^_j1, ..., m^_jU)) in
+// Scalars (i.e., (r2^, r3^, m^_j1, ..., m^_jU, c) in
 // ProofGen) de-serialization.
 9.  j = 0
 10. while index < length(proof_octets):
@@ -1191,8 +1192,8 @@ Procedure:
 
 16. if index != length(proof_octets), return INVALID
 17. msg_commitments = ()
-18. If j > 3, set msg_commitments = (s_3, ..., s_(j-1))
-19. return (A_0, A_1, s_0, s_1, s_2, msg_commitments)
+18. If j > 3, set msg_commitments = (s_2, ..., s_(j-2))
+19. return (A_0, A_1, s_0, s_1, msg_commitments, s_(j-1))
 ```
 
 ### Octets to Public Key
@@ -1995,7 +1996,17 @@ BBS signatures when applied to the problem space of identity credentials can hel
 
 ## BLS12-381-SHAKE-256 Ciphersuite
 
-### Modified Message Signature
+### Signature Test Vectors
+
+#### No Header Valid Signature
+
+Using the messages defined in (#messages), with no header, along with the SK and PK values defined in (#key-pair) results in the following signature value
+
+```
+{{ $signatureFixtures.bls12-381-shake-256.signature010.signature }}
+```
+
+#### Modified Message Signature
 
 Using the following header
 
@@ -2017,7 +2028,7 @@ With the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed
 
-### Extra Unsigned Message Signature
+#### Extra Unsigned Message Signature
 
 Using the following header
 
@@ -2041,7 +2052,7 @@ With the following signature (which is a signature to only the first of the abov
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
 
-### Missing Message Signature
+#### Missing Message Signature
 
 Using the following header
 
@@ -2065,7 +2076,7 @@ With the following signature (which is a signature on all the messages defined i
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
 
-### Reordered Message Signature
+#### Reordered Message Signature
 
 Using the following header
 
@@ -2105,7 +2116,7 @@ With the following signature
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed
 
-### Wrong Public Key Signature
+#### Wrong Public Key Signature
 
 Using the following header
 
@@ -2121,7 +2132,7 @@ And the messages as defined in (#messages), mapped to the scalars in (#map-messa
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct
 
-### Wrong Header Signature
+#### Wrong Header Signature
 
 Using the following header
 
@@ -2136,6 +2147,31 @@ And the messages as defined in (#messages) and with the following signature
 ```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed
+
+### Proof Test Vectors
+
+#### No Header Valid Proof
+
+Using messages, PK and signature as in [No Header Valid Signature](#no-header-valid-signature), with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with no header and the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof014.presentationHeader }}
+```
+
+while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof014.proof }}
+```
+
+#### No Presentation Header Valid Proof
+
+Using the same header, PK, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof), with every other message disclosed (messages in index 0, 2, 4 and 6, in that order), with no presentation header, while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof015.proof }}
+```
+
 
 ### Hash to Scalar Test Vectors
 
@@ -2159,7 +2195,17 @@ We get the following scalar, encoded with I2OSP and represented in big endian or
 
 ## BLS12-381-SHA-256 Ciphersuite
 
-### Modified Message Signature
+### Signature Test Vectors
+
+#### No Header Valid Signature
+
+Using the messages defined in (#messages), with no header, along with the SK and PK values defined in (#key-pair-1) results in the following signature value
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature010.signature }}
+```
+
+#### Modified Message Signature
 
 Using the following header
 
@@ -2181,7 +2227,7 @@ With the following signature
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed.
 
-### Extra Unsigned Message Signature
+#### Extra Unsigned Message Signature
 
 Using the following header
 
@@ -2205,7 +2251,7 @@ With the following signature (which is a signature to only the first of the abov
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
 
-### Missing Message Signature
+#### Missing Message Signature
 
 Using the following header
 
@@ -2229,7 +2275,7 @@ With the following signature (which is a signature on all the messages defined i
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
 
-### Reordered Message Signature
+#### Reordered Message Signature
 
 Using the following header
 
@@ -2269,7 +2315,7 @@ With the following signature
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed.
 
-### Wrong Public Key Signature
+#### Wrong Public Key Signature
 
 Using the following header
 
@@ -2285,7 +2331,7 @@ And the messages as defined in (#messages) and with the following signature
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct.
 
-### Wrong Header Signature
+#### Wrong Header Signature
 
 Using the following header
 
@@ -2300,6 +2346,30 @@ And the messages as defined in (#messages) and with the following signature
 ```
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed.
+
+### Proof Test Vectors
+
+#### No Header Valid Proof
+
+Using messages, PK and signature as in [No Header Valid Signature](#no-header-valid-signature-1), with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with no header and the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof014.presentationHeader }}
+```
+
+while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof014.proof }}
+```
+
+#### No Presentation Header Valid Proof
+
+Using the same header, PK, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof-1), with every other message disclosed (messages in index 0, 2, 4 and 6, in that order), with no presentation header, while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}
+```
 
 ### Hash to Scalar Test Vectors
 
