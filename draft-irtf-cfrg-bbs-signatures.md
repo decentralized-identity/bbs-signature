@@ -2431,6 +2431,16 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
 * Shifted to multiple CSPRNG calls to calculate random elements, instead of expand_message
 * Updated hash_to_scalar to a single output
 
+-03
+
+* Updated core operation based on new [academic paper](https://eprint.iacr.org/2023/275)
+* Variety of editorial updates
+* Updated exception and error handling
+* Added extension point for the operation with which the generators are created, allowing ciphersuites to define different operations for creating the generator points.
+* Added extension point for the operation with which the input messages are mapped to scalar values, allowing ciphersuites to define different message-to-scalar mapping operations
+* Added signature/proof fixtures with an empty header or an empty presentation header input
+* Updated the fixtures to use variable length messages (one of which is now the empty message "")
+
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
     <title>Faster subgroup checks for BLS12-381</title>
