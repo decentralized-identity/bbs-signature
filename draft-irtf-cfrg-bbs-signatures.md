@@ -136,14 +136,14 @@ R
 U
 : The number of message indexes that are undisclosed in a proof-of-knowledge of a signature.
 
-msg
-: An input message to be signed by the signature scheme.
+scalar
+: An integer between 0 and r-1, where r is the prime order of the selected groups, defined by each ciphersuite (see also [Notation](#notation)).
+
+input\_message
+: An input message to be signed by the signature scheme. An input\_message can either be either an octet string or a scalar.
 
 generator
 : A valid point on the selected subgroup of the curve being used that is employed to commit a value.
-
-scalar
-: An integer between 0 and r-1, where r is the prime order of the selected groups, defined by each ciphersuite (see also [Notation](#notation)).
 
 signature
 : The digital signature output.
@@ -259,13 +259,9 @@ The schemes operations defined in this section depend on the following parameter
 
 In definition of this signature scheme there are two possible variations based upon the sub-group selection, namely where public keys are defined in G2 and signatures in G1 OR the opposite where public keys are defined in G1 and signatures in G2. Some pairing cryptography based digital signature schemes such as [@I-D.irtf-cfrg-bls-signature] elect to allow for both variations, because they optimize for different things. However, in the case of this scheme, due to the operations involved in both signature and proof generation being computational in-efficient when performed in G2 and in the pursuit of simplicity, the scheme is limited to a construction where public keys are in G2 and signatures in G1.
 
-### Messages
-
-Each of the core operations of the BBS signature scheme expect the inputted messages to be scalar values within a given range (specifically 1 and r-1, where r is the prime order of the G1 and G2 subgroups, defined by each ciphersuite, see [Notation](#notation)). There are multiple ways to transform a message from an octet string to a scalar value. This document defines the `MapMessageToScalarAsHash` operation, which hashes an octet string to a scalar (see (#message-to-scalar-as-hash)). An application can use a different `MapMessageToScalar` operation, but it MUST be clearly and unambiguously defined, for all parties involved. Before using the core operations, all messages MUST be mapped to their respective scalars using the same operation. The defined (#message-to-scalar-as-hash) is the RECOMMENDED way of mapping octet strings to scalar values.
-
 ### Generators
 
-Throughout the operations of this signature scheme, each message that is signed is paired with a specific generator (point in G1). Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations (signature verification, proof generation and proof verification).
+Throughout the operations of this signature scheme, each message that is signed is paired with a specific point of G1, called a generator. Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations (signature verification, proof generation and proof verification). As a result, the messages must be passed to the operations of the BBS scheme in the same order.
 
 Aside from the message generators, the scheme uses one additional generator `Q_1` to sign the signature's domain, which binds both the signature and generated proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
 
@@ -347,31 +343,32 @@ Procedure:
 The operations of this section make use of functions and sub-routines defined in [Utility Operations](#utility-operations). More specifically,
 
 - `hash_to_scalar` is defined in (#hash-to-scalar)
+- `messages_to_scalars` is defined in (#messages-to-scalars)
 - `calculate_domain` and `calculate_challenge` are defined in (#domain-calculation) and (#challenge-calculation) correspondingly.
 - `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization)
 
-The following operations also make use of the `create_generators` operation defined in (#generators-calculation), to create generator points on `G1` (see [Messages and Generators](#generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See (#generators-calculation) for more details.
+The following operations also make use of the `create_generators` operation defined in (#generators-calculation), to create generator points on `G1` (see (#generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See (#generators-calculation) for more details.
 
 **Note** Some of the utility functions used by the core operations of this section could fail (ABORT). In that case, the calling operation MUST also immediately abort.
 
 ### Signature Generation (Sign)
 
-This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of messages (as scalar values, see [Messages](#messages)).
+This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of input\_messages (see [Terminology](#terminology) for the definition of a input\_message).
 
 ```
 signature = Sign(SK, PK, header, messages)
 
 Inputs:
 
-- SK (REQUIRED), a non negative integer mod r outputted by the KeyGen
+- SK (REQUIRED), a secret key in the form outputted by the KeyGen
                  operation.
-- PK (REQUIRED), an octet string of the form outputted by the SkToPk
-                 operation provided the above SK as input.
+- PK (REQUIRED), an octet string of the form outputted by SkToPk
+                 provided the above SK as input.
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
-                       to the empty array "()".
+- messages (OPTIONAL), a vector of input_messages. If not supplied, it
+                       defaults to the empty array "()".
 
 Parameters:
 
@@ -384,7 +381,7 @@ Outputs:
 Deserialization:
 
 1. L = length(messages)
-2. (msg_1, ..., msg_L) = messages
+2. (msg_1, ..., msg_L) = messages_to_scalars(messages)
 
 Procedure:
 
@@ -400,7 +397,7 @@ Procedure:
 
 ### Signature Verification (Verify)
 
- This operation checks that a signature is valid for a given header and vector of messages against a supplied public key (PK). The messages MUST be supplied in this operation in the same order they were supplied to [Sign](#signature-generation-sign) when creating the signature.
+ This operation checks that a signature is valid for a given header and vector of input\_messages against a supplied public key (PK). The input\_messages MUST be supplied in this operation in the same order they were supplied to [Sign](#signature-generation-sign) when creating the signature.
 
 ```
 result = Verify(PK, signature, header, messages)
@@ -414,8 +411,8 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
-                       to the empty array "()".
+- messages (OPTIONAL), a vector of input_messages. If not supplied, it
+                       defaults to the empty array "()".
 
 Parameters:
 
@@ -433,7 +430,7 @@ Deserialization:
 4. W = octets_to_pubkey(PK)
 5. if W is INVALID, return INVALID
 6. L = length(messages)
-7. (msg_1, ..., msg_L) = messages
+7. (msg_1, ..., msg_L) = messages_to_scalars(messages)
 
 Procedure:
 
@@ -450,7 +447,7 @@ This operation computes a zero-knowledge proof-of-knowledge of a signature, whil
 
 The `ProofGen` operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key `PK`, with the `Verify` operation defined in (#signature-verification-verify).
 
-The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
+The input\_messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those input\_messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
 The operation calculates multiple random scalars using the `calculate_random_scalars` utility operation defined in (#random-scalars). See also (#randomness-requirements) for considerations and requirements on random scalars generation.
 
@@ -470,8 +467,8 @@ Inputs:
                      to an empty string.
 - ph (OPTIONAL), an octet string containing the presentation header. If
                  not supplied, it defaults to an empty string.
-- messages (OPTIONAL), a vector of scalars. If not supplied, it defaults
-                       to the empty array "()".
+- messages (OPTIONAL), a vector of input\_messages. If not supplied, it
+                       defaults to the empty array "()".
 - disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
                                 order. Indexes of disclosed messages. If
                                 not supplied, it defaults to the empty
@@ -496,9 +493,10 @@ Deserialization:
 7.  U = L - R
 8.  (i1, ..., iR) = disclosed_indexes
 9.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
-10. (msg_1, ..., msg_L) = messages
-11. (msg_i1, ..., msg_iR) = (messages[i1], ..., messages[iR])
-12. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
+10. msg_scalars = messages_to_scalars(messages)
+11. (msg_1, ..., msg_L) = msg_scalars
+12. (msg_i1, ..., msg_iR) = (msg_scalars[i1], ..., msg_scalars[iR])
+13. (msg_j1, ..., msg_jU) = (msg_scalars[j1], ..., msg_scalars[jU])
 
 ABORT if:
 
@@ -515,14 +513,14 @@ Procedure:
 7.  B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 8.  Abar = A * r1
 9.  Bbar = B * r1 - Abar * e
-10. T =  Abar * r3 + Bbar * r2 + H_j1 * m~_j1 + ... + H_jU * m~_jU
+10. T =  Abar * r2 + Bbar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
 11. c = calculate_challenge(Abar, Bbar, T, (i1, ..., iR),
                             (msg_i1, ..., msg_iR), domain, ph)
 12. r4 = - r1^-1 (mod r)
-13. r2^ = r2 + r4 * c (mod r)
-14. r3^ = r3 + e * r4 * c (mod r)
+13. r2^ = r2 + e * r4 * c (mod r)
+14. r3^ = r3 + r4 * c (mod r)
 15. for j in (j1, ..., jU): m^_j = m~_j + msg_j * c (mod r)
-16. proof = (Abar, Bbar, c, r2^, r3^, (m^_j1, ..., m^_jU))
+16. proof = (Abar, Bbar, r2^, r3^, (m^_j1, ..., m^_jU), c)
 17. return proof_to_octets(proof)
 ```
 
@@ -530,7 +528,7 @@ Procedure:
 
 This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
-The operation accepts the list of messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages list). The operation also requires the total number of signed messages (L). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
+The operation accepts the messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
 ```
 result = ProofVerify(PK, proof, header, ph,
@@ -548,8 +546,9 @@ Inputs:
                      it defaults to an empty string.
 - ph (OPTIONAL), an octet string containing the presentation header. If not
                  supplied, it defaults to an empty string.
-- disclosed_messages (OPTIONAL), a vector of scalars. If not supplied,
-                                 it defaults to the empty array "()".
+- disclosed_messages (OPTIONAL), a vector of input_messages. If not
+                                 supplied, it defaults to the empty
+                                 array "()".
 - disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
                                 order. Indexes of disclosed messages. If
                                 not supplied, it defaults to the empty
@@ -567,7 +566,7 @@ Deserialization:
 
 1.  proof_result = octets_to_proof(proof)
 2.  if proof_result is INVALID, return INVALID
-3.  (Abar, Bbar, c, r2^, r3^, commitments) = proof_result
+3.  (Abar, Bbar, r2^, r3^, commitments, c) = proof_result
 4.  W = octets_to_pubkey(PK)
 5.  if W is INVALID, return INVALID
 6.  U = length(commitments)
@@ -575,7 +574,7 @@ Deserialization:
 8.  L = R + U
 9.  (i1, ..., iR) = disclosed_indexes
 10. (j1, ..., jU) = range(1, L) \ disclosed_indexes
-11. (msg_i1, ..., msg_iR) = disclosed_messages
+11. (msg_i1, ..., msg_iR) = messages_to_scalars(disclosed_messages)
 12. (m^_j1, ...., m^_jU) = commitments
 
 ABORT if:
@@ -591,7 +590,7 @@ Procedure:
 4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
 6.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-7.  T =  Abar * r3^ + Bbar * r2^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
+7.  T =  Abar * r2^ + Bbar * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
 8.  T = T + D * c
 9.  cv = calculate_challenge(Abar, Bbar, T, (i1, ..., iR),
                              (msg_i1, ..., msg_iR), domain, ph)
@@ -726,37 +725,103 @@ When defining a new `create_generators` procedure, the most important property i
 - Must be deterministic.
 - Must use proper domain separation for both the `create_generators` procedure, as well as all of the internally-called procedures.
 
-## Message to Scalar
+## Messages to Scalars
 
-There are multiple ways in which messages can be mapped to their respective scalar values, which is their required form to be used with the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) operations.
+The `messages_to_scalars` operation is used to map a list of input\_messages (where each input\_message can be either an octet string or a scalar value, as defined in [Terminology](#terminology)) to their respective scalar values, which are required by the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) procedures.
 
-### Message to Scalar as Hash
-
-This operation takes an input message and maps it to a scalar value via a cryptographic hash function for the given curve. The operation takes also as an optional input a domain separation tag (dst). If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_", where ciphersuite\_id is the ASCII string representing the unique ID of the ciphersuite "MAP\_MSG\_TO\_SCALAR\_AS\_HASH\_" is an ASCII string comprised of 26 bytes.
+This operation uses the `map_to_scalar` sub-routine defined in (#map-to-scalar), to transform each message to a scalar value.
 
 ```
-msg_scalar = MapMessageToScalarAsHash(msg, dst)
+msg_scalar = messages_to_scalars(messages)
 
 Inputs:
 
-- msg (REQUIRED), an octet string.
-- dst (OPTIONAL), an octet string representing a domain separation tag.
-                  If not supplied, it default to the octet string
-                  ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_" where
-                  ciphersuite_id is defined by the ciphersuite.
+- messages (REQUIRED), a vector of input_messages.
+
+Parameters:
+
+- map_to_scalar, an operation that maps an input_message and its index
+                 to a scalar value, defined by the ciphersuite.
 
 Outputs:
 
-- msg_scalar, a scalar.
+- msg_scalars, a list of scalars.
 
 ABORT if:
 
-1. length(msg) > 2^64 - 1 or length(dst) > 255
+1. length(messages) > 2^64 - 1
+
+Procedure:
+
+1. L =  length(messages)
+2. for i in (1, ..., L):
+3.     msg_scalar_i = map_to_scalar(messages[i], i)
+4. return (msg_scalar_1, ..., msg_scalar_L)
+```
+
+### Map to Scalar
+
+As defined above, the `messages_to_scalars` operation works by repeatedly calling the `map_to_scalar` operation, that will be defined by the ciphersuite. The `map_to_scalar` operation accepts the following inputs,
+
+- message (REQUIRED), an input_message that can be either a scalar or an octet string (see [Terminology](#terminology)).
+- index (OPTIONAL), a positive integer. The index the message has in the list of signed messages.
+
+The signature of the operation is the following,
+
+```
+msg_scalar = map_to_scalar(msg, index)
+```
+
+Every `map_to_scalar` operation MUST define a unique `MAP_TO_SCALAR_ID` value to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
+
+#### Map to Scalar as Hash
+
+This document specifies the following `map_to_scalar` operation, called `map_to_scalar_as_hash`, that uses `hash_to_scalar` as defined in (#hash-to-scalar). Although for extendability reasons, the `map_to_scalar` operation accepts messages that can be either an octet string or a scalar value (as to support protocol specific preprocessing of a message), the `map_to_scalar_as_hash` operation used by this document only maps octet string to scalars and will abort if it gets an `input_message` that is already a scalar value. Additionally, the resulting scalar does not depend on the `index` of the message.
+
+```
+scalar = map_to_scalar_as_hash(msg)
+
+Inputs:
+
+- msg (REQUIRED), an input_message
+
+Parameters:
+
+- dst = ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_", where
+        ciphersuite_id is defined by the ciphersuite.
+
+Outputs:
+
+- scalar, a scalar value.
+
+ABORT if:
+
+1. msg not an octet string
 
 Procedure:
 
 1. return hash_to_scalar(msg, dst)
 ```
+
+The `map_to_scalar` operation that will be defined by the ciphersuites of this document will be,
+
+```
+map_to_scalar(msg, index) := map_to_scalar_as_hash(msg)
+```
+
+The `MAP_TO_SCALAR_ID` of the `map_to_scalar_as_hash` operation is defines as,
+
+```
+MAP_TO_SCALAR_ID = "HM2S_"
+```
+
+### Define a new Map to Scalar
+
+To define different ways with which messages can be mapped to scalars, an application can define a new `map_to_scalar` operation, as part of a new ciphersuite. A new `map_to_scalar` function is REQUIRED to adhere to the following security rules:
+
+1. It MUST return unique values for different `msg` inputs. More specifically, the probability of a collision under reasonable cryptographic assumptions MUST be at most `1/2^k`, where `k` the security level of the targeted ciphersuite.
+2. Different outputs MUST be independent. More specifically, knowledge of the `scalar_1 = map_to_scalar(msg_1, idx_1)`, should not give any information on the value of `scalar_2 = map_to_scalar(msg_2, idx_2)`, for any other `(msg_2, idx_2)` input pair.
+3. It MUST be deterministic.
 
 ## Hash to Scalar
 
@@ -864,7 +929,8 @@ Inputs:
 - (Abar, Bbar, C) (REQUIRED), points of G1, as calculated in ProofGen.
 - i_array (REQUIRED), array of non-negative integers (the indexes of
                       the disclosed messages).
-- msg_array (REQUIRED), array of scalars (the disclosed messages).
+- msg_array (REQUIRED), array of scalars (the disclosed messages after
+                        mapped to scalars).
 - domain (REQUIRED), a scalar.
 - ph (OPTIONAL), an octet string. If not supplied, it must default to the
                  empty octet string ("").
@@ -1024,8 +1090,8 @@ Outputs:
 
 Procedure:
 
-1. (Abar, Bbar, c, r2^, r3^, (m^_1, ..., m^_U)) = proof
-2. return serialize((Abar, Bbar, c, r2^, r3^, m^_1, ..., m^_U))
+1. (Abar, Bbar, r2^, r3^, (m^_1, ..., m^_U), c) = proof
+2. return serialize((Abar, Bbar, r2^, r3^, m^_1, ..., m^_U, c))
 ```
 
 ### Octets to Proof
@@ -1035,8 +1101,9 @@ This operation describes how to decode an octet string representing a proof, val
 The proof value outputted by this operation consists of the following components, in that order:
 
 1. Two (2) valid points of the G1 subgroup, each of which must not equal the identity point.
-2. Three (3) integers representing scalars in the range of 1 to r-1 inclusive.
+2. Two (2) integers representing scalars in the range of 1 to r-1 inclusive.
 3. A set of integers representing scalars in the range of 1 to r-1 inclusive, corresponding to the undisclosed from the proof message commitments. This set can be empty (i.e., "()").
+4. One (1) integer representing a scalar in the range of 1 to r-1 inclusive, corresponding to the proof's challenge (`c`).
 
 ```
 proof = octets_to_proof(proof_octets)
@@ -1074,7 +1141,7 @@ Procedure:
 7.      if A_i is INVALID or Identity_G1, return INVALID
 8.      index += octet_point_length
 
-// Scalars (i.e., (c, r2^, r3^, (m^_j1, ..., m^_jU)) in
+// Scalars (i.e., (r2^, r3^, m^_j1, ..., m^_jU, c) in
 // ProofGen) de-serialization.
 9.  j = 0
 10. while index < length(proof_octets):
@@ -1086,8 +1153,8 @@ Procedure:
 
 16. if index != length(proof_octets), return INVALID
 17. msg_commitments = ()
-18. If j > 3, set msg_commitments = (s_3, ..., s_(j-1))
-19. return (A_0, A_1, s_0, s_1, s_2, msg_commitments)
+18. If j > 3, set msg_commitments = (s_2, ..., s_(j-2))
+19. return (A_0, A_1, s_0, s_1, msg_commitments, s_(j-1))
 ```
 
 ### Octets to Public Key
@@ -1183,12 +1250,14 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 The following section defines the format of the unique identifier for the ciphersuite denoted `ciphersuite_id`, which will be represented as an ASCII encoded octet string. The REQUIRED format for this string is
 
 ```
-  "BBS_" || H2C_SUITE_ID || CG_ID || ADD_INFO
+  "BBS_" || H2C_SUITE_ID || CG_ID || MESSAGES_TO_SCALARS_ID || ADD_INFO
 ```
 
   *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
 
   *  CG\_ID is the ID of the create generators used, i.e., `CREATE_GENERATORS_ID` as defined in the (#generators-calculation) section.
+
+  *  MAP\_TO\_SCALAR\_ID is the ID of the map\_to\_scalar operation, as defined in (#map-to-scalar).
 
   *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
 
@@ -1228,6 +1297,11 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 - create\_generators: the operation with which to create a set of generators. See (#generators-calculation).
 
+**Map to Scalar function**
+
+- map\_to\_scalars:
+a function that maps a message to a scalars value, as defined in (#map-to-scalar).
+
 ## BLS12-381 Ciphersuites
 
 The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
@@ -1242,7 +1316,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Basic parameters**:
 
-- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_H2G\_"
+- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_H2G\_HM2S\_"
 
 - hash: SHAKE-256 as defined in [@!SHA3].
 
@@ -1277,11 +1351,15 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
     create_generators(count, PK) := hash_to_generators(count)
     ```
 
+**Map to Scalar function**:
+
+- map\_to\_scalar: map\_to\_scalar\_as\_hash ((#map-to-scalar-as-hash))
+
 ### BLS12-381-SHA-256
 
 **Basic parameters**:
 
-- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_H2G\_"
+- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_H2G\_HM2S\_"
 
 - hash: SHA-256 as defined in [@!SHA2].
 
@@ -1315,6 +1393,10 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
     ```
     create_generators(count, PK) := hash_to_generators(count)
     ```
+
+**Map to Scalar function**:
+
+- map\_to\_scalar: map\_to\_scalar\_as\_hash ((#map-to-scalar-as-hash))
 
 # Test Vectors
 
@@ -1380,7 +1462,7 @@ Procedure:
 
 ## Messages
 
-The following messages are used by the test vectors of both ciphersuites (unless otherwise stated).
+The following messages are used by the test vectors of both ciphersuites (unless otherwise stated). All the listed messages represent hex-encoded octet strings.
 
 ```
 {{ $messages[0] }}
@@ -1436,13 +1518,7 @@ Following the procedure defined in (#public-key) with an input SK value as above
 
 ### Map Messages to Scalars
 
-The messages in (#messages-1) must be mapped to scalars before passed to the Sign, Verify, ProofGen and ProofVerify operations. For the purpose of the test vectors presented in this document we are using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation to map each message to a scalar. For the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite, on input each message in (#messages-1) and the following default dst
-
-```
-{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.dst }}
-```
-
-The output scalars, encoded to octets using I2OSP and represented in big endian order, are the following,
+The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages), using the map\_to\_scalar\_as\_hash operation ((#map-to-scalar-as-hash)) as defined by the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
 
 ```
 {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[0].scalar }}
@@ -1465,8 +1541,6 @@ The output scalars, encoded to octets using I2OSP and represented in big endian 
 
 {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[9].scalar }}
 ```
-
-Note that in both the following test vectors, as well as the additional [BLS12-381-SHAKE-256](#bls12-381-shake-256) test vectors in (#bls12-381-shake-256-ciphersuite), when we are referring to a message that will be passed to one of the Sign, Verify, ProofGen or ProofVerify operations, we assume that it will first be mapped into one of the above scalars, using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation.
 
 ### Message Generators
 
@@ -1505,13 +1579,13 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature001.header }}
 ```
 
-And the following message (the first message defined in (#messages-1))
+And the following message (the first message defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature001.messages[0] }}
 ```
 
-After it is mapped to the first scalar in (#map-messages-to-scalars), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+Along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
@@ -1525,7 +1599,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature004.header }}
 ```
 
-And the messages defined in (#messages-1) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
+And the messages defined in (#messages) (**Note** the ordering of the messages MUST be preserved), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
@@ -1628,7 +1702,7 @@ Following the procedure defined in (#public-key) with an input SK value as above
 
 ### Map Messages to Scalars
 
-Similarly to how messages are mapped to scalars in [BLS12381-SHAKE-256 Test Vectors](#bls12381-sha-256-test-vectors), we are using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation to map each message to a scalar. For the [BLS12-381-SHA-256](#bls12-381-shake-256-ciphersuite) ciphersuite, on input each message in (#messages-1) and the following default dst
+The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages), using the map\_to\_scalar\_as\_hash operation ((#map-to-scalar-as-hash)) as defined by the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersuite. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
 
 ```
 {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.dst }}
@@ -1657,8 +1731,6 @@ The output scalars, encoded to octets using I2OSP and represented in big endian 
 
 {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[9].scalar }}
 ```
-
-Note that in both the following test vectors, as well as the additional [BLS12-381-SHA-256](#bls12-381-shake-256) test vectors in (#bls12-381-sha-256-ciphersuite), when we are referring to a message that will be passed to one of the Sign, Verify, ProofGen or ProofVerify operations, we assume that it will first be mapped into one of the above scalars, using the [MapMessageToScalarAsHash](#mapmessagetoscalarashash) operation.
 
 ### Message Generators
 
@@ -1698,13 +1770,13 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature001.header }}
 ```
 
-And the following message (the first message defined in (#messages-1))
+And the following message (the first message defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}
 ```
 
-After it is mapped to the first scalar in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair-1) as inputs into the Sign operations, yields the following output signature
+Along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature001.signature }}
@@ -1718,7 +1790,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature004.header }}
 ```
 
-And the messages defined in (#messages-1) (**Note** the ordering of the messages MUST be preserved), after they are mapped to the scalars in (#map-messages-to-scalars-1), along with the SK value as defined in (#key-pair-1) as inputs into the Sign operations, yields the following output signature
+And the messages defined in (#messages) (**Note** the ordering of the messages MUST be preserved), along with the SK value as defined in (#key-pair) as inputs into the Sign operations, yields the following output signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}
@@ -1886,7 +1958,17 @@ BBS signatures when applied to the problem space of identity credentials can hel
 
 ## BLS12-381-SHAKE-256 Ciphersuite
 
-### Modified Message Signature
+### Signature Test Vectors
+
+#### No Header Valid Signature
+
+Using the messages defined in (#messages), with no header, along with the SK and PK values defined in (#key-pair) results in the following signature value
+
+```
+{{ $signatureFixtures.bls12-381-shake-256.signature010.signature }}
+```
+
+#### Modified Message Signature
 
 Using the following header
 
@@ -1894,13 +1976,13 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature002.header }}
 ```
 
-And the following message (the first message defined in (#messages-1))
+And the following message (the first message defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature002.messages[0] }}
 ```
 
-After is mapped to the first scalar in (#map-messages-to-scalars), and with the following signature
+With the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature002.signature }}
@@ -1908,7 +1990,7 @@ After is mapped to the first scalar in (#map-messages-to-scalars), and with the 
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed
 
-### Extra Unsigned Message Signature
+#### Extra Unsigned Message Signature
 
 Using the following header
 
@@ -1916,7 +1998,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature003.header }}
 ```
 
-And the following messages (the two first messages defined in (#messages-1))
+And the following messages (the two first messages defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature003.messages[0] }}
@@ -1924,7 +2006,7 @@ And the following messages (the two first messages defined in (#messages-1))
 {{ $signatureFixtures.bls12-381-shake-256.signature003.messages[1] }}
 ```
 
-After they are mapped to the first 2 scalars in (#map-messages-to-scalars), and with the following signature (which is a signature to only the first of the above two messages)
+With the following signature (which is a signature to only the first of the above two messages)
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature003.signature }}
@@ -1932,7 +2014,7 @@ After they are mapped to the first 2 scalars in (#map-messages-to-scalars), and 
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
 
-### Missing Message Signature
+#### Missing Message Signature
 
 Using the following header
 
@@ -1940,7 +2022,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature005.header }}
 ```
 
-And the following messages (the two first messages defined in (#messages-1))
+And the following messages (the two first messages defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature005.messages[0] }}
@@ -1948,7 +2030,7 @@ And the following messages (the two first messages defined in (#messages-1))
 {{ $signatureFixtures.bls12-381-shake-256.signature005.messages[1] }}
 ```
 
-After they are mapped to the first 2 scalars in (#map-messages-to-scalars), and with the following signature (which is a signature on all the messages defined in (#messages-1))
+With the following signature (which is a signature on all the messages defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature005.signature }}
@@ -1956,7 +2038,7 @@ After they are mapped to the first 2 scalars in (#map-messages-to-scalars), and 
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
 
-### Reordered Message Signature
+#### Reordered Message Signature
 
 Using the following header
 
@@ -1964,7 +2046,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature006.header }}
 ```
 
-And the following messages (re-ordering of the messages defined in (#messages-1))
+And the following messages (re-ordering of the messages defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[0] }}
@@ -1988,7 +2070,7 @@ And the following messages (re-ordering of the messages defined in (#messages-1)
 {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[9] }}
 ```
 
-After they are mapped to the corresponding scalars in (#map-messages-to-scalars), and with the following signature
+With the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature006.signature }}
@@ -1996,7 +2078,7 @@ After they are mapped to the corresponding scalars in (#map-messages-to-scalars)
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed
 
-### Wrong Public Key Signature
+#### Wrong Public Key Signature
 
 Using the following header
 
@@ -2004,7 +2086,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature007.header }}
 ```
 
-And the messages as defined in (#messages-1), mapped to the scalars in (#map-messages-to-scalars) and with the following signature
+And the messages as defined in (#messages), mapped to the scalars in (#map-messages-to-scalars) and with the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature007.signature }}
@@ -2012,7 +2094,7 @@ And the messages as defined in (#messages-1), mapped to the scalars in (#map-mes
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct
 
-### Wrong Header Signature
+#### Wrong Header Signature
 
 Using the following header
 
@@ -2020,13 +2102,38 @@ Using the following header
 {{ $signatureFixtures.bls12-381-shake-256.signature008.header }}
 ```
 
-And the messages as defined in (#messages-1), mapped to the scalars in (#map-messages-to-scalars) and with the following signature
+And the messages as defined in (#messages) and with the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-shake-256.signature008.signature }}
 ```
 
 Along with the PK value as defined in (#key-pair) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed
+
+### Proof Test Vectors
+
+#### No Header Valid Proof
+
+Using messages, PK and signature as in [No Header Valid Signature](#no-header-valid-signature), with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with no header and the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof014.presentationHeader }}
+```
+
+while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof014.proof }}
+```
+
+#### No Presentation Header Valid Proof
+
+Using the same header, PK, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof), with every other message disclosed (messages in index 0, 2, 4 and 6, in that order), with no presentation header, while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-shake-256.proof015.proof }}
+```
+
 
 ### Hash to Scalar Test Vectors
 
@@ -2050,7 +2157,17 @@ We get the following scalar, encoded with I2OSP and represented in big endian or
 
 ## BLS12-381-SHA-256 Ciphersuite
 
-### Modified Message Signature
+### Signature Test Vectors
+
+#### No Header Valid Signature
+
+Using the messages defined in (#messages), with no header, along with the SK and PK values defined in (#key-pair-1) results in the following signature value
+
+```
+{{ $signatureFixtures.bls12-381-sha-256.signature010.signature }}
+```
+
+#### Modified Message Signature
 
 Using the following header
 
@@ -2058,13 +2175,13 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature002.header }}
 ```
 
-And the following message (the first message defined in (#messages-1))
+And the following message (the first message defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature002.messages[0] }}
 ```
 
-After is mapped to the first scalar in (#map-messages-to-scalars-1), and with the following signature
+With the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature002.signature }}
@@ -2072,7 +2189,7 @@ After is mapped to the first scalar in (#map-messages-to-scalars-1), and with th
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to the message value being different from what was signed.
 
-### Extra Unsigned Message Signature
+#### Extra Unsigned Message Signature
 
 Using the following header
 
@@ -2080,7 +2197,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature003.header }}
 ```
 
-And the following messages (the two first messages defined in (#messages-1))
+And the following messages (the two first messages defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature003.messages[0] }}
@@ -2088,7 +2205,7 @@ And the following messages (the two first messages defined in (#messages-1))
 {{ $signatureFixtures.bls12-381-sha-256.signature003.messages[1] }}
 ```
 
-After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), and with the following signature (which is a signature to only the first of the above two messages)
+With the following signature (which is a signature to only the first of the above two messages)
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature003.signature }}
@@ -2096,7 +2213,7 @@ After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), an
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to an additional message being supplied that was not signed.
 
-### Missing Message Signature
+#### Missing Message Signature
 
 Using the following header
 
@@ -2104,7 +2221,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature005.header }}
 ```
 
-And the following messages (the two first messages defined in (#messages-1))
+And the following messages (the two first messages defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature005.messages[0] }}
@@ -2112,7 +2229,7 @@ And the following messages (the two first messages defined in (#messages-1))
 {{ $signatureFixtures.bls12-381-sha-256.signature005.messages[1] }}
 ```
 
-After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), and with the following signature (which is a signature on all the messages defined in (#messages-1))
+With the following signature (which is a signature on all the messages defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature005.signature }}
@@ -2120,7 +2237,7 @@ After they are mapped to the first 2 scalars in (#map-messages-to-scalars-1), an
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to missing messages that were originally present during the signing.
 
-### Reordered Message Signature
+#### Reordered Message Signature
 
 Using the following header
 
@@ -2128,7 +2245,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature006.header }}
 ```
 
-And the following messages (re-ordering of the messages defined in (#messages-1))
+And the following messages (re-ordering of the messages defined in (#messages))
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[0] }}
@@ -2152,7 +2269,7 @@ And the following messages (re-ordering of the messages defined in (#messages-1)
 {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[9] }}
 ```
 
-After they are mapped to the corresponding scalars in (#map-messages-to-scalars-1), and with the following signature
+With the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature006.signature }}
@@ -2160,7 +2277,7 @@ After they are mapped to the corresponding scalars in (#map-messages-to-scalars-
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to messages being re-ordered from the order in which they were signed.
 
-### Wrong Public Key Signature
+#### Wrong Public Key Signature
 
 Using the following header
 
@@ -2168,7 +2285,7 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature007.header }}
 ```
 
-And the messages as defined in (#messages-1), mapped to the scalars in (#map-messages-to-scalars-1) and with the following signature
+And the messages as defined in (#messages) and with the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature007.signature }}
@@ -2176,7 +2293,7 @@ And the messages as defined in (#messages-1), mapped to the scalars in (#map-mes
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to public key used to verify is in-correct.
 
-### Wrong Header Signature
+#### Wrong Header Signature
 
 Using the following header
 
@@ -2184,13 +2301,37 @@ Using the following header
 {{ $signatureFixtures.bls12-381-sha-256.signature008.header }}
 ```
 
-And the messages as defined in (#messages-1), mapped to the scalars in (#map-messages-to-scalars-1) and with the following signature
+And the messages as defined in (#messages) and with the following signature
 
 ```
 {{ $signatureFixtures.bls12-381-sha-256.signature008.signature }}
 ```
 
 Along with the PK value as defined in (#key-pair-1) as inputs into the Verify operation should fail signature validation due to header value being modified from what was originally signed.
+
+### Proof Test Vectors
+
+#### No Header Valid Proof
+
+Using messages, PK and signature as in [No Header Valid Signature](#no-header-valid-signature-1), with only every other messages disclosed (messages in index 0, 2, 4 and 6, in that order), with no header and the following presentation header
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof014.presentationHeader }}
+```
+
+while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof014.proof }}
+```
+
+#### No Presentation Header Valid Proof
+
+Using the same header, PK, messages and signature as in [Multi-Message, All Messages Disclosed Proof](#valid-multi-message-all-messages-disclosed-proof-1), with every other message disclosed (messages in index 0, 2, 4 and 6, in that order), with no presentation header, while using the mocked rng defined in (#mocked-random-scalars), will result to the following proof value
+
+```
+{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}
+```
 
 ### Hash to Scalar Test Vectors
 
