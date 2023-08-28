@@ -637,7 +637,7 @@ Procedure:
 This operation finalizes the proof calculation during the `ProofGen` operation defined in (#proof-generation-proofgen) and returns the serialized proof value, using the `proof_to_octets` serialization operation defined in (#proof-to-octets).
 
 ```
-proof = proofFinalize(challenge, e_value, random_scalars, messages,
+proof = ProofFinalize(challenge, e_value, random_scalars, messages,
                                                     undisclosed_indexes)
 
 Inputs:
