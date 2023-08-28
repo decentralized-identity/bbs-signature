@@ -582,7 +582,7 @@ This operation initializes the proof and returns part of the input that will be 
 This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
 
 ```
-init_res = proofInit(PK, signature, header, random_scalars, messages,
+init_res = ProofInit(PK, signature, header, random_scalars, messages,
                                                     undisclosed_indexes)
 
 Inputs:
