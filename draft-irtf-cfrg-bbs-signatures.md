@@ -680,7 +680,7 @@ This operation initializes the proof verification operation and returns part of 
 This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
 
 ```
-init_res = proofVerifyInit(PK, proof, header, disclosed_messages,
+init_res = ProofVerifyInit(PK, proof, header, disclosed_messages,
                                                       disclosed_indexes)
 
 Inputs:
