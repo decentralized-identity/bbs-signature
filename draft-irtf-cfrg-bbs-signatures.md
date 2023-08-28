@@ -447,7 +447,7 @@ This operation computes a zero-knowledge proof-of-knowledge of a signature, whil
 
 The `ProofGen` operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key `PK`, with the `Verify` operation defined in (#signature-verification-verify).
 
-The operation works by first initializing the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
+The operation works by first initializing the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
 
 The input\_messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those input\_messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
@@ -503,7 +503,7 @@ Procedure:
 2. init_res = ProofInit(PK, signature_res, header, random_scalars,
                                        msg_scalars, undisclosed_indexes)
 3. if init_res is INVALID, return INVALID
-4. challenge = ChallengeCalculate(init_res, disclosed_indexes,
+4. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
                                                  disclosed_messages, ph)
 5. proof = ProofFinalize(challenge, e, random_scalars, msg_scalars,
                                                     undisclosed_indexes)
@@ -514,7 +514,7 @@ Procedure:
 
 This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
-The operation works by first initializing the proof verification using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be passed to the challenge calculation operation (`ChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first component of the received proof (points of G1) will be checked for correctness (steps 4 and 5 in the following procedure), to verify the proof.
+The operation works by first initializing the proof verification using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first component of the received proof (points of G1) will be checked for correctness (steps 4 and 5 in the following procedure), to verify the proof.
 
 The operation accepts the messages that the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
@@ -564,7 +564,7 @@ Procedure:
 
 1. init_res = ProofVerifyInit(PK, proof_result, header, msg_scalars,
                                                       disclosed_indexes)
-3. challenge = ChallengeCalculate(init_res, disclosed_indexes,
+3. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
                                                         msg_scalars, ph)
 4. if cp != challenge, return INVALID
 5. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
@@ -577,7 +577,7 @@ This section describes the subroutines used by the ProofGen and ProVerify algori
 
 ### Proof Initialization
 
-This operation initializes the proof and returns part of the input that will be passed to the challenge calculation operation (i.e., `ChallengeCalculate`, (#challenge-calculation)), during the `ProofGen` operation defined in (#proof-generation-proofgen). As one of its inputs, it accepts a list of random scalars (`random_scalars`) and a list of unsigned integers, in ascending order, representing the indexes of the messages the Prover choses to disclose (`undisclosed_indexes` see (#proof-generation-proofgen)). The list of random scalars MUST have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 3`).
+This operation initializes the proof and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `ProofGen` operation defined in (#proof-generation-proofgen). As one of its inputs, it accepts a list of random scalars (`random_scalars`) and a list of unsigned integers, in ascending order, representing the indexes of the messages the Prover choses to disclose (`undisclosed_indexes` see (#proof-generation-proofgen)). The list of random scalars MUST have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 3`).
 
 This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
 
@@ -675,7 +675,7 @@ Procedure:
 
 ### Proof Verification Initialization
 
-This operation initializes the proof verification operation and returns part of the input that will be passed to the challenge calculation operation (i.e., `ChallengeCalculate`, (#challenge-calculation)), during the `ProofVerify` operation defined in (#proof-verification-proofverify).
+This operation initializes the proof verification operation and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `ProofVerify` operation defined in (#proof-verification-proofverify).
 
 This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
 
@@ -745,7 +745,7 @@ This operation calculates the challenge scalar value, used during [ProofGen](#pr
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
 ```
-challenge = ChallengeCalculate(init_res, i_array, msg_array, ph)
+challenge = ProofChallengeCalculate(init_res, i_array, msg_array, ph)
 
 Inputs:
 - init_res (REQUIRED), vector representing the value returned after
@@ -782,7 +782,7 @@ Procedure:
 3. return hash_to_scalar(c_octs || I2OSP(length(ph), 8) || ph)
 ```
 
-**Note**: If the presentation header (ph) is not supplied in `ChallengeCalculate`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 3).
+**Note**: If the presentation header (ph) is not supplied in `ProofChallengeCalculate`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 3).
 
 # Utility Operations
 
