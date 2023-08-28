@@ -740,7 +740,7 @@ Procedure:
 
 ### Challenge Calculation
 
-This operation calculates the challenge scalar value, used during [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify), as part of the Fiat-Shamir heuristic, for making the proof protocol non-interactive (in a interactive sating, the challenge would be a random value supplied by the verifier).
+This operation calculates the challenge scalar value, used during [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify), as part of the Fiat-Shamir heuristic, for making the proof protocol non-interactive (in a interactive setting, the challenge would be a random value supplied by the verifier).
 
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
