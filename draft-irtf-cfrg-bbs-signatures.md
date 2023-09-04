@@ -489,9 +489,10 @@ Deserialization:
 5.  R = length(disclosed_indexes)
 6.  (i1, ..., iR) = disclosed_indexes
 7.  if R > L, return INVALID
-8.  undisclosed_indexes = range(1, L) \ disclosed_indexes
-9.  msg_scalars = messages_to_scalars(messages)
-10. disclosed_messages = (msg_scalars[i1], ..., msg_scalars[iR])
+8.  U = L - R
+9.  undisclosed_indexes = range(1, L) \ disclosed_indexes
+10. msg_scalars = messages_to_scalars(messages)
+11. disclosed_messages = (msg_scalars[i1], ..., msg_scalars[iR])
 
 ABORT if:
 
@@ -564,11 +565,11 @@ Procedure:
 
 1. init_res = ProofVerifyInit(PK, proof_result, header, msg_scalars,
                                                       disclosed_indexes)
-3. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
+2. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
                                                         msg_scalars, ph)
-4. if cp != challenge, return INVALID
-5. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
-6. return VALID
+3. if cp != challenge, return INVALID
+4. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
+5. return VALID
 ```
 
 ## Proof Protocol Subroutines
