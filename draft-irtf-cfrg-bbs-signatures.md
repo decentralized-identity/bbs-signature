@@ -1034,17 +1034,19 @@ Procedure:
 
 ## Defining New Interfaces
 
-This document defines a BBS Interface as a set of operation that use the core functions defined in (#core-operations), to generate and validate BBS signatures and proofs. Those core operations require a set of generators, and optionally, a set of scalars representing the messages.
+This document defines a BBS Interface to be a set of operations that use the core functions defined in (#core-operations), to generate and validate BBS signatures and proofs. These core operations require a set of generators, and optionally, a set of scalars representing the messages.
 
 The Interface operations MUST create the generators that are required by the core functions. To do so, they MUST use an operation that is comforting to the requirements listed in (#defining-new-generators). If a vector of messages is supplied (where each message can have different forms, for example octet strings, scalar values etc., depending on the application), the Interface operations MUST map the inputted messages to their scalar values, using an operation that is comforting to the requirements listed in (#define-a-new-map-to-scalar).
 
 Each Interface MUST also define a unique ID as a parameter, called `api_id`. It is REQUIRED from the operations that create generators and map messages to scalars, to also define a unique ID (see (#interface-utilities)). The `api_id` MUST have the following format:
 
 ```
-api_id = ciphersuite_id || CREATE_GENERATORS_ID || MAP_TO_SCALAR_ID
+api_id = ciphersuite_id || CREATE_GENERATORS_ID || MAP_TO_SCALAR_ID || ADD_INFO
 ```
 
-Where `ciphersuite_id` is defined by the ciphersuite while `CREATE_GENERATORS_ID` and `MAP_TO_SCALAR_ID` are the unique IDs of the operation that creates the generators and the operation that maps the messages to scalars respectively. The `api_id` value, MUST be passed to all the subroutines an Interface uses, to ensure proper domain separation.
+Where `ciphersuite_id` is defined by the ciphersuite, `CREATE_GENERATORS_ID` is the unique IDs of the operation that creates the generators, `MAP_TO_SCALAR_ID` is the unique ID of the operation that maps the messages to scalars and the `ADD_INFO` value is an optional octet string indicating any additional information used to uniquely qualify the Interface. When `ADD_INFO` is present, it MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f). The `api_id` value, MUST be used by all subroutines an Interface calls, to ensure proper domain separation.
+
+Interfaces are meant to make it easier to use BBS Signature as part of other protocols with different requirements (for example, different types of input messages), or to extend BBS Signatures with additional functionality. Documents defining new BBS Interfaces, are REQUIRED to include a detailed and peer reviewed analyses, showcasing that, under reasonable cryptographic assumptions, the documented scheme is secure under the required security definitions and threat model of each protocol. In other words, Interfaces MUST be treated like Ciphersuites ((#ciphersuites)), in the sense that it is RECOMMENDED that applications will avoid creating their own, proprietary Interfaces.
 
 # Utility Operations
 
@@ -1180,7 +1182,18 @@ MAP_TO_SCALAR_ID = "HM2S_"
 
 #### Define a new Map to Scalar
 
-A new operation that will map a vector of messages to a vector of scalars, MUST comfort with the following requirements:
+The most important property that a new operation that will map a vector of messages to a vector of scalars, MUST have is that each message should be mapped to a scalar independently from all
+the other messages. More specifically, the following MUST hold,
+
+```
+For every set of messages and avery message msg',
+if C1 = messages_to_scalars(messages.push(msg')),
+and msg_prime_scalar = messages_to_scalars((msg')),
+and C2 = messages_to_scalars(messages).push(msg_prime_scalar),
+it will always hold that C1 == C2.
+```
+
+Additionally, the new operation MUST comfort to the following requirements:
 
 - The returned scalars MUST be independent. More specifically, knowledge of any subset of the returned scalars MUST NOT reveal any information about the scalars not in that subset.
 - Unique inputs MUST result to unique outputs.
