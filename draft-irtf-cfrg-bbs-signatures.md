@@ -487,12 +487,14 @@ Deserialization:
 3.  (A, e) = signature_result
 4.  L = length(messages)
 5.  R = length(disclosed_indexes)
-6.  (i1, ..., iR) = disclosed_indexes
-7.  if R > L, return INVALID
-8.  U = L - R
-9.  undisclosed_indexes = range(1, L) \ disclosed_indexes
-10. msg_scalars = messages_to_scalars(messages)
-11. disclosed_messages = (msg_scalars[i1], ..., msg_scalars[iR])
+6.  if R > L, return INVALID
+7.  U = L - R
+8.  undisclosed_indexes = range(1, L) \ disclosed_indexes
+9.  (i1, ..., iR) = disclosed_indexes
+10. (j1, ..., jU) = undisclosed_indexes
+11. msg_scalars = messages_to_scalars(messages)
+12. disclosed_messages = (msg_scalars[i1], ..., msg_scalars[iR])
+13. undisclosed_messages = (msg_scalars[j1], ..., msg_scalars[jU])
 
 ABORT if:
 
@@ -501,13 +503,13 @@ ABORT if:
 Procedure:
 
 1. random_scalars = calculate_random_scalars(3+U)
-2. init_res = ProofInit(PK, signature_res, header, random_scalars,
+2. init_res = ProofInit(PK, signature_res, random_scalars, header,
                                        msg_scalars, undisclosed_indexes)
 3. if init_res is INVALID, return INVALID
 4. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
                                                  disclosed_messages, ph)
-5. proof = ProofFinalize(challenge, e, random_scalars, msg_scalars,
-                                                    undisclosed_indexes)
+5. proof = ProofFinalize(init_res, challenge, e, random_scalars,
+                                                   undisclosed_messages)
 6. return proof
 ```
 
@@ -583,7 +585,7 @@ This operation initializes the proof and returns part of the input that will be 
 This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
 
 ```
-init_res = ProofInit(PK, signature, header, random_scalars, messages,
+init_res = ProofInit(PK, signature, random_scalars, header, messages,
                                                     undisclosed_indexes)
 
 Inputs:
@@ -592,9 +594,9 @@ Inputs:
                  operation.
 - signature (REQUIRED), vector representing a BBS signature, consisting
                         of a point of G1 and a scalar, in that order.
+- random_scalars (REQUIRED), vector of scalar values.
 - header (OPTIONAL), octet string. If not supplied it defaults to the
                      empty octet string ("").
-- random_scalars (REQUIRED), vector of scalar values.
 - messages (OPTIONAL), vector of scalar values. If not supplied, it
                        defaults to the empty array "()".
 - undisclosed_indexes (OPTIONAL), vector of unsigned integers in
@@ -620,6 +622,11 @@ Deserialization:
 6. (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
 7. (msg_1, ..., msg_L) = messages
 
+ABORT if:
+
+1. for i in undisclosed_indexes, i < 1 or i > L
+2. U > L
+
 Procedure:
 
 1. (Q_1, MsgGenerators) = create_generators(L+1, PK)
@@ -638,19 +645,21 @@ Procedure:
 This operation finalizes the proof calculation during the `ProofGen` operation defined in (#proof-generation-proofgen) and returns the serialized proof value, using the `proof_to_octets` serialization operation defined in (#proof-to-octets).
 
 ```
-proof = ProofFinalize(challenge, e_value, random_scalars, messages,
-                                                    undisclosed_indexes)
+proof = ProofFinalize(init_res, challenge, e_value, random_scalars,
+                                                   undisclosed_messages)
 
 Inputs:
 
+- init_res (REQUIRED), vector representing the value returned after
+                       initializing the proof generation or verification
+                       operations, consisting of 3 points of G1 and a
+                       scalar value, in that order.
 - challenge (REQUIRED), scalar value.
 - e_value (REQUIRED), scalar value.
 - random_scalars (REQUIRED), vector of scalar values.
-- messages (OPTIONAL), vector of scalar values. If not supplied, it
-                       defaults to the empty array "()".
-- undisclosed_indexes (OPTIONAL), vector of unsigned integers in
-                                  ascending order. If not supplied, it
-                                  defaults to the empty array "()".
+- undisclosed_messages (OPTIONAL), vector of scalar values. If not
+                                   supplied, it defaults to the empty
+                                   array "()".
 
 Outputs:
 
@@ -658,18 +667,20 @@ Outputs:
 
 Deserialization:
 
-1. U = length(undisclosed_indexes)
-2. (j1, ..., jU) = undisclosed_indexes
-3. if length(random_scalars) != U + 3, return INVALID
-4. (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
-5. (msg_j1, ..., msg_jU) = (messages[j1], ..., messages[jU])
+1. U = length(undisclosed_messages)
+2. if length(random_scalars) != U + 3, return INVALID
+3. (r1, r2, r3, m~_1, ..., m~_U) = random_scalars
+4. (undisclosed_1, ..., undisclosed_U) = undisclosed_messages
+5. if init_res is not a set of 3 points and a scalar in that
+   order, return INVALID
+6. (Abar, Bbar) = (init_res[0], init_res[1])
 
 Procedure:
 
 1. r4 = - r1^-1 (mod r)
 2. r2^ = r2 + e_value * r4 * challenge (mod r)
 3. r3^ = r3 + r4 * challenge (mod r)
-4. for j in (j1, ..., jU): m^_j = m~_j + msg_j * challenge (mod r)
+4. for j in (1, ..., U): m^_j = m~_j + undisclosed_j * challenge (mod r)
 5. proof = (Abar, Bbar, r2^, r3^, (m^_j1, ..., m^_jU), challenge)
 6. return proof_to_octets(proof)
 ```
@@ -755,7 +766,7 @@ Inputs:
                        scalar value, in that order.
 - i_array (REQUIRED), array of non-negative integers (the indexes of
                       the disclosed messages).
-- msg_array (REQUIRED), array of scalars (the disclosed messages after
+- msg_array (OPTIONAL), array of scalars (the disclosed messages after
                         mapped to scalars).
 - ph (OPTIONAL), an octet string. If not supplied, it must default to the
                  empty octet string ("").
