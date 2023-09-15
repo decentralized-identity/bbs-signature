@@ -447,7 +447,7 @@ This operation computes a zero-knowledge proof-of-knowledge of a signature, whil
 
 The `ProofGen` operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key `PK`, with the `Verify` operation defined in (#signature-verification-verify).
 
-The operation works by first initializing the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
+The operation works by first initializing the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge, together with the initialization result, will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
 
 The input\_messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those input\_messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
@@ -496,10 +496,6 @@ Deserialization:
 12. disclosed_messages = (msg_scalars[i1], ..., msg_scalars[iR])
 13. undisclosed_messages = (msg_scalars[j1], ..., msg_scalars[jU])
 
-ABORT if:
-
-1. for i in disclosed_indexes, i < 1 or i > L
-
 Procedure:
 
 1. random_scalars = calculate_random_scalars(3+U)
@@ -517,7 +513,7 @@ Procedure:
 
 This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
-The operation works by first initializing the proof verification using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first component of the received proof (points of G1) will be checked for correctness (steps 4 and 5 in the following procedure), to verify the proof.
+The operation works by first initializing the proof verification using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be inputted to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first component of the received proof (points of G1) will be checked for correctness (steps 4 and 5 in the following procedure), to verify the proof.
 
 The operation accepts the messages that the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
@@ -624,7 +620,7 @@ Deserialization:
 
 ABORT if:
 
-1. for i in undisclosed_indexes, i < 1 or i > L
+1. for i in undisclosed_indexes, i < 1 or i >= L
 2. U > L
 
 Procedure:
