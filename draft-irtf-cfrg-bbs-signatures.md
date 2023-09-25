@@ -620,7 +620,7 @@ Deserialization:
 
 ABORT if:
 
-1. for i in undisclosed_indexes, i < 1 or i >= L
+1. for i in undisclosed_indexes, i < 1 or i > L
 2. U > L
 
 Procedure:
