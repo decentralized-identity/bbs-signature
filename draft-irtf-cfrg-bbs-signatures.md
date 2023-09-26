@@ -344,7 +344,7 @@ The operations of this section make use of functions and sub-routines defined in
 
 - `hash_to_scalar` is defined in (#hash-to-scalar)
 - `messages_to_scalars` is defined in (#messages-to-scalars)
-- `calculate_domain` and `calculate_challenge` are defined in (#domain-calculation) and (#challenge-calculation) correspondingly.
+- `calculate_domain` is defined in (#domain-calculation).
 - `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization)
 
 The following operations also make use of the `create_generators` operation defined in (#generators-calculation), to create generator points on `G1` (see (#generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See (#generators-calculation) for more details.
@@ -447,6 +447,8 @@ This operation computes a zero-knowledge proof-of-knowledge of a signature, whil
 
 The `ProofGen` operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key `PK`, with the `Verify` operation defined in (#signature-verification-verify).
 
+The operation works by first initializing the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge, together with the initialization result, will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
+
 The input\_messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those input\_messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
 The operation calculates multiple random scalars using the `calculate_random_scalars` utility operation defined in (#random-scalars). See also (#randomness-requirements) for considerations and requirements on random scalars generation.
@@ -474,10 +476,6 @@ Inputs:
                                 not supplied, it defaults to the empty
                                 array "()".
 
-Parameters:
-
-- P1, fixed point of G1, defined by the ciphersuite.
-
 Outputs:
 
 - proof, an octet string; or INVALID.
@@ -491,44 +489,33 @@ Deserialization:
 5.  R = length(disclosed_indexes)
 6.  if R > L, return INVALID
 7.  U = L - R
-8.  (i1, ..., iR) = disclosed_indexes
-9.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
-10. msg_scalars = messages_to_scalars(messages)
-11. (msg_1, ..., msg_L) = msg_scalars
-12. (msg_i1, ..., msg_iR) = (msg_scalars[i1], ..., msg_scalars[iR])
-13. (msg_j1, ..., msg_jU) = (msg_scalars[j1], ..., msg_scalars[jU])
-
-ABORT if:
-
-1. for i in (i1, ..., iR), i < 1 or i > L
+8.  undisclosed_indexes = range(1, L) \ disclosed_indexes
+9.  (i1, ..., iR) = disclosed_indexes
+10. (j1, ..., jU) = undisclosed_indexes
+11. msg_scalars = messages_to_scalars(messages)
+12. disclosed_messages = (msg_scalars[i1], ..., msg_scalars[iR])
+13. undisclosed_messages = (msg_scalars[j1], ..., msg_scalars[jU])
 
 Procedure:
 
-1.  (Q_1, MsgGenerators) = create_generators(L+1, PK)
-2.  (H_1, ..., H_L) = MsgGenerators
-3.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
-4.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-5.  random_scalars = calculate_random_scalars(3+U)
-6.  (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
-7.  B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-8.  Abar = A * r1
-9.  Bbar = B * r1 - Abar * e
-10. T =  Abar * r2 + Bbar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
-11. c = calculate_challenge(Abar, Bbar, T, (i1, ..., iR),
-                            (msg_i1, ..., msg_iR), domain, ph)
-12. r4 = - r1^-1 (mod r)
-13. r2^ = r2 + e * r4 * c (mod r)
-14. r3^ = r3 + r4 * c (mod r)
-15. for j in (j1, ..., jU): m^_j = m~_j + msg_j * c (mod r)
-16. proof = (Abar, Bbar, r2^, r3^, (m^_j1, ..., m^_jU), c)
-17. return proof_to_octets(proof)
+1. random_scalars = calculate_random_scalars(3+U)
+2. init_res = ProofInit(PK, signature_res, random_scalars, header,
+                                       msg_scalars, undisclosed_indexes)
+3. if init_res is INVALID, return INVALID
+4. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
+                                                 disclosed_messages, ph)
+5. proof = ProofFinalize(init_res, challenge, e, random_scalars,
+                                                   undisclosed_messages)
+6. return proof
 ```
 
 ### Proof Verification (ProofVerify)
 
 This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
-The operation accepts the messages the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
+The operation works by first initializing the proof verification using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be inputted to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first component of the received proof (points of G1) will be checked for correctness (steps 4 and 5 in the following procedure), to verify the proof.
+
+The operation accepts the messages that the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
 ```
 result = ProofVerify(PK, proof, header, ph,
@@ -564,18 +551,182 @@ Outputs:
 
 Deserialization:
 
-1.  proof_result = octets_to_proof(proof)
-2.  if proof_result is INVALID, return INVALID
-3.  (Abar, Bbar, r2^, r3^, commitments, c) = proof_result
-4.  W = octets_to_pubkey(PK)
-5.  if W is INVALID, return INVALID
-6.  U = length(commitments)
-7.  R = length(disclosed_indexes)
-8.  L = R + U
-9.  (i1, ..., iR) = disclosed_indexes
-10. (j1, ..., jU) = range(1, L) \ disclosed_indexes
-11. (msg_i1, ..., msg_iR) = messages_to_scalars(disclosed_messages)
-12. (m^_j1, ...., m^_jU) = commitments
+1. proof_result = octets_to_proof(proof)
+2. if proof_result is INVALID, return INVALID
+3. (Abar, Bbar, r2^, r3^, commitments, cp) = proof_result
+4. W = octets_to_pubkey(PK)
+5. if W is INVALID, return INVALID
+6. (i1, ..., iR) = disclosed_indexes
+7. msg_scalars = messages_to_scalars(messages)
+
+Procedure:
+
+1. init_res = ProofVerifyInit(PK, proof_result, header, msg_scalars,
+                                                      disclosed_indexes)
+2. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
+                                                        msg_scalars, ph)
+3. if cp != challenge, return INVALID
+4. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
+5. return VALID
+```
+
+## Proof Protocol Subroutines
+
+This section describes the subroutines used by the ProofGen and ProVerify algorithms defined in (#proof-generation-proofgen) and (#proof-verification-proofverify) respectively.
+
+### Proof Initialization
+
+This operation initializes the proof and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `ProofGen` operation defined in (#proof-generation-proofgen). As one of its inputs, it accepts a list of random scalars (`random_scalars`) and a list of unsigned integers, in ascending order, representing the indexes of the messages the Prover choses to disclose (`undisclosed_indexes` see (#proof-generation-proofgen)). The list of random scalars MUST have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 3`).
+
+This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
+
+```
+init_res = ProofInit(PK, signature, random_scalars, header, messages,
+                                                    undisclosed_indexes)
+
+Inputs:
+
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk
+                 operation.
+- signature (REQUIRED), vector representing a BBS signature, consisting
+                        of a point of G1 and a scalar, in that order.
+- random_scalars (REQUIRED), vector of scalar values.
+- header (OPTIONAL), octet string. If not supplied it defaults to the
+                     empty octet string ("").
+- messages (OPTIONAL), vector of scalar values. If not supplied, it
+                       defaults to the empty array "()".
+- undisclosed_indexes (OPTIONAL), vector of unsigned integers in
+                                  ascending order. If not supplied, it
+                                  defaults to the empty array "()".
+
+Parameters:
+
+- P1, fixed point of G1, defined by the ciphersuite.
+
+Outputs:
+
+- init_res, vector consisting of 3 points of G1 and a scalar, in that
+            order; or INVALID.
+
+Deserialization:
+
+1. (A, e) = signature
+2. L = length(messages)
+3. U = length(undisclosed_indexes)
+4. (j1, ..., jU) = undisclosed_indexes
+5. if length(random_scalars) != U + 3, return INVALID
+6. (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
+7. (msg_1, ..., msg_L) = messages
+
+ABORT if:
+
+1. for i in undisclosed_indexes, i < 1 or i > L
+2. U > L
+
+Procedure:
+
+1. (Q_1, MsgGenerators) = create_generators(L+1, PK)
+2. (H_1, ..., H_L) = MsgGenerators
+3. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
+4. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
+5. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+6. Abar = A * r1
+7. Bbar = B * r1 - Abar * e
+8. T =  Abar * r2 + Bbar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
+9. return (Abar, Bbar, T, domain)
+```
+
+### Proof Finalization
+
+This operation finalizes the proof calculation during the `ProofGen` operation defined in (#proof-generation-proofgen) and returns the serialized proof value, using the `proof_to_octets` serialization operation defined in (#proof-to-octets).
+
+```
+proof = ProofFinalize(init_res, challenge, e_value, random_scalars,
+                                                   undisclosed_messages)
+
+Inputs:
+
+- init_res (REQUIRED), vector representing the value returned after
+                       initializing the proof generation or verification
+                       operations, consisting of 3 points of G1 and a
+                       scalar value, in that order.
+- challenge (REQUIRED), scalar value.
+- e_value (REQUIRED), scalar value.
+- random_scalars (REQUIRED), vector of scalar values.
+- undisclosed_messages (OPTIONAL), vector of scalar values. If not
+                                   supplied, it defaults to the empty
+                                   array "()".
+
+Outputs:
+
+- proof, an octet string; or INVALID.
+
+Deserialization:
+
+1. U = length(undisclosed_messages)
+2. if length(random_scalars) != U + 3, return INVALID
+3. (r1, r2, r3, m~_1, ..., m~_U) = random_scalars
+4. (undisclosed_1, ..., undisclosed_U) = undisclosed_messages
+5. if init_res is not a set of 3 points and a scalar in that
+   order, return INVALID
+6. (Abar, Bbar) = (init_res[0], init_res[1])
+
+Procedure:
+
+1. r4 = - r1^-1 (mod r)
+2. r2^ = r2 + e_value * r4 * challenge (mod r)
+3. r3^ = r3 + r4 * challenge (mod r)
+4. for j in (1, ..., U): m^_j = m~_j + undisclosed_j * challenge (mod r)
+5. proof = (Abar, Bbar, r2^, r3^, (m^_j1, ..., m^_jU), challenge)
+6. return proof_to_octets(proof)
+```
+
+### Proof Verification Initialization
+
+This operation initializes the proof verification operation and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `ProofVerify` operation defined in (#proof-verification-proofverify).
+
+This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
+
+```
+init_res = ProofVerifyInit(PK, proof, header, disclosed_messages,
+                                                      disclosed_indexes)
+
+Inputs:
+
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk
+                 operation.
+- proof (REQUIRED), vector representing a BBS proof, consisting of 2
+                    points of G1, 2 scalars, another nested but possibly
+                    empty vector of scalars and another scalar, in that
+                    order.
+- header (OPTIONAL), octet string. If not supplied it defaults to the
+                     empty octet string ("").
+- disclosed_messages (OPTIONAL), vector of scalar values. If not
+                                 supplied, it defaults to the empty
+                                 array "()".
+- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
+                                order. If not supplied, it defaults to
+                                the empty array "()".
+
+Parameters:
+
+- P1, fixed point of G1, defined by the ciphersuite.
+
+Outputs:
+
+- init_res, vector consisting of 3 points of G1 and a scalar, in that
+            order.
+
+Deserialization:
+
+1. (Abar, Bbar, r2^, r3^, commitments, c) = proof_result
+2. U = length(commitments)
+3. R = length(disclosed_indexes)
+4. L = R + U
+5. (i1, ..., iR) = disclosed_indexes
+6. (j1, ..., jU) = range(1, L) \ disclosed_indexes
+7. (msg_i1, ..., msg_iR) = disclosed_messages
+8. (m^_j1, ...., m^_jU) = commitments
 
 ABORT if:
 
@@ -584,20 +735,62 @@ ABORT if:
 
 Procedure:
 
-1.  (Q_1, MsgGenerators) = create_generators(L+1, PK)
-2.  (H_1, ..., H_L) = MsgGenerators
-3.  (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
-4.  (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
-5.  domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-6.  D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-7.  T =  Abar * r2^ + Bbar * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
-8.  T = T + D * c
-9.  cv = calculate_challenge(Abar, Bbar, T, (i1, ..., iR),
-                             (msg_i1, ..., msg_iR), domain, ph)
-10. if c != cv, return INVALID
-11. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
-12. return VALID
+1. (Q_1, MsgGenerators) = create_generators(L+1, PK)
+2. (H_1, ..., H_L) = MsgGenerators
+3. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
+4. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
+5. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
+6. D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+7. T =  Abar * r2^ + Bbar * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
+8. T = T + D * c
+9. return (Abar, Bbar, T, domain)
 ```
+
+### Challenge Calculation
+
+This operation calculates the challenge scalar value, used during [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify), as part of the Fiat-Shamir heuristic, for making the proof protocol non-interactive (in a interactive setting, the challenge would be a random value supplied by the verifier).
+
+This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
+
+```
+challenge = ProofChallengeCalculate(init_res, i_array, msg_array, ph)
+
+Inputs:
+- init_res (REQUIRED), vector representing the value returned after
+                       initializing the proof generation or verification
+                       operations, consisting of 3 points of G1 and a
+                       scalar value, in that order.
+- i_array (REQUIRED), array of non-negative integers (the indexes of
+                      the disclosed messages).
+- msg_array (OPTIONAL), array of scalars (the disclosed messages after
+                        mapped to scalars).
+- ph (OPTIONAL), an octet string. If not supplied, it must default to the
+                 empty octet string ("").
+
+Outputs:
+
+- challenge, a scalar.
+
+Deserialization:
+
+1. R = length(i_array)
+2. (i1, ..., iR) = i_array
+3. (msg_i1, ..., msg_iR) = msg_array
+4. (Abar, Bbar, C, domain) = init_res
+
+ABORT if:
+
+1. R > 2^64 - 1 or R != length(msg_array)
+2. length(ph) > 2^64 - 1
+
+Procedure:
+
+1. c_arr = (Abar, Bbar, C, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
+2. c_octs = serialize(c_array)
+3. return hash_to_scalar(c_octs || I2OSP(length(ph), 8) || ph)
+```
+
+**Note**: If the presentation header (ph) is not supplied in `ProofChallengeCalculate`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 3).
 
 # Utility Operations
 
@@ -913,51 +1106,6 @@ Procedure:
 ```
 
 **Note**: If the header is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 3), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
-
-## Challenge Calculation
-
-This operation calculates the challenge scalar value, used during [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify), as part of the Fiat-Shamir heuristic, for making the proof protocol non-interactive (in a interactive sating, the challenge would be a random value supplied by the verifier).
-
-This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
-
-```
-challenge = calculate_challenge(Abar, Bbar, C, i_array,
-                                                  msg_array, domain, ph)
-
-Inputs:
-
-- (Abar, Bbar, C) (REQUIRED), points of G1, as calculated in ProofGen.
-- i_array (REQUIRED), array of non-negative integers (the indexes of
-                      the disclosed messages).
-- msg_array (REQUIRED), array of scalars (the disclosed messages after
-                        mapped to scalars).
-- domain (REQUIRED), a scalar.
-- ph (OPTIONAL), an octet string. If not supplied, it must default to the
-                 empty octet string ("").
-
-Outputs:
-
-- challenge, a scalar.
-
-Deserialization:
-
-1. R = length(i_array)
-2. (i1, ..., iR) = i_array
-3. (msg_i1, ..., msg_iR) = msg_array
-
-ABORT if:
-
-1. R > 2^64 - 1 or R != length(msg_array)
-2. length(ph) > 2^64 - 1
-
-Procedure:
-
-1. c_arr = (Abar, Bbar, C, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
-2. c_octs = serialize(c_array)
-3. return hash_to_scalar(c_octs || I2OSP(length(ph), 8) || ph)
-```
-
-**Note**: Similarly to the header value in [Domain Calculation](#domain-calculation), if the presentation header (ph) is not supplied in `calculate_challenge`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 3).
 
 ## Serialization
 
