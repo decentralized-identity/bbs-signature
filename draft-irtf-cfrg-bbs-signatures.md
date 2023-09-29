@@ -127,6 +127,9 @@ SK
 PK
 : The public key for the signature scheme.
 
+message
+: An octet string, representing a signed message.
+
 L
 : The total number of signed messages.
 
@@ -260,7 +263,7 @@ The BBS signature scheme is organized as follows:
 Each of the core operations (see (#core-operations)), expect a list of points (called the generators, see (#generators)) and a list of messages represented as scalar values (see (#messages)). It is the job of the Interface to:
 
 1. Create the necessary generators.
-2. Map the inputted messages to scalars.
+2. Map the messages to scalars (see (#messages)).
 
 This allows for extensibility of the core scheme without exposing the resulting complexity to all applications. A document extending the core functionality of the BBS scheme by defining a new Interface, MUST ensure that it adheres to the requirements described in (#defining-new-interfaces).
 
@@ -278,7 +281,7 @@ Aside from the message generators, the scheme uses one additional generator `Q_1
 
 ### Messages
 
-Each message must be mapped to a scalar value before passed to one of the core BBS operations ((#core-operations)). There are various ways to map a message to a scalar value depending on its type (octet string, integers etc.). The BBS Signatures Interface defined in this document (see (#bbs-signatures-interface)), accepts only messages that are octet strings and maps them to scalars using a hash function (see (#messages-to-scalars)).
+In this document, the messages to be signed are defined as octet-strings. Each message must be mapped to a scalar value before passed to one of the core BBS operations ((#core-operations)). There are various ways to map a message to a scalar value. The BBS Signatures Interface defined in this document (see (#bbs-signatures-interface)), makes use of a hash function (see (#messages-to-scalars)). See (#mapping-messages-to-scalars) for more details and guidance on using alternative mapping methods.
 
 ### Serializing to Octets
 
@@ -696,7 +699,7 @@ Inputs:
                  operation.
 - signature (REQUIRED), an octet string of the form outputted by the
                         Sign operation.
-- generators (REQUIRED), vector of points in G1.
+- generators (REQUIRED), vector of pseudo-random points in G1.
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
@@ -740,7 +743,7 @@ Procedure:
                           header, messages, undisclosed_indexes, api_id)
 3. if init_res is INVALID, return INVALID
 4. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
-                                        disclosed_messages, ph, api_id)
+                                         disclosed_messages, ph, api_id)
 5. proof = ProofFinalize(init_res, challenge, e, random_scalars,
                                                    undisclosed_messages)
 6. return proof
@@ -764,7 +767,7 @@ Inputs:
                  operation.
 - proof (REQUIRED), an octet string of the form outputted by the
                     ProofGen operation.
-- generators (REQUIRED), vector of points in G1.
+- generators (REQUIRED), vector of pseudo-random points in G1.
 - header (OPTIONAL), an optional octet string containing context and
                      application specific information. If not supplied,
                      it defaults to an empty string.
@@ -801,11 +804,12 @@ Procedure:
 
 1. init_res = ProofVerifyInit(PK, proof_result, generators, header,
                                     messages, disclosed_indexes, api_id)
-2. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
+2. if init_res is INVALID, return INVALID
+3. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
                                                    messages, ph, api_id)
-3. if cp != challenge, return INVALID
-4. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
-5. return VALID
+4. if cp != challenge, return INVALID
+5. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
+6. return VALID
 ```
 
 ## Proof Protocol Subroutines
@@ -1056,17 +1060,17 @@ Procedure:
 
 This document defines a BBS Interface to be a set of operations that use the core functions defined in (#core-operations), to generate and validate BBS signatures and proofs. These core operations require a set of generators, and optionally, a set of scalars representing the messages.
 
-The Interface operations MUST create the generators that are required by the core functions. To do so, they MUST use an operation that is comforting to the requirements listed in (#defining-new-generators). If a vector of messages is supplied (where each message can have different forms, for example octet strings, scalar values etc., depending on the application), the Interface operations MUST map the inputted messages to their scalar values, using an operation that is comforting to the requirements listed in (#define-a-new-map-to-scalar).
+The Interface operations are tasked with creating the generators, as well as mapping the received set of messages to a set of scalar values. The created generators MUST follow the requirements listed in (#defining-new-generators). If a set of messages is supplied, the mapping to scalars procedure MUST follow the requirements listed in (#define-a-new-map-to-scalar).
 
 Each Interface MUST also define a unique ID as a parameter, called `api_id`. It is REQUIRED from the operations that create generators and map messages to scalars, to also define a unique ID (see (#interface-utilities)). The `api_id` MUST have the following format:
 
 ```
-api_id = ciphersuite_id || CREATE_GENERATORS_ID || MAP_TO_SCALAR_ID || ADD_INFO
+ciphersuite_id || CREATE_GENERATORS_ID || MAP_TO_SCALAR_ID || ADD_INFO
 ```
 
 Where `ciphersuite_id` is defined by the ciphersuite, `CREATE_GENERATORS_ID` is the unique IDs of the operation that creates the generators, `MAP_TO_SCALAR_ID` is the unique ID of the operation that maps the messages to scalars and the `ADD_INFO` value is an optional octet string indicating any additional information used to uniquely qualify the Interface. When `ADD_INFO` is present, it MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f). The `api_id` value, MUST be used by all subroutines an Interface calls, to ensure proper domain separation.
 
-Interfaces are meant to make it easier to use BBS Signature as part of other protocols with different requirements (for example, different types of input messages), or to extend BBS Signatures with additional functionality. Documents defining new BBS Interfaces, are REQUIRED to include a detailed and peer reviewed analyses, showcasing that, under reasonable cryptographic assumptions, the documented scheme is secure under the required security definitions and threat model of each protocol. In other words, Interfaces MUST be treated like Ciphersuites ((#ciphersuites)), in the sense that it is RECOMMENDED that applications will avoid creating their own, proprietary Interfaces.
+Interfaces are meant to make it easier to use BBS Signature as part of other protocols with different requirements (for example, different types of input messages or different ways to create the generators), or to extend BBS Signatures with additional functionality (for example, using blinded messages as in [@CDL16]). Documents defining new BBS Interfaces, other than adhering to the requirements listed in this section, should also include a detailed and peer reviewed analyses showcasing that, under reasonable cryptographic assumptions, the documented scheme is secure under the required security definitions and threat model of each protocol. In other words, Interfaces must be treated like Ciphersuites ((#ciphersuites)), in the sense that applications should avoid creating their own, proprietary Interfaces.
 
 # Utility Operations
 
@@ -1642,6 +1646,14 @@ Documents extending the BBS core functionality, that use the commitment value ar
 - Include a detailed and peer reviewed analyses, showcasing that, under reasonable cryptographic assumptions the documented scheme that uses the commitment value, results to a secure signature protocol, i.e., that the resulting signature is secure under adaptive chosen plaintext attacks.
 
 Applications using the Interface defined in (#bbs-signatures-interface), MUST ignore the commitment value.
+
+## Mapping Messages to Scalars
+
+As mentioned in this document, messages are considered to be represented as octet strings that are mapped to scalar values. More advanced applications however, like the ones using range proofs ([@BBB17]), will need to be able to use alternative mapping operations. At the BBS Signatures level, this means that an Interface may accept messages that are pre-mapped to a scalar, using some protocol specific operation. For example, an application could use [@ISO8601] to map dates into integers before passing them to the BBS Interface. In those cases, the application should ensure that all participants have a clear and consistent understating about which mapping method should be used, (examples include associating specific signature "types" with different mapping methods etc.).
+
+Additionally, the application must ensure that all the BBS Interface operations have a consistent view of which of the received messages are octet strings (in which case they should be mapped to scalars using an operation comforting to the rules in (#define-a-new-map-to-scalar)) and which messages  are scalars (in which case, no extra operation is needed on those messages).
+
+An option is for the Issuer to publish this information as part of their public parameters, similar to TBD (U-Prove). Such configuration should detail the type of each message, based on that message's index on the signed messages list (i.e., the first message will be an octet string, the second an integer etc.). A BBS Interface should check the messages they receive against those configurations and map them to scalars accordingly. Another option is to sign such configurations as part of the header parameter of the BBS signature (see (#signature-generation-sign)). In this case, the configuration does not need to be published by the Issuer. The Prover will be responsible to get that information from the issuer and later, to communicate it to the Verifier.
 
 # Ciphersuites
 
@@ -2959,4 +2971,38 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
     <date year="1991"/>
   </front>
   <seriesInfo name="In" value="CRYPTO"/>
+</reference>
+
+
+<reference anchor="BBB17" target="https://ia.cr/2017/1066">
+  <front>
+    <title>Bulletproofs: Short Proofs for Confidential Transactions and More</title>
+    <author initials="B. B." surname="Bünz" fullname="Benedikt Bünz">
+      <organization>Stanford University</organization>
+    </author>
+    <author initials="J. B." surname="Bootle" fullname="Jonathan Bootle">
+      <organization>University College London</organization>
+    </author>
+    <author initials="D. B." surname="Boneh" fullname="Dan Boneh">
+      <organization>Stanford University</organization>
+    </author>
+    <author initials="A. P." surname="Poelstra" fullname="Andrew Poelstra">
+      <organization>Blockstream</organization>
+    </author>
+    <author initials="P. W." surname="Wuille" fullname="Pieter Wuille">
+      <organization>Blockstream</organization>
+    </author>
+    <author initials="G. W." surname="Maxwell" fullname="Greg Maxwell">
+    </author>
+    <date year="2017"/>
+  </front>
+  <seriesInfo name="In" value="2018 IEEE Symposium on Security and Privacy "/>
+</reference>
+
+
+<reference anchor="ISO8601" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">
+ <front>
+   <title>Date and time — Representations for information interchange — Part 1: Basic rules</title>
+   <author><organization>ISO</organization></author>
+ </front>
 </reference>
