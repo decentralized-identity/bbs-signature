@@ -1221,7 +1221,7 @@ If we append msg_prime_scalar at the end of C2, it must always hold that
 C1 == C2.
 ```
 
-Additionally, the new operation MUST comfort to the following requirements:
+Additionally, the new operation MUST conform to the following requirements:
 
 - The returned scalars MUST be independent. More specifically, knowledge of any subset of the returned scalars MUST NOT reveal any information about the scalars not in that subset.
 - Unique inputs MUST result to unique outputs.
