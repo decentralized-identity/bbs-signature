@@ -1157,7 +1157,7 @@ When defining a new `create_generators` procedure, the most important property i
 - It should be infeasible to guess the discrete logarithm of the returned points, for any base, even with knowledge of the public parameters that were used to create those generators (like the `generator_seed` value in (#generators-calculation)). Note that pseudo randomness does not necessarily imply this property. For example, an implementation that repeatably hashes a public seed value to create exponents `r_1, r_2, ..., r_count` (where `r_1 = hash(seed), r_2 = hash(r_1), ...`) and then returns the points `H_1 = P1 * r_1, H_2 = P_1 * r_2, ..., H_count = P_1 * r_count` would be insecure (given knowledge of the seed), but given knowledge of only the points `H_1, ..., H_count`, the sequence would appear random.
 - The returned points must be different from the Identity point of G1 as well as the constant point `P1` defined by the ciphersuite.
 
-Every operation that is used to return generator points for use with the core BBS operations ((#core-operations)), MUST return points that comfort to the aforementioned rules. Such operation must also follow the rules outlined bellow,
+Every operation that is used to return generator points for use with the core BBS operations ((#core-operations)), MUST return points that conform to the aforementioned rules. Such operation must also follow the rules outlined bellow,
 
 - It MUST be deterministic and constant time for a specific number of generators.
 - It MUST use proper domain separation for both the `create_generators` procedure, as well as all of the internally-called procedures.
