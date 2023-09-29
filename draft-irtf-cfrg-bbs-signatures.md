@@ -545,7 +545,7 @@ Procedure:
 
 ## Core Operations
 
-The operations defined in this section perform the low-level cryptographic functionality of BBS Signatures. Those core functions MUST only be invoked by an Application Interface that comforts to the requirements outlined in (#defining-new-interfaces).
+The operations defined in this section perform the low-level cryptographic functionality of BBS Signatures. Those core functions MUST only be invoked by an Application Interface that conform to the requirements outlined in (#defining-new-interfaces).
 
 The operations of this section make use of functions and sub-routines defined in [Utility Operations](#utility-operations). More specifically,
 
@@ -1651,7 +1651,7 @@ Applications using the Interface defined in (#bbs-signatures-interface), MUST ig
 
 As mentioned in this document, messages are considered to be represented as octet strings that are mapped to scalar values. More advanced applications however, like the ones using range proofs ([@BBB17]), will need to be able to use alternative mapping operations. At the BBS Signatures level, this means that an Interface may accept messages that are pre-mapped to a scalar, using some protocol specific operation. For example, an application could use [@ISO8601] to map dates into integers before passing them to the BBS Interface. In those cases, the application should ensure that all participants have a clear and consistent understating about which mapping method should be used, (examples include associating specific signature "types" with different mapping methods etc.).
 
-Additionally, the application must ensure that all the BBS Interface operations have a consistent view of which of the received messages are octet strings (in which case they should be mapped to scalars using an operation comforting to the rules in (#define-a-new-map-to-scalar)) and which messages  are scalars (in which case, no extra operation is needed on those messages).
+Additionally, the application must ensure that all the BBS Interface operations have a consistent view of which of the received messages are octet strings (in which case they should be mapped to scalars using an operation conforming to the rules in (#define-a-new-map-to-scalar)) and which messages  are scalars (in which case, no extra operation is needed on those messages).
 
 An option is for the Issuer to publish this information as part of their public parameters, similar to TBD (U-Prove). Such configuration should detail the type of each message, based on that message's index on the signed messages list (i.e., the first message will be an octet string, the second an integer etc.). A BBS Interface should check the messages they receive against those configurations and map them to scalars accordingly. Another option is to sign such configurations as part of the header parameter of the BBS signature (see (#signature-generation-sign)). In this case, the configuration does not need to be published by the Issuer. The Prover will be responsible to get that information from the issuer and later, to communicate it to the Verifier.
 
