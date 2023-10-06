@@ -21,5 +21,9 @@
   "result": {
     "valid": false,
     "reason": "re-ordered messages"
+  },
+  "trace": {
+    "B": "ae8d4ebe248b9ad9c933d5661bfb46c56721fba2a1182ddda7e8fb443bda3c0a571ad018ad31d0b6d1f4e8b985e6c58d",
+    "domain": "6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400f7b"
   }
 }

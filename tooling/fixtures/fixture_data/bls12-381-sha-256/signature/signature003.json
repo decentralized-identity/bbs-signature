@@ -13,5 +13,9 @@
   "result": {
     "valid": false,
     "reason": "extra unsigned message"
+  },
+  "trace": {
+    "B": "92d264aed02bf23de022ebe778c4f929fddf829f504e451d011ed89a313b8167ac947332e1648157ceffc6e6e41ab255",
+    "domain": "25d57fab92a8274c68fde5c3f16d4b275e4a156f211ae34b3ab32fbaf506ed5c"
   }
 }
