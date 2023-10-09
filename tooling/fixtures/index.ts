@@ -5,7 +5,7 @@ import get from "lodash.get";
 
 // matching lines of the form "name = {{ $<fixture_path> }}" (for
 // example "m_1 = {{ $messages[1] }}" etc).
-const VARIABLE_REGEX = /(([a-zA-Z_]+\d*)\s=\s)?({{ \$)([a-zA-Z|.|\-|\d|\[|\]]*)( }})$/gm
+const VARIABLE_REGEX = /(([^\S\n\t]*[a-zA-Z0-9_]+\d*)\s=\s)?({{ \$)([a-zA-Z|.|\-|\d|\[|\]]*)( }})$/gm
 
 const DRAFT_NAME = "../../draft-irtf-cfrg-bbs-signatures.md";
 
