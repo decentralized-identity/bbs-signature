@@ -776,8 +776,8 @@ Inputs:
 - header (OPTIONAL), an optional octet string containing context and
                      application specific information. If not supplied,
                      it defaults to an empty string.
-- ph (OPTIONAL), an octet string containing the presentation header. If not
-                 supplied, it defaults to an empty string.
+- ph (OPTIONAL), an octet string containing the presentation header. If
+                 not supplied, it defaults to an empty string.
 - disclosed_messages (OPTIONAL), a vector of scalars representing the
                                  messages. If not supplied, it defaults
                                  to the empty array "()".
@@ -803,7 +803,6 @@ Deserialization:
 3. (Abar, Bbar, r2^, r3^, commitments, cp) = proof_result
 4. W = octets_to_pubkey(PK)
 5. if W is INVALID, return INVALID
-6. (i1, ..., iR) = disclosed_indexes
 
 Procedure:
 
@@ -994,10 +993,6 @@ Deserialization:
 13. (H_1, ..., H_L) = MsgGenerators
 14. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
 15. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
-
-ABORT if:
-
-1. for i in (i1, ..., iR), i < 1 or i > L
 
 Procedure:
 
