@@ -21,6 +21,12 @@ const suites = readdirSync(FIXTURES_FILE, { withFileTypes: true })
                 .filter(dirent => dirent.isDirectory())
                 .map(dirent => dirent.name);
 
+
+interface signatureTrace {
+  readonly B: string;
+  readonly domain: string;
+}
+
 export interface SignatureFixtureData {
   readonly caseName: string;
   readonly signature: string;
@@ -31,16 +37,27 @@ export interface SignatureFixtureData {
     readonly publicKey: string;
     readonly secretKey: string;
   };
+  trace: signatureTrace;
+}
+
+interface proofTrace {
+  readonly A_bar: string;
+  readonly B_bar: string;
+  readonly T: string;
+  readonly domain: string;
+  readonly challenge: string;
 }
 
 export interface ProofFixtureData {
   readonly caseName: string;
   readonly signerPublicKey: string;
   readonly header: string;
-  readonly presentationMessage: string;
+  readonly signature: string;
+  readonly presentationHeader: string;
   readonly revealedMessages: { [index: string]: string };
   readonly totalMessageCount: number;
   readonly proof: string;
+  readonly trace: proofTrace;
   result: { valid: false; reason: string } | { valid: true };
 }
 
@@ -144,10 +161,5 @@ export const MapMessageToScalarFixtures =
   fetchPerSuiteFixtures<MapMessageToScalarFixtureData>("", /MapMessageToScalarAsHash.json/);
 export const MockRngFixtures = fetchPerSuiteFixtures<MockRngFixtureData>("", /mockedRng.json/);
 export const KeyPairFixtures = fetchPerSuiteFixtures<KeyPairFixtureData>("", /keypair.json/);
-
-console.log("MapMessageToScalarFixtures = ", MapMessageToScalarFixtures);
-console.log("H2sFixture = ", H2sFixture);
-console.log("MockRngFixtures = ", MockRngFixtures);
-console.log("KeyPairFixtures = ", KeyPairFixtures);
 
 export { messages };

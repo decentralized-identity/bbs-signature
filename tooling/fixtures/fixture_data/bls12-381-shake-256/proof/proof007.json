@@ -1,6 +1,7 @@
 {
   "caseName": "invalid multi-message signature, all messages revealed proof (extra message un-revealed in proof)",
   "signerPublicKey": "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b99c2c41b38179eb001963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5",
+  "signature": "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420bfdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd850aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f",
   "header": "11223344556677889900aabbccddeeff",
   "presentationHeader": "bed231d880675ed101ead304512e043ade9958dd0241ea70b4b3957fba941501",
   "revealedMessages": {
@@ -14,5 +15,12 @@
   "result": {
     "valid": false,
     "reason": "extra message un-revealed in proof"
+  },
+  "trace": {
+    "A_bar": "ac0424b2a984c55d0061aa61df105f2c882d393494f3f4205d1e73f93c9c76b30664baeb3dc87f23fbf4035fb0a8e76b",
+    "B_bar": "851dd39cecce8843e747ccf540f0850a30e1317f8897a56c2d85bfc1e0b4dba1b0e0322d89aad4feb8b21c414a384a01",
+    "T": "89f37630b485590b80f54c96210a00139366785701a99de2a5b560b7304b16ff20f81edb2027de2ed6bd58206a6aa2d3",
+    "domain": "6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400f7b",
+    "challenge": "3f079b3ede1b244a809807ae2088deff841b93d0bca442e346b33d6b8aff8961"
   }
 }
