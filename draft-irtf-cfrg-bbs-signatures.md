@@ -127,6 +127,9 @@ SK
 PK
 : The public key for the signature scheme.
 
+message
+: An octet string, representing a signed message.
+
 L
 : The total number of signed messages.
 
@@ -138,9 +141,6 @@ U
 
 scalar
 : An integer between 0 and r-1, where r is the prime order of the selected groups, defined by each ciphersuite (see also [Notation](#notation)).
-
-input\_message
-: An input message to be signed by the signature scheme. An input\_message can either be either an octet string or a scalar.
 
 generator
 : A valid point on the selected subgroup of the curve being used that is employed to commit a value.
@@ -253,6 +253,20 @@ The schemes operations defined in this section depend on the following parameter
 
 * get\_random(n): returns a random octet string with a length of n bytes, sampled uniformly at random using a cryptographically secure pseudo-random number generator (CSPRNG) or a pseudo random function. See [@!RFC4086] for recommendations and requirements on the generation of random numbers.
 
+## Interfaces
+
+The BBS signature scheme is organized as follows:
+
+- A set of low level (core) operations, taking care of the main cryptographic functionality.
+- An Application Interface (API), that uses the core operations in a secure way.
+
+Each of the core operations (see (#core-operations)), expect a list of points (called the generators, see (#generators)) and a list of messages represented as scalar values (see (#messages)). It is the job of the Interface to:
+
+1. Create the necessary generators.
+2. Map the messages to scalars (see (#messages)).
+
+This allows for extensibility of the core scheme without exposing the resulting complexity to all applications. A document extending the core functionality of the BBS scheme by defining a new Interface, MUST ensure that it adheres to the requirements described in (#defining-new-interfaces).
+
 ## Considerations
 
 ### Subgroup Selection
@@ -264,6 +278,10 @@ In definition of this signature scheme there are two possible variations based u
 Throughout the operations of this signature scheme, each message that is signed is paired with a specific point of G1, called a generator. Specifically, if a generator `H_1` is multiplied with `msg_1` during signing, then `H_1` MUST be multiplied with `msg_1` in all other operations (signature verification, proof generation and proof verification). As a result, the messages must be passed to the operations of the BBS scheme in the same order.
 
 Aside from the message generators, the scheme uses one additional generator `Q_1` to sign the signature's domain, which binds both the signature and generated proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed etc.).
+
+### Messages
+
+In this document, the messages to be signed are defined as octet-strings. Each message must be mapped to a scalar value before passed to one of the core BBS operations ((#core-operations)). There are various ways to map a message to a scalar value. The BBS Signatures Interface defined in this document (see (#bbs-signatures-interface)), makes use of a hash function (see (#messages-to-scalars)). See (#mapping-messages-to-scalars) for more details and guidance on using alternative mapping methods.
 
 ### Serializing to Octets
 
@@ -338,22 +356,13 @@ Procedure:
 2. return point_to_octets_g2(W)
 ```
 
-## Core Operations
+## BBS Signatures Interface
 
-The operations of this section make use of functions and sub-routines defined in [Utility Operations](#utility-operations). More specifically,
-
-- `hash_to_scalar` is defined in (#hash-to-scalar)
-- `messages_to_scalars` is defined in (#messages-to-scalars)
-- `calculate_domain` is defined in (#domain-calculation).
-- `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization)
-
-The following operations also make use of the `create_generators` operation defined in (#generators-calculation), to create generator points on `G1` (see (#generators)). Note that the values of those points depends only on a cipheruite defined seed. As a result, the output of that operation can be cached to avoid unnecessary calls to the `create_generators` procedure. See (#generators-calculation) for more details.
-
-**Note** Some of the utility functions used by the core operations of this section could fail (ABORT). In that case, the calling operation MUST also immediately abort.
+This section defines a BBS Signatures Interface (see (#interfaces)), that makes use of the core operations defined in (#core-operations), to perform the functions of signing and verifying the signature, as well as generating and validating the BBS proof. To create the generators (see (#generators)) it uses the `create_generators` operation defined in (#generators-calculation). Each inputted message is an octet string. To map the messages to scalars, it uses the `messages_to_scalars` operation defined in (#messages-to-scalars).
 
 ### Signature Generation (Sign)
 
-This operation computes a deterministic signature from a secret key (SK) and optionally over a header and or a vector of input\_messages (see [Terminology](#terminology) for the definition of a input\_message).
+The Sign operation returns a BBS signature from a secret key (SK), over a header and a set of messages.
 
 ```
 signature = Sign(SK, PK, header, messages)
@@ -367,37 +376,33 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- messages (OPTIONAL), a vector of input_messages. If not supplied, it
+- messages (OPTIONAL), a vector of octet strings. If not supplied, it
                        defaults to the empty array "()".
 
 Parameters:
 
-- P1, fixed point of G1, defined by the ciphersuite.
+- api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"is
+          an ASCII string comprised of 9 bytes.
 
 Outputs:
 
-- signature, a signature encoded as an octet string.
-
-Deserialization:
-
-1. L = length(messages)
-2. (msg_1, ..., msg_L) = messages_to_scalars(messages)
+- signature, a signature encoded as an octet string; or INVALID.
 
 Procedure:
 
-1. (Q_1, H_1, ..., H_L) = create_generators(L+1, PK)
-2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-3. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)))
-4. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-5. A = B * (1 / (SK + e))
-6. return signature_to_octets(A, e)
-```
+1. message_scalars = messages_to_scalars(messages, api_id)
+2. generators = create_generators(length(messages)+1, PK, api_id)
 
-**Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
+3. signature = CoreSign(SK, PK, header, message_scalars,
+                                              generators, api_id)
+4. if signature is INVALID, return INVALID
+5. return signature
+```
 
 ### Signature Verification (Verify)
 
- This operation checks that a signature is valid for a given header and vector of input\_messages against a supplied public key (PK). The input\_messages MUST be supplied in this operation in the same order they were supplied to [Sign](#signature-generation-sign) when creating the signature.
+The Verify operation validates a BBS signature, given a public key (PK), a header and a set of messages.
 
 ```
 result = Verify(PK, signature, header, messages)
@@ -411,8 +416,236 @@ Inputs:
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
-- messages (OPTIONAL), a vector of input_messages. If not supplied, it
+- messages (OPTIONAL), a vector of octet strings. If not supplied, it
                        defaults to the empty array "()".
+
+Parameters:
+
+- api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"is
+          an ASCII string comprised of 9 bytes.
+
+Outputs:
+
+- result, either VALID or INVALID.
+
+Procedure:
+
+1. message_scalars = messages_to_scalars(messages, api_id)
+2. generators = create_generators(length(messages)+1, PK, api_id)
+
+3. result = CoreVerify(PK, signature, generators, header,
+                                         message_scalars, api_id)
+4. return result
+```
+
+### Proof Generation (ProofGen)
+
+The ProofGen operation creates BBS proof, which is a zero-knowledge, proof-of-knowledge, of a BBS signature, while optionally disclosing any subset of the signed messages. Validating the proof (see ProofVerify defined in (#proof-verification-proofverify)) guarantees authenticity and integrity of the header and disclosed messages, as well as knowledge of a valid BBS signature.
+
+Other than the Signer's public key (PK), the BBS signature, the header and the messages, the operation also accepts a presentation header value, that will be bound the the resulting proof (see(#presentation-header-selection)). To indicate which of the messages should be disclosed, the operation accepts a list of integers in ascending order, representing the indexes of those messages
+
+```
+proof = ProofGen(PK, signature, header, ph, messages, disclosed_indexes)
+
+Inputs:
+
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk
+                 operation.
+- signature (REQUIRED), an octet string of the form outputted by the
+                        Sign operation.
+- header (OPTIONAL), an octet string containing context and application
+                     specific information. If not supplied, it defaults
+                     to an empty string.
+- ph (OPTIONAL), an octet string containing the presentation header. If
+                 not supplied, it defaults to an empty string.
+- messages (OPTIONAL), a vector of octet strings. If not supplied, it
+                       defaults to the empty array "()".
+- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
+                                order. Indexes of disclosed messages. If
+                                not supplied, it defaults to the empty
+                                array "()".
+
+Parameters:
+
+- api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"is
+          an ASCII string comprised of 9 bytes.
+
+Outputs:
+
+- proof, an octet string; or INVALID.
+
+Procedure:
+
+1. message_scalars = messages_to_scalars(messages, api_id)
+2. generators = create_generators(length(messages)+1, PK, api_id)
+
+3. proof = CoreProofGen(PK, signature, generators, header, ph,
+                             message_scalars, disclosed_indexes, api_id)
+4. if proof is INVALID, return INVALID
+5. return proof
+```
+
+### Proof Verification (ProofVerify)
+
+The ProofVerify operation validates a BBS proof, given the Signer's public key (PK), a header and presentation header values, the disclosed messages and the indexes those messages had in the original vector of signed messages.
+
+```
+result = ProofVerify(PK, proof, header, ph,
+                     disclosed_messages,
+                     disclosed_indexes)
+
+Inputs:
+
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk
+                 operation.
+- proof (REQUIRED), an octet string of the form outputted by the
+                    ProofGen operation.
+- header (OPTIONAL), an optional octet string containing context and
+                     application specific information. If not supplied,
+                     it defaults to an empty string.
+- ph (OPTIONAL), an octet string containing the presentation header. If
+                 not supplied, it defaults to an empty string.
+- disclosed_messages (OPTIONAL), a vector of octet strings. If not
+                                 supplied, it defaults to the empty
+                                 array "()".
+- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
+                                order. Indexes of disclosed messages. If
+                                not supplied, it defaults to the empty
+                                array "()".
+
+Parameters:
+
+- api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"is
+          an ASCII string comprised of 9 bytes.
+- (octet_point_length, octet_scalar_length), defined by the ciphersuite.
+
+Outputs:
+
+- result, either VALID or INVALID.
+
+Deserialization:
+
+1. proof_len_floor = 2 * octet_point_length + 3 * octet_scalar_length
+2. if length(proof) < proof_len_floor, return INVALID
+3. U = floor((length(proof) - proof_len_floor) / octet_scalar_length)
+4. R = length(disclosed_indexes)
+
+Procedure:
+
+1. message_scalars = messages_to_scalars(disclosed_messages, api_id)
+2. generators = create_generators(U + R + 1, PK, api_id)
+
+3. result = CoreProofVerify(PK, proof, generators, header, ph,
+                             message_scalars, disclosed_indexes, api_id)
+4. return result
+```
+
+## Core Operations
+
+The operations defined in this section perform the low-level cryptographic functionality of BBS Signatures. Those core functions MUST only be invoked by an Application Interface that conform to the requirements outlined in (#defining-new-interfaces).
+
+The operations of this section make use of functions and sub-routines defined in [Utility Operations](#utility-operations). More specifically,
+
+- `hash_to_scalar` is defined in (#hash-to-scalar)
+- `calculate_domain` and `calculate_challenge` are defined in (#domain-calculation) and (#challenge-calculation) correspondingly.
+- `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization)
+
+Each core operation will accept a vector of generators (points of G1) and optionally, a vector of messages. The generators MUST be unique and pseudo-random i.e., with no known relationship to each other. See (#defining-new-generators) for more details. Each message is represented as a scalar value. See (#messages-to-scalars) for ways to map a message to a scalar and the corresponding security requirements.
+
+**Note** Some of the utility functions used by the core operations of this section could fail (ABORT). In that case, the calling operation MUST also immediately abort.
+
+### CoreSign
+
+This operation computes a deterministic signature from a secret key (SK), a set of generators (points of G1) and optionally a header and a vector of messages.
+
+This operation also accepts an optional commitment input (see (#using-a-commitment)). The commitment is a point of G1 (other than the identity), that if used, it will be integrity protected by the signature. This value serves only as an extension point and it is not used by this document. Applications using the Interface defined in (#bbs-signatures-interface) MUST ignore this value. Extensions that want to take advantage of this extension point MUST follow the requirements defined in (#using-a-commitment).
+
+Note that this operation requires the generators to be at least one more than the messages, but does not enforce an exact equality, in contrast to the CoreVerify ((#coreverify)), CoreProofGen ((#coreproofgen)) and CoreProofVerify ((#coreproofverify)) operations. This is to accommodate extensions that use the commitment value. If the commitment input is not used, the generators MUST be exactly one more than the messages.
+
+```
+signature = CoreSign(SK, PK, generators, header, messages,
+                                                    commitment, api_id)
+
+Inputs:
+
+- SK (REQUIRED), a secret key in the form outputted by the KeyGen
+                 operation.
+- PK (REQUIRED), an octet string of the form outputted by SkToPk
+                 provided the above SK as input.
+- generators (REQUIRED), vector of pseudo-random points in G1.
+- header (OPTIONAL), an octet string containing context and application
+                     specific information. If not supplied, it defaults
+                     to an empty string.
+- messages (OPTIONAL), a vector of scalars representing the messages.
+                       If not supplied, it defaults to the empty
+                       array "()".
+- commitment (OPTIONAL), a point of G1. If not supplied, it defaults to
+                         the identity point of G1 ("Identity_G1").
+- api_id (OPTIONAL), an octet string. If not supplied it defaults to the
+                     empty octet string ("").
+
+Parameters:
+
+- P1, fixed point of G1, defined by the ciphersuite.
+
+Outputs:
+
+- signature, a vector comprised of a point of G1 and a scalar.
+
+Definitions:
+
+1. signature_dst, an octet string representing the domain separation
+                  tag: api_id || "H2S_" where "H2S_" is an ASCII string
+                  comprised of 4 bytes.
+
+Deserialization:
+
+1. L = length(messages)
+2. if length(generators) < L + 1, return INVALID
+2. (msg_1, ..., msg_L) = messages
+3. (Q_1, H_1, ..., H_L) = (generators[1], ..., generators[L+1])
+
+Procedure:
+
+1. domain = calculate_domain(PK, generators, header, api_id)
+
+2. let comm be an empty octet string ("")
+3. if commitment != Identity_G1, comm = serialize(commitment)
+
+4. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L, comm)),
+                                                          signature_dst)
+5. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L + commitment
+6. A = B * (1 / (SK + e))
+7. return signature_to_octets((A, e))
+```
+
+**Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
+
+### CoreVerify
+
+This operation checks that a signature is valid for a given set of generators, header and vector of messages, against a supplied public key (PK). The set of messages MUST be supplied in this operation in the same order they were supplied to [Sign](#signature-generation-sign) when creating the signature.
+
+```
+result = CoreVerify(PK, signature, generators, header, messages, api_id)
+
+Inputs:
+
+- PK (REQUIRED), an octet string of the form outputted by the SkToPk
+                 operation.
+- signature (REQUIRED), an octet string of the form outputted by the
+                        Sign operation.
+- generators (REQUIRED), vector of pseudo-random points in G1.
+- header (OPTIONAL), an octet string containing context and application
+                     specific information. If not supplied, it defaults
+                     to an empty string.
+- messages (OPTIONAL), a vector of scalars representing the messages.
+                       If not supplied, it defaults to the empty
+                       array "()".
+- api_id (OPTIONAL), an octet string. If not supplied it defaults to the
+                     empty octet string ("").
 
 Parameters:
 
@@ -430,18 +663,19 @@ Deserialization:
 4. W = octets_to_pubkey(PK)
 5. if W is INVALID, return INVALID
 6. L = length(messages)
-7. (msg_1, ..., msg_L) = messages_to_scalars(messages)
+7. if length(generators) != L + 1, return INVALID
+8. (msg_1, ..., msg_L) = messages
+9. (Q_1, H_1, ..., H_L) = generators
 
 Procedure:
 
-1. (Q_1, H_1, ..., H_L) = create_generators(L+1, PK)
-2. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-4. if e(A, W + BP2 * e) * e(B, -BP2) != Identity_GT, return INVALID
-5. return VALID
+1. domain = calculate_domain(PK, generators, header, api_id)
+2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+3. if e(A, W + BP2 * e) * e(B, -BP2) != Identity_GT, return INVALID
+4. return VALID
 ```
 
-### Proof Generation (ProofGen)
+### CoreProofGen
 
 This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [Presentation header selection](#presentation-header-selection) for more details. Validating the resulting proof (using the `ProofVerify` algorithm defined in (#proof-verification-proofverify)), guarantees the integrity and authenticity of the revealed messages, as well as the possession of a valid signature (for the public key `PK`) by the prover.
 
@@ -449,14 +683,15 @@ The `ProofGen` operation will accept that signature as an input. It is RECOMMEND
 
 The operation works by first initializing the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge, together with the initialization result, will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
 
-The input\_messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those input\_messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
+The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
 
 The operation calculates multiple random scalars using the `calculate_random_scalars` utility operation defined in (#random-scalars). See also (#randomness-requirements) for considerations and requirements on random scalars generation.
 
 To allow for flexibility in implementations, although ProofGen defines a specific value for `expand_len`, applications may use any value larger than `ceil((ceil(log2(r))+k)/8)` (for example, for the BLS12-381-SHAKE-256 and BLS12-381-SHA-256 ciphersuites, an implementation can elect to use a value of 64, instead of 48, as to allow for certain optimizations).
 
 ```
-proof = ProofGen(PK, signature, header, ph, messages, disclosed_indexes)
+proof = CoreProofGen(PK, signature, generators, header, ph, messages,
+                                              disclosed_indexes, api_id)
 
 Inputs:
 
@@ -464,17 +699,21 @@ Inputs:
                  operation.
 - signature (REQUIRED), an octet string of the form outputted by the
                         Sign operation.
+- generators (REQUIRED), vector of pseudo-random points in G1.
 - header (OPTIONAL), an octet string containing context and application
                      specific information. If not supplied, it defaults
                      to an empty string.
 - ph (OPTIONAL), an octet string containing the presentation header. If
                  not supplied, it defaults to an empty string.
-- messages (OPTIONAL), a vector of input\_messages. If not supplied, it
-                       defaults to the empty array "()".
+- messages (OPTIONAL), a vector of scalars representing the messages.
+                       If not supplied, it defaults to the empty
+                       array "()".
 - disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
                                 order. Indexes of disclosed messages. If
                                 not supplied, it defaults to the empty
                                 array "()".
+- api_id (OPTIONAL), an octet string. If not supplied it defaults to the
+                     empty octet string ("").
 
 Outputs:
 
@@ -485,6 +724,7 @@ Deserialization:
 1.  signature_result = octets_to_signature(signature)
 2.  if signature_result is INVALID, return INVALID
 3.  (A, e) = signature_result
+
 4.  L = length(messages)
 5.  R = length(disclosed_indexes)
 6.  if R > L, return INVALID
@@ -492,24 +732,24 @@ Deserialization:
 8.  undisclosed_indexes = range(1, L) \ disclosed_indexes
 9.  (i1, ..., iR) = disclosed_indexes
 10. (j1, ..., jU) = undisclosed_indexes
-11. msg_scalars = messages_to_scalars(messages)
-12. disclosed_messages = (msg_scalars[i1], ..., msg_scalars[iR])
-13. undisclosed_messages = (msg_scalars[j1], ..., msg_scalars[jU])
+
+11. disclosed_messages = (messages[i1], ..., messages[iR])
+12. undisclosed_messages = (messages[j1], ..., messages[jU])
 
 Procedure:
 
 1. random_scalars = calculate_random_scalars(3+U)
-2. init_res = ProofInit(PK, signature_res, random_scalars, header,
-                                       msg_scalars, undisclosed_indexes)
+2. init_res = ProofInit(PK, signature_res, generators, random_scalars,
+                          header, messages, undisclosed_indexes, api_id)
 3. if init_res is INVALID, return INVALID
 4. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
-                                                 disclosed_messages, ph)
+                                         disclosed_messages, ph, api_id)
 5. proof = ProofFinalize(init_res, challenge, e, random_scalars,
                                                    undisclosed_messages)
 6. return proof
 ```
 
-### Proof Verification (ProofVerify)
+### CoreProofVerify
 
 This operation checks that a proof is valid for a header, vector of disclosed messages (along side their index corresponding to their original position when signed) and presentation header against a public key (PK).
 
@@ -518,9 +758,8 @@ The operation works by first initializing the proof verification using the `Proo
 The operation accepts the messages that the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
 
 ```
-result = ProofVerify(PK, proof, header, ph,
-                     disclosed_messages,
-                     disclosed_indexes)
+result = CoreProofVerify(PK, proof, generators, header, ph,
+                          disclosed_messages, disclosed_indexes, api_id)
 
 Inputs:
 
@@ -528,18 +767,21 @@ Inputs:
                  operation.
 - proof (REQUIRED), an octet string of the form outputted by the
                     ProofGen operation.
+- generators (REQUIRED), vector of pseudo-random points in G1.
 - header (OPTIONAL), an optional octet string containing context and
                      application specific information. If not supplied,
                      it defaults to an empty string.
 - ph (OPTIONAL), an octet string containing the presentation header. If not
                  supplied, it defaults to an empty string.
-- disclosed_messages (OPTIONAL), a vector of input_messages. If not
-                                 supplied, it defaults to the empty
-                                 array "()".
+- disclosed_messages (OPTIONAL), a vector of scalars representing the
+                                 messages. If not supplied, it defaults
+                                 to the empty array "()".
 - disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
                                 order. Indexes of disclosed messages. If
                                 not supplied, it defaults to the empty
                                 array "()".
+- api_id (OPTIONAL), an octet string. If not supplied it defaults to the
+                     empty octet string ("").
 
 Parameters:
 
@@ -557,17 +799,17 @@ Deserialization:
 4. W = octets_to_pubkey(PK)
 5. if W is INVALID, return INVALID
 6. (i1, ..., iR) = disclosed_indexes
-7. msg_scalars = messages_to_scalars(messages)
 
 Procedure:
 
-1. init_res = ProofVerifyInit(PK, proof_result, header, msg_scalars,
-                                                      disclosed_indexes)
-2. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
-                                                        msg_scalars, ph)
-3. if cp != challenge, return INVALID
-4. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
-5. return VALID
+1. init_res = ProofVerifyInit(PK, proof_result, generators, header,
+                                    messages, disclosed_indexes, api_id)
+2. if init_res is INVALID, return INVALID
+3. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
+                                                   messages, ph, api_id)
+4. if cp != challenge, return INVALID
+5. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
+6. return VALID
 ```
 
 ## Proof Protocol Subroutines
@@ -581,8 +823,8 @@ This operation initializes the proof and returns part of the input that will be 
 This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
 
 ```
-init_res = ProofInit(PK, signature, random_scalars, header, messages,
-                                                    undisclosed_indexes)
+init_res = ProofInit(PK, signature, generators, random_scalars,
+                          header, messages, undisclosed_indexes, api_id)
 
 Inputs:
 
@@ -590,6 +832,7 @@ Inputs:
                  operation.
 - signature (REQUIRED), vector representing a BBS signature, consisting
                         of a point of G1 and a scalar, in that order.
+- generators (REQUIRED), vector of points in G1.
 - random_scalars (REQUIRED), vector of scalar values.
 - header (OPTIONAL), octet string. If not supplied it defaults to the
                      empty octet string ("").
@@ -598,6 +841,8 @@ Inputs:
 - undisclosed_indexes (OPTIONAL), vector of unsigned integers in
                                   ascending order. If not supplied, it
                                   defaults to the empty array "()".
+- api_id (OPTIONAL), an octet string. If not supplied it defaults to the
+                     empty octet string ("").
 
 Parameters:
 
@@ -610,13 +855,18 @@ Outputs:
 
 Deserialization:
 
-1. (A, e) = signature
-2. L = length(messages)
-3. U = length(undisclosed_indexes)
-4. (j1, ..., jU) = undisclosed_indexes
-5. if length(random_scalars) != U + 3, return INVALID
-6. (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
-7. (msg_1, ..., msg_L) = messages
+1.  (A, e) = signature
+2.  L = length(messages)
+3.  U = length(undisclosed_indexes)
+4.  (j1, ..., jU) = undisclosed_indexes
+5.  if length(random_scalars) != U + 3, return INVALID
+6.  (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
+7.  (msg_1, ..., msg_L) = messages
+
+8.  if length(generators) != L + 1, return INVALID
+9.  (Q_1, MsgGenerators) = generators
+10. (H_1, ..., H_L) = MsgGenerators
+11. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
 ABORT if:
 
@@ -625,15 +875,12 @@ ABORT if:
 
 Procedure:
 
-1. (Q_1, MsgGenerators) = create_generators(L+1, PK)
-2. (H_1, ..., H_L) = MsgGenerators
-3. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
-4. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-5. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-6. Abar = A * r1
-7. Bbar = B * r1 - Abar * e
-8. T =  Abar * r2 + Bbar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
-9. return (Abar, Bbar, T, domain)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
+2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+3. Abar = A * r1
+4. Bbar = B * r1 - Abar * e
+5. T =  Abar * r2 + Bbar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
+6. return (Abar, Bbar, T, domain)
 ```
 
 ### Proof Finalization
@@ -667,9 +914,7 @@ Deserialization:
 2. if length(random_scalars) != U + 3, return INVALID
 3. (r1, r2, r3, m~_1, ..., m~_U) = random_scalars
 4. (undisclosed_1, ..., undisclosed_U) = undisclosed_messages
-5. if init_res is not a set of 3 points and a scalar in that
-   order, return INVALID
-6. (Abar, Bbar) = (init_res[0], init_res[1])
+5. (Abar, Bbar) = (init_res[0], init_res[1])
 
 Procedure:
 
@@ -688,8 +933,13 @@ This operation initializes the proof verification operation and returns part of 
 This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
 
 ```
-init_res = ProofVerifyInit(PK, proof, header, disclosed_messages,
-                                                      disclosed_indexes)
+init_res = ProofVerifyInit(PK,
+                           proof,
+                           generators,
+                           header,
+                           disclosed_messages,
+                           disclosed_indexes,
+                           api_id)
 
 Inputs:
 
@@ -699,6 +949,7 @@ Inputs:
                     points of G1, 2 scalars, another nested but possibly
                     empty vector of scalars and another scalar, in that
                     order.
+- generators (REQUIRED), vector of points in G1.
 - header (OPTIONAL), octet string. If not supplied it defaults to the
                      empty octet string ("").
 - disclosed_messages (OPTIONAL), vector of scalar values. If not
@@ -707,6 +958,8 @@ Inputs:
 - disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
                                 order. If not supplied, it defaults to
                                 the empty array "()".
+- api_id (OPTIONAL), an octet string. If not supplied it defaults to the
+                     empty octet string ("").
 
 Parameters:
 
@@ -719,14 +972,20 @@ Outputs:
 
 Deserialization:
 
-1. (Abar, Bbar, r2^, r3^, commitments, c) = proof_result
-2. U = length(commitments)
-3. R = length(disclosed_indexes)
-4. L = R + U
-5. (i1, ..., iR) = disclosed_indexes
-6. (j1, ..., jU) = range(1, L) \ disclosed_indexes
-7. (msg_i1, ..., msg_iR) = disclosed_messages
-8. (m^_j1, ...., m^_jU) = commitments
+1.  (Abar, Bbar, r2^, r3^, commitments, c) = proof_result
+2.  U = length(commitments)
+3.  R = length(disclosed_indexes)
+4.  L = R + U
+5.  (i1, ..., iR) = disclosed_indexes
+6.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
+7.  (msg_i1, ..., msg_iR) = disclosed_messages
+8.  (m^_j1, ...., m^_jU) = commitments
+
+9.  if length(generators) != L + 1, return INVALID
+10. (Q_1, MsgGenerators) = generators
+11. (H_1, ..., H_L) = MsgGenerators
+12. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
+13. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
 ABORT if:
 
@@ -735,15 +994,11 @@ ABORT if:
 
 Procedure:
 
-1. (Q_1, MsgGenerators) = create_generators(L+1, PK)
-2. (H_1, ..., H_L) = MsgGenerators
-3. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
-4. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
-5. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header)
-6. D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-7. T =  Abar * r2^ + Bbar * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
-8. T = T + D * c
-9. return (Abar, Bbar, T, domain)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
+2. D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+3. T =  Abar * r2^ + Bbar * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
+4. T = T + D * c
+5. return (Abar, Bbar, T, domain)
 ```
 
 ### Challenge Calculation
@@ -753,7 +1008,8 @@ This operation calculates the challenge scalar value, used during [ProofGen](#pr
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
 ```
-challenge = ProofChallengeCalculate(init_res, i_array, msg_array, ph)
+challenge = ProofChallengeCalculate(init_res, i_array, msg_array, ph,
+                                                                 api_id)
 
 Inputs:
 - init_res (REQUIRED), vector representing the value returned after
@@ -764,12 +1020,20 @@ Inputs:
                       the disclosed messages).
 - msg_array (OPTIONAL), array of scalars (the disclosed messages after
                         mapped to scalars).
-- ph (OPTIONAL), an octet string. If not supplied, it must default to the
-                 empty octet string ("").
+- ph (OPTIONAL), an octet string. If not supplied, it must default to
+                 the empty octet string ("").
+- api_id (OPTIONAL), an octet string. If not supplied it defaults to the
+                     empty octet string ("").
 
 Outputs:
 
 - challenge, a scalar.
+
+Definitions:
+
+1. challenge_dst, an octet string representing the domain separation
+                  tag: api_id || "H2S_" where "H2S_" is an ASCII string
+                  comprised of 4 bytes.
 
 Deserialization:
 
@@ -786,15 +1050,189 @@ ABORT if:
 Procedure:
 
 1. c_arr = (Abar, Bbar, C, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
-2. c_octs = serialize(c_array)
-3. return hash_to_scalar(c_octs || I2OSP(length(ph), 8) || ph)
+2. c_octs = serialize(c_array) || I2OSP(length(ph), 8) || ph
+3. return hash_to_scalar(c_octs, challenge_dst)
 ```
 
 **Note**: If the presentation header (ph) is not supplied in `ProofChallengeCalculate`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `c_octs` value, during the concatenation step of the above procedure (step 3).
 
+## Defining New Interfaces
+
+This document defines a BBS Interface to be a set of operations that use the core functions defined in (#core-operations), to generate and validate BBS signatures and proofs. These core operations require a set of generators, and optionally, a set of scalars representing the messages.
+
+The Interface operations are tasked with creating the generators, as well as mapping the received set of messages to a set of scalar values. The created generators MUST follow the requirements listed in (#defining-new-generators). If a set of messages is supplied, the mapping to scalars procedure MUST follow the requirements listed in (#define-a-new-map-to-scalar).
+
+Each Interface MUST also define a unique ID as a parameter, called `api_id`. It is REQUIRED from the operations that create generators and map messages to scalars, to also define a unique ID (see (#interface-utilities)). The `api_id` MUST have the following format:
+
+```
+ciphersuite_id || CREATE_GENERATORS_ID || MAP_TO_SCALAR_ID || ADD_INFO
+```
+
+Where `ciphersuite_id` is defined by the ciphersuite, `CREATE_GENERATORS_ID` is the unique IDs of the operation that creates the generators, `MAP_TO_SCALAR_ID` is the unique ID of the operation that maps the messages to scalars and the `ADD_INFO` value is an optional octet string indicating any additional information used to uniquely qualify the Interface. When `ADD_INFO` is present, it MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f). The `api_id` value, MUST be used by all subroutines an Interface calls, to ensure proper domain separation.
+
+Interfaces are meant to make it easier to use BBS Signature as part of other protocols with different requirements (for example, different types of input messages or different ways to create the generators), or to extend BBS Signatures with additional functionality (for example, using blinded messages as in [@CDL16]). Documents defining new BBS Interfaces, other than adhering to the requirements listed in this section, should also include a detailed and peer reviewed analyses showcasing that, under reasonable cryptographic assumptions, the documented scheme is secure under the required security definitions and threat model of each protocol. In other words, Interfaces must be treated like Ciphersuites ((#ciphersuites)), in the sense that applications should avoid creating their own, proprietary Interfaces.
+
 # Utility Operations
 
-## Random Scalars
+This section defines utility operations that are used by either the BBS Interface or the BBS Core Operations.
+
+## Interface Utilities
+
+This section defines the `create_generators` and `messages_to_scalars` operations that are used by the BBS Signatures Interface defined in (#bbs-signatures-interface). It also defines requirements for alternative operations that calculate generators and map messages to scalars.
+
+Each operation MUST define a unique ID, called `CREATE_GENERATORS_ID` for the operation that will calculate the generators and `MAP_TO_SCALAR_ID` for the operation that will map messages to scalars. Those IDs will be used to construct the Interface ID (see (#defining-new-interfaces)).
+
+### Generators Calculation
+
+The `create_generators` procedure defines how to create a set of randomly sampled points from the G1 subgroup, called the generators. It makes use of the primitives defined in [@!I-D.irtf-cfrg-hash-to-curve] (more specifically of `hash_to_curve` and `expand_message`) to hash a seed to a set of generators. Those primitives are implicitly defined by the ciphersuite, through the choice of a hash-to-curve suite (see the `hash_to_curve_suite` parameter in (#ciphersuite-format)).
+
+Since `create_generators` generates constant points, as an optimization, implementations MAY cache its result for a specific `count` (which can be arbitrarily large, depending on the application). Care must be taken, to guarantee that the generators will be fetched from the cache in the same order they had when they where created (i.e., an application should not short or in any way rearrange the cached generators).
+
+```
+generators = create_generators(count, api_id)
+
+Inputs:
+
+- count (REQUIRED), unsigned integer. Number of generators to create.
+- seed (OPTIONAL), octet string. If not supplied it defaults to the
+                   empty octet string ("").
+- api_id (OPTIONAL), octet string. If not supplied it defaults to the
+                     empty octet string ("").
+
+Parameters:
+
+- hash_to_curve_g1, the hash_to_curve operation for the G1 subgroup,
+                    defined by the suite specified by the
+                    hash_to_curve_suite parameter of the ciphersuite.
+- expand_message, the expand_message operation defined by the suite
+                  specified by the hash_to_curve_suite parameter of the
+                  ciphersuite.
+- expand_len, defined by the ciphersuite.
+
+Outputs:
+
+- generators, an array of generators.
+
+Definitions:
+
+1. seed_dst, an octet string representing the domain separation tag:
+             api_id || "SIG_GENERATOR_SEED_" where "SIG_GENERATOR_SEED_"
+             is an ASCII string comprised of 19 bytes.
+2. generator_dst, an octet string representing the domain separation
+                  tag: api_id || "SIG_GENERATOR_DST_", where
+                  "SIG_GENERATOR_DST_" is an ASCII string comprised of
+                  18 bytes.
+3. generator_seed, an octet string representing the domain separation
+                   tag: api_id || "MESSAGE_GENERATOR_SEED", where
+                   "MESSAGE_GENERATOR_SEED" is an ASCII string comprised
+                   of 22 bytes.
+
+ABORT if:
+
+1. count > 2^64 - 1
+
+Procedure:
+
+1. v = expand_message(generator_seed, seed_dst, expand_len)
+2. for i in range(1, count):
+3.    v = expand_message(v || I2OSP(i, 8), seed_dst, expand_len)
+4.    generator_i = hash_to_curve_g1(v, generator_dst)
+5. return (generator_1, ..., generator_count)
+```
+
+The value of `v` MAY also be cached in order to efficiently extend an existing list of cached generator points.
+
+The `CREATE_GENERATORS_ID` of the above operation is define as,
+
+```
+CREATE_GENERATORS_ID = "H2G_"
+```
+
+#### Defining new Generators
+
+When defining a new `create_generators` procedure, the most important property is that the points are pseudo-randomly chosen from the G1 group, given reasonable assumptions and cryptographic primitives. More specifically, the required properties are
+
+- The generators should be indistinguishable from uniformly radom points of G1. This means that given only the points `H_1, ..., H_i` it should be infeasible to guess `H_(i+1)` (or any `H_j` with `j > i`), for any `i`.
+- The returned points must be unique with very high probability, that would not lessen the targeted security level of the ciphersuite. Specifically, for a security level `k`, the probability of a collision should be at most `1/2^k`.
+- It should be infeasible to guess the discrete logarithm of the returned points, for any base, even with knowledge of the public parameters that were used to create those generators (like the `generator_seed` value in (#generators-calculation)). Note that pseudo randomness does not necessarily imply this property. For example, an implementation that repeatably hashes a public seed value to create exponents `r_1, r_2, ..., r_count` (where `r_1 = hash(seed), r_2 = hash(r_1), ...`) and then returns the points `H_1 = P1 * r_1, H_2 = P_1 * r_2, ..., H_count = P_1 * r_count` would be insecure (given knowledge of the seed), but given knowledge of only the points `H_1, ..., H_count`, the sequence would appear random.
+- The returned points must be different from the Identity point of G1 as well as the constant point `P1` defined by the ciphersuite.
+
+Every operation that is used to return generator points for use with the core BBS operations ((#core-operations)), MUST return points that conform to the aforementioned rules. Such operation must also follow the rules outlined bellow,
+
+- It MUST be deterministic and constant time for a specific number of generators.
+- It MUST use proper domain separation for both the `create_generators` procedure, as well as all of the internally-called procedures.
+
+### Messages to Scalars
+
+The `messages_to_scalars` operation is used to map a list of messages to their respective scalar values, which are required by the core BBS operations defined in (#core-operations).
+
+```
+msg_scalar = messages_to_scalars(messages, api_id)
+
+Inputs:
+
+- messages (REQUIRED), a vector of octet strings.
+- api_id (OPTIONAL), octet string. If not supplied it defaults to the
+                     empty octet string ("").
+
+Outputs:
+
+- msg_scalars, a list of scalars.
+
+Definitions:
+
+1. map_dst, an octet string representing the domain separation tag:
+            api_id || "MAP_MSG_TO_SCALAR_AS_HASH_" where
+            "MAP_MSG_TO_SCALAR_AS_HASH_" is an ASCII string comprised of
+            26 bytes.
+
+ABORT if:
+
+1. length(messages) > 2^64 - 1
+
+Procedure:
+
+1. L =  length(messages)
+2. for i in (1, ..., L):
+3.     msg_scalar_i = hash_to_scalar(messages[i], map_dst)
+4. return (msg_scalar_1, ..., msg_scalar_L)
+```
+
+The `MAP_TO_SCALAR_ID` of the above operation is defines as,
+
+```
+MAP_TO_SCALAR_ID = "HM2S_"
+```
+
+#### Define a new Map to Scalar
+
+The most important property that a new operation that will map a vector of messages to a vector of scalars, MUST have is that each message should be mapped to a scalar independently from all
+the other messages. More specifically, the following MUST hold,
+
+```
+For every set of messages and every message msg',
+let messages' be the list of messages with msg' appended at the end and
+C1 = messages_to_scalars(messages').
+
+Let also msg_prime_scalar = messages_to_scalars((msg')),
+and C2 = messages_to_scalars(messages).
+
+If we append msg_prime_scalar at the end of C2, it must always hold that
+C1 == C2.
+```
+
+Additionally, the new operation MUST conform to the following requirements:
+
+- The returned scalars MUST be independent. More specifically, knowledge of any subset of the returned scalars MUST NOT reveal any information about the scalars not in that subset.
+- Unique inputs MUST result to unique outputs.
+- If the inputted vector of messages does not include any duplicates, the outputted scalars MUST NOT include any duplicates either.
+- It MUST be deterministic and constant time on the length of the inputted vector of messages.
+
+## Core Utilities
+
+This section defines utility procedures that are used by the Core operations defined in (#core-operations).
+
+### Random Scalars
 
 This operation returns the requested number of pseudo-random scalars, using the `get_random` operation (see [Parameters](#parameters)). The operation makes multiple calls to `get_random`. It is REQUIRED that each call will be independent from each other, as to ensure independence of the returned pseudo-random scalars.
 
@@ -825,198 +1263,7 @@ Procedure:
 3. return (r_1, r_2, ..., r_count)
 ```
 
-## Generators Calculation
-
-A `create_generators` procedure defines how to create a set of randomly sampled points from the G1 subgroup, called the generators. Generators form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify). A `create_generators` operation takes as input the following arguments,
-
-- count (REQUIRED), a non-negative integer describing the number of generator points to create, which is determined in part by the number of signed messages.
-- PK (OPTIONAL), a point of G2, representing the Signer's public key.
-
-As a result, the create\_generators operation has the following signature,
-
-```
-(G_1, G_2, ..., G_count) = create_generators(count, PK)
-```
-
-Each procedure MUST define a unique `CREATE_GENERATORS_ID` to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
-
-### Hash to Generators
-
-The `hash_to_generators` operation makes use of the primitives defined in [@!I-D.irtf-cfrg-hash-to-curve] (more specifically of `hash_to_curve` and `expand_message`) to hash a predefined seed to a set of generators. Those primitives are implicitly defined by the ciphersuite, through the choice of a hash-to-curve suite (see the `hash_to_curve_suite` parameter in (#ciphersuite-format)).
-
-**NOTE**: The `hash_to_generators` operation ignores the PK input, creating the same generators across different Signers and signatures. The final `create_generators` operation defined by the ciphersuites in (#ciphersuites), will be,
-
-```
-create_generators(count, PK) := hash_to_generator(count)
-```
-
-Since `hash_to_generator` creates constant points, as an optimization, implementations MAY cache its result for a specific `count` (which can be arbitrarily large, depending on the application). Care must be taken, to guarantee that the generators will be fetched from the cache in the same order they had when they where created (i.e., an application should not short or in any way rearrange the cached generators).
-
-```
-generators = hash_to_generators(count)
-
-Inputs:
-
-- count (REQUIRED), unsigned integer. Number of generators to create.
-
-Parameters:
-
-- hash_to_curve_g1, the hash_to_curve operation for the G1 subgroup,
-                    defined by the suite specified by the
-                    hash_to_curve_suite parameter of the ciphersuite.
-- expand_message, the expand_message operation defined by the suite
-                  specified by the hash_to_curve_suite parameter of the
-                  ciphersuite.
-- generator_seed, an octet string representing the seed from which the
-                  generators are created, defined by the ciphersuite.
-
-Definitions:
-
-- seed_dst, an octet string representing the domain separation tag:
-            ciphersuite_id || "SIG_GENERATOR_SEED_" where
-            ciphersuite_id is defined by the ciphersuite and
-            "SIG_GENERATOR_SEED_" is an ASCII string comprised of 19
-            bytes.
-- generator_dst, an octet string representing the domain separation tag:
-                 ciphersuite_id || "SIG_GENERATOR_DST_", where
-                 ciphersuite_id is defined by the ciphersuite and
-                 "SIG_GENERATOR_DST_" is an ASCII string comprised of
-                 18 bytes.
-- expand_len, defined by the ciphersuite.
-
-Outputs:
-
-- generators, an array of generators.
-
-ABORT if:
-
-1. count > 2^64 - 1
-
-Procedure:
-
-1. v = expand_message(generator_seed, seed_dst, expand_len)
-2. for i in range(1, count):
-3.    v = expand_message(v || I2OSP(i, 8), seed_dst, expand_len)
-4.    generator_i = hash_to_curve_g1(v, generator_dst)
-5. return (generator_1, ..., generator_count)
-```
-The value of `v` MAY also be cached in order to efficiently extend an existing list of cached generator points. The `CREATE_GENERATORS_ID` of the above operation is define as,
-
-```
-CREATE_GENERATORS_ID = "H2G_"
-```
-
-### Defining new ways to create generators
-
-When defining a new `create_generators` procedure, the most important property is that the returned points are pseudo-randomly chosen from the G1 group, given reasonable assumptions and cryptographic primitives. More specifically, the required properties are
-
-- The returned points should be indistinguishable from `count` uniformly radom points of G1. This means that given only the points `H_1, ..., H_i` it should be infeasible to guess `H_(i+1)` (or any `H_j` with `j > i`), for any `i` between 1 and `count`.
-- The returned points must be unique with very high probability, that would not lessen the targeted security level of the ciphersuite. Specifically, for a security level `k`, the probability of a collision should be at least `1/2^k`.
-- It should be infeasible to guess the discrete logarithm of the returned points, for any base, even with knowledge of the public parameters that were used to create those generators (like the `generator_seed` value in [Hash to Generators](#hash-to-generators)). Note that pseudo randomness does not necessarily imply this property. For example, an implementation that repeatably hashes a public seed value to create exponents `r_1, r_2, ..., r_count` (where `r_1 = hash(seed), r_2 = hash(r_1), ...`) and then returns the points `H_1 = P1 * r_1, H_2 = P_1 * r_2, ..., H_count = P_1 * r_count` would be insecure (given knowledge of the seed), but given knowledge of only the points `H_1, ..., H_count`, the sequence would appear random.
-- The returned points must be different from the Identity point of G1 as well as the constant point `P1` defined by the ciphersuite.
-- Must be constant time for a specific `count` value.
-- Must be deterministic.
-- Must use proper domain separation for both the `create_generators` procedure, as well as all of the internally-called procedures.
-
-## Messages to Scalars
-
-The `messages_to_scalars` operation is used to map a list of input\_messages (where each input\_message can be either an octet string or a scalar value, as defined in [Terminology](#terminology)) to their respective scalar values, which are required by the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) procedures.
-
-This operation uses the `map_to_scalar` sub-routine defined in (#map-to-scalar), to transform each message to a scalar value.
-
-```
-msg_scalar = messages_to_scalars(messages)
-
-Inputs:
-
-- messages (REQUIRED), a vector of input_messages.
-
-Parameters:
-
-- map_to_scalar, an operation that maps an input_message and its index
-                 to a scalar value, defined by the ciphersuite.
-
-Outputs:
-
-- msg_scalars, a list of scalars.
-
-ABORT if:
-
-1. length(messages) > 2^64 - 1
-
-Procedure:
-
-1. L =  length(messages)
-2. for i in (1, ..., L):
-3.     msg_scalar_i = map_to_scalar(messages[i], i)
-4. return (msg_scalar_1, ..., msg_scalar_L)
-```
-
-### Map to Scalar
-
-As defined above, the `messages_to_scalars` operation works by repeatedly calling the `map_to_scalar` operation, that will be defined by the ciphersuite. The `map_to_scalar` operation accepts the following inputs,
-
-- message (REQUIRED), an input_message that can be either a scalar or an octet string (see [Terminology](#terminology)).
-- index (OPTIONAL), a positive integer. The index the message has in the list of signed messages.
-
-The signature of the operation is the following,
-
-```
-msg_scalar = map_to_scalar(msg, index)
-```
-
-Every `map_to_scalar` operation MUST define a unique `MAP_TO_SCALAR_ID` value to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
-
-#### Map to Scalar as Hash
-
-This document specifies the following `map_to_scalar` operation, called `map_to_scalar_as_hash`, that uses `hash_to_scalar` as defined in (#hash-to-scalar). Although for extendability reasons, the `map_to_scalar` operation accepts messages that can be either an octet string or a scalar value (as to support protocol specific preprocessing of a message), the `map_to_scalar_as_hash` operation used by this document only maps octet string to scalars and will abort if it gets an `input_message` that is already a scalar value. Additionally, the resulting scalar does not depend on the `index` of the message.
-
-```
-scalar = map_to_scalar_as_hash(msg)
-
-Inputs:
-
-- msg (REQUIRED), an input_message
-
-Parameters:
-
-- dst = ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_", where
-        ciphersuite_id is defined by the ciphersuite.
-
-Outputs:
-
-- scalar, a scalar value.
-
-ABORT if:
-
-1. msg not an octet string
-
-Procedure:
-
-1. return hash_to_scalar(msg, dst)
-```
-
-The `map_to_scalar` operation that will be defined by the ciphersuites of this document will be,
-
-```
-map_to_scalar(msg, index) := map_to_scalar_as_hash(msg)
-```
-
-The `MAP_TO_SCALAR_ID` of the `map_to_scalar_as_hash` operation is defines as,
-
-```
-MAP_TO_SCALAR_ID = "HM2S_"
-```
-
-### Define a new Map to Scalar
-
-To define different ways with which messages can be mapped to scalars, an application can define a new `map_to_scalar` operation, as part of a new ciphersuite. A new `map_to_scalar` function is REQUIRED to adhere to the following security rules:
-
-1. It MUST return unique values for different `msg` inputs. More specifically, the probability of a collision under reasonable cryptographic assumptions MUST be at most `1/2^k`, where `k` the security level of the targeted ciphersuite.
-2. Different outputs MUST be independent. More specifically, knowledge of the `scalar_1 = map_to_scalar(msg_1, idx_1)`, should not give any information on the value of `scalar_2 = map_to_scalar(msg_2, idx_2)`, for any other `(msg_2, idx_2)` input pair.
-3. It MUST be deterministic.
-
-## Hash to Scalar
+### Hash to Scalar
 
 This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To hash a message to a scalar that would be passed as input to the [Sign](#sisignature-generation-signgn), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
@@ -1030,10 +1277,7 @@ hashed_scalar = hash_to_scalar(msg_octets, dst)
 Inputs:
 
 - msg_octets (REQUIRED), an octet string. The message to be hashed.
-- dst (OPTIONAL), an octet string representing a domain separation tag.
-                  If not supplied, it defaults to the octet string given
-                  by ciphersuite_id || "H2S_", where ciphersuite_id is
-                  defined by the ciphersuite.
+- dst (REQUIRED), an octet string representing a domain separation tag.
 
 Parameters:
 
@@ -1057,7 +1301,7 @@ Procedure:
 2. return OS2IP(uniform_bytes) mod r
 ```
 
-## Domain Calculation
+### Domain Calculation
 
 This operation calculates the domain value, a scalar representing the distillation of all essential contextual information for a signature. The same domain value must be calculated by all parties (the signer, the prover, and the verifier) for both the signature and proofs to be validated.
 
@@ -1068,7 +1312,7 @@ When a signature is calculated, the domain value is combined with a specific gen
 This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
 
 ```
-domain = calculate_domain(PK, Q_1, H_Points, header)
+domain = calculate_domain(PK, Q_1, H_Points, header, api_id)
 
 Inputs:
 
@@ -1079,14 +1323,18 @@ Inputs:
 - H_Points (REQUIRED), array of points of G1.
 - header (OPTIONAL), an octet string. If not supplied, it must default
                      to the empty octet string ("").
-
-Parameters:
-
-- ciphersuite_id, an octet string. The unique ID of the ciphersuite.
+- api_id (OPTIONAL), octet string. If not supplied it defaults to the
+                     empty octet string ("").
 
 Outputs:
 
 - domain, a scalar.
+
+Definitions:
+
+1. domain_dst, an octet string representing the domain separation tag:
+               api_id || "H2S_" where "H2S_" is an ASCII string
+               comprised of 4 bytes.
 
 Deserialization:
 
@@ -1100,16 +1348,16 @@ ABORT if:
 Procedure:
 
 1. dom_array = (L, Q_1, H_1, ..., H_L)
-2. dom_octs = serialize(dom_array) || ciphersuite_id
+2. dom_octs = serialize(dom_array) || api_id
 3. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
-4. return hash_to_scalar(dom_input)
+4. return hash_to_scalar(dom_input, domain_dst)
 ```
 
 **Note**: If the header is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 3), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
 
-## Serialization
+### Serialization
 
-### Serialize
+#### Serialize
 
 This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see (#serializing-to-octets)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#signature-generation-sign), [ProofGen](#proof-generation-proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
 
@@ -1151,7 +1399,7 @@ Procedure:
 10. return octets_result
 ```
 
-### Signature to Octets
+#### Signature to Octets
 
 This operation describes how to encode a signature to an octet string.
 
@@ -1176,7 +1424,7 @@ Procedure:
 2. return serialize((A, e))
 ```
 
-### Octets to Signature
+#### Octets to Signature
 
 This operation describes how to decode an octet string, validate it and return the underlying components that make up the signature.
 
@@ -1208,7 +1456,7 @@ Procedure:
 11. return (A, e)
 ```
 
-### Proof to Octets
+#### Proof to Octets
 
 This operation describes how to encode a proof, as computed at step 25 in [ProofGen](#proof-generation-proofgen), to an octet string. The input to the operation MUST be a valid proof.
 
@@ -1242,7 +1490,7 @@ Procedure:
 2. return serialize((Abar, Bbar, r2^, r3^, m^_1, ..., m^_U, c))
 ```
 
-### Octets to Proof
+#### Octets to Proof
 
 This operation describes how to decode an octet string representing a proof, validate it and return the underlying components that make up the proof value.
 
@@ -1305,7 +1553,7 @@ Procedure:
 19. return (A_0, A_1, s_0, s_1, msg_commitments, s_(j-1))
 ```
 
-### Octets to Public Key
+#### Octets to Public Key
 
 This operation describes how to decode an octet string representing a public key, validates it and returns the corresponding point in G2. Steps 2 to 5 check if the public key is valid. As an optimization, implementations MAY cache the result of those steps, to avoid unnecessarily repeating validation for known public keys.
 
@@ -1386,6 +1634,27 @@ The proof, as returned by ProofGen, is a zero-knowledge proof-of-knowledge [@CDL
 
 In any case, the randomness used in ProofGen MUST be unique in each call and MUST have a distribution that is indistinguishable from uniform. If the random scalars are re-used, are created from "bad randomness" (for example with a known relationship to each other) or are in any way predictable, an adversary will be able to unveil the undisclosed from the proof messages or the hidden signature value. Naturally, a cryptographically secure pseudorandom number generator or pseudo random function is REQUIRED to implement the `get_random` functionality. See also [@!RFC8937], for recommendations on generating good randomness in cases where the Prover has direct or in-direct access to a secret key.
 
+## Using a Commitment
+
+The CoreSign operation defined in (#coresign), specifies an optional commitment input value. The commitment is a point of G1, that can be used to extent the core BBS functionality, by allowing "signing points", meaning that the supplied commitment point will be integrity protected by the signature (see [@TZ23]). An example use case, is allowing a third party (like the Prover for example), to create messages that will be included in the BBS signature, without those messages being revealed to the Signer, by setting the commitment to be a Pedersen commitment ([@P91]) over a list of messages.
+
+In cases where the commitment must have a specific form (like in the above example that uses Pedersen commitments), the Signer MUST verify the correctness of the supplied value, prior to using it for signature generation. In the example of the Pedersen commitment, this may include validating a zero-knowledge proof (using a pre-defined set of generators) constructed by the party that supplied the commitment, showcasing that it knows the messages that where used to create it, that those messages are in the correct range etc.
+
+Documents extending the BBS core functionality, that use the commitment value are REQUIRED to,
+
+- Clearly specify the expected format of the commitment value, how it should be constructed and how it should be validated by the Signer.
+- Include a detailed and peer reviewed analyses, showcasing that, under reasonable cryptographic assumptions the documented scheme that uses the commitment value, results to a secure signature protocol, i.e., that the resulting signature is secure under adaptive chosen plaintext attacks.
+
+Applications using the Interface defined in (#bbs-signatures-interface), MUST ignore the commitment value.
+
+## Mapping Messages to Scalars
+
+As mentioned in this document, messages are considered to be represented as octet strings that are mapped to scalar values. More advanced applications however, like the ones using range proofs ([@BBB17]), will need to be able to use alternative mapping operations. At the BBS Signatures level, this means that an Interface may accept messages that are pre-mapped to a scalar, using some protocol specific operation. For example, an application could use [@ISO8601] to map dates into integers before passing them to the BBS Interface. In those cases, the application should ensure that all participants have a clear and consistent understating about which mapping method should be used, (examples include associating specific signature "types" with different mapping methods etc.).
+
+Additionally, the application must ensure that all the BBS Interface operations have a consistent view of which of the received messages are octet strings (in which case they should be mapped to scalars using an operation conforming to the rules in (#define-a-new-map-to-scalar)) and which messages  are scalars (in which case, no extra operation is needed on those messages).
+
+An option is for the Issuer to publish this information as part of their public parameters, similar to TBD (U-Prove). Such configuration should detail the type of each message, based on that message's index on the signed messages list (i.e., the first message will be an octet string, the second an integer etc.). A BBS Interface should check the messages they receive against those configurations and map them to scalars accordingly. Another option is to sign such configurations as part of the header parameter of the BBS signature (see (#signature-generation-sign)). In this case, the configuration does not need to be published by the Issuer. The Prover will be responsible to get that information from the issuer and later, to communicate it to the Verifier.
+
 # Ciphersuites
 
 This section defines the format for a BBS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@!I-D.irtf-cfrg-pairing-friendly-curves].
@@ -1398,14 +1667,10 @@ This section defines the format for a BBS ciphersuite. It also gives concrete ci
 The following section defines the format of the unique identifier for the ciphersuite denoted `ciphersuite_id`, which will be represented as an ASCII encoded octet string. The REQUIRED format for this string is
 
 ```
-  "BBS_" || H2C_SUITE_ID || CG_ID || MESSAGES_TO_SCALARS_ID || ADD_INFO
+  "BBS_" || H2C_SUITE_ID || ADD_INFO
 ```
 
   *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
-
-  *  CG\_ID is the ID of the create generators used, i.e., `CREATE_GENERATORS_ID` as defined in the (#generators-calculation) section.
-
-  *  MAP\_TO\_SCALAR\_ID is the ID of the map\_to\_scalar operation, as defined in (#map-to-scalar).
 
   *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
 
@@ -1441,15 +1706,6 @@ a function that returns the point P in the subgroup G1 corresponding to the cano
 - octets\_to\_point\_g2:
 a function that returns the point P in the subgroup G2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g2`.
 
-**Generator parameters**:
-
-- create\_generators: the operation with which to create a set of generators. See (#generators-calculation).
-
-**Map to Scalar function**
-
-- map\_to\_scalars:
-a function that maps a message to a scalars value, as defined in (#map-to-scalar).
-
 ## BLS12-381 Ciphersuites
 
 The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
@@ -1476,7 +1732,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
-- P1: The G1 point returned from the `hash_to_generators` procedure ((#hash-to-generators)), with `count = 1` and generator\_seed = ciphersuite\_id || "BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: The G1 point returned from the `create_generators` procedure ((#generators-calculation)), with `count = 1` and replacing the defined generator\_seed with the value: ciphersuite\_id || "H2G\_HM2S\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
     P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.BP }}
     ```
@@ -1490,18 +1746,6 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 - octets\_to\_point\_g1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
 
 - octets\_to\_point\_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
-
-**Generator parameters**:
-
-- create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with generator\_seed = ciphersuite\_id || "MESSAGE\_GENERATOR\_SEED" and the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite,
-
-    ```
-    create_generators(count, PK) := hash_to_generators(count)
-    ```
-
-**Map to Scalar function**:
-
-- map\_to\_scalar: map\_to\_scalar\_as\_hash ((#map-to-scalar-as-hash))
 
 ### BLS12-381-SHA-256
 
@@ -1519,7 +1763,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
-- P1: The G1 point returned from the `hash_to_generators` procedure, with `count = 1` and generator\_seed = ciphersuite\_id || "BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: The G1 point returned from the `create_generators` procedure ((#generators-calculation)), with `count = 1` and replacing the defined generator\_seed with the value: ciphersuite\_id || "H2G\_HM2S\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
     ```
     P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.BP }}
     ```
@@ -1533,18 +1777,6 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 - octets\_to\_point\_g1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
 
 - octets\_to\_point\_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
-
-**Generator parameters**:
-
-- create\_generators: the operation is using hash\_to\_generators as defined in (#hash-to-generators), with generator\_seed = ciphersuite\_id || "MESSAGE\_GENERATOR\_SEED" and the expand\_message and hash\_to\_curve\_g1 defined by the hash\_to\_curve\_suite,
-
-    ```
-    create_generators(count, PK) := hash_to_generators(count)
-    ```
-
-**Map to Scalar function**:
-
-- map\_to\_scalar: map\_to\_scalar\_as\_hash ((#map-to-scalar-as-hash))
 
 # Test Vectors
 
@@ -1666,7 +1898,7 @@ Following the procedure defined in (#public-key) with an input SK value as above
 
 ### Map Messages to Scalars
 
-The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages), using the map\_to\_scalar\_as\_hash operation ((#map-to-scalar-as-hash)) as defined by the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
+The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages). Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
 
 ```
 {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[0].scalar }}
@@ -1850,7 +2082,7 @@ Following the procedure defined in (#public-key) with an input SK value as above
 
 ### Map Messages to Scalars
 
-The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages), using the map\_to\_scalar\_as\_hash operation ((#map-to-scalar-as-hash)) as defined by the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersuite. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
+The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)). Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
 
 ```
 {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.dst }}
@@ -2713,5 +2945,64 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
  <front>
    <title>Recommendation for Random Number Generation Using Deterministic Random Bit Generators</title>
    <author><organization>NIST</organization></author>
+ </front>
+</reference>
+
+<reference anchor="TZ23" target="https://ia.cr/2023/275">
+  <front>
+    <title>Revisiting BBS Signatures</title>
+    <author initials="S. T." surname="Tessaro" fullname="Stefano Tessaro">
+      <organization>University of Washington</organization>
+    </author>
+    <author initials="C. Z." surname="Zhu" fullname="Chenzhi Zhu">
+      <organization>University of Washington</organization>
+    </author>
+    <date year="2023"/>
+  </front>
+  <seriesInfo name="In" value="EUROCRYPT"/>
+</reference>
+
+<reference anchor="P91" target="https://ia.cr/2023/275">
+  <front>
+    <title>Non-Interactive and Information-Theoretic Secure Verifiable Secret Sharing</title>
+    <author initials="T. P. P." surname="Pedersen" fullname="Torden Pryds Pedersen">
+      <organization>Aarhus University</organization>
+    </author>
+    <date year="1991"/>
+  </front>
+  <seriesInfo name="In" value="CRYPTO"/>
+</reference>
+
+
+<reference anchor="BBB17" target="https://ia.cr/2017/1066">
+  <front>
+    <title>Bulletproofs: Short Proofs for Confidential Transactions and More</title>
+    <author initials="B. B." surname="Bünz" fullname="Benedikt Bünz">
+      <organization>Stanford University</organization>
+    </author>
+    <author initials="J. B." surname="Bootle" fullname="Jonathan Bootle">
+      <organization>University College London</organization>
+    </author>
+    <author initials="D. B." surname="Boneh" fullname="Dan Boneh">
+      <organization>Stanford University</organization>
+    </author>
+    <author initials="A. P." surname="Poelstra" fullname="Andrew Poelstra">
+      <organization>Blockstream</organization>
+    </author>
+    <author initials="P. W." surname="Wuille" fullname="Pieter Wuille">
+      <organization>Blockstream</organization>
+    </author>
+    <author initials="G. W." surname="Maxwell" fullname="Greg Maxwell">
+    </author>
+    <date year="2017"/>
+  </front>
+  <seriesInfo name="In" value="2018 IEEE Symposium on Security and Privacy "/>
+</reference>
+
+
+<reference anchor="ISO8601" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">
+ <front>
+   <title>Date and time — Representations for information interchange — Part 1: Basic rules</title>
+   <author><organization>ISO</organization></author>
  </front>
 </reference>
