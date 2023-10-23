@@ -176,6 +176,9 @@ a || b
 I \\ J
 : For sets I and J, denotes the difference of the two sets i.e., all the elements of I that do not appear in J, in the same order as they were in I.
 
+X\[i\]
+: Denotes the element of array `X` at index `i`. Note that arrays in this document are considered "zero-indexed", meaning that element indexing starts from 0 rather than 1. For example, if `X = [a, b, c, d]` then `X[0] = a`, `X[1] = b`, `X[2] = c` and `X[3] = d`.
+
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
@@ -683,7 +686,7 @@ The `ProofGen` operation will accept that signature as an input. It is RECOMMEND
 
 The operation works by first initializing the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge, together with the initialization result, will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
 
-The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 1 to `length(messages)`.
+The messages supplied in this operation MUST be in the same order as when supplied to [Sign](#signature-generation-sign). To specify which of those messages will be disclosed, the prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 0 to `length(messages) - 1`.
 
 The operation calculates multiple random scalars using the `calculate_random_scalars` utility operation defined in (#random-scalars). See also (#randomness-requirements) for considerations and requirements on random scalars generation.
 
@@ -708,10 +711,10 @@ Inputs:
 - messages (OPTIONAL), a vector of scalars representing the messages.
                        If not supplied, it defaults to the empty
                        array "()".
-- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
-                                order. Indexes of disclosed messages. If
-                                not supplied, it defaults to the empty
-                                array "()".
+- disclosed_indexes (OPTIONAL), vector of non-negative integers in
+                                ascending order. Indexes of disclosed
+                                messages. If not supplied, it defaults
+                                to the empty array "()".
 - api_id (OPTIONAL), an octet string. If not supplied it defaults to the
                      empty octet string ("").
 
@@ -729,12 +732,13 @@ Deserialization:
 5.  R = length(disclosed_indexes)
 6.  if R > L, return INVALID
 7.  U = L - R
-8.  undisclosed_indexes = range(1, L) \ disclosed_indexes
-9.  (i1, ..., iR) = disclosed_indexes
-10. (j1, ..., jU) = undisclosed_indexes
+8.  for i in disclosed_indexes, if i < 0 or i > L - 1, return INVALID
+9.  undisclosed_indexes = range(0, L - 1) \ disclosed_indexes
+10. (i1, ..., iR) = disclosed_indexes
+11. (j1, ..., jU) = undisclosed_indexes
 
-11. disclosed_messages = (messages[i1], ..., messages[iR])
-12. undisclosed_messages = (messages[j1], ..., messages[jU])
+12. disclosed_messages = (messages[i1], ..., messages[iR])
+13. undisclosed_messages = (messages[j1], ..., messages[jU])
 
 Procedure:
 
@@ -743,10 +747,11 @@ Procedure:
                           header, messages, undisclosed_indexes, api_id)
 3. if init_res is INVALID, return INVALID
 4. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
-                                         disclosed_messages, ph, api_id)
-5. proof = ProofFinalize(init_res, challenge, e, random_scalars,
+                                                 disclosed_messages, ph)
+5. if challenge is INVALID, return INVALID
+6. proof = ProofFinalize(init_res, challenge, e, random_scalars,
                                                    undisclosed_messages)
-6. return proof
+7. return proof
 ```
 
 ### CoreProofVerify
@@ -755,7 +760,7 @@ This operation checks that a proof is valid for a header, vector of disclosed me
 
 The operation works by first initializing the proof verification using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be inputted to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first component of the received proof (points of G1) will be checked for correctness (steps 4 and 5 in the following procedure), to verify the proof.
 
-The operation accepts the messages that the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer in the range from 1 to L, in ascending order.
+The operation accepts the messages that the prover indicated to be disclosed. Those messages MUST be in the same order as when supplied to [Sign](#signature-generation-sign) (as a subset of the signed messages). Lastly, it also accepts the indexes that the disclosed messages had in the original array of messages supplied to [Sign](#signature-generation-sign) (i.e., the `disclosed_indexes` list supplied to [ProofGen](#proof-generation-proofgen)). Every element in this list MUST be a non-negative integer, in ascending order.
 
 ```
 result = CoreProofVerify(PK, proof, generators, header, ph,
@@ -776,10 +781,10 @@ Inputs:
 - disclosed_messages (OPTIONAL), a vector of scalars representing the
                                  messages. If not supplied, it defaults
                                  to the empty array "()".
-- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
-                                order. Indexes of disclosed messages. If
-                                not supplied, it defaults to the empty
-                                array "()".
+- disclosed_indexes (OPTIONAL), vector of non-negative integers in
+                                ascending order. Indexes of disclosed
+                                messages. If not supplied, it defaults
+                                to the empty array "()".
 - api_id (OPTIONAL), an octet string. If not supplied it defaults to the
                      empty octet string ("").
 
@@ -807,9 +812,10 @@ Procedure:
 2. if init_res is INVALID, return INVALID
 3. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
                                                    messages, ph, api_id)
-4. if cp != challenge, return INVALID
-5. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
-6. return VALID
+4. if challenge is INVALID, return INVALID
+5. if cp != challenge, return INVALID
+6. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
+7. return VALID
 ```
 
 ## Proof Protocol Subroutines
@@ -818,7 +824,7 @@ This section describes the subroutines used by the ProofGen and ProVerify algori
 
 ### Proof Initialization
 
-This operation initializes the proof and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `ProofGen` operation defined in (#proof-generation-proofgen). As one of its inputs, it accepts a list of random scalars (`random_scalars`) and a list of unsigned integers, in ascending order, representing the indexes of the messages the Prover choses to disclose (`undisclosed_indexes` see (#proof-generation-proofgen)). The list of random scalars MUST have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 3`).
+This operation initializes the proof and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `ProofGen` operation defined in (#proof-generation-proofgen). As its inputs, it accepts a list of random scalars (`random_scalars`), the signed header, the list of signed messages (`messages`) represented as scalar values and a list of unsigned integers in the range from `0` to `length(messages) - 1` (inclusive), in ascending order, representing the indexes of the messages the Prover choses to not disclose (`undisclosed_indexes` see (#proof-generation-proofgen)). The list of random scalars MUST have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 3`).
 
 This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
 
@@ -838,7 +844,7 @@ Inputs:
                      empty octet string ("").
 - messages (OPTIONAL), vector of scalar values. If not supplied, it
                        defaults to the empty array "()".
-- undisclosed_indexes (OPTIONAL), vector of unsigned integers in
+- undisclosed_indexes (OPTIONAL), vector of non-negative integers in
                                   ascending order. If not supplied, it
                                   defaults to the empty array "()".
 - api_id (OPTIONAL), an octet string. If not supplied it defaults to the
@@ -870,7 +876,7 @@ Deserialization:
 
 ABORT if:
 
-1. for i in undisclosed_indexes, i < 1 or i > L
+1. for i in undisclosed_indexes, i < 0 or i > L - 1
 2. U > L
 
 Procedure:
@@ -921,8 +927,8 @@ Procedure:
 1. r4 = - r1^-1 (mod r)
 2. r2^ = r2 + e_value * r4 * challenge (mod r)
 3. r3^ = r3 + r4 * challenge (mod r)
-4. for j in (1, ..., U): m^_j = m~_j + undisclosed_j * challenge (mod r)
-5. proof = (Abar, Bbar, r2^, r3^, (m^_j1, ..., m^_jU), challenge)
+4. for j in range(1, U): m^_j = m~_j + undisclosed_j * challenge (mod r)
+5. proof = (Abar, Bbar, r2^, r3^, (m^_1, ..., m^_U), challenge)
 6. return proof_to_octets(proof)
 ```
 
@@ -955,9 +961,9 @@ Inputs:
 - disclosed_messages (OPTIONAL), vector of scalar values. If not
                                  supplied, it defaults to the empty
                                  array "()".
-- disclosed_indexes (OPTIONAL), vector of unsigned integers in ascending
-                                order. If not supplied, it defaults to
-                                the empty array "()".
+- disclosed_indexes (OPTIONAL), vector of non-negative integers in
+                                ascending order. If not supplied, it
+                                defaults to the empty array "()".
 - api_id (OPTIONAL), an octet string. If not supplied it defaults to the
                      empty octet string ("").
 
@@ -977,20 +983,21 @@ Deserialization:
 3.  R = length(disclosed_indexes)
 4.  L = R + U
 5.  (i1, ..., iR) = disclosed_indexes
-6.  (j1, ..., jU) = range(1, L) \ disclosed_indexes
-7.  (msg_i1, ..., msg_iR) = disclosed_messages
-8.  (m^_j1, ...., m^_jU) = commitments
+6.  for i in disclosed_indexes, if i < 0 or i > L - 1, return INVALID
+7.  (j1, ..., jU) = range(0, L - 1) \ disclosed_indexes
+8.  if length(disclosed_messages) != R, return INVALID
+9.  (msg_i1, ..., msg_iR) = disclosed_messages
+10. (m^_j1, ...., m^_jU) = commitments
 
-9.  if length(generators) != L + 1, return INVALID
-10. (Q_1, MsgGenerators) = generators
-11. (H_1, ..., H_L) = MsgGenerators
-12. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
-13. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
+11. if length(generators) != L + 1, return INVALID
+12. (Q_1, MsgGenerators) = generators
+13. (H_1, ..., H_L) = MsgGenerators
+14. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
+15. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
 
 ABORT if:
 
 1. for i in (i1, ..., iR), i < 1 or i > L
-2. length(disclosed_messages) != R
 
 Procedure:
 
@@ -1039,12 +1046,13 @@ Deserialization:
 
 1. R = length(i_array)
 2. (i1, ..., iR) = i_array
+3. if length(msg_array) != R, return INVALID
 3. (msg_i1, ..., msg_iR) = msg_array
 4. (Abar, Bbar, C, domain) = init_res
 
 ABORT if:
 
-1. R > 2^64 - 1 or R != length(msg_array)
+1. R > 2^64 - 1
 2. length(ph) > 2^64 - 1
 
 Procedure:
@@ -1258,12 +1266,203 @@ Outputs:
 
 Procedure:
 
-1. for i in (1, ..., count):
+1. for i in range(1, count):
 2.     r_i = OS2IP(get_random(expand_len)) mod r
 3. return (r_1, r_2, ..., r_count)
 ```
 
-### Hash to Scalar
+## Generators Calculation
+
+A `create_generators` procedure defines how to create a set of randomly sampled points from the G1 subgroup, called the generators. Generators form a part of the public parameters used by the BBS Signature scheme to accomplish operations such as [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify). A `create_generators` operation takes as input the following arguments,
+
+- count (REQUIRED), a non-negative integer describing the number of generator points to create, which is determined in part by the number of signed messages.
+- PK (OPTIONAL), a point of G2, representing the Signer's public key.
+
+As a result, the create\_generators operation has the following signature,
+
+```
+(G_1, G_2, ..., G_count) = create_generators(count, PK)
+```
+
+Each procedure MUST define a unique `CREATE_GENERATORS_ID` to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
+
+### Hash to Generators
+
+The `hash_to_generators` operation makes use of the primitives defined in [@!I-D.irtf-cfrg-hash-to-curve] (more specifically of `hash_to_curve` and `expand_message`) to hash a predefined seed to a set of generators. Those primitives are implicitly defined by the ciphersuite, through the choice of a hash-to-curve suite (see the `hash_to_curve_suite` parameter in (#ciphersuite-format)).
+
+**NOTE**: The `hash_to_generators` operation ignores the PK input, creating the same generators across different Signers and signatures. The final `create_generators` operation defined by the ciphersuites in (#ciphersuites), will be,
+
+```
+create_generators(count, PK) := hash_to_generator(count)
+```
+
+Since `hash_to_generator` creates constant points, as an optimization, implementations MAY cache its result for a specific `count` (which can be arbitrarily large, depending on the application). Care must be taken, to guarantee that the generators will be fetched from the cache in the same order they had when they where created (i.e., an application should not short or in any way rearrange the cached generators).
+
+```
+generators = hash_to_generators(count)
+
+Inputs:
+
+- count (REQUIRED), unsigned integer. Number of generators to create.
+
+Parameters:
+
+- hash_to_curve_g1, the hash_to_curve operation for the G1 subgroup,
+                    defined by the suite specified by the
+                    hash_to_curve_suite parameter of the ciphersuite.
+- expand_message, the expand_message operation defined by the suite
+                  specified by the hash_to_curve_suite parameter of the
+                  ciphersuite.
+- generator_seed, an octet string representing the seed from which the
+                  generators are created, defined by the ciphersuite.
+
+Definitions:
+
+- seed_dst, an octet string representing the domain separation tag:
+            ciphersuite_id || "SIG_GENERATOR_SEED_" where
+            ciphersuite_id is defined by the ciphersuite and
+            "SIG_GENERATOR_SEED_" is an ASCII string comprised of 19
+            bytes.
+- generator_dst, an octet string representing the domain separation tag:
+                 ciphersuite_id || "SIG_GENERATOR_DST_", where
+                 ciphersuite_id is defined by the ciphersuite and
+                 "SIG_GENERATOR_DST_" is an ASCII string comprised of
+                 18 bytes.
+- expand_len, defined by the ciphersuite.
+
+Outputs:
+
+- generators, an array of generators.
+
+ABORT if:
+
+1. count > 2^64 - 1
+
+Procedure:
+
+1. v = expand_message(generator_seed, seed_dst, expand_len)
+2. for i in range(1, count):
+3.    v = expand_message(v || I2OSP(i, 8), seed_dst, expand_len)
+4.    generator_i = hash_to_curve_g1(v, generator_dst)
+5. return (generator_1, ..., generator_count)
+```
+The value of `v` MAY also be cached in order to efficiently extend an existing list of cached generator points. The `CREATE_GENERATORS_ID` of the above operation is define as,
+
+```
+CREATE_GENERATORS_ID = "H2G_"
+```
+
+### Defining new ways to create generators
+
+When defining a new `create_generators` procedure, the most important property is that the returned points are pseudo-randomly chosen from the G1 group, given reasonable assumptions and cryptographic primitives. More specifically, the required properties are
+
+- The returned points should be indistinguishable from `count` uniformly radom points of G1. This means that given only the points `H_1, ..., H_i` it should be infeasible to guess `H_(i+1)` (or any `H_j` with `j > i`), for any `i` between 1 and `count`.
+- The returned points must be unique with very high probability, that would not lessen the targeted security level of the ciphersuite. Specifically, for a security level `k`, the probability of a collision should be at least `1/2^k`.
+- It should be infeasible to guess the discrete logarithm of the returned points, for any base, even with knowledge of the public parameters that were used to create those generators (like the `generator_seed` value in [Hash to Generators](#hash-to-generators)). Note that pseudo randomness does not necessarily imply this property. For example, an implementation that repeatably hashes a public seed value to create exponents `r_1, r_2, ..., r_count` (where `r_1 = hash(seed), r_2 = hash(r_1), ...`) and then returns the points `H_1 = P1 * r_1, H_2 = P_1 * r_2, ..., H_count = P_1 * r_count` would be insecure (given knowledge of the seed), but given knowledge of only the points `H_1, ..., H_count`, the sequence would appear random.
+- The returned points must be different from the Identity point of G1 as well as the constant point `P1` defined by the ciphersuite.
+- Must be constant time for a specific `count` value.
+- Must be deterministic.
+- Must use proper domain separation for both the `create_generators` procedure, as well as all of the internally-called procedures.
+
+## Messages to Scalars
+
+The `messages_to_scalars` operation is used to map a list of input\_messages (where each input\_message can be either an octet string or a scalar value, as defined in [Terminology](#terminology)) to their respective scalar values, which are required by the [Sign](#signature-generation-sign), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) procedures.
+
+This operation uses the `map_to_scalar` sub-routine defined in (#map-to-scalar), to transform each message to a scalar value.
+
+```
+msg_scalar = messages_to_scalars(messages)
+
+Inputs:
+
+- messages (REQUIRED), a vector of input_messages.
+
+Parameters:
+
+- map_to_scalar, an operation that maps an input_message and its index
+                 to a scalar value, defined by the ciphersuite.
+
+Outputs:
+
+- msg_scalars, a list of scalars.
+
+ABORT if:
+
+1. length(messages) > 2^64 - 1
+
+Procedure:
+
+1. L =  length(messages)
+2. for i in range(1, L):
+3.     msg_scalar_i = map_to_scalar(messages[i], i)
+4. return (msg_scalar_1, ..., msg_scalar_L)
+```
+
+### Map to Scalar
+
+As defined above, the `messages_to_scalars` operation works by repeatedly calling the `map_to_scalar` operation, that will be defined by the ciphersuite. The `map_to_scalar` operation accepts the following inputs,
+
+- message (REQUIRED), an input_message that can be either a scalar or an octet string (see [Terminology](#terminology)).
+- index (OPTIONAL), a positive integer. The index the message has in the list of signed messages.
+
+The signature of the operation is the following,
+
+```
+msg_scalar = map_to_scalar(msg, index)
+```
+
+Every `map_to_scalar` operation MUST define a unique `MAP_TO_SCALAR_ID` value to be used by the ciphersuite. This value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
+
+#### Map to Scalar as Hash
+
+This document specifies the following `map_to_scalar` operation, called `map_to_scalar_as_hash`, that uses `hash_to_scalar` as defined in (#hash-to-scalar). Although for extendability reasons, the `map_to_scalar` operation accepts messages that can be either an octet string or a scalar value (as to support protocol specific preprocessing of a message), the `map_to_scalar_as_hash` operation used by this document only maps octet string to scalars and will abort if it gets an `input_message` that is already a scalar value. Additionally, the resulting scalar does not depend on the `index` of the message.
+
+```
+scalar = map_to_scalar_as_hash(msg)
+
+Inputs:
+
+- msg (REQUIRED), an input_message
+
+Parameters:
+
+- dst = ciphersuite_id || "MAP_MSG_TO_SCALAR_AS_HASH_", where
+        ciphersuite_id is defined by the ciphersuite.
+
+Outputs:
+
+- scalar, a scalar value.
+
+ABORT if:
+
+1. msg not an octet string
+
+Procedure:
+
+1. return hash_to_scalar(msg, dst)
+```
+
+The `map_to_scalar` operation that will be defined by the ciphersuites of this document will be,
+
+```
+map_to_scalar(msg, index) := map_to_scalar_as_hash(msg)
+```
+
+The `MAP_TO_SCALAR_ID` of the `map_to_scalar_as_hash` operation is defines as,
+
+```
+MAP_TO_SCALAR_ID = "HM2S_"
+```
+
+### Define a new Map to Scalar
+
+To define different ways with which messages can be mapped to scalars, an application can define a new `map_to_scalar` operation, as part of a new ciphersuite. A new `map_to_scalar` function is REQUIRED to adhere to the following security rules:
+
+1. It MUST return unique values for different `msg` inputs. More specifically, the probability of a collision under reasonable cryptographic assumptions MUST be at most `1/2^k`, where `k` the security level of the targeted ciphersuite.
+2. Different outputs MUST be independent. More specifically, knowledge of the `scalar_1 = map_to_scalar(msg_1, idx_1)`, should not give any information on the value of `scalar_2 = map_to_scalar(msg_2, idx_2)`, for any other `(msg_2, idx_2)` input pair.
+3. It MUST be deterministic.
+
+## Hash to Scalar
 
 This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range [1, r-1]).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To hash a message to a scalar that would be passed as input to the [Sign](#sisignature-generation-signgn), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
 
