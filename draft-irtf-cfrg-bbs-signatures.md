@@ -176,14 +176,14 @@ a || b
 I \\ J
 : For sets I and J, denotes the difference of the two sets i.e., all the elements of I that do not appear in J, in the same order as they were in I.
 
-X\[i\]
-: Denotes the element of array `X` at index `i`. Note that arrays in this document are considered "zero-indexed", meaning that element indexing starts from 0 rather than 1. For example, if `X = [a, b, c, d]` then `X[0] = a`, `X[1] = b`, `X[2] = c` and `X[3] = d`.
-
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
 length(input)
 : Takes as input either an array or an octet string. If the input is an array, returns the number of elements of the array. If the input is an octet string, returns the number of bytes of the inputted octet string.
+
+X\[i\]
+: Denotes the element of array `X` at index `i`. Note that arrays in this document are considered "zero-indexed", meaning that element indexing starts from 0 rather than 1. For example, if `X = [a, b, c, d]` then `X[0] = a`, `X[1] = b`, `X[2] = c` and `X[3] = d`.
 
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
@@ -282,6 +282,25 @@ Aside from the message generators, the scheme uses one additional generator `Q_1
 ### Messages
 
 In this document, the messages to be signed are defined as octet-strings. Each message must be mapped to a scalar value before passed to one of the core BBS operations ((#core-operations)). There are various ways to map a message to a scalar value. The BBS Signatures Interface defined in this document (see (#bbs-signatures-interface)), makes use of a hash function (see (#messages-to-scalars)). See (#mapping-messages-to-scalars) for more details and guidance on using alternative mapping methods.
+
+### Indexing of Arrays
+
+Note that arrays in this document use the zero-based numbering common in many programming languages, meaning that element indexing starts from 0 (see (#notation)). This is distinct from naming used during deserialization of arrays, where natural (one-based) numbering might be used as part of the names of the array's elements for clarity in that context.
+
+For example, if `X` is an array of `n` elements, we may write,
+
+```
+[a_1, a_2, ..., a_n] = X
+```
+
+The above would indicate that
+
+```
+X[0] = a_1
+X[1] = a_2
+// ... and so on, up to
+X[n-1] = a_n
+```
 
 ### Serializing to Octets
 
