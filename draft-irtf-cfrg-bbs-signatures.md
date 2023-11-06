@@ -3064,7 +3064,7 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
   <seriesInfo name="In" value="EUROCRYPT"/>
 </reference>
 
-<reference anchor="P91" target="https://ia.cr/2023/275">
+<reference anchor="P91" target="https://link.springer.com/chapter/10.1007/3-540-46766-1_9">
   <front>
     <title>Non-Interactive and Information-Theoretic Secure Verifiable Secret Sharing</title>
     <author initials="T. P. P." surname="Pedersen" fullname="Torden Pryds Pedersen">
