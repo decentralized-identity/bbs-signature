@@ -1002,13 +1002,13 @@ ABORT if:
 
 Procedure:
 
-5. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 
-7. T1 = Bbar * c + Abar * e^ + D * r1^
-7. Bv = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-8. T2 = Bv * c + D * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
+2. T1 = Bbar * c + Abar * e^ + D * r1^
+3. Bv = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+4. T2 = Bv * c + D * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
 
-9. return (Abar, Bbar, D, T1, T2, domain)
+5. return (Abar, Bbar, D, T1, T2, domain)
 ```
 
 ### Challenge Calculation
