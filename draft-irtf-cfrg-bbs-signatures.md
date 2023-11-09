@@ -1050,7 +1050,7 @@ ABORT if:
 Procedure:
 
 1. c_arr = (Abar, Bbar, C, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
-2. c_octs = serialize(c_array) || I2OSP(length(ph), 8) || ph
+2. c_octs = serialize(c_arr) || I2OSP(length(ph), 8) || ph
 3. return hash_to_scalar(c_octs, challenge_dst)
 ```
 
