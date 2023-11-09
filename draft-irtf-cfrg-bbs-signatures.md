@@ -739,7 +739,7 @@ Deserialization:
 Procedure:
 
 1. random_scalars = calculate_random_scalars(3+U)
-2. init_res = ProofInit(PK, signature_res, generators, random_scalars,
+2. init_res = ProofInit(PK, signature_result, generators, random_scalars,
                           header, messages, undisclosed_indexes, api_id)
 3. if init_res is INVALID, return INVALID
 4. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
