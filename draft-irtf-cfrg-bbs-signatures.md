@@ -1519,7 +1519,7 @@ Outputs:
 Procedure:
 
 1. (Abar, Bbar, D, e^, r1^, r3^, (m^_1, ..., m^_U), c) = proof
-2. return serialize((Abar, Bbar, r2^, r3^, m^_1, ..., m^_U, c))
+2. return serialize((Abar, Bbar, D, e^, r1^, r3^, m^_1, ..., m^_U, c))
 ```
 
 #### Octets to Proof
