@@ -1729,19 +1729,17 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
-The first ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
+The first ciphersuite uses the hash-to-curve suite `BLS12381G1_XOF:SHAKE-256_SSWU_RO_`, defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of [@!SHA3].
 
-The second ciphersuite uses SHA-256, as defined in Section 6.2 of [@!SHA2] and the BLS12-381 G1 hash-to-curve suite defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] document.
+The second ciphersuite uses the hash-to-curve suite `BLS12381G1_XMD:SHA-256_SSWU_RO_`, defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] document, which is based on the SHA-256, as defined in Section 6.2 of [@!SHA2] .
 
-Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs SHA-256) and in the hash-to-curve suites used. The hash-to-curve suites differ in the `expand_message` variant and underlying hash function. More concretely, the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite makes use of `expand_message_xof` with SHAKE-256, while [BLS12-381-SHA-256](#bls12-381-sha-256) makes use of `expand_message_xmd` with SHA-256. Curve parameters are common between the two ciphersuites.
+Note that these two ciphersuites differ only in the hash-to-curve suites used. The hash-to-curve suites differ in the `expand_message` variant and underlying hash function. More concretely, the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite makes use of `expand_message_xof` with SHAKE-256, while [BLS12-381-SHA-256](#bls12-381-sha-256) makes use of `expand_message_xmd` with SHA-256. Curve parameters are common between the two ciphersuites.
 
 ### BLS12-381-SHAKE-256
 
 **Basic parameters**:
 
-- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_H2G\_HM2S\_"
-
-- hash: SHAKE-256 as defined in [@!SHA3].
+- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
 
 - octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
@@ -1770,9 +1768,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Basic parameters**:
 
-- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_H2G\_HM2S\_"
-
-- hash: SHA-256 as defined in [@!SHA2].
+- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_"
 
 - octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
