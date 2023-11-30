@@ -1891,7 +1891,7 @@ the following `key_info` value
 ```
 key_info = {{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyInfo }}
 ```
-and the following `key_dst` value, defined by `api_id || KEYGEN_DST_`, where `api_id` the identifier of the BBS Ciphersuite defined in (#bbs-signatures-interface) for the `BLS12-381-SHAKE-256` ciphersuite defined in (#bls12-381-shake-256),
+and the following `key_dst` value, defined by `api_id || KEYGEN_DST_`, where `api_id` the identifier of the BBS Interface defined in (#bbs-signatures-interface), using the `BLS12-381-SHAKE-256` ciphersuite defined in (#bls12-381-shake-256),
 ```
 key_dst = {{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyDst }}
 ```
@@ -2093,7 +2093,7 @@ the following `key_info` value
 ```
 key_info = {{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyInfo }}
 ```
-and the following `key_dst` value, defined by `api_id || KEYGEN_DST_`, where `api_id` the identifier of the BBS Ciphersuite defined in (#bbs-signatures-interface) for the `BLS12-381-SHA-256` ciphersuite defined in (#bls12-381-sha-256),
+and the following `key_dst` value, defined by `api_id || KEYGEN_DST_`, where `api_id` the identifier of the BBS Interface defined in (#bbs-signatures-interface), using the `BLS12-381-SHA-256` ciphersuite defined in (#bls12-381-sha-256),
 ```
 key_dst = {{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyDst }}
 ```
