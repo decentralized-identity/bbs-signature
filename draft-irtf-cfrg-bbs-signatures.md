@@ -580,13 +580,8 @@ Each core operation will accept a vector of generators (points of G1) and option
 
 This operation computes a deterministic signature from a secret key (SK), a set of generators (points of G1) and optionally a header and a vector of messages.
 
-This operation also accepts an optional commitment input (see (#using-a-commitment)). The commitment is a point of G1 (other than the identity), that if used, it will be integrity protected by the signature. This value serves only as an extension point and it is not used by this document. Applications using the Interface defined in (#bbs-signatures-interface) MUST ignore this value. Extensions that want to take advantage of this extension point MUST follow the requirements defined in (#using-a-commitment).
-
-Note that this operation requires the generators to be at least one more than the messages, but does not enforce an exact equality, in contrast to the CoreVerify ((#coreverify)), CoreProofGen ((#coreproofgen)) and CoreProofVerify ((#coreproofverify)) operations. This is to accommodate extensions that use the commitment value. If the commitment input is not used, the generators MUST be exactly one more than the messages.
-
 ```
-signature = CoreSign(SK, PK, generators, header, messages,
-                                                    commitment, api_id)
+signature = CoreSign(SK, PK, generators, header, messages, api_id)
 
 Inputs:
 
@@ -601,8 +596,6 @@ Inputs:
 - messages (OPTIONAL), a vector of scalars representing the messages.
                        If not supplied, it defaults to the empty
                        array "()".
-- commitment (OPTIONAL), a point of G1. If not supplied, it defaults to
-                         the identity point of G1 ("Identity_G1").
 - api_id (OPTIONAL), an octet string. If not supplied it defaults to the
                      empty octet string ("").
 
@@ -623,22 +616,19 @@ Definitions:
 Deserialization:
 
 1. L = length(messages)
-2. if length(generators) < L + 1, return INVALID
-2. (msg_1, ..., msg_L) = messages
-3. (Q_1, H_1, ..., H_L) = (generators[1], ..., generators[L+1])
+2. if length(generators) != L + 1, return INVALID
+3. (msg_1, ..., msg_L) = messages
+4. (Q_1, H_1, ..., H_L) = generators
 
 Procedure:
 
 1. domain = calculate_domain(PK, generators, header, api_id)
 
-2. let comm be an empty octet string ("")
-3. if commitment != Identity_G1, comm = serialize(commitment)
-
-4. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L, comm)),
+2. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)),
                                                           signature_dst)
-5. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L + commitment
-6. A = B * (1 / (SK + e))
-7. return signature_to_octets((A, e))
+3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+4. A = B * (1 / (SK + e))
+5. return signature_to_octets((A, e))
 ```
 
 **Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
@@ -1652,19 +1642,6 @@ The proof, as returned by ProofGen, is a zero-knowledge proof-of-knowledge [@CDL
 [ProofGen](#proof-generation-proofgen) is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes ProofGen vulnerable to bad entropy in certain applications. As an example of such application, consider systems that need to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the `get_random` function to create an undetected chanel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed [@!DRBG]. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).
 
 In any case, the randomness used in ProofGen MUST be unique in each call and MUST have a distribution that is indistinguishable from uniform. If the random scalars are re-used, are created from "bad randomness" (for example with a known relationship to each other) or are in any way predictable, an adversary will be able to unveil the undisclosed from the proof messages or the hidden signature value. Naturally, a cryptographically secure pseudorandom number generator or pseudo random function is REQUIRED to implement the `get_random` functionality. See also [@!RFC8937], for recommendations on generating good randomness in cases where the Prover has direct or in-direct access to a secret key.
-
-## Using a Commitment
-
-The CoreSign operation defined in (#coresign), specifies an optional commitment input value. The commitment is a point of G1, that can be used to extent the core BBS functionality, by allowing "signing points", meaning that the supplied commitment point will be integrity protected by the signature (see [@TZ23]). An example use case, is allowing a third party (like the Prover for example), to create messages that will be included in the BBS signature, without those messages being revealed to the Signer, by setting the commitment to be a Pedersen commitment ([@P91]) over a list of messages.
-
-In cases where the commitment must have a specific form (like in the above example that uses Pedersen commitments), the Signer MUST verify the correctness of the supplied value, prior to using it for signature generation. In the example of the Pedersen commitment, this may include validating a zero-knowledge proof (using a pre-defined set of generators) constructed by the party that supplied the commitment, showcasing that it knows the messages that where used to create it, that those messages are in the correct range etc.
-
-Documents extending the BBS core functionality, that use the commitment value are REQUIRED to,
-
-- Clearly specify the expected format of the commitment value, how it should be constructed and how it should be validated by the Signer.
-- Include a detailed and peer reviewed analyses, showcasing that, under reasonable cryptographic assumptions the documented scheme that uses the commitment value, results to a secure signature protocol, i.e., that the resulting signature is secure under adaptive chosen plaintext attacks.
-
-Applications using the Interface defined in (#bbs-signatures-interface), MUST ignore the commitment value.
 
 ## Mapping Messages to Scalars
 
@@ -3078,18 +3055,6 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
   </front>
   <seriesInfo name="In" value="EUROCRYPT"/>
 </reference>
-
-<reference anchor="P91" target="https://link.springer.com/chapter/10.1007/3-540-46766-1_9">
-  <front>
-    <title>Non-Interactive and Information-Theoretic Secure Verifiable Secret Sharing</title>
-    <author initials="T. P. P." surname="Pedersen" fullname="Torden Pryds Pedersen">
-      <organization>Aarhus University</organization>
-    </author>
-    <date year="1991"/>
-  </front>
-  <seriesInfo name="In" value="CRYPTO"/>
-</reference>
-
 
 <reference anchor="BBB17" target="https://ia.cr/2017/1066">
   <front>
