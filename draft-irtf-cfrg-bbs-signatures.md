@@ -2026,6 +2026,14 @@ header = {{ $proofFixtures.bls12-381-shake-256.proof001.header }}
 presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof001.presentationHeader }}
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof001.disclosedIndexes }}
 
+random scalars:
+  r1 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars: {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.m_tilde_scalars }}
+
 T1 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.T1 }}
 T2 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.domain }}
@@ -2053,6 +2061,14 @@ header = {{ $proofFixtures.bls12-381-shake-256.proof002.header }}
 presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof002.disclosedIndexes }}
 
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars: {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.m_tilde_scalars }}
+
 T1 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.T1 }}
 T2 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.domain }}
@@ -2079,6 +2095,20 @@ signature = {{ $proofFixtures.bls12-381-shake-256.proof003.signature }}
 header = {{ $proofFixtures.bls12-381-shake-256.proof003.header }}
 presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof003.presentationHeader }}
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof003.disclosedIndexes }}
+
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars:
+        m~_1 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}
+        m~_3 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}
+        m~_5 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}
+        m~_7 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}
+        m~_8 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}
+        m~_9 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}
 
 T1 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.T1 }}
 T2 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.T2 }}
@@ -2233,6 +2263,14 @@ header = {{ $proofFixtures.bls12-381-sha-256.proof001.header }}
 presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof001.presentationHeader }}
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof001.disclosedIndexes }}
 
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars: {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.m_tilde_scalars }}
+
 T1 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.T1 }}
 T2 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.domain }}
@@ -2260,6 +2298,14 @@ header = {{ $proofFixtures.bls12-381-sha-256.proof002.header }}
 presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof002.presentationHeader }}
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof002.disclosedIndexes }}
 
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars: {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.m_tilde_scalars }}
+
 T1 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.T1 }}
 T2 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.domain }}
@@ -2270,22 +2316,36 @@ proof = {{ $proofFixtures.bls12-381-sha-256.proof002.proof }}
 #### Valid Multi-Message, Some Messages Disclosed Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[9] }}
+m_1 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[0] }}
+m_2 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[1] }}
+m_3 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[2] }}
+m_4 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[3] }}
+m_5 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[4] }}
+m_6 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[5] }}
+m_7 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[6] }}
+m_8 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[7] }}
+m_9 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[8] }}
+m_10 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[9] }}
 
 public_key = {{ $proofFixtures.bls12-381-sha-256.proof003.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-sha-256.proof003.signature }}
 header = {{ $proofFixtures.bls12-381-sha-256.proof003.header }}
 presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof003.presentationHeader }}
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof003.disclosedIndexes }}
+
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars:
+        m~_1 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}
+        m~_3 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}
+        m~_5 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}
+        m~_7 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}
+        m~_8 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}
+        m~_9 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}
 
 T1 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.T1 }}
 T2 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.T2 }}
