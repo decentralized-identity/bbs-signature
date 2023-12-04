@@ -1746,6 +1746,22 @@ The first ciphersuite makes use of an extendable output function, and most speci
 
 The second ciphersuite uses SHA-256, as defined in Section 6.2 of [@!SHA2] and the BLS12-381 G1 hash-to-curve suite defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] document.
 
+For both ciphersuites defined in this section, the fixed point `P1` of G1 is defined as the output of the `create_generators` procedure defined in (#generators-calculation) instantiated with the parameters defined by each ciphersuite, with the inputs `count = 1`, not supplying an `api_id` value and making use of the following "Definitions" for the `seed_dst`, `generator_dst` and `generator_seed` variables;
+
+```
+- seed_dst: ciphersuite_id || "H2G_HM2S_SIG_GENERATOR_SEED_" where
+            "H2G_HM2S_SIG_GENERATOR_SEED_" is an ASCII string comprised
+            of 28 bytes.
+- generator_dst: ciphersuite_id || "H2G_HM2S_SIG_GENERATOR_DST_", where
+                 "H2G_HM2S_SIG_GENERATOR_DST_" is an ASCII string
+                 comprised of 27 bytes.
+- generator_seed: ciphersuite_id || "H2G_HM2S_BP_MESSAGE_GENERATOR_SEED"
+                  where "H2G_HM2S_BP_MESSAGE_GENERATOR_SEED" is an ASCII
+                  string comprised of 34 bytes.
+```
+
+In the above, `ciphersuite_id` is the unique identifier defined by each ciphersuite. Note that the `P1` point is independent from the BBS Interface that may use it and it remains constant for each ciphersuite. The similarity of the above "Definitions" with the Interface identifier (`api_id`) defined in (#bbs-signatures-interface), is only for compatibility reasons with previous versions of this document.
+
 Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs SHA-256) and in the hash-to-curve suites used. The hash-to-curve suites differ in the `expand_message` variant and underlying hash function. More concretely, the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite makes use of `expand_message_xof` with SHAKE-256, while [BLS12-381-SHA-256](#bls12-381-sha-256) makes use of `expand_message_xmd` with SHA-256. Curve parameters are common between the two ciphersuites.
 
 ### BLS12-381-SHAKE-256
@@ -1764,9 +1780,9 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
-- P1: The G1 point returned from the `create_generators` procedure ((#generators-calculation)), with `count = 1` and replacing the defined generator\_seed with the value: ciphersuite\_id || "H2G\_HM2S\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: the following point of G1, serialized using the point\_to\_octets\_g1 procedure defined by this ciphersuite and hex encoded
     ```
-    P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.BP }}
+    P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.P1 }}
     ```
 
 **Serialization functions**:
@@ -1795,9 +1811,9 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
-- P1: The G1 point returned from the `create_generators` procedure ((#generators-calculation)), with `count = 1` and replacing the defined generator\_seed with the value: ciphersuite\_id || "H2G\_HM2S\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: the following point of G1, serialized using the point\_to\_octets\_g1 procedure defined by this ciphersuite and hex encoded
     ```
-    P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.BP }}
+    P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.P1 }}
     ```
 
 **Serialization functions**:
