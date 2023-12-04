@@ -592,9 +592,9 @@ The operations of this section make use of functions and sub-routines defined in
 - `calculate_domain` and `calculate_challenge` as defined in (#domain-calculation) and (#challenge-calculation) correspondingly.
 - `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` as defined in (#serialization).
 
-Each core operation will accept a vector of `generators` (points of G1) and optionally, a vector of `messages`. The generators MUST be unique and pseudo-random i.e., with no known relationship to each other. See (#defining-new-generators) for more details. Each message is represented as a scalar value. See (#messages-to-scalars) for ways to map a message to a scalar and the corresponding security requirements. 
+Each core operation will accept a vector of `generators` (points of G1) and optionally, a vector of `messages`. The generators MUST be unique and pseudo-random i.e., with no known relationship to each other. See (#defining-new-generators) for more details. Each message is represented as a scalar value. See (#messages-to-scalars) for ways to map a message to a scalar and the corresponding security requirements.
 
-Additionally, all core operations accept the Signer's public key (`PK`) as well as an optional octet string representing an Interface identifier (`api_id`). Additional inputs, will be described before each of one of the procedures.
+Furthermore, all core operations accept the Signer's public key (`PK`) as well as an optional octet string representing an Interface identifier (`api_id`). Additional inputs, will be described before each of one of the procedures.
 
 **Note** Some of the utility functions used by the core operations of this section could fail (ABORT). In that case, the calling operation MUST also immediately abort.
 
@@ -710,13 +710,11 @@ Procedure:
 
 This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The Prover may also supply a presentation header (`ph`). See (#header-and-presentation-header-usage) for more details. Validating the resulting proof (using the `CoreProofVerify` algorithm defined in (#coreproofverify)), guarantees the integrity and authenticity of the revealed messages, as well as the possession of a valid signature (for the public key `PK`) by the Prover.
 
-The `CoreProofGen` operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key `PK`, with the `Verify` operation defined in (#signature-verification-verify).
+The `CoreProofGen` operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key `PK` and `generators` set, against the supplied `messages` and `header`, with the `CoreVerify` operation defined in (#coreverify).
 
 The messages supplied in this operation MUST be in the same order as when supplied to `CoreSign` ((#coresign)). To specify which of those messages will be disclosed, the Prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 0 to `length(messages) - 1`.
 
-The operation works by first initializing the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge, together with the initialization result, will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
-
-Lastly, the operation calculates multiple random scalars using the `calculate_random_scalars` utility operation defined in (#random-scalars). See also (#randomness-requirements) for considerations and requirements on random scalars generation.
+The operation works by first calculating a set of random scalars using the `calculate_random_scalars` operation defined in (#random-scalars), utilized to blind the signature and the undisclosed messages (see (#randomness-requirements) for considerations and requirements on random scalars generation). It then initializes the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge, together with the initialization result, will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
 
 ```
 proof = CoreProofGen(PK, signature, generators, header, ph, messages,
@@ -783,9 +781,9 @@ Procedure:
 
 ### CoreProofVerify
 
-This operation checks that a `proof` is valid for a vector of disclosed messages (`disclosed_messages`) along side their index corresponding to their original position when signed (`disclosed_indexes`) and presentation header (`ph`) against a public key (`PK`).
+This operation checks that a `proof` is valid for a `header`, vector of disclosed messages (`disclosed_messages`) along side their index corresponding to their original position when signed (`disclosed_indexes`) and presentation header (`ph`) against a public key (`PK`).
 
-The operation works by first initializing the proof verification using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be inputted to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first components of the received proof (points of G1) will be checked for correctness (steps 5 and 6 in the following procedure), to verify the proof.
+The operation works by first initializing the proof verification procedure using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be inputted to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first components of the received proof (points of G1) will be checked for correctness (steps 5 and 6 in the following procedure), to verify the proof.
 
 ```
 result = CoreProofVerify(PK, proof, generators, header, ph,
@@ -845,13 +843,16 @@ Procedure:
 
 ## Proof Protocol Subroutines
 
-This section describes the subroutines used by the CoreProofGen and CoreProofVerify algorithms defined in (#coreproofgen) and (#coreproofverify) respectively.
+This section describes the subroutines used by the `CoreProofGen` ((#coreproofgen)) and `CoreProofVerify` ((#coreproofverify)) operations.
 
 ### Proof Initialization
 
-This operation initializes the proof and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `CoreProofGen` operation defined in (#coreproofgen).
+This operation initializes the proof and returns one of the inputs passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `CoreProofGen` operation defined in (#coreproofgen).
 
-As inputs, this operation accepts; the Signer's public key (`PK`), the BBS `signature` used to generate the proof, a set of `generators` (points of G1), a set of random scalars (`random_scalars`), the signed header (`header`), a set of scalars reprehending the signed messages (`messages`) and a set of integers in the range from `0` to `length(messages) - 1` (inclusive), in ascending order, representing the indexes the messages the Prover choses to not disclose have in the list of signed messages (`undisclosed_indexes` see (#coreproofgen)). The list of random scalars MUST have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 3`). Finally, the operation will accept an optional octet string representing an Interface identifier (`api_id`).
+The inputted `messages` MUST be supplied to this operation in the same order they had when inputted to the `CoreSign` operation ((#coresign)).
+
+The defined procedure needs the messages the Prover decided to not disclose. For this purpose, along the list of signed messages, the operation also accepts a set of integers in the range from `0` to `length(messages) - 1` (inclusive) in ascending order, representing the indexes of the undisclosed messages (`undisclosed_indexes`). To blind the inputted `signature` and the undisclosed messages, the operation will also accept a set of uniformly random scalars (`random_scalars`). This set must have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 3`).
+
 
 This operation makes use of the `calculate_domain` function defined in (#domain-calculation).
 
@@ -923,9 +924,9 @@ Procedure:
 
 ### Proof Finalization
 
-This operation finalizes the proof calculation during the `CoreProofGen` operation defined in (#coreproofgen) and returns the serialized proof value, using the `proof_to_octets` serialization operation defined in (#proof-to-octets). 
+This operation finalizes the proof calculation during the `CoreProofGen` operation defined in (#coreproofgen) and returns the serialized proof value, using the `proof_to_octets` serialization operation defined in (#proof-to-octets).
 
-As inputs, this operation accepts; the proof initialization result as returned by the `ProofInit` operation defined in (#proof-initialization) (`init_res`), the proof `challenge` as calculated by the `ProofChallengeCalculate` operation defined in (#challenge-calculation), the scalar part of the BBS signature (`e_value`), the random scalars used to generate the proof (`random_scalars`) and a set of scalars, representing the messages the Prover decided to not disclose (`undisclosed_messages`).
+As inputs, this operation accepts the proof initialization result as returned by the `ProofInit` operation defined in (#proof-initialization) (`init_res`) as well as a scalar value representing the proof's `challenge` as calculated by the `ProofChallengeCalculate` operation defined in (#challenge-calculation). It also requires the scalar part of the BBS signature (`e_value`), the random scalars used to generate the proof (`random_scalars`, as inputted to the `ProofInit` operation) and a set of scalars, representing the messages the Prover decided to not disclose (`undisclosed_messages`). Those messages MUST be supplied to this operation in the same order as they had as part of the `messages` input of the `CoreSign` operation ((#coresign)).
 
 This operation makes use of the `proof_to_octets` function defined in (#proof-to-octets).
 
@@ -975,7 +976,7 @@ Procedure:
 
 This operation initializes the proof verification operation and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `CoreProofVerify` operation defined in (#coreproofverify).
 
-As inputs, this operation accepts; the Signer's public key (`PK`), the Prover's `proof`, a set of `generators` (points of G1), the signed `header`, a set of scalars representing the messages the Prover disclosed (`disclosed_messages`) as well as the list of indexes those messages had in the vector of signed messages (`disclosed_indexes`). Finally, the operation will accept an optional octet string representing an Interface identifier (`api_id`).
+Note that, the scalars representing the disclosed messages (`disclosed_messages`) MUST be supplied to this operation in the same order as they had as part of the `messages` input of the `CoreSign` operation defined in (#coresign) (otherwise, proof verification will fail). Similarly, the indexes of the disclosed messages in the set of signed messages MUST be supplied to this operation as a set is accenting order (`disclosed_indexes`).
 
 This operation makes use of the `calculate_domain` function defined in (#domain-calculation).
 
@@ -1051,9 +1052,9 @@ Procedure:
 
 This operation calculates the challenge scalar value, used during the `CoreProofGen` ((#coreproofgen)) and `CoreProofVerify` ((#coreproofverify)), as part of the Fiat-Shamir heuristic, for making the proof protocol non-interactive (in a interactive setting, the challenge would be a random value supplied by the verifier).
 
-As inputs, this operation accepts; the proof generation or verification initialization result, as outputted by the `ProofInit` ((#proof-initialization)) or `ProofVerifyInit` ((#proof-verification-initialization)) operations (`init_res`), a set of scalars representing the messages the Prover disclosed (`disclosed_messages`) as well as the list of indexes those messages had in the vector of signed messages (`disclosed_indexes`), the presentation header (`ph`) inputted in `CoreProofGen` and finally an optional octet string representing an Interface identifier (`api_id`).
+As inputs, this operation will accept the proof generation or verification initialization result, as outputted by the `ProofInit` ((#proof-initialization)) or `ProofVerifyInit` ((#proof-verification-initialization)) operations (`init_res`). It will additionally accept the set of scalars representing the messages the Prover disclosed (`disclosed_messages`) as well as the list of indexes those messages had in the vector of signed messages (`disclosed_indexes`), together with the presentation header (`ph`).
 
-This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
+This operation makes use of the `serialize` function, defined in (#serialize).
 
 ```
 challenge = ProofChallengeCalculate(init_res, disclosed_messages, disclosed_indexes, ph,
@@ -1114,13 +1115,13 @@ This document defines a BBS Interface to be a set of operations that use the cor
 
 The Interface operations are tasked with creating the generators, as well as mapping the received set of messages to a set of scalar values. The created generators MUST follow the requirements listed in (#defining-new-generators). If a set of messages is supplied, the mapping to scalars procedure MUST follow the requirements listed in (#define-a-new-map-to-scalar).
 
-Each Interface MUST also define a unique ID as a parameter, called `api_id`. It is REQUIRED from the operations that create generators and map messages to scalars, to also define a unique ID (see (#interface-utilities)). The `api_id` MUST have the following format:
+Each Interface MUST also define a unique identifier as a parameter, called `api_id`. It is RECOMMENDED from the operations that create generators and map messages to scalars, to also define a unique identifiers (see (#interface-utilities)). Assuming that `CREATE_GENERATORS_ID` is the unique identifier of the operation that creates the generators and `MAP_TO_SCALAR_ID` is the unique identifier of the operation that maps the messages to scalars, the RECOMMENDED format for the `api_id` is the following:
 
 ```
 ciphersuite_id || CREATE_GENERATORS_ID || MAP_TO_SCALAR_ID || ADD_INFO
 ```
 
-Where `ciphersuite_id` is defined by the ciphersuite, `CREATE_GENERATORS_ID` is the unique IDs of the operation that creates the generators, `MAP_TO_SCALAR_ID` is the unique ID of the operation that maps the messages to scalars and the `ADD_INFO` value is an optional octet string indicating any additional information used to uniquely qualify the Interface. When `ADD_INFO` is present, it MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f). The `api_id` value, MUST be used by all subroutines an Interface calls, to ensure proper domain separation.
+Where `ciphersuite_id` is defined by the ciphersuite and the `ADD_INFO` value is an optional octet string indicating any additional information used to uniquely qualify the Interface. When `ADD_INFO` is present, it MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f). The `api_id` value, MUST be used by all subroutines an Interface calls, to ensure proper domain separation.
 
 Interfaces are meant to make it easier to use BBS Signature as part of other protocols with different requirements (for example, different types of input messages or different ways to create the generators), or to extend BBS Signatures with additional functionality (for example, using blinded messages as in [@CDL16]). Documents defining new BBS Interfaces, other than adhering to the requirements listed in this section, should also include a detailed and peer reviewed analyses showcasing that, under reasonable cryptographic assumptions, the documented scheme is secure under the required security definitions and threat model of each protocol. In other words, Interfaces must be treated like Ciphersuites ((#ciphersuites)), in the sense that applications should avoid creating their own, proprietary Interfaces.
 
@@ -1132,7 +1133,7 @@ This section defines utility operations that are used by either the BBS Interfac
 
 This section defines the `create_generators` and `messages_to_scalars` operations that are used by the BBS Signatures Interface defined in (#bbs-signatures-interface). It also defines requirements for alternative operations that calculate generators and map messages to scalars.
 
-Each operation MUST define a unique ID, called `CREATE_GENERATORS_ID` for the operation that will calculate the generators and `MAP_TO_SCALAR_ID` for the operation that will map messages to scalars. Those IDs will be used to construct the Interface ID (see (#defining-new-interfaces)).
+It is RECOMMENDED that the `create_generators` and `messages_to_scalars` operations define a unique identifier, called `CREATE_GENERATORS_ID` and `MAP_TO_SCALAR_ID` respectively. Those identifiers will be used to construct the Interface identifier (see (#defining-new-interfaces)).
 
 ### Generators Calculation
 
@@ -1200,11 +1201,10 @@ CREATE_GENERATORS_ID = "H2G_"
 
 #### Defining new Generators
 
-When defining a new `create_generators` procedure, the most important property is that the points are pseudo-randomly chosen from the G1 group, given reasonable assumptions and cryptographic primitives. More specifically, the required properties are,
+When defining a new `create_generators` procedure, the most important property is that the points are pseudo-randomly chosen from the G1 group, with no known relationship to each other, given reasonable assumptions and cryptographic primitives. More specifically, the required properties are
 
-- The generators should be indistinguishable from uniformly radom points of G1. This means that given only the points `H_1, ..., H_i` it should be infeasible to guess `H_(i+1)` (or any `H_j` with `j > i`), for any `i`.
+- The generators should be indistinguishable from uniformly radom points of G1 (even given the knowledge of the system's public parameters, like the `generator_seed` value in (#generators-calculation)). This means that given only the points `H_1, ..., H_i` it should be infeasible to guess `H_(i+1)` (or any `H_j` with `j > i`), for any `i`. This also means that it should be infeasible to represent any of the generators as multi-exponentiation product (i.e., of the form `H_i1 * a_1 + H_i2 * a_2 + ... + H_in * a_n`) of any of the other generators.
 - The returned points must be unique with very high probability, that would not lessen the targeted security level of the ciphersuite. Specifically, for a security level `k`, the probability of a collision should be at most `1/2^k`.
-- It should be infeasible to guess the discrete logarithm of the returned points, for any base, even with knowledge of the public parameters that were used to create those generators (like the `generator_seed` value in (#generators-calculation)). Note that pseudo randomness does not necessarily imply this property. For example, an implementation that repeatably hashes a public seed value to create exponents `r_1, r_2, ..., r_count` (where `r_1 = hash(seed), r_2 = hash(r_1), ...`) and then returns the points `H_1 = P1 * r_1, H_2 = P_1 * r_2, ..., H_count = P_1 * r_count` would be insecure (given knowledge of the seed), but given knowledge of only the points `H_1, ..., H_count`, the sequence would appear random.
 - The returned points must be different from the Identity point of G1 as well as the constant point `P1` defined by the ciphersuite.
 
 Every operation that is used to return generator points for use with the core BBS operations ((#core-operations)), MUST return points that conform to the aforementioned rules. Such operation must also follow the rules outlined bellow,
@@ -1256,7 +1256,7 @@ MAP_TO_SCALAR_ID = "HM2S_"
 
 #### Define a new Map to Scalar
 
-The most important property that a new operation that will map a vector of messages to a vector of scalars, MUST have is that each message should be mapped to a scalar independently from all
+The most important property that a new operation that will map a set of messages to a set of scalars must have, is that each message should be mapped to a scalar independently from all
 the other messages. More specifically, the following MUST hold,
 
 ```
@@ -1271,6 +1271,8 @@ If we append msg_prime_scalar at the end of C2, it must always hold that
 C1 == C2.
 ```
 
+Note that the above property ensures that if a message is mapped to a scalar on its own or as part of a set of messages, it will not affect the resulting scalar value.
+
 Additionally, the new operation MUST conform to the following requirements:
 
 - The returned scalars MUST be independent. More specifically, knowledge of any subset of the returned scalars MUST NOT reveal any information about the scalars not in that subset.
@@ -1284,9 +1286,9 @@ This section defines utility procedures that are used by the Core operations def
 
 ### Random Scalars
 
-This operation returns the requested number of pseudo-random scalars, using the `get_random` operation (see [Parameters](#parameters)). The operation makes multiple calls to `get_random`. It is REQUIRED that each call will be independent from each other, as to ensure independence of the returned pseudo-random scalars.
+This operation returns the requested number of pseudo-random scalars, using the `get_random` operation (see (#parameters)). The operation makes multiple calls to `get_random`. It is REQUIRED that each call will be independent from each other, as to ensure independence of the returned pseudo-random scalars.
 
-**Note**: The security of the proof generation algorithm ([ProofGen](#proof-generation-proofgen)) is highly dependant on the quality of the `get_random` function. Care must be taken to ensure that a cryptographically secure pseudo-random generator is chosen, and that its outputs are not leaked to an adversary. See also [Section 5.10](#randomness-requirements) for more details.
+**Note**: The security of the proof generation algorithm (`ProofGen` defined in (#proof-generation-proofgen)) is highly dependant on the quality of the `get_random` function. Care must be taken to ensure that a cryptographically secure pseudo-random generator is chosen, and that its outputs are not leaked to an adversary. See also (#randomness-requirements) for more details and guidance.
 
 ```
 random_scalars = calculate_random_scalars(count)
@@ -1315,9 +1317,9 @@ Procedure:
 
 ### Hash to Scalar
 
-This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range from  1 to r - 1).  This procedure acts as a helper function, used internally in various places within the operations described in the spec. To hash a message to a scalar that would be passed as input to the [Sign](#sisignature-generation-signgn), [Verify](#signature-verification-verify), [ProofGen](#proof-generation-proofgen) and [ProofVerify](#proof-verification-proofverify) functions, one must use [MapMessageToScalarAsHash](#mapmessagetoscalar) instead.
+This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range from  1 to r - 1).  This procedure acts as a helper function, used internally in various places within the operations described in the spec.
 
-The operation takes as input an octet string representing the message to hash (msg), the number of the scalars to return (count) as well as an optional domain separation tag (dst). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!I-D.irtf-cfrg-hash-to-curve] for guidance on using larger dst values. If a dst is not supplied, its value MUST default to the octet string returned from ciphersuite\_id || "H2S\_", where ciphersuite\_id is the octet string representing the unique ID of the ciphersuite and "H2S_" is an ASCII string comprised of 4 bytes.
+The operation takes as input an octet string representing the octet string to hash (`msg`) and a domain separation tag (`dst`). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!I-D.irtf-cfrg-hash-to-curve] for guidance on using larger dst values.
 
 **Note** This operation makes use of `expand_message` defined in [@!I-D.irtf-cfrg-hash-to-curve]. The operation `expand_message` may fail (abort). In that case, `hash_to_scalar` MUST also ABORT.
 
@@ -1353,13 +1355,13 @@ Procedure:
 
 ### Domain Calculation
 
-This operation calculates the domain value, a scalar representing the distillation of all essential contextual information for a signature. The same domain value must be calculated by all parties (the signer, the Prover, and the verifier) for both the signature and proofs to be validated.
+This operation calculates the domain value, a scalar representing the distillation of all essential contextual information for a signature. The same domain value must be calculated by all parties (the Signer, the Prover and the Verifier) for both the signature and proofs to be validated.
 
-The input to the domain value includes an octet string called the header, chosen by the signer and meant to encode any information that is required to be revealed by the Prover (such as an expiration date, or an identifier for the target audience). This is in contrast to the signed message values, which may be withheld during a proof.
+The input to the domain value includes the `header` value chosen by the signer to encode any information that is required to be revealed by the Prover (such as an expiration date, or an identifier for the target audience). This is in contrast to the signed message values, which may be withheld during a proof.
 
-When a signature is calculated, the domain value is combined with a specific generator point (`Q_1`, see [Sign](#signature-generation-sign)) to protect the integrity of the public parameters and the header.
+When a signature is calculated, the domain value is combined with a specific generator point (`Q_1`, see `CoreSign` defined in (#coresign)) to protect the integrity of the public parameters and the header.
 
-This operation makes use of the `serialize` function, defined in [Section 4.6.1](#serialize).
+This operation makes use of the `serialize` function, defined in (#serialize).
 
 ```
 domain = calculate_domain(PK, Q_1, H_Points, header, api_id)
@@ -1409,7 +1411,7 @@ Procedure:
 
 #### Serialize
 
-This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see (#serializing-to-octets)). The inputted elements can be points, scalars (see [Terminology](#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in [Sign](#signature-generation-sign), [ProofGen](#proof-generation-proofgen) etc.), or to serialize a signature or proof (see [SignatureToOctets](#signaturetooctets) and [ProofToOctets](#prooftooctets)).
+This operation describes how to transform multiple elements of different types (i.e., elements that are not already in a octet string format) to a single octet string (see (#serializing-to-octets)). The inputted elements can be points, scalars (see (#terminology)) or integers between 0 and 2^64-1. The resulting octet string will then either be used as an input to a hash function (i.e., in `CoreSign` (#coresign), `CoreProofGen` (#coreproofgen) etc.), or to serialize a signature or proof (see `signature_to_octets` (#signature-to-octets) and  `proof_to_octets` (#proof-to-octets)).
 
 ```
 octets_result = serialize(input_array)
@@ -1454,7 +1456,7 @@ Procedure:
 This operation describes how to encode a signature to an octet string.
 
 *Note* this operation deliberately does not perform the relevant checks on the inputs `A` and `e`
-because its assumed these are done prior to its invocation, e.g as is the case with the [Sign](#signature-generation-sign) operation.
+because its assumed these are done prior to its invocation, e.g as is the case with the `CoreSign` (#coresign) operation.
 
 ```
 signature_octets = signature_to_octets(signature)
@@ -1499,7 +1501,7 @@ Parameters:
 Outputs:
 
 signature, a signature in the form (A, e), where A is a point in G1
-           and e is a non-zero scalar mod r.
+           and e is a non-zero scalar mod r; or INVALID.
 
 Procedure:
 
@@ -1514,13 +1516,13 @@ Procedure:
 8.  index = octet_point_length
 9.  end_index = index + octet_scalar_length - 1
 10. e = OS2IP(signature_octets[index..end_index])
-11. if e = 0 OR e >= r, return INVALID
+11. if e = 0 or e >= r, return INVALID
 12. return (A, e)
 ```
 
 #### Proof to Octets
 
-This operation describes how to encode a proof, as computed at step 25 in [ProofGen](#proof-generation-proofgen), to an octet string. The input to the operation MUST be a valid proof.
+This operation describes how to encode as an octet string, a proof as computed by `CoreProofGen` in (#coreproofgen) (or, more precisely, by step 5 of the `ProofFinalize` operation defined in (#proof-finalization)).
 
 The inputted proof value must consist of the following components, in that order:
 
