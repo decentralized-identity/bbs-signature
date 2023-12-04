@@ -580,13 +580,8 @@ Each core operation will accept a vector of generators (points of G1) and option
 
 This operation computes a deterministic signature from a secret key (SK), a set of generators (points of G1) and optionally a header and a vector of messages.
 
-This operation also accepts an optional commitment input (see (#using-a-commitment)). The commitment is a point of G1 (other than the identity), that if used, it will be integrity protected by the signature. This value serves only as an extension point and it is not used by this document. Applications using the Interface defined in (#bbs-signatures-interface) MUST ignore this value. Extensions that want to take advantage of this extension point MUST follow the requirements defined in (#using-a-commitment).
-
-Note that this operation requires the generators to be at least one more than the messages, but does not enforce an exact equality, in contrast to the CoreVerify ((#coreverify)), CoreProofGen ((#coreproofgen)) and CoreProofVerify ((#coreproofverify)) operations. This is to accommodate extensions that use the commitment value. If the commitment input is not used, the generators MUST be exactly one more than the messages.
-
 ```
-signature = CoreSign(SK, PK, generators, header, messages,
-                                                    commitment, api_id)
+signature = CoreSign(SK, PK, generators, header, messages, api_id)
 
 Inputs:
 
@@ -601,8 +596,6 @@ Inputs:
 - messages (OPTIONAL), a vector of scalars representing the messages.
                        If not supplied, it defaults to the empty
                        array "()".
-- commitment (OPTIONAL), a point of G1. If not supplied, it defaults to
-                         the identity point of G1 ("Identity_G1").
 - api_id (OPTIONAL), an octet string. If not supplied it defaults to the
                      empty octet string ("").
 
@@ -623,22 +616,19 @@ Definitions:
 Deserialization:
 
 1. L = length(messages)
-2. if length(generators) < L + 1, return INVALID
-2. (msg_1, ..., msg_L) = messages
-3. (Q_1, H_1, ..., H_L) = (generators[1], ..., generators[L+1])
+2. if length(generators) != L + 1, return INVALID
+3. (msg_1, ..., msg_L) = messages
+4. (Q_1, H_1, ..., H_L) = generators
 
 Procedure:
 
 1. domain = calculate_domain(PK, generators, header, api_id)
 
-2. let comm be an empty octet string ("")
-3. if commitment != Identity_G1, comm = serialize(commitment)
-
-4. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L, comm)),
+2. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)),
                                                           signature_dst)
-5. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L + commitment
-6. A = B * (1 / (SK + e))
-7. return signature_to_octets((A, e))
+3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+4. A = B * (1 / (SK + e))
+5. return signature_to_octets((A, e))
 ```
 
 **Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
@@ -1666,19 +1656,6 @@ The proof, as returned by ProofGen, is a zero-knowledge proof-of-knowledge [@CDL
 
 In any case, the randomness used in ProofGen MUST be unique in each call and MUST have a distribution that is indistinguishable from uniform. If the random scalars are re-used, are created from "bad randomness" (for example with a known relationship to each other) or are in any way predictable, an adversary will be able to unveil the undisclosed from the proof messages or the hidden signature value. Naturally, a cryptographically secure pseudorandom number generator or pseudo random function is REQUIRED to implement the `get_random` functionality. See also [@!RFC8937], for recommendations on generating good randomness in cases where the Prover has direct or in-direct access to a secret key.
 
-## Using a Commitment
-
-The CoreSign operation defined in (#coresign), specifies an optional commitment input value. The commitment is a point of G1, that can be used to extent the core BBS functionality, by allowing "signing points", meaning that the supplied commitment point will be integrity protected by the signature (see [@TZ23]). An example use case, is allowing a third party (like the Prover for example), to create messages that will be included in the BBS signature, without those messages being revealed to the Signer, by setting the commitment to be a Pedersen commitment ([@P91]) over a list of messages.
-
-In cases where the commitment must have a specific form (like in the above example that uses Pedersen commitments), the Signer MUST verify the correctness of the supplied value, prior to using it for signature generation. In the example of the Pedersen commitment, this may include validating a zero-knowledge proof (using a pre-defined set of generators) constructed by the party that supplied the commitment, showcasing that it knows the messages that where used to create it, that those messages are in the correct range etc.
-
-Documents extending the BBS core functionality, that use the commitment value are REQUIRED to,
-
-- Clearly specify the expected format of the commitment value, how it should be constructed and how it should be validated by the Signer.
-- Include a detailed and peer reviewed analyses, showcasing that, under reasonable cryptographic assumptions the documented scheme that uses the commitment value, results to a secure signature protocol, i.e., that the resulting signature is secure under adaptive chosen plaintext attacks.
-
-Applications using the Interface defined in (#bbs-signatures-interface), MUST ignore the commitment value.
-
 ## Mapping Messages to Scalars
 
 As mentioned in this document, messages are considered to be represented as octet strings that are mapped to scalar values. More advanced applications however, like the ones using range proofs ([@BBB17]), will need to be able to use alternative mapping operations. At the BBS Signatures level, this means that an Interface may accept messages that are pre-mapped to a scalar, using some protocol specific operation. For example, an application could use [@ISO8601] to map dates into integers before passing them to the BBS Interface. In those cases, the application should ensure that all participants have a clear and consistent understating about which mapping method should be used, (examples include associating specific signature "types" with different mapping methods etc.).
@@ -1742,9 +1719,9 @@ a function that returns the point P in the subgroup G2 corresponding to the cano
 
 The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
-The first ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
+The first ciphersuite uses the hash-to-curve suite `BLS12381G1_XOF:SHAKE-256_SSWU_RO_`, defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of [@!SHA3].
 
-The second ciphersuite uses SHA-256, as defined in Section 6.2 of [@!SHA2] and the BLS12-381 G1 hash-to-curve suite defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] document.
+The second ciphersuite uses the hash-to-curve suite `BLS12381G1_XMD:SHA-256_SSWU_RO_`, defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] document, which is based on the SHA-256, as defined in Section 6.2 of [@!SHA2] .
 
 For both ciphersuites defined in this section, the fixed point `P1` of G1 is defined as the output of the `create_generators` procedure defined in (#generators-calculation) instantiated with the parameters defined by each ciphersuite, with the inputs `count = 1`, not supplying an `api_id` value and making use of the following "Definitions" for the `seed_dst`, `generator_dst` and `generator_seed` variables;
 
@@ -1762,15 +1739,13 @@ For both ciphersuites defined in this section, the fixed point `P1` of G1 is def
 
 In the above, `ciphersuite_id` is the unique identifier defined by each ciphersuite. Note that the `P1` point is independent from the BBS Interface that may use it and it remains constant for each ciphersuite. The similarity of the above "Definitions" with the Interface identifier (`api_id`) defined in (#bbs-signatures-interface), is only for compatibility reasons with previous versions of this document.
 
-Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs SHA-256) and in the hash-to-curve suites used. The hash-to-curve suites differ in the `expand_message` variant and underlying hash function. More concretely, the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite makes use of `expand_message_xof` with SHAKE-256, while [BLS12-381-SHA-256](#bls12-381-sha-256) makes use of `expand_message_xmd` with SHA-256. Curve parameters are common between the two ciphersuites.
+Note that these two ciphersuites differ only in the hash-to-curve suites used. The hash-to-curve suites differ in the `expand_message` variant and underlying hash function. More concretely, the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite makes use of `expand_message_xof` with SHAKE-256, while [BLS12-381-SHA-256](#bls12-381-sha-256) makes use of `expand_message_xmd` with SHA-256. Curve parameters are common between the two ciphersuites.
 
 ### BLS12-381-SHAKE-256
 
 **Basic parameters**:
 
-- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_H2G\_HM2S\_"
-
-- hash: SHAKE-256 as defined in [@!SHA3].
+- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
 
 - octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
@@ -1799,9 +1774,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Basic parameters**:
 
-- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_H2G\_HM2S\_"
-
-- hash: SHA-256 as defined in [@!SHA2].
+- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_"
 
 - octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
@@ -3167,18 +3140,6 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
   </front>
   <seriesInfo name="In" value="EUROCRYPT"/>
 </reference>
-
-<reference anchor="P91" target="https://link.springer.com/chapter/10.1007/3-540-46766-1_9">
-  <front>
-    <title>Non-Interactive and Information-Theoretic Secure Verifiable Secret Sharing</title>
-    <author initials="T. P. P." surname="Pedersen" fullname="Torden Pryds Pedersen">
-      <organization>Aarhus University</organization>
-    </author>
-    <date year="1991"/>
-  </front>
-  <seriesInfo name="In" value="CRYPTO"/>
-</reference>
-
 
 <reference anchor="BBB17" target="https://ia.cr/2017/1066">
   <front>
