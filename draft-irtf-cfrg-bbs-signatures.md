@@ -2383,6 +2383,8 @@ The current state of this document is the product of the work of the Decentraliz
 
 Orie Steele, Christian Paquin, Alessandro Guggino, Tomislav Markovski and Greg Bernstein.
 
+Additionally, the authors would like to acknoledge Jacques Traore and Antoine Dumanois, for their crucial contributions to this document.
+
 {backmatter}
 
 # BLS12-381 hash\_to\_curve Definition Using SHAKE-256
