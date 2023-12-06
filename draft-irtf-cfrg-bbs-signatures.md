@@ -582,13 +582,8 @@ Each core operation will accept a vector of generators (points of G1) and option
 
 This operation computes a deterministic signature from a secret key (SK), a set of generators (points of G1) and optionally a header and a vector of messages.
 
-This operation also accepts an optional commitment input (see (#using-a-commitment)). The commitment is a point of G1 (other than the identity), that if used, it will be integrity protected by the signature. This value serves only as an extension point and it is not used by this document. Applications using the Interface defined in (#bbs-signatures-interface) MUST ignore this value. Extensions that want to take advantage of this extension point MUST follow the requirements defined in (#using-a-commitment).
-
-Note that this operation requires the generators to be at least one more than the messages, but does not enforce an exact equality, in contrast to the CoreVerify ((#coreverify)), CoreProofGen ((#coreproofgen)) and CoreProofVerify ((#coreproofverify)) operations. This is to accommodate extensions that use the commitment value. If the commitment input is not used, the generators MUST be exactly one more than the messages.
-
 ```
-signature = CoreSign(SK, PK, generators, header, messages,
-                                                    commitment, api_id)
+signature = CoreSign(SK, PK, generators, header, messages, api_id)
 
 Inputs:
 
@@ -603,8 +598,6 @@ Inputs:
 - messages (OPTIONAL), a vector of scalars representing the messages.
                        If not supplied, it defaults to the empty
                        array "()".
-- commitment (OPTIONAL), a point of G1. If not supplied, it defaults to
-                         the identity point of G1 ("Identity_G1").
 - api_id (OPTIONAL), an octet string. If not supplied it defaults to the
                      empty octet string ("").
 
@@ -625,22 +618,19 @@ Definitions:
 Deserialization:
 
 1. L = length(messages)
-2. if length(generators) < L + 1, return INVALID
-2. (msg_1, ..., msg_L) = messages
-3. (Q_1, H_1, ..., H_L) = (generators[1], ..., generators[L+1])
+2. if length(generators) != L + 1, return INVALID
+3. (msg_1, ..., msg_L) = messages
+4. (Q_1, H_1, ..., H_L) = generators
 
 Procedure:
 
 1. domain = calculate_domain(PK, generators, header, api_id)
 
-2. let comm be an empty octet string ("")
-3. if commitment != Identity_G1, comm = serialize(commitment)
-
-4. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L, comm)),
+2. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)),
                                                           signature_dst)
-5. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L + commitment
-6. A = B * (1 / (SK + e))
-7. return signature_to_octets((A, e))
+3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+4. A = B * (1 / (SK + e))
+5. return signature_to_octets((A, e))
 ```
 
 **Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
@@ -760,7 +750,7 @@ Deserialization:
 
 Procedure:
 
-1. random_scalars = calculate_random_scalars(3+U)
+1. random_scalars = calculate_random_scalars(5+U)
 2. init_res = ProofInit(PK, signature_result, generators, random_scalars,
                           header, messages, undisclosed_indexes, api_id)
 3. if init_res is INVALID, return INVALID
@@ -818,7 +808,7 @@ Deserialization:
 
 1. proof_result = octets_to_proof(proof)
 2. if proof_result is INVALID, return INVALID
-3. (Abar, Bbar, r2^, r3^, commitments, cp) = proof_result
+3. (Abar, Bbar, D, e^, r1^, r3^, commitments, cp) = proof_result
 4. W = octets_to_pubkey(PK)
 5. if W is INVALID, return INVALID
 
@@ -841,7 +831,7 @@ This section describes the subroutines used by the ProofGen and ProVerify algori
 
 ### Proof Initialization
 
-This operation initializes the proof and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `ProofGen` operation defined in (#proof-generation-proofgen). As its inputs, it accepts a list of random scalars (`random_scalars`), the signed header, the list of signed messages (`messages`) represented as scalar values and a list of unsigned integers in the range from `0` to `length(messages) - 1` (inclusive), in ascending order, representing the indexes of the messages the Prover choses to not disclose (`undisclosed_indexes` see (#proof-generation-proofgen)). The list of random scalars MUST have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 3`).
+This operation initializes the proof and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `ProofGen` operation defined in (#proof-generation-proofgen). As its inputs, it accepts a list of random scalars (`random_scalars`), the signed header, the list of signed messages (`messages`) represented as scalar values and a list of unsigned integers in the range from `0` to `length(messages) - 1` (inclusive), in ascending order, representing the indexes of the messages the Prover choses to not disclose (`undisclosed_indexes` see (#proof-generation-proofgen)). The list of random scalars MUST have exactly 5 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 5`).
 
 This operation makes use of the `create_generators` function, defined in (#generators-calculation) and the `calculate_domain` function defined in (#domain-calculation).
 
@@ -873,7 +863,7 @@ Parameters:
 
 Outputs:
 
-- init_res, vector consisting of 3 points of G1 and a scalar, in that
+- init_res, vector consisting of 5 points of G1 and a scalar, in that
             order; or INVALID.
 
 Deserialization:
@@ -882,8 +872,8 @@ Deserialization:
 2.  L = length(messages)
 3.  U = length(undisclosed_indexes)
 4.  (j1, ..., jU) = undisclosed_indexes
-5.  if length(random_scalars) != U + 3, return INVALID
-6.  (r1, r2, r3, m~_j1, ..., m~_jU) = random_scalars
+5.  if length(random_scalars) != U + 5, return INVALID
+6.  (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
 7.  (msg_1, ..., msg_L) = messages
 
 8.  if length(generators) != L + 1, return INVALID
@@ -899,11 +889,16 @@ ABORT if:
 Procedure:
 
 1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
+
 2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-3. Abar = A * r1
-4. Bbar = B * r1 - Abar * e
-5. T =  Abar * r2 + Bbar * r3 + H_j1 * m~_j1 + ... + H_jU * m~_jU
-6. return (Abar, Bbar, T, domain)
+3. D = B * r2
+4. Abar = A * (r1 * r2)
+5. Bbar = D * r1 - Abar * e
+
+6. T1 = Abar * e~ + D * r1~
+7. T2 = D * r3~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+
+8. return (Abar, Bbar, D, T1, T2, domain)
 ```
 
 ### Proof Finalization
@@ -918,7 +913,7 @@ Inputs:
 
 - init_res (REQUIRED), vector representing the value returned after
                        initializing the proof generation or verification
-                       operations, consisting of 3 points of G1 and a
+                       operations, consisting of 5 points of G1 and a
                        scalar value, in that order.
 - challenge (REQUIRED), scalar value.
 - e_value (REQUIRED), scalar value.
@@ -934,19 +929,22 @@ Outputs:
 Deserialization:
 
 1. U = length(undisclosed_messages)
-2. if length(random_scalars) != U + 3, return INVALID
-3. (r1, r2, r3, m~_1, ..., m~_U) = random_scalars
+2. if length(random_scalars) != U + 5, return INVALID
+3. (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
 4. (undisclosed_1, ..., undisclosed_U) = undisclosed_messages
-5. (Abar, Bbar) = (init_res[0], init_res[1])
+5. (Abar, Bbar, D) = (init_res[0], init_res[1], init_res[2])
 
 Procedure:
 
-1. r4 = - r1^-1 (mod r)
-2. r2^ = r2 + e_value * r4 * challenge (mod r)
-3. r3^ = r3 + r4 * challenge (mod r)
-4. for j in (1, 2, ..., U): m^_j = m~_j + undisclosed_j * challenge (mod r)
-5. proof = (Abar, Bbar, r2^, r3^, (m^_1, ..., m^_U), challenge)
-6. return proof_to_octets(proof)
+1. r3 = r2^-1 (mod r)
+
+2. e^ = e~ + e_value * challenge
+3. r1^ = r1~ - r1 * challenge
+4. r3^ = r3~ - r3 * challenge
+5. for j in (1, ..., U): m^_j = m~_j + undisclosed_j * challenge (mod r)
+
+6. proof = (Abar, Bbar, D, e^, r1^, r3^, (m^_j1, ..., m^_jU), challenge)
+7. return proof_to_octets(proof)
 ```
 
 ### Proof Verification Initialization
@@ -968,8 +966,8 @@ Inputs:
 
 - PK (REQUIRED), an octet string of the form outputted by the SkToPk
                  operation.
-- proof (REQUIRED), vector representing a BBS proof, consisting of 2
-                    points of G1, 2 scalars, another nested but possibly
+- proof (REQUIRED), vector representing a BBS proof, consisting of 3
+                    points of G1, 3 scalars, another nested but possibly
                     empty vector of scalars and another scalar, in that
                     order.
 - generators (REQUIRED), vector of points in G1.
@@ -995,7 +993,7 @@ Outputs:
 
 Deserialization:
 
-1.  (Abar, Bbar, r2^, r3^, commitments, c) = proof_result
+1.  (Abar, Bbar, D, e^, r1^, r3^, commitments, c) = proof
 2.  U = length(commitments)
 3.  R = length(disclosed_indexes)
 4.  L = R + U
@@ -1015,10 +1013,12 @@ Deserialization:
 Procedure:
 
 1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
-2. D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-3. T =  Abar * r2^ + Bbar * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
-4. T = T + D * c
-5. return (Abar, Bbar, T, domain)
+
+2. T1 = Bbar * c + Abar * e^ + D * r1^
+3. Bv = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+4. T2 = Bv * c + D * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
+
+5. return (Abar, Bbar, D, T1, T2, domain)
 ```
 
 ### Challenge Calculation
@@ -1034,7 +1034,7 @@ challenge = ProofChallengeCalculate(init_res, i_array, msg_array, ph,
 Inputs:
 - init_res (REQUIRED), vector representing the value returned after
                        initializing the proof generation or verification
-                       operations, consisting of 3 points of G1 and a
+                       operations, consisting of 5 points of G1 and a
                        scalar value, in that order.
 - i_array (REQUIRED), array of non-negative integers (the indexes of
                       the disclosed messages).
@@ -1061,7 +1061,7 @@ Deserialization:
 2. (i1, ..., iR) = i_array
 3. if length(msg_array) != R, return INVALID
 3. (msg_i1, ..., msg_iR) = msg_array
-4. (Abar, Bbar, C, domain) = init_res
+4. (Abar, Bbar, D, T1, T2, domain) = init_res
 
 ABORT if:
 
@@ -1070,7 +1070,8 @@ ABORT if:
 
 Procedure:
 
-1. c_arr = (Abar, Bbar, C, R, i1, ..., iR, msg_i1, ..., msg_iR, domain)
+1. c_arr = (Abar, Bbar, D, T1, T2, R, i1, ..., iR,
+                                            msg_i1, ..., msg_iR, domain)
 2. c_octs = serialize(c_arr) || I2OSP(length(ph), 8) || ph
 3. return hash_to_scalar(c_octs, challenge_dst)
 ```
@@ -1433,7 +1434,8 @@ signature_octets = signature_to_octets(signature)
 Inputs:
 
 - signature (REQUIRED), a valid signature, in the form (A, e), where
-                        A is a point in G1 and e is a non-zero scalar mod r.
+                        A is a point in G1 and e is a non-zero
+                        scalar mod r.
 
 Outputs:
 
@@ -1494,9 +1496,10 @@ This operation describes how to encode a proof, as computed at step 25 in [Proof
 
 The inputted proof value must consist of the following components, in that order:
 
-1. Two (2) valid points of the G1 subgroup, different from the identity point of G1 (i.e., `Abar, Bbar`, in ProofGen)
-2. Three (3) integers representing scalars in the range of 1 to r - 1 inclusive (i.e., `c, r2^, r3^`, in ProofGen).
+1. Three (3) valid points of the G1 subgroup, different from the identity point of G1 (i.e., `Abar, Bbar, D`, in ProofGen)
+2. Three (3) integers representing scalars in the range of 1 to r - 1 inclusive (i.e., `e^, r1^, r3^`, in ProofGen).
 3. A number of integers representing scalars in the range of 1 to r - 1 inclusive, corresponding to the undisclosed from the proof messages (i.e., `m^_j1, ..., m^_jU`, in ProofGen, where U the number of undisclosed messages).
+4. One (1) integer representing a scalar in the range 1 to r-1 inclusive (i.e., `c` in ProofGen).
 
 ```
 proof_octets = proof_to_octets(proof)
@@ -1512,8 +1515,8 @@ Outputs:
 
 Procedure:
 
-1. (Abar, Bbar, r2^, r3^, (m^_1, ..., m^_U), c) = proof
-2. return serialize((Abar, Bbar, r2^, r3^, m^_1, ..., m^_U, c))
+1. (Abar, Bbar, D, e^, r1^, r3^, (m^_1, ..., m^_U), c) = proof
+2. return serialize((Abar, Bbar, D, e^, r1^, r3^, m^_1, ..., m^_U, c))
 ```
 
 #### Octets to Proof
@@ -1522,8 +1525,8 @@ This operation describes how to decode an octet string representing a proof, val
 
 The proof value outputted by this operation consists of the following components, in that order:
 
-1. Two (2) valid points of the G1 subgroup, each of which must not equal the identity point.
-2. Two (2) integers representing scalars in the range of 1 to r - 1 inclusive.
+1. Three (3) valid points of the G1 subgroup, each of which must not equal the identity point.
+2. Three (3) integers representing scalars in the range of 1 to r - 1 inclusive.
 3. A set of integers representing scalars in the range of 1 to r - 1 inclusive, corresponding to the undisclosed from the proof message commitments. This set can be empty (i.e., "()").
 4. One (1) integer representing a scalar in the range of 1 to r - 1 inclusive, corresponding to the proof's challenge (`c`).
 
@@ -1532,8 +1535,8 @@ proof = octets_to_proof(proof_octets)
 
 Inputs:
 
-- proof_octets (REQUIRED), an octet string of the form outputted from the
-                           proof_to_octets operation.
+- proof_octets (REQUIRED), an octet string of the form outputted from
+                           the proof_to_octets operation.
 
 Parameters:
 
@@ -1553,10 +1556,10 @@ Outputs:
 
 Procedure:
 
-1.  proof_len_floor = 2 * octet_point_length + 3 * octet_scalar_length
+1.  proof_len_floor = 3 * octet_point_length + 4 * octet_scalar_length
 2.  if length(proof_octets) < proof_len_floor, return INVALID
 
-// Points (i.e., (Abar, Bbar) in ProofGen) de-serialization.
+// Points (i.e., (Abar, Bbar, D) in ProofGen) de-serialization.
 3.  index = 0
 4.  for i in (0, 1):
 5.      end_index = index + octet_point_length - 1
@@ -1565,7 +1568,7 @@ Procedure:
 8.      if subgroup_check_G1(A_i) returns INVALID, return INVALID
 9.      index += octet_point_length
 
-// Scalars (i.e., (r2^, r3^, m^_j1, ..., m^_jU, c) in
+// Scalars (i.e., (e^, r1^, r3^, m^_j1, ..., m^_jU, c) in
 // ProofGen) de-serialization.
 10. j = 0
 11. while index < length(proof_octets):
@@ -1577,8 +1580,8 @@ Procedure:
 
 17. if index != length(proof_octets), return INVALID
 18. msg_commitments = ()
-19. If j > 3, set msg_commitments = (s_2, ..., s_(j-2))
-20. return (A_0, A_1, s_0, s_1, msg_commitments, s_(j-1))
+19. If j > 4, set msg_commitments = (s_3, ..., s_(j-2))
+20. return (A_0, A_1, A_2, s_0, s_1, s_2, msg_commitments, s_(j-1))
 ```
 
 #### Octets to Public Key
@@ -1611,6 +1614,26 @@ Procedure:
 4. If W == Identity_G2, return INVALID
 5. return W
 ```
+
+# Privacy Considerations
+
+This section will go through threats to the Prover's privacy. Note that a BBS proof is unlinkable against both the Verifiers and the Issuer, as well as multiple Verifiers colluding with each other and Verifiers colluding with the Issuer. The following sections will describe possible threats, resulting from side chanel information or identifying disclosed messages, that could compromise the unlinkability property of the BBS proof. Such threats, if exploited, could lead to correlation of the Prover's interactions with different Verifiers, resulting to fingerprinting attacks on the Prover's activity.
+
+Note that, the following sections describe ways to minimize possible identifying information revealed during a BBS proof presentation. To minimize the privacy threats of an entire system, other protections may also need to be employed, for example, using an IP hiding proxy network like TOR ([@DMS04]).
+
+## Total Number and Index of Signed Messages
+
+When a Prover presents a BBS proof to a Verifier, other than the messages they decide to disclose, there are two additional pieces of information that will be revealed. First, the total number of signed messages, which can be inferred from the size of the BBS proof and the length of the disclosed messages list. Second, the index the disclosed messages had in the list of signed messages (see (#proof-generation-proofgen)). This information, if unique to each Prover, could be employed to correlate multiple proof presentations together. As a result, the Issuer should not sign lists of messages with unique lengths or unique indexing. For this reason, it is RECOMMENDED that signed lists of messages are padded to a common length (using either random, or an unused by the application message, like 0 or 1). It is also RECOMMENDED that a constant ordering of messages will be preserved when possible. For example, if an application creates signatures for the messages `[<user_name>, <user_affiliation>, <user_country>]`, then those messages should always be signed in the same order, i.e., first message should always be the user's name (`<user_name>`), second message should always be the user's affiliation (`<user_affiliation>`) and the last message should always be the user's country of origins (`<user_country>`). Provers can employ consistency validation mechanisms, like the ones described in [@I-D.ietf-privacypass-key-consistency], to validate that those values are not used to correlate them.
+
+## Issuer's Public Keys
+
+As with most systems based on public key cryptography, multiple BBS signatures (and the subsequent BBS proofs) could be correlated with each other, if the Issuer does not use the same key for a large set of produced signatures. For example, the Issuer could use a different key to generate the signatures intended for a specific user, or a small set of users. Every proof generated by that set of users would then be linked to that group (since it will be validated by a different public key). To avoid fragmentation of the user space by different public keys, an application could use the same mechanisms that where proposed to check the consistency of the total number of messages and their indexes (i.e., [@I-D.ietf-privacypass-key-consistency], see (#total-number-and-index-of-signed-messages)).
+
+## Disclosed Messages
+
+Although multiple BBS proofs cannot be linked to each other, privacy also depends on the uniqueness of the disclosed messages during proof generation. If a unique message (or unique combination of messages) is revealed multiple times, it could be used to link the corresponding proofs together. Examples of such messages include government IDs, email addresses, phone numbers etc. If not required by the use case, the Prover should avoid disclosing such information when constructing a BBS proof.
+
+For certain types of message values, set membership proofs (for example, [@VB22]) or range proofs (for example, [@BBB17]) could be used to further mitigate the above issue. With a set membership proof, the BBS proof Verifier will be able to validate that one of the Prover's signed (and undisclosed) messages, belongs to a pre-defined set (for example that the Prover's government ID belongs to a set of valid government ID's). The inverse is also possible, where the Prover showcases that one of the undisclosed messages is not part of a set (for example, that a signed unique revocation identifier is not part of the set of revoked identifiers). If a message is represented by a numeric value (see (#mapping-messages-to-scalars)), range proofs can be used to prove that it is within a specific range. As an example, a Prover, instead of revealing their age, they could use a range proof to showcase that they are over 18 years old.
 
 # Security Considerations
 
@@ -1664,26 +1687,21 @@ The proof, as returned by ProofGen, is a zero-knowledge proof-of-knowledge [@CDL
 
 In any case, the randomness used in ProofGen MUST be unique in each call and MUST have a distribution that is indistinguishable from uniform. If the random scalars are re-used, are created from "bad randomness" (for example with a known relationship to each other) or are in any way predictable, an adversary will be able to unveil the undisclosed from the proof messages or the hidden signature value. Naturally, a cryptographically secure pseudorandom number generator or pseudo random function is REQUIRED to implement the `get_random` functionality. See also [@!RFC8937], for recommendations on generating good randomness in cases where the Prover has direct or in-direct access to a secret key.
 
-## Using a Commitment
-
-The CoreSign operation defined in (#coresign), specifies an optional commitment input value. The commitment is a point of G1, that can be used to extent the core BBS functionality, by allowing "signing points", meaning that the supplied commitment point will be integrity protected by the signature (see [@TZ23]). An example use case, is allowing a third party (like the Prover for example), to create messages that will be included in the BBS signature, without those messages being revealed to the Signer, by setting the commitment to be a Pedersen commitment ([@P91]) over a list of messages.
-
-In cases where the commitment must have a specific form (like in the above example that uses Pedersen commitments), the Signer MUST verify the correctness of the supplied value, prior to using it for signature generation. In the example of the Pedersen commitment, this may include validating a zero-knowledge proof (using a pre-defined set of generators) constructed by the party that supplied the commitment, showcasing that it knows the messages that where used to create it, that those messages are in the correct range etc.
-
-Documents extending the BBS core functionality, that use the commitment value are REQUIRED to,
-
-- Clearly specify the expected format of the commitment value, how it should be constructed and how it should be validated by the Signer.
-- Include a detailed and peer reviewed analyses, showcasing that, under reasonable cryptographic assumptions the documented scheme that uses the commitment value, results to a secure signature protocol, i.e., that the resulting signature is secure under adaptive chosen plaintext attacks.
-
-Applications using the Interface defined in (#bbs-signatures-interface), MUST ignore the commitment value.
-
 ## Mapping Messages to Scalars
 
-As mentioned in this document, messages are considered to be represented as octet strings that are mapped to scalar values. More advanced applications however, like the ones using range proofs ([@BBB17]), will need to be able to use alternative mapping operations. At the BBS Signatures level, this means that an Interface may accept messages that are pre-mapped to a scalar, using some protocol specific operation. For example, an application could use [@ISO8601] to map dates into integers before passing them to the BBS Interface. In those cases, the application should ensure that all participants have a clear and consistent understating about which mapping method should be used, (examples include associating specific signature "types" with different mapping methods etc.).
+In an application using BBS Signatures, there are 2 places where messages could be processed. First, before the messages are passed to the BBS Interface operations, and second, after they are passed to the BBS Interface operations but before they are passed to the BBS Core operations.
 
-Additionally, the application must ensure that all the BBS Interface operations have a consistent view of which of the received messages are octet strings (in which case they should be mapped to scalars using an operation conforming to the rules in (#define-a-new-map-to-scalar)) and which messages  are scalars (in which case, no extra operation is needed on those messages).
+To allow for re-usability of software, it is RECOMMENDED that application specific processing (like UTF-8 encoding [@RFC3629], Base-64  decoding [@RFC4648] etc.,) should happen before messages are passed to the BBS Interface operations. In those cases, the application should ensure that all protocol participants have a clear and consistent understating for which method should be used to process a message. This can be achieved by associating specific Interfaces (with unique `api_id` values, see (#defining-new-interfaces)) or unique header values (see (#signature-generation-sign)) with different pre-processing methodologies.
 
-An option is for the Issuer to publish this information as part of their public parameters, similar to TBD (U-Prove). Such configuration should detail the type of each message, based on that message's index on the signed messages list (i.e., the first message will be an octet string, the second an integer etc.). A BBS Interface should check the messages they receive against those configurations and map them to scalars accordingly. Another option is to sign such configurations as part of the header parameter of the BBS signature (see (#signature-generation-sign)). In this case, the configuration does not need to be published by the Issuer. The Prover will be responsible to get that information from the issuer and later, to communicate it to the Verifier.
+Note that the BBS Interface defined in this document (see (#bbs-signatures-interface)) only accepts messages that are represented as octet strings. However, in some more advanced applications, like the ones using range proofs ([@BBB17]) to prove that a signed message is within some range (without disclosing that message), the pre-processing of messages may result to some of them being mapped to scalar values, before they are passed to the BBS Interface (for example, an application could use [@ISO8601] to represent dates as integers etc.,) that should directly be signed (e.g., to not be further processed by `hash_to_scalar`).
+
+If a BBS Interface accepts both octet strings and scalar values as messages, where depending on the message's type different operations will be used to map it to a scalar (e.g., `hash_to_scalar` for octet strings and the identity operation for scalars), it must still ensure that the properties described in (#define-a-new-map-to-scalar) holds. To that end, the application MUST ensure that it is clear to all participants, which message should be considered an octet string and which a scalar.
+
+As an example, if the type (i.e., octet string or scalar) of the messages inputted to the BBS Interface, is uniquely determined by its index in the messages list (for example, first message is an octet string, second message a scalar etc.,), the map between message index and message type (determined by the Issuer), could be made available as part of the Issuer's public parameters (similar to [@UPROVE]). This map would then be passed to the BBS Interface, which will use it to correctly map each message to a scalar. Another option, is to sign such configurations as part of the `header` parameter of the BBS signature (see (#signature-generation-sign)). In this case, the map does not need to be published by the Issuer.
+
+If the application defines that the first (or last) `n` messages will be scalars and everything else octet strings, it could just publish the `n` value as part of the Issuer's public parameters or again sign it as part of the `header` value.
+
+In any case, the privacy considerations described in (#privacy-considerations) MUST not be violated, for example, by using unique pre-processing rules or maps between message index and type. To validate the consistency of the message processing rules, the Prover could use mechanisms like the ones described in [@I-D.ietf-privacypass-key-consistency].
 
 # Ciphersuites
 
@@ -1740,19 +1758,33 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 
 The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
 
-The first ciphersuite makes use of an extendable output function, and most specifically of SHAKE-256, as defined in Section 6.2 of [@!SHA3]. It also uses the hash-to-curve suite defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which also makes use of the SHAKE-256 function.
+The first ciphersuite uses the hash-to-curve suite `BLS12381G1_XOF:SHAKE-256_SSWU_RO_`, defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of [@!SHA3].
 
-The second ciphersuite uses SHA-256, as defined in Section 6.2 of [@!SHA2] and the BLS12-381 G1 hash-to-curve suite defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] document.
+The second ciphersuite uses the hash-to-curve suite `BLS12381G1_XMD:SHA-256_SSWU_RO_`, defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] document, which is based on the SHA-256, as defined in Section 6.2 of [@!SHA2] .
 
-Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs SHA-256) and in the hash-to-curve suites used. The hash-to-curve suites differ in the `expand_message` variant and underlying hash function. More concretely, the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite makes use of `expand_message_xof` with SHAKE-256, while [BLS12-381-SHA-256](#bls12-381-sha-256) makes use of `expand_message_xmd` with SHA-256. Curve parameters are common between the two ciphersuites.
+For both ciphersuites defined in this section, the fixed point `P1` of G1 is defined as the output of the `create_generators` procedure defined in (#generators-calculation) instantiated with the parameters defined by each ciphersuite, with the inputs `count = 1`, not supplying an `api_id` value and making use of the following "Definitions" for the `seed_dst`, `generator_dst` and `generator_seed` variables;
+
+```
+- seed_dst: ciphersuite_id || "H2G_HM2S_SIG_GENERATOR_SEED_" where
+            "H2G_HM2S_SIG_GENERATOR_SEED_" is an ASCII string comprised
+            of 28 bytes.
+- generator_dst: ciphersuite_id || "H2G_HM2S_SIG_GENERATOR_DST_", where
+                 "H2G_HM2S_SIG_GENERATOR_DST_" is an ASCII string
+                 comprised of 27 bytes.
+- generator_seed: ciphersuite_id || "H2G_HM2S_BP_MESSAGE_GENERATOR_SEED"
+                  where "H2G_HM2S_BP_MESSAGE_GENERATOR_SEED" is an ASCII
+                  string comprised of 34 bytes.
+```
+
+In the above, `ciphersuite_id` is the unique identifier defined by each ciphersuite. Note that the `P1` point is independent from the BBS Interface that may use it and it remains constant for each ciphersuite. The similarity of the above "Definitions" with the Interface identifier (`api_id`) defined in (#bbs-signatures-interface), is only for compatibility reasons with previous versions of this document.
+
+Note that these two ciphersuites differ only in the hash-to-curve suites used. The hash-to-curve suites differ in the `expand_message` variant and underlying hash function. More concretely, the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite makes use of `expand_message_xof` with SHAKE-256, while [BLS12-381-SHA-256](#bls12-381-sha-256) makes use of `expand_message_xmd` with SHA-256. Curve parameters are common between the two ciphersuites.
 
 ### BLS12-381-SHAKE-256
 
 **Basic parameters**:
 
-- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_H2G\_HM2S\_"
-
-- hash: SHAKE-256 as defined in [@!SHA3].
+- ciphersuite\_id: "BBS\_BLS12381G1\_XOF:SHAKE-256\_SSWU\_RO\_"
 
 - octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
@@ -1762,9 +1794,9 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
-- P1: The G1 point returned from the `create_generators` procedure ((#generators-calculation)), with `count = 1` and replacing the defined generator\_seed with the value: ciphersuite\_id || "H2G\_HM2S\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: the following point of G1, serialized using the point\_to\_octets\_g1 procedure defined by this ciphersuite and hex encoded
     ```
-    P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.BP }}
+    P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.P1 }}
     ```
 
 **Serialization functions**:
@@ -1781,9 +1813,7 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 **Basic parameters**:
 
-- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_H2G\_HM2S\_"
-
-- hash: SHA-256 as defined in [@!SHA2].
+- Ciphersuite\_ID: "BBS\_BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_"
 
 - octet\_scalar\_length: 32, based on the RECOMMENDED approach of `ceil(log2(r)/8)`.
 
@@ -1793,9 +1823,9 @@ Note that these two ciphersuites differ only in the hash function (SHAKE-256 vs 
 
 - expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
-- P1: The G1 point returned from the `create_generators` procedure ((#generators-calculation)), with `count = 1` and replacing the defined generator\_seed with the value: ciphersuite\_id || "H2G\_HM2S\_BP\_MESSAGE\_GENERATOR\_SEED". More specifically,
+- P1: the following point of G1, serialized using the point\_to\_octets\_g1 procedure defined by this ciphersuite and hex encoded
     ```
-    P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.BP }}
+    P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.P1 }}
     ```
 
 **Serialization functions**:
@@ -1838,8 +1868,8 @@ Inputs:
 
 - count (REQUIRED), non negative integer. The number of scalars to
                     return.
-- SEED (REQUIRED), an octet string. The random seed from which to generate
-                   the scalars.
+- SEED (REQUIRED), an octet string. The random seed from which to
+                   generate the scalars.
 
 Parameters:
 
@@ -2001,32 +2031,40 @@ SEED = "332e313431353932363533353839373933323338343632363433333833323739"
 Given the above seed the first 10 scalars returned by the `mocked_calculate_random_scalars` operation will be,
 
 ```
-rand_1 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[0] }}
-rand_2 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[1] }}
-rand_3 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[2] }}
-rand_4 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[3] }}
-rand_5 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[4] }}
-rand_6 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[5] }}
-rand_7 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[6] }}
-rand_8 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[7] }}
-rand_9 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[8] }}
-rand_10 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[9] }}
+random_scalar_1 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[0] }}
+random_scalar_2 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[1] }}
+random_scalar_3 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[2] }}
+random_scalar_4 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[3] }}
+random_scalar_5 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[4] }}
+random_scalar_6 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[5] }}
+random_scalar_7 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[6] }}
+random_scalar_8 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[7] }}
+random_scalar_9 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[8] }}
+random_scalar_10 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[9] }}
 ```
 
 #### Valid Single Message Proof
 
 ```
-m_0 = {{ $proofFixtures.bls12-381-shake-256.proof001.revealedMessages[0] }}
+m_0 = {{ $proofFixtures.bls12-381-shake-256.proof001.messages[0] }}
 
 public_key = {{ $proofFixtures.bls12-381-shake-256.proof001.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-shake-256.proof001.signature }}
 header = {{ $proofFixtures.bls12-381-shake-256.proof001.header }}
 presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof001.presentationHeader }}
-revealed_indexes = [1]
+revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof001.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.T }}
+random scalars:
+  r1 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars: {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.m_tilde_scalars }}
+
+T1 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.T1 }}
+T2 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.challenge }}
 
 proof = {{ $proofFixtures.bls12-381-shake-256.proof001.proof }}
 ```
@@ -2034,26 +2072,34 @@ proof = {{ $proofFixtures.bls12-381-shake-256.proof001.proof }}
 #### Valid Multi-Message, All Messages Disclosed Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-shake-256.proof002.revealedMessages[9] }}
+m_1 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[0] }}
+m_2 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[1] }}
+m_3 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[2] }}
+m_4 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[3] }}
+m_5 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[4] }}
+m_6 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[5] }}
+m_7 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[6] }}
+m_8 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[7] }}
+m_9 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[8] }}
+m_10 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[9] }}
 
 public_key = {{ $proofFixtures.bls12-381-shake-256.proof002.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-shake-256.proof002.signature }}
 header = {{ $proofFixtures.bls12-381-shake-256.proof002.header }}
 presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}
-revealed_indexes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof002.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.T }}
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars: {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.m_tilde_scalars }}
+
+T1 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.T1 }}
+T2 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.challenge }}
 
 proof = {{ $proofFixtures.bls12-381-shake-256.proof002.proof }}
 ```
@@ -2061,26 +2107,40 @@ proof = {{ $proofFixtures.bls12-381-shake-256.proof002.proof }}
 #### Valid Multi-Message, Some Messages Disclosed Proof
 
 ```
-m_1 = {{ $messages[0] }}
-m_2 = {{ $messages[1] }}
-m_3 = {{ $messages[2] }}
-m_4 = {{ $messages[3] }}
-m_5 = {{ $messages[4] }}
-m_6 = {{ $messages[5] }}
-m_7 = {{ $messages[6] }}
-m_8 = {{ $messages[7] }}
-m_9 = {{ $messages[8] }}
-m_10 = {{ $messages[9] }}
+m_1 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[0] }}
+m_2 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[1] }}
+m_3 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[2] }}
+m_4 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[3] }}
+m_5 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[4] }}
+m_6 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[5] }}
+m_7 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[6] }}
+m_8 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[7] }}
+m_9 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[8] }}
+m_10 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[9] }}
 
 public_key = {{ $proofFixtures.bls12-381-shake-256.proof003.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-shake-256.proof003.signature }}
 header = {{ $proofFixtures.bls12-381-shake-256.proof003.header }}
 presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof003.presentationHeader }}
-revealed_indexes = [1, 3, 5, 7]
+revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof003.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.T }}
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars:
+        m~_1 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}
+        m~_3 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}
+        m~_5 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}
+        m~_7 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}
+        m~_8 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}
+        m~_9 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}
+
+T1 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.T1 }}
+T2 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.challenge }}
 
 proof = {{ $proofFixtures.bls12-381-shake-256.proof003.proof }}
 ```
@@ -2206,32 +2266,42 @@ SEED = "332e313431353932363533353839373933323338343632363433333833323739"
 Given the above seed the first 10 scalars returned by the `mocked_calculate_random_scalars` operation will be,
 
 ```
-rand_1 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[0] }}
-rand_2 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[1] }}
-rand_3 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[2] }}
-rand_4 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[3] }}
-rand_5 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[4] }}
-rand_6 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[5] }}
-rand_7 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[6] }}
-rand_8 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[7] }}
-rand_9 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[8] }}
-rand_10 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[9] }}
+random_scalar_1 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[0] }}
+random_scalar_2 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[1] }}
+random_scalar_3 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[2] }}
+random_scalar_4 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[3] }}
+random_scalar_5 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[4] }}
+random_scalar_6 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[5] }}
+random_scalar_7 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[6] }}
+random_scalar_8 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[7] }}
+random_scalar_9 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[8] }}
+random_scalar_10 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[9] }}
 ```
+
+Note that the returned scalars will be unique for different `count` values, i.e., for different output lengths.
 
 #### Valid Single Message Proof
 
 ```
-m_0 = {{ $proofFixtures.bls12-381-sha-256.proof001.revealedMessages[0] }}
+m_0 = {{ $proofFixtures.bls12-381-sha-256.proof001.messages[0] }}
 
 public_key = {{ $proofFixtures.bls12-381-sha-256.proof001.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-sha-256.proof001.signature }}
 header = {{ $proofFixtures.bls12-381-sha-256.proof001.header }}
 presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof001.presentationHeader }}
-revealed_indexes = [1]
+revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof001.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.T }}
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars: {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.m_tilde_scalars }}
+
+T1 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.T1 }}
+T2 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.challenge }}
 
 proof = {{ $proofFixtures.bls12-381-sha-256.proof001.proof }}
 ```
@@ -2239,26 +2309,34 @@ proof = {{ $proofFixtures.bls12-381-sha-256.proof001.proof }}
 #### Valid Multi-Message, All Messages Disclosed Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-sha-256.proof002.revealedMessages[9] }}
+m_1 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[0] }}
+m_2 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[1] }}
+m_3 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[2] }}
+m_4 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[3] }}
+m_5 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[4] }}
+m_6 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[5] }}
+m_7 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[6] }}
+m_8 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[7] }}
+m_9 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[8] }}
+m_10 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[9] }}
 
 public_key = {{ $proofFixtures.bls12-381-sha-256.proof002.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-sha-256.proof002.signature }}
 header = {{ $proofFixtures.bls12-381-sha-256.proof002.header }}
 presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof002.presentationHeader }}
-revealed_indexes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof002.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.T }}
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars: {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.m_tilde_scalars }}
+
+T1 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.T1 }}
+T2 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.challenge }}
 
 proof = {{ $proofFixtures.bls12-381-sha-256.proof002.proof }}
 ```
@@ -2266,26 +2344,40 @@ proof = {{ $proofFixtures.bls12-381-sha-256.proof002.proof }}
 #### Valid Multi-Message, Some Messages Disclosed Proof
 
 ```
-m_1 = {{ $messages[0] }}
-m_2 = {{ $messages[1] }}
-m_3 = {{ $messages[2] }}
-m_4 = {{ $messages[3] }}
-m_5 = {{ $messages[4] }}
-m_6 = {{ $messages[5] }}
-m_7 = {{ $messages[6] }}
-m_8 = {{ $messages[7] }}
-m_9 = {{ $messages[8] }}
-m_10 = {{ $messages[9] }}
+m_1 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[0] }}
+m_2 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[1] }}
+m_3 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[2] }}
+m_4 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[3] }}
+m_5 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[4] }}
+m_6 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[5] }}
+m_7 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[6] }}
+m_8 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[7] }}
+m_9 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[8] }}
+m_10 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[9] }}
 
 public_key = {{ $proofFixtures.bls12-381-sha-256.proof003.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-sha-256.proof003.signature }}
 header = {{ $proofFixtures.bls12-381-sha-256.proof003.header }}
 presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof003.presentationHeader }}
-revealed_indexes = [1, 3, 5, 7]
+revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof003.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.T }}
+random scalars:
+    r1 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1 }}
+    r2 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r2 }}
+    e_tilde = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.e_tilde }}
+    r1_tilde = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1_tilde }}
+    r3_tilde = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r3_tilde }}
+    m_tilde_scalars:
+        m~_1 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}
+        m~_3 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}
+        m~_5 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}
+        m~_7 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}
+        m~_8 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}
+        m~_9 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}
+
+T1 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.T1 }}
+T2 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.challenge }}
 
 proof = {{ $proofFixtures.bls12-381-sha-256.proof003.proof }}
 ```
@@ -2420,7 +2512,6 @@ The following fixture should fail signature validation due to the message value 
 ```
 m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature002.messages[0] }}
 
-SK = {{ $signatureFixtures.bls12-381-shake-256.signature002.signerKeyPair.secretKey }}
 PK = {{ $signatureFixtures.bls12-381-shake-256.signature002.signerKeyPair.publicKey }}
 header = {{ $signatureFixtures.bls12-381-shake-256.signature002.header }}
 
@@ -2438,7 +2529,6 @@ The following fixture should fail signature validation due to an additional mess
 m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature003.messages[0] }}
 m_2 = {{ $signatureFixtures.bls12-381-shake-256.signature003.messages[1] }}
 
-SK = {{ $signatureFixtures.bls12-381-shake-256.signature003.signerKeyPair.secretKey }}
 PK = {{ $signatureFixtures.bls12-381-shake-256.signature003.signerKeyPair.publicKey }}
 header = {{ $signatureFixtures.bls12-381-shake-256.signature003.header }}
 
@@ -2456,7 +2546,6 @@ The following fixture should fail signature validation due to missing messages t
 m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature005.messages[0] }}
 m_2 = {{ $signatureFixtures.bls12-381-shake-256.signature005.messages[1] }}
 
-SK = {{ $signatureFixtures.bls12-381-shake-256.signature005.signerKeyPair.secretKey }}
 PK = {{ $signatureFixtures.bls12-381-shake-256.signature005.signerKeyPair.publicKey }}
 header = {{ $signatureFixtures.bls12-381-shake-256.signature005.header }}
 
@@ -2482,7 +2571,6 @@ m_8 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[7] }}
 m_9 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[8] }}
 m_10 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[9] }}
 
-SK = {{ $signatureFixtures.bls12-381-shake-256.signature006.signerKeyPair.secretKey }}
 PK = {{ $signatureFixtures.bls12-381-shake-256.signature006.signerKeyPair.publicKey }}
 header = {{ $signatureFixtures.bls12-381-shake-256.signature006.header }}
 
@@ -2508,7 +2596,6 @@ m_8 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[7] }}
 m_9 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[8] }}
 m_10 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[9] }}
 
-SK = {{ $signatureFixtures.bls12-381-shake-256.signature007.signerKeyPair.secretKey }}
 PK = {{ $signatureFixtures.bls12-381-shake-256.signature007.signerKeyPair.publicKey }}
 header = {{ $signatureFixtures.bls12-381-shake-256.signature007.header }}
 
@@ -2534,7 +2621,6 @@ m_8 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[7] }}
 m_9 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[8] }}
 m_10 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[9] }}
 
-SK = {{ $signatureFixtures.bls12-381-shake-256.signature008.signerKeyPair.secretKey }}
 PK = {{ $signatureFixtures.bls12-381-shake-256.signature008.signerKeyPair.publicKey }}
 header = {{ $signatureFixtures.bls12-381-shake-256.signature008.header }}
 
@@ -2549,26 +2635,26 @@ reason: {{ $signatureFixtures.bls12-381-shake-256.signature008.result.reason }}
 #### No Header Valid Proof
 
 ```
-m_1 = {{ $messages[0] }}
-m_2 = {{ $messages[1] }}
-m_3 = {{ $messages[2] }}
-m_4 = {{ $messages[3] }}
-m_5 = {{ $messages[4] }}
-m_6 = {{ $messages[5] }}
-m_7 = {{ $messages[6] }}
-m_8 = {{ $messages[7] }}
-m_9 = {{ $messages[8] }}
-m_10 = {{ $messages[9] }}
+m_1 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[0] }}
+m_2 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[1] }}
+m_3 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[2] }}
+m_4 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[3] }}
+m_5 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[4] }}
+m_6 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[5] }}
+m_7 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[6] }}
+m_8 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[7] }}
+m_9 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[8] }}
+m_10 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[9] }}
 
 public_key = {{ $proofFixtures.bls12-381-shake-256.proof014.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-shake-256.proof014.signature }}
 header = {{ $proofFixtures.bls12-381-shake-256.proof014.header }}
 presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof014.presentationHeader }}
-revealed_indexes = [1, 3, 5, 7]
+revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof014.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-shake-256.proof014.trace.T }}
+T1 = {{ $proofFixtures.bls12-381-shake-256.proof014.trace.T1 }}
+T2 = {{ $proofFixtures.bls12-381-shake-256.proof014.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-shake-256.proof014.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-shake-256.proof014.trace.challenge }}
 
 proof = {{ $proofFixtures.bls12-381-shake-256.proof014.proof }}
 ```
@@ -2576,26 +2662,26 @@ proof = {{ $proofFixtures.bls12-381-shake-256.proof014.proof }}
 #### No Presentation Header Valid Proof
 
 ```
-m_1 = {{ $messages[0] }}
-m_2 = {{ $messages[1] }}
-m_3 = {{ $messages[2] }}
-m_4 = {{ $messages[3] }}
-m_5 = {{ $messages[4] }}
-m_6 = {{ $messages[5] }}
-m_7 = {{ $messages[6] }}
-m_8 = {{ $messages[7] }}
-m_9 = {{ $messages[8] }}
-m_10 = {{ $messages[9] }}
+m_1 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[0] }}
+m_2 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[1] }}
+m_3 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[2] }}
+m_4 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[3] }}
+m_5 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[4] }}
+m_6 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[5] }}
+m_7 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[6] }}
+m_8 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[7] }}
+m_9 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[8] }}
+m_10 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[9] }}
 
 public_key = {{ $proofFixtures.bls12-381-shake-256.proof015.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-shake-256.proof015.signature }}
 header = {{ $proofFixtures.bls12-381-shake-256.proof015.header }}
 presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof015.presentationHeader }}
-revealed_indexes = [1, 3, 5, 7]
+revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof015.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-shake-256.proof015.trace.T }}
+T1 = {{ $proofFixtures.bls12-381-shake-256.proof015.trace.T1 }}
+T2 = {{ $proofFixtures.bls12-381-shake-256.proof015.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-shake-256.proof015.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-shake-256.proof015.trace.challenge }}
 
 proof = {{ $proofFixtures.bls12-381-shake-256.proof015.proof }}
 ```
@@ -2786,22 +2872,22 @@ reason: {{ $signatureFixtures.bls12-381-sha-256.signature008.result.reason }}
 #### No Header Valid Proof
 
 ```
-m_1 = {{ $messages[0] }}
-m_2 = {{ $messages[1] }}
-m_3 = {{ $messages[2] }}
-m_4 = {{ $messages[3] }}
-m_5 = {{ $messages[4] }}
-m_6 = {{ $messages[5] }}
-m_7 = {{ $messages[6] }}
-m_8 = {{ $messages[7] }}
-m_9 = {{ $messages[8] }}
-m_10 = {{ $messages[9] }}
+m_1 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[0] }}
+m_2 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[1] }}
+m_3 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[2] }}
+m_4 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[3] }}
+m_5 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[4] }}
+m_6 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[5] }}
+m_7 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[6] }}
+m_8 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[7] }}
+m_9 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[8] }}
+m_10 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[9] }}
 
 public_key = {{ $proofFixtures.bls12-381-sha-256.proof014.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-sha-256.proof014.signature }}
 header = {{ $proofFixtures.bls12-381-sha-256.proof014.header }}
 presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof014.presentationHeader }}
-revealed_indexes = [1, 3, 5, 7]
+revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof014.disclosedIndexes }}
 
 T = {{ $proofFixtures.bls12-381-sha-256.proof014.trace.T }}
 domain = {{ $proofFixtures.bls12-381-sha-256.proof014.trace.domain }}
@@ -2813,26 +2899,26 @@ proof = {{ $proofFixtures.bls12-381-sha-256.proof014.proof }}
 #### No Presentation Header Valid Proof
 
 ```
-m_1 = {{ $messages[0] }}
-m_2 = {{ $messages[1] }}
-m_3 = {{ $messages[2] }}
-m_4 = {{ $messages[3] }}
-m_5 = {{ $messages[4] }}
-m_6 = {{ $messages[5] }}
-m_7 = {{ $messages[6] }}
-m_8 = {{ $messages[7] }}
-m_9 = {{ $messages[8] }}
-m_10 = {{ $messages[9] }}
+m_1 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[0] }}
+m_2 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[1] }}
+m_3 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[2] }}
+m_4 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[3] }}
+m_5 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[4] }}
+m_6 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[5] }}
+m_7 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[6] }}
+m_8 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[7] }}
+m_9 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[8] }}
+m_10 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[9] }}
 
 public_key = {{ $proofFixtures.bls12-381-sha-256.proof015.signerPublicKey }}
 signature = {{ $proofFixtures.bls12-381-sha-256.proof015.signature }}
 header = {{ $proofFixtures.bls12-381-sha-256.proof015.header }}
 presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof015.presentationHeader }}
-revealed_indexes = [1, 3, 5, 7]
+revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof015.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-sha-256.proof015.trace.T }}
+T1 = {{ $proofFixtures.bls12-381-sha-256.proof015.trace.T1 }}
+T2 = {{ $proofFixtures.bls12-381-sha-256.proof015.trace.T2 }}
 domain = {{ $proofFixtures.bls12-381-sha-256.proof015.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-sha-256.proof015.trace.challenge }}
 
 proof = {{ $proofFixtures.bls12-381-sha-256.proof015.proof }}
 ```
@@ -3046,7 +3132,7 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
     <author initials="E." surname="Wustrow" fullname="Eric Wustrow">
       <organization>The University of Michigan</organization>
     </author>
-    <author initials="J.A." surname="Halderman" fullname="J. Alex Halderman">
+    <author initials="J. A." surname="Halderman" fullname="J. Alex Halderman">
       <organization>The University of Michigan</organization>
     </author>
     <date year="2012" month="August"/>
@@ -3083,10 +3169,10 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
 <reference anchor="TZ23" target="https://ia.cr/2023/275">
   <front>
     <title>Revisiting BBS Signatures</title>
-    <author initials="S. T." surname="Tessaro" fullname="Stefano Tessaro">
+    <author initials="S." surname="Tessaro" fullname="Stefano Tessaro">
       <organization>University of Washington</organization>
     </author>
-    <author initials="C. Z." surname="Zhu" fullname="Chenzhi Zhu">
+    <author initials="C." surname="Zhu" fullname="Chenzhi Zhu">
       <organization>University of Washington</organization>
     </author>
     <date year="2023"/>
@@ -3094,37 +3180,25 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
   <seriesInfo name="In" value="EUROCRYPT"/>
 </reference>
 
-<reference anchor="P91" target="https://link.springer.com/chapter/10.1007/3-540-46766-1_9">
-  <front>
-    <title>Non-Interactive and Information-Theoretic Secure Verifiable Secret Sharing</title>
-    <author initials="T. P. P." surname="Pedersen" fullname="Torden Pryds Pedersen">
-      <organization>Aarhus University</organization>
-    </author>
-    <date year="1991"/>
-  </front>
-  <seriesInfo name="In" value="CRYPTO"/>
-</reference>
-
-
 <reference anchor="BBB17" target="https://ia.cr/2017/1066">
   <front>
     <title>Bulletproofs: Short Proofs for Confidential Transactions and More</title>
-    <author initials="B. B." surname="Bünz" fullname="Benedikt Bünz">
+    <author initials="B." surname="Bünz" fullname="Benedikt Bünz">
       <organization>Stanford University</organization>
     </author>
-    <author initials="J. B." surname="Bootle" fullname="Jonathan Bootle">
+    <author initials="J." surname="Bootle" fullname="Jonathan Bootle">
       <organization>University College London</organization>
     </author>
-    <author initials="D. B." surname="Boneh" fullname="Dan Boneh">
+    <author initials="D." surname="Boneh" fullname="Dan Boneh">
       <organization>Stanford University</organization>
     </author>
-    <author initials="A. P." surname="Poelstra" fullname="Andrew Poelstra">
+    <author initials="A." surname="Poelstra" fullname="Andrew Poelstra">
       <organization>Blockstream</organization>
     </author>
-    <author initials="P. W." surname="Wuille" fullname="Pieter Wuille">
+    <author initials="P." surname="Wuille" fullname="Pieter Wuille">
       <organization>Blockstream</organization>
     </author>
-    <author initials="G. W." surname="Maxwell" fullname="Greg Maxwell">
+    <author initials="G." surname="Maxwell" fullname="Greg Maxwell">
     </author>
     <date year="2017"/>
   </front>
@@ -3136,5 +3210,42 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
  <front>
    <title>Date and time — Representations for information interchange — Part 1: Basic rules</title>
    <author><organization>ISO</organization></author>
+ </front>
+</reference>
+
+
+<reference anchor="UPROVE" target="https://github.com/microsoft/uprove-node-reference/blob/main/doc/U-Prove%20Cryptographic%20Specification%20V1.1%20Revision%205.pdf">
+ <front>
+   <title>U-Prove Cryptographic Specification V1.1 Revision 5</title>
+   <author><organization>Microsoft Research</organization></author>
+ </front>
+</reference>
+
+<reference anchor="DMS04" target="https://svn-archive.torproject.org/svn/projects/design-paper/tor-design.html">
+ <front>
+   <title>Tor: The Second-Generation Onion Router</title>
+   <author initials="R." surname="Dingledine" fullname="Roger Dingledine">
+    <organization>The Free Haven Projecth</organization>
+   </author>
+   <author initials="N." surname="Mathewson" fullname="Nick Mathewson">
+    <organization>The Free Haven Projecth</organization>
+   </author>
+   <author initials="P." surname="Syverson" fullname="Paul Syverson">
+    <organization>Naval Research Lab</organization>
+   </author>
+   <date year="2004"/>
+ </front>
+</reference>
+
+<reference anchor="VB22" target="https://link.springer.com/chapter/10.1007/978-3-030-95312-6_17">
+ <front>
+   <title>Dynamic universal accumulator with batch update over bilinear groups</title>
+   <author initials="V." surname="Giuseppe" fullname="Vitto Giuseppe">
+    <organization>University of Luxembourg</organization>
+   </author>
+   <author initials="A." surname="Biryukov" fullname="Alex Biryukov">
+    <organization>University of Luxembourg</organization>
+   </author>
+   <date year="2022"/>
  </front>
 </reference>
