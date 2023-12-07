@@ -1686,9 +1686,15 @@ In any case, the privacy considerations described in (#privacy-considerations) M
 
 ## Post-quantum Security and Everlasting Privacy
 
-The BBS Signatures scheme has two main security properties; unforgeability of BBS signatures and zero-knowledge of BBS proofs. The first property, referring to the inability of anyone other than the Signer to be able to generate BBS signatures, does not hold true against an adversary using a strong enough quantum computer. Specifically, such a computer could be used to reveal the Signer's secret key from their public key, hence giving them the ability to generate BBS signatures on behalf of that Signer for any message they want.
+BBS Signatures compine two security properties; data authenticity and data confidentiality.
 
-On the other hand, the second security property, i.e., the zero-knowledge of the BBS proof, cannot be broken, even by utilizing a quantum computer. We refer to this property as "everlasting privacy". This guarantees that an adversary in possession of a quantum computer, will not be able to reveal neither the messages undisclosed by a BBS proofs, nor the hidden signature value. As a result, the privacy and hiding properties of the BBS proofs that are currently used, will not be compromised by future quantum-attacks.
+Data authenticity refers to the inability of anyone other that the Signer, being able to generate BBS signatures that are valid under the Signer's public key (this property is often refered to as strong unforgeability, e.g., by [@TZ23]). It also refers to the inability of generating valid BBS proofs disclosing a set of messages, without having first received a BBS signature on those messages from the Signer (this refered to as the proof-of-knowledge of a BBS signature property of the BBS proof, [@CDL16] [@TZ23]).
+
+Data confidenciality refers to the inability of anyone (even the Signer) to extract information about the messages the Prover decided to not disclose during the proof generation procedure, or the signature that was used to generate that proof (something that is often refered to as the zero-knowledge proeprty of the BBS proof, [@CDL16] [@TZ23]).
+
+On the presence of a Cryptographically Relevant Quantum Computer (CRQC, [@I-D.ietf-pquip-pqc-engineers]), meaning a computer that will be able to break the discrete logarithm problem in the groups used by BBS Signatures, the data authenticity property will be broken. Specifically, an adversary could use a CRQC to reveal the Signer's secret key from their public key, hence giving them the ability to generate BBS signatures on behalf of that Signer for messages of their choosing, as well as BBS proofs using those signatures.
+
+On the other hand, data confidentiality cannot be broken, even by a CRQC. This guarantees that an adversary in possession of a quantum computer, will not be able to reveal neither the messages undisclosed by a BBS proofs, nor the hidden signature value. As a result, the privacy and hiding properties of the BBS proofs that are currently used, will not be compromised by future quantum-attacks.
 
 # Ciphersuites
 
