@@ -218,7 +218,7 @@ octets\_to\_point\_E1(ostr) -> P, octets\_to\_point\_E2(ostr) -> P
 : returns the point P for the respective elliptic curve corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_E\* function. This operation is also known as deserialization.
 
 subgroup\_check\_G1(P), subgroup\_check\_G2(P) -> VALID or INVALID
-: returns VALID when the point P is an element of the subgroup G1 or G2 correspondingly, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element. In some cases, faster checks may also exist, e.g., [@Bowe19].
+: returns VALID when the point P is an element of the subgroup G1 or G2 correspondingly, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element. In some cases, faster checks may also exist, e.g., [@Bowe19]. Note that these functions should always return VALID, on input the Identity point of the corresponding subgroup.
 
 ## Document Organization
 
@@ -1563,7 +1563,7 @@ Procedure:
 3.  index = 0
 4.  for i in (0, 1):
 5.      end_index = index + octet_point_length - 1
-6.      A_i = octets_to_point_g1(proof_octets[index..end_index])
+6.      A_i = octets_to_point_E1(proof_octets[index..end_index])
 7.      if A_i is INVALID or Identity_G1, return INVALID
 8.      if subgroup_check_G1(A_i) returns INVALID, return INVALID
 9.      index += octet_point_length
@@ -1580,7 +1580,7 @@ Procedure:
 
 17. if index != length(proof_octets), return INVALID
 18. msg_commitments = ()
-19. If j > 4, set msg_commitments = (s_3, ..., s_(j-2))
+19. if j > 4, set msg_commitments = (s_3, ..., s_(j-2))
 20. return (A_0, A_1, A_2, s_0, s_1, s_2, msg_commitments, s_(j-1))
 ```
 
@@ -1647,7 +1647,9 @@ This document makes use of `octet_to_point_g*` to parse octet strings to ellipti
 
 ## Skipping Membership Checks
 
-The subgroup check subgroup\_check\_G* invocation during either signature deserialization (`octets_to_signature`, defined in (#signature-to-octets)), proof deserialization (`octets_to_proof`, defined in (#proof-to-octets)) or public key deserialization (`octets_to_pubkey`, define in (#octets-to-public-key)) is REQUIRED by all implementations. Failure to comply would lead to unpredicted behavior and vulnerabilities. Note that the checking that the points are in the correct subgroup is essential to avoid possible forgeries of a BBS signature or proof ([@ADR02]). Furthermore, the pairing operation (#notation) is undefined when its input points are not in the prime-order subgroups of E1 and E2. As a result, applications MUST execute all the subgroup checks defined by this document.
+The subgroup check `subgroup_check_G*` invocation during either signature deserialization (`octets_to_signature`, defined in (#octets-to-signature)), proof deserialization (`octets_to_proof`, defined in (#octets-to-proof)) or public key deserialization (`octets_to_pubkey`, define in (#octets-to-public-key)) is REQUIRED by all implementations. Failure to comply would lead to unpredicted behavior and vulnerabilities. Note that some libraries implementing the pairing-friendly curves functionality, may incorporate that check as part of a `octets_to_point_G1` or `octet_to_point_G2` operation (i.e., operations that both deserialize an octet string to get an elliptic curve point and then check if the resulting point is part of the `G1` or `G2` group accordingly). In those cases, the implementer must make sure that those checks are executed correctly.
+
+Note that checking that the points are in the correct subgroup is essential to avoid possible forgeries of a BBS signature or proof ([@ADR02]). Furthermore, the pairing operation (#notation) is undefined when its input points are not in `G1` and `G2`. As a result, applications MUST execute all the subgroup checks defined by this document.
 
 ## Side Channel Attacks
 
