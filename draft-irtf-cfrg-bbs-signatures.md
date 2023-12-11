@@ -2976,7 +2976,7 @@ Note that the verifier will know the elements in the left side of \[6\] (i.e., `
 
 To convince the Verifier that both \[4\] and \[6\] hold, the Prover can use a `nizk`, to prove that they know the exponents that satisfy those equations, without disclosing them.
 
-Note that if the value `D` is constructed correctly (as in \[3\]), then `B = D * r'2`. Proving knowledge of \[6\] corresponds to proving knowledge of `r'2`, which means that the Prover does actually know the value `B = D * r'2`. If \[6\] holds, then that `B` value that the Prover knows will also have the "correct form" (as in \[1\]), including all (the disclosed and "some" undisclosed) messages.
+Note that if the value `D` is constructed correctly (as in \[3\]), then `B = D * r2'`. Proving knowledge of \[6\] corresponds to proving knowledge of `r2'`, which means that the Prover does actually know the value `B = D * r2'`. If \[6\] holds, then that `B` value that the Prover knows will also have the "correct form" (as in \[1\]), including all (the disclosed and "some" undisclosed) messages.
 
 All that remains is proving that this `B` value the Prover knows, is also "signed" by the Signer i.e., that the Prover also knows values `A` and `e`, such that `A = B * 1/(e + SK)` or, equivalently, that `e(A, PK + BP2 * e) = e(B, BP2)`, which is what `CoreVerify` checks to validate a signature (see (#coreverify)).
 
