@@ -1829,7 +1829,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 # Test Vectors
 
-The following section details a basic set of test vectors that can be used to confirm an implementations correctness.
+The following section details a basic set of test vectors that can be used to confirm an implementation's correctness.
 
 **NOTE** All binary data below is represented as octet strings in big endian order, encoded in hexadecimal format.
 
