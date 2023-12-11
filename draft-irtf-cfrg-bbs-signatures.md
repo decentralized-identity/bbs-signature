@@ -2021,7 +2021,7 @@ SEED =
       "332e313431353932363533353839373933323338343632363433333833323739"
 ```
 
-and the domain separation tag `DST = api_id || "MOCK_RANDOM_SCALARS_DST_"`, where `api_id` is the identifier of the BBS Interface defined in (#bbs-signatures-interface), i.e., `api_id = ciphersuite_id || H2G_HM2S_`, where `ciphersuite_id` is the unique identifier of the `BLS12-381-SHAKE-256` ciphersuite as defined in (#bls12-381-shake-256) and `"MOCK_RANDOM_SCALARS_DST_"` is an ASCII string comprising of 24 bytes. More specifically,
+and the domain separation tag `DST = api_id || "MOCK_RANDOM_SCALARS_DST_"`, where `api_id` is the identifier of the BBS Interface defined in (#bbs-signatures-interface), i.e., `api_id = ciphersuite_id || H2G_HM2S_`, where `ciphersuite_id` is the unique identifier of the `BLS12-381-SHAKE-256` ciphersuite as defined in (#bls12-381-shake-256) and `"MOCK_RANDOM_SCALARS_DST_"` is an ASCII string composed of 24 bytes. More specifically,
 
 ```
 DST =
