@@ -211,14 +211,14 @@ Identity\_G1, Identity\_G2, Identity\_GT
 hash\_to\_curve\_g1(ostr, dst) -> P
 : A cryptographic hash function that takes an arbitrary octet string as input and returns a point in G1, using the hash\_to\_curve operation defined in [@!I-D.irtf-cfrg-hash-to-curve] and the inputted dst as the domain separation tag for that operation (more specifically, the inputted dst will become the DST parameter for the hash\_to\_field operation, called by hash\_to\_curve).
 
-point\_to\_octets\_g1(P) -> ostr, point\_to\_octets\_g2(P) -> ostr
-: returns the canonical representation of the point P for the respective subgroup as an octet string. This operation is also known as serialization.
+point\_to\_octets\_E1(P) -> ostr, point\_to\_octets\_E2(P) -> ostr
+: returns the canonical representation of the point P of the elliptic curve E1 or E2 as an octet string. This operation is also known as serialization. Note that we assume that when the point is valid, all the serialization operations will always succeed to return the octet string representation of the point.
 
-octets\_to\_point\_g1(ostr) -> P, octets\_to\_point\_g2(ostr) -> P
-: returns the point P for the respective subgroup corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_g\* function. This operation is also known as deserialization.
+octets\_to\_point\_E1(ostr) -> P, octets\_to\_point\_E2(ostr) -> P
+: returns the point P for the respective elliptic curve corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of the respective point\_to\_octets_E\* function. This operation is also known as deserialization.
 
-subgroup\_check(P) -> VALID or INVALID
-: returns VALID when the point P is an element of the subgroup of order r, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element. In some cases, faster checks may also exist, e.g., [@Bowe19].
+subgroup\_check\_G1(P), subgroup\_check\_G2(P) -> VALID or INVALID
+: returns VALID when the point P is an element of the subgroup G1 or G2 correspondingly, and INVALID otherwise. This function can always be implemented by checking that r \* P is equal to the identity element. In some cases, faster checks may also exist, e.g., [@Bowe19]. Note that these functions should always return VALID, on input the Identity point of the corresponding subgroup.
 
 ## Document Organization
 
@@ -252,6 +252,8 @@ The schemes operations defined in this section depend on the following parameter
 * A hash-to-curve suite as defined in [@!I-D.irtf-cfrg-hash-to-curve], using the aforementioned pairing-friendly curve. This defines the hash\_to\_curve and expand\_message operations, used by this document.
 
 * get\_random(n): returns a random octet string with a length of n bytes, sampled uniformly at random using a cryptographically secure pseudo-random number generator (CSPRNG) or a pseudo random function. See [@!RFC4086] for recommendations and requirements on the generation of random numbers.
+
+* subgroup\_check\_G1(P) and subgroup\_check\_G2(P): operations that return VALID if the point P is in the subgroup G1 or G2 correspondingly, and INVALID otherwise, as defined in (#notation).
 
 ## Interfaces
 
@@ -306,7 +308,7 @@ X[n-1] = a_n
 
 When serializing one or more values to produce an octet string, each element will be encoded using a specific operation determined by its type. More concretely,
 
-- Points in `G*` will be serialized using the `point_to_octets_g*` implementation for a particular ciphersuite.
+- Points in `E*` will be serialized using the `point_to_octets_E*` implementation for a particular ciphersuite.
 - Non-negative integers will be serialized using `I2OSP` with an output length of 8 bytes.
 - Scalars will be serialized using `I2OSP` with a constant output length defined by a particular ciphersuite.
 
@@ -372,7 +374,7 @@ Outputs:
 Procedure:
 
 1. W = SK * BP2
-2. return point_to_octets_g2(W)
+2. return point_to_octets_E2(W)
 ```
 
 ## BBS Signatures Interface
@@ -1397,7 +1399,7 @@ Parameters:
                        octet representation, defined by the ciphersuite.
 - r, the prime order of the subgroups G1 and G2, defined by the
      ciphersuite.
-- point_to_octets_g*, operations that serialize a point of G1 or G2 to
+- point_to_octets_E*, operations that serialize a point of E1 or E2 to
                       an octet string of fixed length, defined by the
                       ciphersuite.
 
@@ -1409,8 +1411,8 @@ Procedure:
 
 1.  let octets_result be an empty octet string.
 2.  for el in input_array:
-3.      if el is a point of G1: el_octs = point_to_octets_g1(el)
-4.      else if el is a point of G2: el_octs = point_to_octets_g2(el)
+3.      if el is a point of G1: el_octs = point_to_octets_E1(el)
+4.      else if el is a point of G2: el_octs = point_to_octets_E2(el)
 5.      else if el is a scalar: el_octs = I2OSP(el, octet_scalar_length)
 6.      else if el is an integer between 0 and 2^64 - 1:
 7.          el_octs = I2OSP(el, 8)
@@ -1457,6 +1459,15 @@ Inputs:
 - signature_octets (REQUIRED), an octet string of the form output from
                                signature_to_octets operation.
 
+Parameters:
+
+- octets_to_point_E1, operations that deserializes an octet string to a
+                      a point of the elliptic curve E1, or INVALID,
+                      defined by the ciphersuite.
+- subgroup_check_G1, operation that on input a point P returns VALID if
+                     P is a valid point of the G1 subgroup, otherwise it
+                     returns INVALID (see (#notation)).
+
 Outputs:
 
 signature, a signature in the form (A, e), where A is a point in G1
@@ -1467,14 +1478,16 @@ Procedure:
 1.  expected_len = octet_point_length + octet_scalar_length
 2.  if length(signature_octets) != expected_len, return INVALID
 3.  A_octets = signature_octets[0..(octet_point_length - 1)]
-4.  A = octets_to_point_g1(A_octets)
+4.  A = octets_to_point_E1(A_octets)
 5.  if A is INVALID, return INVALID
 6.  if A == Identity_G1, return INVALID
-7.  index = octet_point_length
-8.  end_index = index + octet_scalar_length - 1
-9.  e = OS2IP(signature_octets[index..end_index])
-10. if e = 0 OR e >= r, return INVALID
-11. return (A, e)
+7.  if subgroup_check_G1(A) returns INVALID, return INVALID
+
+8.  index = octet_point_length
+9.  end_index = index + octet_scalar_length - 1
+10. e = OS2IP(signature_octets[index..end_index])
+11. if e = 0 OR e >= r, return INVALID
+12. return (A, e)
 ```
 
 #### Proof to Octets
@@ -1495,12 +1508,6 @@ Inputs:
 
 - proof (REQUIRED), a BBS proof in the form calculated by ProofGen in
                     step 27 (see above).
-
-Parameters:
-
-- octet_scalar_length (REQUIRED), non-negative integer. The length of
-                                  a scalar octet representation, defined
-                                  by the ciphersuite.
 
 Outputs:
 
@@ -1533,14 +1540,15 @@ Inputs:
 
 Parameters:
 
-- r (REQUIRED), non-negative integer. The prime order of the G1 and
-                G2 groups, defined by the ciphersuite.
-- octet_scalar_length (REQUIRED), non-negative integer. The length of
-                                  a scalar octet representation, defined
-                                  by the ciphersuite.
-- octet_point_length (REQUIRED), non-negative integer. The length of
-                                 a point in G1 octet representation,
-                                 defined by the ciphersuite.
+- r, non-negative integer. The prime order of the G1 and G2 groups,
+      defined by the ciphersuite.
+- octet_scalar_length, non-negative integer. The length of a scalar
+                       octet representation, defined by the ciphersuite.
+- octet_point_length, non-negative integer. The length of a point in G1
+                      octet representation, defined by the ciphersuite.
+- subgroup_check_G1, operation that on input a point P returns VALID if
+                     P is a valid point of the G1 subgroup, otherwise it
+                     returns INVALID (see (#notation)).
 
 Outputs:
 
@@ -1555,24 +1563,25 @@ Procedure:
 3.  index = 0
 4.  for i in (0, 1):
 5.      end_index = index + octet_point_length - 1
-6.      A_i = octets_to_point_g1(proof_octets[index..end_index])
+6.      A_i = octets_to_point_E1(proof_octets[index..end_index])
 7.      if A_i is INVALID or Identity_G1, return INVALID
-8.      index += octet_point_length
+8.      if subgroup_check_G1(A_i) returns INVALID, return INVALID
+9.      index += octet_point_length
 
 // Scalars (i.e., (e^, r1^, r3^, m^_j1, ..., m^_jU, c) in
 // ProofGen) de-serialization.
-9.  j = 0
-10. while index < length(proof_octets):
-11.     end_index = index + octet_scalar_length - 1
-12.     s_j = OS2IP(proof_octets[index..end_index])
-13.     if s_j = 0 or if s_j >= r, return INVALID
-14.     index += octet_scalar_length
-15.     j += 1
+10. j = 0
+11. while index < length(proof_octets):
+12.     end_index = index + octet_scalar_length - 1
+13.     s_j = OS2IP(proof_octets[index..end_index])
+14.     if s_j = 0 or if s_j >= r, return INVALID
+15.     index += octet_scalar_length
+16.     j += 1
 
-16. if index != length(proof_octets), return INVALID
-17. msg_commitments = ()
-18. If j > 4, set msg_commitments = (s_3, ..., s_(j-2))
-19. return (A_0, A_1, A_2, s_0, s_1, s_2, msg_commitments, s_(j-1))
+17. if index != length(proof_octets), return INVALID
+18. msg_commitments = ()
+19. if j > 4, set msg_commitments = (s_3, ..., s_(j-2))
+20. return (A_0, A_1, A_2, s_0, s_1, s_2, msg_commitments, s_(j-1))
 ```
 
 #### Octets to Public Key
@@ -1587,6 +1596,12 @@ Inputs:
 - PK, an octet string. A public key in the form outputted by the SkToPK
       operation
 
+Parameters:
+
+- subgroup_check_G2, operation that on input a point P returns VALID if
+                     P is a valid point of the G2 subgroup, otherwise it
+                     returns INVALID (see (#notation)).
+
 Outputs:
 
 - W, a valid point in G2 or INVALID
@@ -1595,7 +1610,7 @@ Procedure:
 
 1. W = octets_to_point_g2(PK)
 2. If W is INVALID, return INVALID
-3. if subgroup_check(W) is INVALID, return INVALID
+3. if subgroup_check_G2(W) is INVALID, return INVALID
 4. If W == Identity_G2, return INVALID
 5. return W
 ```
@@ -1632,11 +1647,9 @@ This document makes use of `octet_to_point_g*` to parse octet strings to ellipti
 
 ## Skipping Membership Checks
 
-Some existing implementations skip the subgroup\_check invocation in [Verify](#signature-verification-verify), whose purpose is ensuring that the signature is an element of a prime-order subgroup.  This check is REQUIRED of conforming implementations, for two reasons.
+The subgroup check `subgroup_check_G*` invocation during either signature deserialization (`octets_to_signature`, defined in (#octets-to-signature)), proof deserialization (`octets_to_proof`, defined in (#octets-to-proof)) or public key deserialization (`octets_to_pubkey`, define in (#octets-to-public-key)) is REQUIRED by all implementations. Failure to comply would lead to unpredicted behavior and vulnerabilities. Note that some libraries implementing the pairing-friendly curves functionality, may incorporate that check as part of a `octets_to_point_G1` or `octet_to_point_G2` operation (i.e., operations that both deserialize an octet string to get an elliptic curve point and then check if the resulting point is part of the `G1` or `G2` group accordingly). In those cases, the implementer must make sure that those checks are executed correctly.
 
-1.  For most pairing-friendly elliptic curves used in practice, the pairing operation e (#notation) is undefined when its input points are not in the prime-order subgroups of E1 and E2. The resulting behavior is unpredictable, and may enable forgeries.
-
-2.  Even if the pairing operation behaves properly on inputs that are outside the correct subgroups, skipping the subgroup check breaks the strong unforgeability property [@ADR02].
+Note that checking that the points are in the correct subgroup is essential to avoid possible forgeries of a BBS signature or proof ([@ADR02]). Furthermore, the pairing operation (#notation) is undefined when its input points are not in `G1` and `G2`. As a result, applications MUST execute all the subgroup checks defined by this document.
 
 ## Side Channel Attacks
 
@@ -1713,7 +1726,7 @@ The following section defines the format of the unique identifier for the cipher
 
 ### Additional Parameters
 
-The parameters that each ciphersuite needs to define are generally divided into three main categories; the basic parameters (a hash function etc.,), the serialization operations (point\_to\_octets\_g1 etc.,) and the generator parameters. See below for more details.
+The parameters that each ciphersuite needs to define are generally divided into three main categories; the basic parameters (a hash function etc.,), the serialization operations (point\_to\_octets\_E1 etc.,) and the generator parameters. See below for more details.
 
 **Basic parameters**:
 
@@ -1721,7 +1734,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - octet\_scalar\_length: Number of bytes to represent a scalar value, in the multiplicative group of integers mod r, encoded as an octet string. It is RECOMMENDED this value be set to `ceil(log2(r)/8)`.
 
-- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_g*` function. It is RECOMMENDED that this value is set to `ceil(log2(p)/8)`.
+- octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_E*` function.
 
 - hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the [Notation](#notation) section) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
 
@@ -1731,17 +1744,17 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 **Serialization functions**:
 
-- point\_to\_octets\_g1:
-a function that returns the canonical representation of the point P for the G1 subgroup as an octet string.
+- point\_to\_octets\_E1:
+a function that returns the canonical representation of the point P of the E1 elliptic curve as an octet string.
 
-- point\_to\_octets\_g2:
-a function that returns the canonical representation of the point P for the G2 subgroup as an octet string.
+- point\_to\_octets\_E2:
+a function that returns the canonical representation of the point P of the E2 elliptic curve as an octet string.
 
-- octets\_to\_point\_g1:
-a function that returns the point P in the subgroup G1 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g1`.
+- octets\_to\_point\_E1:
+a function that returns the point P in the elliptic curve E1 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_E1`.
 
-- octets\_to\_point\_g2:
-a function that returns the point P in the subgroup G2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_g2`.
+- octets\_to\_point\_E2:
+a function that returns the point P in the elliptic curve E2 corresponding to the canonical representation ostr, or INVALID if ostr is not a valid output of `point_to_octets_E2`.
 
 ## BLS12-381 Ciphersuites
 
@@ -1790,13 +1803,13 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 **Serialization functions**:
 
-- point\_to\_octets\_g1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve, using compression (i.e., setting C\_bit = 1).
 
-- point\_to\_octets\_g2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve, using compression (i.e., setting C\_bit = 1).
 
-- octets\_to\_point\_g1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
+- octets\_to\_point\_E1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve.
 
-- octets\_to\_point\_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
+- octets\_to\_point\_E2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve.
 
 ### BLS12-381-SHA-256
 
@@ -1819,13 +1832,13 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 **Serialization functions**:
 
-- point\_to\_octets\_g1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve, using compression (i.e., setting C\_bit = 1).
 
-- point\_to\_octets\_g2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve, using compression (i.e., setting C\_bit = 1).
 
-- octets\_to\_point\_g1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G1 subgroup.
+- octets\_to\_point\_E1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve.
 
-- octets\_to\_point\_g2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the G2 subgroup.
+- octets\_to\_point\_E2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve.
 
 # Test Vectors
 
