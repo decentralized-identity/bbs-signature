@@ -686,7 +686,7 @@ Procedure:
 
 ### CoreProofGen
 
-This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [Presentation header selection](#presentation-header-selection) for more details. Validating the resulting proof (using the `ProofVerify` algorithm defined in (#proof-verification-proofverify)), guarantees the integrity and authenticity of the revealed messages, as well as the possession of a valid signature (for the public key `PK`) by the prover.
+This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The "prover" may also supply a presentation header, see [Presentation header selection](#presentation-header-selection) for more details. Validating the resulting proof (using the `ProofVerify` algorithm defined in (#proof-verification-proofverify)), guarantees the integrity and authenticity of the revealed messages, as well as the possession of a valid signature (for the public key `PK`) by the prover. See (#proof-generation-and-verification-algorithmic-explanation) for a high level explanation on the inner-workings of the algorithm.
 
 The `ProofGen` operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key `PK`, with the `Verify` operation defined in (#signature-verification-verify).
 
@@ -825,7 +825,7 @@ Procedure:
 
 ## Proof Protocol Subroutines
 
-This section describes the subroutines used by the ProofGen and ProVerify algorithms defined in (#proof-generation-proofgen) and (#proof-verification-proofverify) respectively.
+This section describes the subroutines used by the ProofGen and ProVerify algorithms defined in (#proof-generation-proofgen) and (#proof-verification-proofverify) respectively. See (#proof-generation-and-verification-algorithmic-explanation), for a high-level intuitive overview, of the procedure used to generate and verify a BBS proof.
 
 ### Proof Initialization
 
@@ -2934,53 +2934,59 @@ scalar = {{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}
 
 # Proof Generation and Verification Algorithmic Explanation
 
-The following section provides a high level explanation of how the ProofGen and ProofVerify operations work. ProofGen can be categorized as a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`). A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group point are publicly known, while only the exponent `e_0` is known to the verifier and the exponents `e_1`, ..., `e_n` are known only by the prover. The `nizk` can be used to prove a relationship of the form,
+The following section provides a high-level explanation of how the `CoreProofGen` and `CoreProofVerify` operations work, as presented in Apendix B of [@TZ23] and used by this document. The `CoreProofGen` procedure can be categorized as a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`). A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group points are publicly known, while only the exponent `e_0` is known to the Verifier of the `nizk` and the exponents `e_1`, ..., `e_n` are known only by the Prover of the protocol. The `nizk` can be used to prove a relationship of the form,
 
 ```
 J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
 ```
 
-While revealing nothing about the secret exponents (i.e., `e_1`, ..., `e_n`).
+While revealing nothing about the secret exponents (i.e., `e_1`, ..., `e_n`), other than the fact that the Prover knows them.
 
-For BBS, let the prover be in possession of a BBS signature `(A, e)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#signature-generation-sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
+For BBS, let the Prover be in possession of a BBS signature `(A, e)` on messages `msg_1, ..., msg_L` and a `domain` value (see  `CoreSign` defined in (#coresign)). Let `A = B * (1/(e + SK))` where `SK` the Signer's secret key and,
 
 ```
-[1]    B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+[1]	B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 ```
 Let `(i1, ..., iR)` be the indexes of the messages the prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = (1, 2, ..., L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows;
 
-- Prove possession of a valid signature. As defined above, a signature `(A, e)`, on messages `msg_1, ..., msg_L` is valid, if `A = B * 1/(e + SK)`, where `B` as in \[1\]. However we cannot reveal neither `A`, `e` nor `B` to the verifier (signature is uniquely identifiable and `B` will reveal information about the signed messages, even the undisclosed ones). To get around this, we need to hide the signature `(A, e)` and the value of `B`, in a way that will allow proving knowledge of such ellements with the aformentioned relationship (i.e., that `A = B * 1/(e + SK)`), without revealing their value. We do this by randomizing them. To do that, take uniformly random `r1` in `[1, r-1]`, and calculate,
+- Prove possession of a valid signature. As defined above, a signature `(A, e)`, on messages `msg_1, ..., msg_L` is valid if `A = B * 1/(e + SK)`, where `B` as in \[1\]. However, we cannot reveal neither `A`, `e` nor `B` to the verifier (signature is uniquely identifiable and `B` will reveal information about the signed messages, even the undisclosed ones). To get around this, we need to hide the signature `(A, e)` and the value of `B`, in a way that will allow proving knowledge of such elements with the aforementioned relationship (i.e., that `A = B * 1/(e + SK)`), without revealing their value. We do this by randomizing them. To do that, take uniformly random `r1, r2` in `[1, r-1]`, and calculate,
 
-    ```
-    [2]    Abar = A * r1,
-    [3]    Bbar = B * r1 + Abar * (-e)
-    ```
+	```
+	[2]	Abar = A * (r1 * r2)
+	[3]	D = B * r2
+	[4]	Bbar = D * r1 + Abar * (-e)
+	```
 
-    The values `(Abar, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signatures as above, then `Abar * SK = Bbar => e(Abar, PK) = e(Bbar, BP2)` where `SK`, `PK` the signer's secret and public key and `BP2` the base element in `G2` (used to create the signer’s `PK`, see (#public-key)). This last equation is something that the verifier can check. This also serves to bind the proof to the signer's `PK`.
+	The values `(Abar, D, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar`, `D` and `Bbar` are constructed using a valid BBS signatures as above, then `Abar * SK = Bbar` which is equivalent to `e(Abar, PK) = e(Bbar, BP2)`, where `SK`, `PK` the Signer's secret and public key and `BP2` the base generator of `G2` (used to create the Signer’s `PK`, see (#public-key)). This last equation is something that the verifier can check using the Signer's `PK`.
 
-- Prove that the disclosed messages are signed by that signature. Set the following,
+- Prove that the disclosed messages are signed as part of that signature. Start by setting the following,
 
-    ```
-    [4]    D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-    [5]    r1' = r1 ^ -1 mod r
-    ```
+	```
+	[5]	r2' = (1 / r2) mod r
+	```
 
-    If the `Abar` and `Bbar` values are constructed using a valid BBS signature as in \[2\] and \[3\], then the following equation will hold,
+	If the `Abar`, `D` and `Bbar` values are constructed using a valid BBS signature as in \[2\], \[3\] and \[4\], then the following will hold,
 
-    ```
-    [6]    D = Bbar * r1' + Abar * (e * r1') - H_ji * msg_j1 - ...
-                                                     ... - H_jU * msg_jU
-    ```
+	```
+	[6]	P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR =
+                       	D * r2' - H_ji * msg_j1 - ... - H_jU * msg_jU
+	```
 
-Note that the verifier will know the elements in the left side of \[6\] (i.e., `D`, or rather they will know all the values needed to calculate `D`, as it depends on the public `doamin` value and the disclosed messages) but not the exponents in the right side (i.e., `r1'`, `e` and the undisclosed messages: `msg_j1, ..., msg_jU`). However, using a `nizk`, the prover can convince the verifier that they (the prover) know the exponents that satisfy that equation, without disclosing them.
+Note that the verifier will know the elements in the left side of \[6\] (i.e., `P1`, `Q_1`, `H_i1`, ..., `H_iR` and the disclosed messages: `msg_i1`, ..., `msg_iR`) as well as the base points of the right side (i.e., the points `D` and `H_j1, ..., H_jU`). They will not however know the exponents on the right side of \[6\] (i.e., `r2'` and the undisclosed messages: `msg_j1, ..., msg_jU`). The same holds for equation \[4\] where the Verifier will know the left side of the equation (i.e., `Bbar`) and the base points of right side (i.e., `D` and `Abar`) but not the exponents (i.e., `r1` and `e`).
 
-If the above equation (\[6\]) holds, and `e(Abar, PK) = e(Bbar, BP2)`, one could solve \[6\] to get `B = Bbar * r1' + Abar * e * r1'` (where `B` as in \[1\]). Note that `B` will also contain the disclosed messages. Then, using the properties of pairings, one can see that,
+To convince the Verifier that both \[4\] and \[6\] hold, the Prover can use a `nizk`, to prove that they know the exponents that satisfy those equations, without disclosing them.
+
+Note that if the value `D` is constructed correctly (as in \[3\]), then `B = D * r'2`. Proving knowledge of \[6\] corresponds to proving knowledge of `r'2`, which means that the Prover does actually know the value `B = D * r'2`. If \[6\] holds, then that `B` value that the Prover knows will also have the "correct form" (as in \[1\]), including all (the disclosed and "some" undisclosed) messages.
+
+All that remains is proving that this `B` value the Prover knows, is also "signed" by the Signer i.e., that the Prover also knows values `A` and `e`, such that `A = B * 1/(e + SK)` or, equivalently, that `e(A, PK + BP2 * e) = e(B, BP2)`, which is what `CoreVerify` checks to validate a signature (see (#coreverify)).
+
+Note that, the Prover will use a `nizk` to showcase (among other things), knowledge of values `r1` and `e` so that \[4\] holds (`Bbar`, `D` and `Abar` will be part of the proof and hence known to the Verifier). Setting `r1' = (1 / r1) mod r` (note that proving knowledge of `r1` indirectly proves knowledge of `r1'` as well), using \[4\] and the fact that `e(Abar, PK) = e(Bbar, BP2)` we can get that,
 
 ```
-e(Abar * r1', PK + BP2 * e) = (B, BP2)
+e(Abar * r1' * r2, PK + BP2 * e) = e(D * r2, BP2) = e(B, BP2)
 ```
 
-which is exactly what [Verify](#signature-verification-verify) checks for `A = Abar * r1'`. So seting `A = Abar * r1'`, the values `A`, `e`, `B` will format a valid BBS signature. Note that the verifier doesn't know `r1'`, `e` or all the values to compute `B`. However, they know that the prover knows them, and as we saw above, knowledge of those values means knowledge of a valid signature on (among others) the disclosed messages.
+Note that the above is what `CoreVerify` checks, for `A = Abar * r1' * r2`. Since the Prover showcased knowledge of `r1'` and `r2` and revealed `Abar` as part of the proof, the Verifier can be assured that the Prover knows the value `A = Abar * r1' * r2`. So setting `A = Abar * r1' * r2`, the values `A`, `e`, `B` that the Prover showed knowledge of, will form a valid BBS signature. Note that the Verifier doesn't know `r1'`, `r2`, `e` or all the values to compute `B` (i.e., the undisclosed messages). However, they know that the prover knows them, and as we saw above, knowledge of those values means knowledge of a valid signature on (among others) the disclosed messages.
 
 To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) = e(Bbar, BP2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
 
