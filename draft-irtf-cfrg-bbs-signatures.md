@@ -1540,7 +1540,7 @@ Inputs:
 
 Parameters:
 
-- r , non-negative integer. The prime order of the G1 and G2 groups,
+- r, non-negative integer. The prime order of the G1 and G2 groups,
       defined by the ciphersuite.
 - octet_scalar_length, non-negative integer. The length of a scalar
                        octet representation, defined by the ciphersuite.
