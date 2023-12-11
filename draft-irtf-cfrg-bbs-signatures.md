@@ -1829,7 +1829,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 # Test Vectors
 
-The following section details a basic set of test vectors that can be used to confirm an implementations correctness
+The following section details a basic set of test vectors that can be used to confirm an implementation's correctness.
 
 **NOTE** All binary data below is represented as octet strings in big endian order, encoded in hexadecimal format.
 
@@ -1837,36 +1837,35 @@ The following section details a basic set of test vectors that can be used to co
 
 ## Mocked Random Scalars
 
-For the purpose of presenting fixtures for the [ProofGen](#proof-generation-proofgen) operation we describe here a way to mock the `calculate_random_scalars` operation ([Random scalars computation](#random-scalars)), used by `ProofGen` to create all the necessary random scalars.
+For the purpose of presenting fixtures for the [ProofGen](#proof-generation-proofgen) operation we describe here a way to mock the `calculate_random_scalars` operation ((#random-scalars)), used by `CoreProofGen` ((#coreproofgen)) to create all the necessary random scalars.
 
-To that end, the `seeded_random_scalars(SEED)` operation is defined, which will deterministically calculate `count` random-looking scalars from a single `SEED`. The proof test vector will then define a `SEED` (as a nothing-up-my-sleeve value) and set
+To that end, the `seeded_random_scalars` operation is defined, which will deterministically calculate `count` random-looking scalars from a single `SEED`, given a domain separation tag (`DST`). The proof test vector will then define a `SEED` (as a nothing-up-my-sleeve value) and a `DST` and then set
 
 ```
 mocked_calculate_random_scalars(count) :=
-                             seeded_random_scalars(SEED, count)
+                             seeded_random_scalars(SEED, DST, count)
 ```
 
-The `mocked_calculate_random_scalars` operation will then be used in place of `calculate_random_scalars` during the [ProofGen](#proof-generation-proofgen) operation's procedure.
+The `mocked_calculate_random_scalars` operation will be used in place of `calculate_random_scalars` during the `CoreProofGen` operation.
 
-**Note** For the [BLS12-381-SHA-256](#bls12-381-sha-256) ciphersuite if more than 170 mocked random scalars are required, the operation will return INVALID. Similarly, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) ciphersuite, if more than 1365 mocked random scalars are required, the operation will return INVALID. For the purpose of describing [ProofGen](#proof-generation-proofgen) test vectors, those limits are inconsequential.
+**Note** For the `BLS12-381-SHA-256` ciphersuite ((#bls12-381-sha-256)), if more than 170 mocked random scalars are required, the operation will return INVALID. Similarly, for the `BLS12-381-SHAKE-256` ciphersuite ((#bls12-381-shake-256)), if more than 1365 mocked random scalars are required, the operation will return INVALID. For the purpose of describing `ProofGen` ((#proof-generation-proofgen)) test vectors, those limits are inconsequential.
 
 ```
-seeded_scalars = seeded_random_scalars(SEED, count)
+seeded_scalars = seeded_random_scalars(SEED, DST, count)
 
 Inputs:
 
-- count (REQUIRED), non negative integer. The number of scalars to
-                    return.
 - SEED (REQUIRED), an octet string. The random seed from which to
                    generate the scalars.
+- DST (REQUIRED), octet string representing a domain separation tag.
+- count (REQUIRED), non negative integer. The number of scalars to
+                    return.
 
 Parameters:
 
 - expand_message, the expand_message operation defined by the
                   ciphersuite.
 - expand_len, defined by the ciphersuite.
-- dst = ciphersuite_id || "MOCK_RANDOM_SCALARS_DST_", where
-        ciphersuite_id is defined by the ciphersuite.
 
 Outputs:
 
@@ -1908,7 +1907,7 @@ m_10 = {{ $messages[9] }}
 
 ## BLS12-381-SHAKE-256 Test Vectors
 
-Test vectors of the [BLS12-381-SHAKE-256](#bls12-381-shake-256-ciphersuite) ciphersuite. Further fixtures are available in [additional BLS12-381-SHAKE-256 test vectors](#additional-bls12-381-shake-256-ciphersuite-test-vectors).
+Test vectors of the `BLS12-381-SHAKE-256` ciphersuite defined in (#bls12-381-shake-256-ciphersuite) ciphersuite. Further fixtures are available in (#bls12-381-shake-256-ciphersuite).
 
 ### Key Pair
 
@@ -1970,6 +1969,8 @@ H_10 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[9] }}
 ```
 ### Signature Fixtures
 
+This section presents test vectors for the `Sign` operation, as defined in (#signature-generation-sign), for the `BLS12-381-SHAKE-256` ciphersuite ((#bls12-381-shake-256)).
+
 #### Valid Single Message Signature
 
 ```
@@ -2011,13 +2012,23 @@ signature = {{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
 
 ### Proof Fixtures
 
-For the generation of the following fixtures the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of the ASCII-encoded 30 first digits of pi)
+This section presents test vectors for the `ProofGen` operation, as defined in (#proof-generation-proofgen), for the `BLS12-381-SHAKE-256` ciphersuite ((#bls12-381-shake-256)).
+
+For the generation of the following test vectors, the `mocked_calculate_random_scalars` defined in (#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following `SEED` value (hex encoding of the ASCII-encoded 30 first digits of pi)
 
 ```
-SEED = "332e313431353932363533353839373933323338343632363433333833323739"
+SEED =
+      "332e313431353932363533353839373933323338343632363433333833323739"
 ```
 
-Given the above seed the first 10 scalars returned by the `mocked_calculate_random_scalars` operation will be,
+and the domain separation tag `DST = api_id || "MOCK_RANDOM_SCALARS_DST_"`, where `api_id` is the identifier of the BBS Interface defined in (#bbs-signatures-interface), i.e., `api_id = ciphersuite_id || H2G_HM2S_`, where `ciphersuite_id` is the unique identifier of the `BLS12-381-SHAKE-256` ciphersuite as defined in (#bls12-381-shake-256) and `"MOCK_RANDOM_SCALARS_DST_"` is an ASCII string composed of 24 bytes. More specifically,
+
+```
+DST =
+"BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_H2G_HM2S_MOCK_RANDOM_SCALARS_DST_"
+```
+
+Given the above `SEED` and `DST` values, the first 10 scalars (i.e., with `count = 10`) returned by the `mocked_calculate_random_scalars` operation will be,
 
 ```
 random_scalar_1 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[0] }}
@@ -2044,7 +2055,7 @@ presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof001.presentatio
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof001.disclosedIndexes }}
 
 random scalars:
-  r1 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1 }}
+    r1 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1 }}
     r2 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r2 }}
     e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.e_tilde }}
     r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1_tilde }}
@@ -2136,7 +2147,7 @@ proof = {{ $proofFixtures.bls12-381-shake-256.proof003.proof }}
 
 ## BLS12381-SHA-256 Test Vectors
 
-Test vectors of the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersuite. Further fixtures are available in [additional BLS12-381-SHA-256 test vectors](#additional-bls12-381-sha-256-ciphersuite-test-vectors).
+Test vectors of the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersuite. Further fixtures are available in (#bls12-381-sha-256-ciphersuite).
 
 ### Key Pair
 
@@ -2205,6 +2216,8 @@ H_10 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[9] }}
 
 ### Signature Fixtures
 
+This section presents test vectors for the `Sign` operation, as defined in (#signature-generation-sign), for the `BLS12-381-SHA-256` ciphersuite ((#bls12-381-sha-256)).
+
 #### Valid Single Message Signature
 
 ```
@@ -2246,13 +2259,23 @@ signature = {{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}
 
 ### Proof Fixtures
 
-Similarly to the proof fixtures for the BLS12381-SHA-256 ciphersuite, the generation of the following fixtures uses the `mocked_calculate_random_scalars` defined in [Mocked Random Scalars](#mocked-random-scalars), in place of the `calculate_random_scalars` operation, with the following seed value (hex encoding of the ASCII-encoded 30 first digits of pi).
+This section presents test vectors for the `ProofGen` operation, as defined in (#proof-generation-proofgen), for the `BLS12-381-SHA-256` ciphersuite ((#bls12-381-shake-256)).
+
+For the generation of the following test vectors, the `mocked_calculate_random_scalars` defined in (#mocked-random-scalars) is used, in place of the `calculate_random_scalars` operation, with the following `SEED` value (hex encoding of the ASCII-encoded 30 first digits of pi)
 
 ```
-SEED = "332e313431353932363533353839373933323338343632363433333833323739"
+SEED =
+      "332e313431353932363533353839373933323338343632363433333833323739"
+```
+
+and the domain separation tag `DST = api_id || "MOCK_RANDOM_SCALARS_DST_"`, where `api_id` is the identifier of the BBS Interface defined in (#bbs-signatures-interface), i.e., `api_id = ciphersuite_id || H2G_HM2S_`, where `ciphersuite_id` is the unique identifier of the `BLS12-381-SHA-256` ciphersuite as defined in (#bls12-381-sha-256) and `"MOCK_RANDOM_SCALARS_DST_"` is an ASCII string composed of 24 bytes. More specifically,
 
 ```
-Given the above seed the first 10 scalars returned by the `mocked_calculate_random_scalars` operation will be,
+DST =
+  "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_MOCK_RANDOM_SCALARS_DST_"
+```
+
+Given the above `SEED` and `DST` values, the first 10 scalars (i.e., with `count = 10`) returned by the `mocked_calculate_random_scalars` operation will be,
 
 ```
 random_scalar_1 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[0] }}
