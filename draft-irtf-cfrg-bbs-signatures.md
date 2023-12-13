@@ -185,7 +185,7 @@ length(input)
 X\[i\]
 : Denotes the element of array `X` at index `i`. Note that arrays in this document are considered "zero-indexed", meaning that element indexing starts from 0 rather than 1. For example, if `X = [a, b, c, d]` then `X[0] = a`, `X[1] = b`, `X[2] = c` and `X[3] = d`.
 
-Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves].
+Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@I-D.irtf-cfrg-pairing-friendly-curves].
 
 E1, E2
 : elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication.
@@ -572,7 +572,8 @@ The operations of this section make use of functions and sub-routines defined in
 
 - `hash_to_scalar` is defined in (#hash-to-scalar)
 - `calculate_domain` and `calculate_challenge` are defined in (#domain-calculation) and (#challenge-calculation) correspondingly.
-- `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization)
+- `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization).
+- `e` is the pairing operation used (see (#notation)), defined as part of the ciphersuite.
 
 Each core operation will accept a vector of generators (points of G1) and optionally, a vector of messages. The generators MUST be unique and pseudo-random i.e., with no known relationship to each other. See (#defining-new-generators) for more details. Each message is represented as a scalar value. See (#messages-to-scalars) for ways to map a message to a scalar and the corresponding security requirements.
 
@@ -1707,7 +1708,7 @@ In any case, the privacy considerations described in (#privacy-considerations) M
 
 # Ciphersuites
 
-This section defines the format for a BBS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@!I-D.irtf-cfrg-pairing-friendly-curves].
+This section defines the format for a BBS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@I-D.irtf-cfrg-pairing-friendly-curves].
 
 ## Ciphersuite Format
 
@@ -1742,6 +1743,8 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - P1: A fixed point in the G1 subgroup, different from the point BP1 (i.e., the base point of G1, see (#terminology)). This leaves the base point "free", to be used with other protocols, like key commitment and proof of possession schemes (for example, like the one described in Section 3.3 of [@I-D.irtf-cfrg-bls-signature]).
 
+- e: The pairing operation used.
+
 **Serialization functions**:
 
 - point\_to\_octets\_E1:
@@ -1758,7 +1761,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 
 ## BLS12-381 Ciphersuites
 
-The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
+The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128` (the actual security leven is closer to 126 bits). The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. For completeness, BLS12-381 and the relevant functionality (base points `BP1` and `BP2`, the pairing `e` as well as the point encoding and decoding operations) are defined in (#the-bls12-381-curve).
 
 The first ciphersuite uses the hash-to-curve suite `BLS12381G1_XOF:SHAKE-256_SSWU_RO_`, defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of [@!SHA3].
 
@@ -1801,15 +1804,17 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
     P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.P1 }}
     ```
 
+- e: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
+
 **Serialization functions**:
 
-- point\_to\_octets\_E1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E1: as defined in (#point-serialization) for points of the curve `E1` (which follows the format documented in Appendix C.1 of [@I-D.irtf-cfrg-pairing-friendly-curves] for the `E1` elliptic curve, using compression).
 
-- point\_to\_octets\_E2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E2: as defined in (#point-serialization) for points of the curve `E2` (which follows the format documented in Appendix C.1 of [@I-D.irtf-cfrg-pairing-friendly-curves] for the `E2` elliptic curve, using compression).
 
-- octets\_to\_point\_E1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve.
+- octets\_to\_point\_E1: as defined in (#point-de-serialization) (which follows the format documented in Appendix C.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), returning INVALID if the resulting point is not in `E1`.
 
-- octets\_to\_point\_E2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve.
+- octets\_to\_point\_E2: as defined in (#point-de-serialization) (which follows the format documented in Appendix C.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), returning INVALID if the resulting point is not in `E2`.
 
 ### BLS12-381-SHA-256
 
@@ -1830,15 +1835,17 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
     P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.P1 }}
     ```
 
+- e: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
+
 **Serialization functions**:
 
-- point\_to\_octets\_E1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E1: as defined in (#point-serialization) for points of the curve `E1` (which follows the format documented in Appendix C.1 of [@I-D.irtf-cfrg-pairing-friendly-curves] for the `E1` elliptic curve, using compression).
 
-- point\_to\_octets\_E2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E2: as defined in (#point-serialization) for points of the curve `E2` (which follows the format documented in Appendix C.1 of [@I-D.irtf-cfrg-pairing-friendly-curves] for the `E2` elliptic curve, using compression).
 
-- octets\_to\_point\_E1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve.
+- octets\_to\_point\_E1: as defined in (#point-de-serialization) (which follows the format documented in Appendix C.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), returning INVALID if the resulting point is not in `E1`.
 
-- octets\_to\_point\_E2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve.
+- octets\_to\_point\_E2: as defined in (#point-de-serialization) (which follows the format documented in Appendix C.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), returning INVALID if the resulting point is not in `E2`.
 
 # Test Vectors
 
@@ -2485,6 +2492,191 @@ The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_RO_` is defined as follows:
 Note that the h_eff values for this suite are copied from that defined for the `BLS12381G1_XMD:SHA-256_SSWU_RO_` suite defined in section 8.8.1 of [@!I-D.irtf-cfrg-hash-to-curve].
 
 An optimized example implementation of the Simplified SWU mapping to the curve E' isogenous to BLS12-381 G1 is given in Appendix F.2 [@!I-D.irtf-cfrg-hash-to-curve].
+
+# The BLS12-381 Curve
+
+This section defines BLS12-381. The definitions of this section have been originally described in [@I-D.irtf-cfrg-pairing-friendly-curves], where they are discussed in greater detail.
+
+BLS12-381 are Barreto-Lynn-Scott curves, defined by two elliptic curves `E1` and `E2`, parameterized by an integer `t`. In the case of BLS12-381, `t` is defined as,
+
+```
+t = -2^63 - 2^62 - 2^60 - 2^57 - 2^48 - 2^16
+```
+
+The curves `E1` and `E2` are defined over the finite fields `GF(p)` and `GF(p^2)` correspondingly, where `p` is defined as,
+
+```
+p = (t - 1)^2 * (t^4 - t^2 + 1) / 3 + t
+```
+
+Let `(1, I)` be the bases of the finite field `GF(p^2)`, where `I ^ 2 + 1 = 0` in `GF(p^2)`. We will denote an element `y` of `GF(p^2)` as a tuple `y = (y_0, y_1)`, where `y_0` and `y_1` elements of `GF(p)` for which it holds `y = y_0 * 1 + y_1 * I`. The two elliptic curves are defined by the following equations,
+
+```
+E1: y ^ 2 = x ^ 3 + 4
+E2: y ^ 2 = x ^ 3 + 4 * (I + 1)
+```
+
+The group `G1` and `G2` are defined as the the order `r` subgroup of `E1` defined over `GF(p)` and `E2` defined over `GF(p^2)` correspondingly, where `r` is defined as,
+
+```
+r = 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
+```
+
+Note that `r` is a prime factor of `p`. The target group `G_T` is defined as the finite group `GF(p^12)` minus the element `0`.
+
+The base points of BLS12-381, encoded to octets using the procedure defined in (#point-serialization) and then represented in hexadecimal format, are defined as,
+
+```
+BP1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586
+       c55e83ff97a1aeffb3af00adb22c6bb"
+BP2 = "93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f50493
+       34cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6
+       e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"
+```
+
+## Optimal Ate pairing
+
+This section describes the optimal Ate pairing for BLS12-381. The pairing computation uses the following utility function.
+
+```
+res = Line_function(Q1, Q2, P)
+
+Inputs:
+
+- Q1 (REQUIRED), point of G2.
+- Q2 (REQUIRED), point of G2.
+- P (REQUIRED), point of G1.
+
+Outputs:
+
+- res: an element on the target group G_T.
+
+Procedure:
+
+1. (x_1, y_1) = Q1
+2. (x_2, y_2) = Q2
+3. (x, y) = P
+4. if Q1 = Q2, set l = (3 * x_1^2) / (2 * y_1)
+5. else if Q1 = - Q2, return x - x_1
+6. else set l = (y_2 - y_1) / (x_2 - x_1)
+7. return (l * (x - x_1) + y_1 - y)
+```
+
+Let `c = t` for `t` as defined above ((#the-bls12-381-curve)) and `c_0, c_1, ... , c_L` in `(-1, 0, 1)` such that the sum of `c_i * 2^i` for `i = 0, 1, ..., L` equals `c`.
+
+Given a point `P` of `G1`, and a point `Q` of `G2`, the output `e(P, Q)` where `e` the Ate pairing for BLS12-381 is calculated as follows,
+
+```
+1.  set f = 1 and T = Q
+2.  if c_L = -1, set T = -T
+3.  for i in (L-1, L-2, ..., 1, 0)
+4.      f = f^2 * Line_function(T, T, P)
+5.      T = T + T
+6.      if c_i = 1,
+7.          f = f * Line_function(T, Q, P)
+8.          T = T + Q
+9.      else if c_i = -1,
+10.         f = f * Line_function(T, -Q, P)
+11.         T = T - Q
+12. f = f ^ ((p ^ 12 - 1) / r)
+13. return f
+```
+
+## Point Encoding
+
+This section defines point encoding and decoding procedures for BLS12-381. Although more flexible point encoding procedures may exist (for example [@I-D.ietf-lwig-curve-representations]), the vast majority of current libraries implementing BLS12-381 use (most of them explicitly) the encoding method defined in Appendix C of [@I-D.irtf-cfrg-pairing-friendly-curves]. For this reason, the ciphersuites defined in (#bls12-381-ciphersuites), use those encoding and decoding procedures. For completeness, those operations are defined in this section as well. See [@I-D.irtf-cfrg-pairing-friendly-curves] for a more detailed explanation of the encoding and decoding steps. Note also that we will only consider compressed point encoding (in contrast to [@I-D.irtf-cfrg-pairing-friendly-curves], which supports both compressed and uncompressed point encoding).
+
+In this section we will use the following notation,
+
+- For an octet string `x`, `x[0]` will denote the first octet (i.e., 8 most significant bits) of `x`.
+- On input an element `y` of `GF(p)` or `GF(p^2)`, `sqrt(y)` will return the square root of that element in the respective group, i.e., an element `a` such that `a^2 = y`, or INVALID.
+- For clarity, we will use `Identity_E1`, `Identity_E2` to denote the identity points of `E1` and `E2` correspondingly (note that `Identity_E1` is the same point as `Identity_G1` and `Identity_E2` is the same point as `Identity_G2`).
+
+We first have to define the following utility operations.
+
+The following procedure returns one bit corresponding to the sign of an element of `GF(p)`.
+
+```
+res = sign_GF_p(y)
+
+Inputs:
+
+- y (REQUIRED), point of the GF(p) group
+
+Outputs:
+
+- res, either 0 or 1
+
+Procedure:
+
+1. if y > (p - 1) / 2, return 1
+2. return 0
+```
+
+The following procedure returns one bit corresponding to the sign of an element in `GF(p^2)`.
+
+```
+res = sign_GF_p^2(y)
+
+Inputs:
+
+- y (REQUIRED), point of the GF(p^2) group
+
+Outputs:
+
+- res, either 0 or 1
+
+Procedure:
+
+1. (y_0, y_1) = y
+2. if y_1 is 0, return sign_GF_p(y_0)
+3. if y_1 > (p - 1) / 2, return 1
+4. return 0
+```
+
+### Point Serialization
+
+Let `P = (x, y)` the point to be serialized.
+
+Compute three metadata bits `C_bit`, `I_bit`, and `S_bit`, as follows,
+
+1. `C_bit` is set to 1 (indicating that point compression is used).
+2. `I_bit` is 1 if `P` is either the `Identity_E1` or `Identity_E2` points, otherwise it is 0.
+3. `S_bit` is 0 if `I_bit` is 1 (again note that the ciphersuites described in this document always use point compression). Otherwise (i.e., when point compression is used and `P` is not the identity point of its respective curve), if `P` is a point on `E1`, set `S_bit = sign_GF_p(y)`, else if `P` is a point on `E2`, `S_bit = sign_GF_p^2(y)`.
+
+Let `m = (C_bit * 2^7) + (I_bit * 2^6) + (S_bit * 2^5)` and set `m_byte = I2OSP(m, 1)`. Define `x_string` as follows,
+
+1. If `P = Identity_E1`, set `x_string = I2OSP(0, 48)`.
+2. If `P` is a point on `E1` and `P != Identity_E1`, set `x_string = I2OSP(x, 48)`.
+3. If `P = Identity_E2`, set `x_string = I2OSP(0, 96)`.
+4. If `P` is a point on `E2` and `P != Identity_E2`, then let `x_0` and `x_1` elements of `GF(p)` such that `x = (x_0, x_1)` and set `x_string = I2OSP(x_1, 48) || I2OSP(x_0, 48)`.
+
+Let `s_string = x_string`. Set `s_string[0] = x_string[0] OR m_byte`, where `OR` is computed for each bit. Output `s_string` as the serialization result of the point `P`.
+
+### Point De-serialization
+
+Let `m_byte = s_string[0] AND 0xE0`, where `AND` is computed bitwise. If `m_byte` equals `0x20` or `0x60` or `0xE0`, output INVALID and abort the operation. Otherwise, let `C_bit` equal the most significant bit of `m_byte`, `I_bit` equal the second most significant bit of `m_byte`, and `S_bit` equal the third most significant bit of `m_byte`. If `C_bit` is 0 return INVALID and abort the operation (note again that we only consider compressed encoding).
+
+1. Determine the curve of the encoded point as follows,
+    - If `s_string` has length 48 octets, the encoded point is on the curve `E1`.
+    - If `s_string` has length 96 octets, the encoded point is on the curve `E2`.
+    - If `s_string` has any other length, output INVALID and abort the operation.
+
+
+2. Let `s_string[0] = s_string[0] AND 0x1F`, where `AND` is computed bitwise (this will set the three most significant bits of `s_string[0]` to 0).
+
+3. If `I_bit` is 1, then the encoded point must be the Identity point of the curve determined on step 1. If `s_string` is not the all zeros string, output INVALID and abort the operation. Otherwise, output the Identity point of the curve that was determined in step 1 (i.e., either `Identity_E1` or `Identity_E2`).
+
+4. Let `x = OS2IP(s_string)`.
+5. If the curve that was determined in step 1 is `E1`,
+    - Let `y2 = x^3 + 4` in `GF(p)`.
+    - If `y2` is not square in `GF(p)`, output INVALID and abort the operation. Otherwise, let `y = sqrt(y2)` in `GF(p)` and set `Y_bit = sign_GF_p(y)`.
+
+6. If the curve that was determined in step 1 is `E2`,
+    - Let `y2 = x^3 + 4 * (I + 1)` in `GF(p^2)`.
+    - If `y2` is not square in `GF(p^2)`, output INVALID and abort the operation. Otherwise, let `y = sqrt(y2)` in `GF(p^2)` and set `Y_bit = sign_GF_p^2(y)`.
+
+7. If `S_bit` equals `Y_bit`, output `P = (x, y)`. Otherwise, output `P = (x, -y)`.
 
 # Use Cases
 
