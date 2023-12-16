@@ -117,7 +117,7 @@ Figure: Basic diagram capturing the main entities involved in using the scheme
 
 The name BBS is derived from the authors of the original academic work by Dan Boneh, Xavier Boyen, and Hovav Shacham [@BBS04], where the scheme was first described as part of a group signatures protocol. Soon after, the scheme was described by Camenisch and Lysyanskaya as a stand-alone signatures scheme in [@CL04], for anonymous credentials applications. Later, Au, Susilo an Mu presented the first, provably secure version of BBS Signatures in [@ASM06]. Following, works by Camenisch, Drijvers and Lehmann [@CDL16] and by Barki, Brunet, Desmoulins and Traore [@BBDT16], proved the security of the scheme in settings where more efficient computations are possible, thereby improving performance. Finally, in 2023, Tessaro and Zhu, presented in [@TZ23] further performance improvements, shrinking the BBS signature. This document is mainly based on that work.
 
-Note that the BBS Signatures scheme is based on the discrete logarithm problem. This means that it is not "post-quantum secure". However, the privacy and hiding properties of BBS proofs are resilient even against an attacker utilizing a Cryptographically Relevant Quantum Computer ([@I-D.ietf-pquip-pqc-engineers]). See (#post-quantum-security-and-everlasting-privacy) for an elaboration on the security properties of BBS Signatures against such a computer.
+Note that the BBS Signatures scheme is based on the discrete logarithm problem. This means that it is not "post-quantum secure". However, the privacy and hiding properties of BBS proofs are resilient even against an attacker utilizing a Cryptographically Relevant Quantum Computer ([@I-D.ietf-pquip-pqc-engineers]). See (#post-quantum-security) for an elaboration on the security properties of BBS Signatures against such a computer.
 
 ## Terminology
 
@@ -321,9 +321,9 @@ Those rules will be used explicitly on every operation. See also `serialize` def
 
 ### Header and Presentation Header Usage
 
-There are two special values defined by the BBS Scheme; the `header` and the `presentation_header`. The `header` value is chosen by the Signer and is bound to both a BBS signature and the BBS proofs generated using that signature. Specifically, the Prover is required to reveal the `header` to the proof Verifier, during every BBS proof presentation. As a result, the Signer SHOULD NOT include in the `header` any identifying information, that may have the potential of compromising the Prover's privacy (see (#privacy-considerations)). Suitable use cases taking advantage of the `header` value, are binding a BBS signature (and subsequent BBS proofs) to a specific application, deployment or domain, or binding the signature to specific sets of metadata etc..
+There are two special values defined by the BBS Scheme; the `header` and the `presentation_header`. The `header` value is chosen by the Signer and is bound to both a BBS signature and the BBS proofs, which was generated using that signature. Specifically, the Prover is required to reveal the `header` to the proof Verifier, during every BBS proof presentation. As a result, the Signer SHOULD NOT include in the `header` any identifying information, that may have the potential of compromising the Prover's privacy (see (#privacy-considerations)). Suitable use cases taking advantage of the `header` value include binding a BBS signature (and subsequent BBS proofs) to a specific application, deployment or domain, (in general, binding the signature to specific sets of metadata).
 
-Similarly, the Prover can choose a `presentation_header` value to be bound to the BBS proof (in contrast to the `header` value that is chosen by the Signer and is bound to both BBS proof and signature). Verifying a BBS proof will guarantee the authenticity and integrity of the `presentation_header` value. This makes it suitable for ensuring the freshness of a BBS proof, for example, by including in it a (possibly supplied by the Verifier) random value. Other use cases include Prover signed messages, where the Prover will add to the `presentation_header` the message they want to sign. A valid BBS proof, guarantees that the message contained in the `presentation_header` was signed by the same Prover that generated that proof (similar to how group signatures work [@BBS04], where the group in this case will be all the Provers having received valid signatures under a specific public key).
+Similarly, the Prover can choose a `presentation_header` value to be bound to the BBS proof (in contrast to the `header` value that is chosen by the Signer and is bound to both BBS proof and signature). Verifying a BBS proof will guarantee the authenticity and integrity of the `presentation_header` value. This makes it suitable for ensuring the freshness of a BBS proof, for example, by including in it a (possibly supplied by the Verifier) random value. Other use cases include binding the BBS proof to a certain domain/audience or validity period. The `presentation_header` can also be used by the Prover to sign a message. In this case, the Prover will add to the `presentation_header` the message they want to sign. A valid BBS proof guarantees that the message contained in the `presentation_header` was signed by the same Prover that generated that proof (similar to how group signatures work [@BBS04], where the group in this case will be all the Provers having received valid signatures under a specific public key).
 
 ## Key Generation Operations
 
@@ -594,7 +594,7 @@ The operations of this section make use of functions and sub-routines defined in
 
 Each core operation will accept a vector of `generators` (points of G1) and optionally, a vector of `messages`. The generators MUST be unique and pseudo-random i.e., with no known relationship to each other. See (#defining-new-generators) for more details. Each message is represented as a scalar value. See (#messages-to-scalars) for ways to map a message to a scalar and the corresponding security requirements.
 
-Furthermore, all core operations accept the Signer's public key (`PK`) as well as an optional octet string representing an Interface identifier (`api_id`). Additional inputs, will be described before each of one of the procedures.
+Furthermore, all core operations accept the Signer's public key (`PK`) as well as an optional octet string representing an Interface identifier (`api_id`).
 
 **Note** Some of the utility functions used by the core operations of this section could fail (ABORT). In that case, the calling operation MUST also immediately abort.
 
@@ -657,7 +657,7 @@ Procedure:
 
 ### CoreVerify
 
-This operation checks that a signature is valid for a given set of `generators`, `header` and vector of `messages`, against a supplied public key (`PK`). The set of messages MUST be supplied in this operation in the same order they were supplied to `CoreSign` (#signature-generation-sign) when creating the signature.
+This operation checks that a signature is valid for a given set of `generators`, `header` and vector of `messages`, against a supplied public key (`PK`). The set of messages MUST be supplied in this operation in the same order they were supplied to `CoreSign` ((#coresign)) when creating the signature.
 
 ```
 result = CoreVerify(PK, signature, generators, header, messages, api_id)
@@ -782,6 +782,8 @@ Procedure:
 ### CoreProofVerify
 
 This operation checks that a `proof` is valid for a `header`, vector of disclosed messages (`disclosed_messages`) along side their index corresponding to their original position when signed (`disclosed_indexes`) and presentation header (`ph`) against a public key (`PK`).
+
+The inputted disclosed messages (`disclosed_messages`) MUST be supplied to this operation in the same order as they had as part of the `messages` input of the `CoreSign` operation defined in (#coresign). Similarly, the indexes of the disclosed messages (`disclosed_indexes`) MUST be the same and in the same order as the `disclosed_indexes` input of `CoreProofGen` ((#coreproofgen)). Failure to comply with these requirements will result to the proof verification procedure returning INVALID.
 
 The operation works by first initializing the proof verification procedure using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be inputted to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first components of the received proof (points of G1) will be checked for correctness (steps 5 and 6 in the following procedure), to verify the proof.
 
@@ -924,7 +926,7 @@ Procedure:
 
 ### Proof Finalization
 
-This operation finalizes the proof calculation during the `CoreProofGen` operation defined in (#coreproofgen) and returns the serialized proof value, using the `proof_to_octets` serialization operation defined in (#proof-to-octets).
+This operation finalizes the proof calculation during the `CoreProofGen` operation defined in (#coreproofgen) and returns the serialized proof value.
 
 As inputs, this operation accepts the proof initialization result as returned by the `ProofInit` operation defined in (#proof-initialization) (`init_res`) as well as a scalar value representing the proof's `challenge` as calculated by the `ProofChallengeCalculate` operation defined in (#challenge-calculation). It also requires the scalar part of the BBS signature (`e_value`), the random scalars used to generate the proof (`random_scalars`, as inputted to the `ProofInit` operation) and a set of scalars, representing the messages the Prover decided to not disclose (`undisclosed_messages`). Those messages MUST be supplied to this operation in the same order as they had as part of the `messages` input of the `CoreSign` operation ((#coresign)).
 
@@ -976,7 +978,7 @@ Procedure:
 
 This operation initializes the proof verification operation and returns part of the input that will be passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `CoreProofVerify` operation defined in (#coreproofverify).
 
-Note that, the scalars representing the disclosed messages (`disclosed_messages`) MUST be supplied to this operation in the same order as they had as part of the `messages` input of the `CoreSign` operation defined in (#coresign) (otherwise, proof verification will fail). Similarly, the indexes of the disclosed messages in the set of signed messages MUST be supplied to this operation as a set is accenting order (`disclosed_indexes`).
+Note that, the scalars representing the disclosed messages (`disclosed_messages`) MUST be supplied to this operation in the same order as they had as part of the `messages` input of the `CoreSign` operation defined in (#coresign) (otherwise, proof verification will fail). Similarly, the indexes of the disclosed messages in the set of signed messages MUST be supplied to this operation as a set of integers in accenting order (`disclosed_indexes`).
 
 This operation makes use of the `calculate_domain` function defined in (#domain-calculation).
 
@@ -1317,7 +1319,7 @@ Procedure:
 
 ### Hash to Scalar
 
-This operation describes how to hash an arbitrary octet string to `n` scalar values in the multiplicative group of integers mod r (i.e., values in the range from  1 to r - 1).  This procedure acts as a helper function, used internally in various places within the operations described in the spec.
+This operation describes how to hash an arbitrary octet string to a scalar values in the multiplicative group of integers mod r (i.e., values in the range from  1 to r - 1).  This procedure acts as a helper function, used internally in various places within the operations described in the spec.
 
 The operation takes as input an octet string representing the octet string to hash (`msg`) and a domain separation tag (`dst`). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!I-D.irtf-cfrg-hash-to-curve] for guidance on using larger dst values.
 
@@ -1723,7 +1725,7 @@ If the application defines that the first (or last) `n` messages will be scalars
 
 In any case, the privacy considerations described in (#privacy-considerations) MUST ΝΟΤ be violated, for example, by using unique pre-processing rules or maps between message index and type. To validate the consistency of the message processing rules, the Prover could use mechanisms like the ones described in [@I-D.ietf-privacypass-key-consistency].
 
-## Post-quantum Security and Everlasting Privacy
+## Post-quantum Security
 
 BBS Signatures compine two security properties; data authenticity and data confidentiality.
 
@@ -1733,7 +1735,7 @@ Data confidenciality means that no one (not even the Signer) should be able to u
 
 On the presence of a Cryptographically Relevant Quantum Computer (CRQC), meaning a computer that will be able to break the discrete logarithm problem in the groups used by BBS Signatures (see [@I-D.ietf-pquip-pqc-engineers]), the data authenticity property will not hold. Specifically, an adversary could use a CRQC to reveal the Signer's secret key from their public key, hence giving them the ability to generate BBS signatures on behalf of that Signer, for messages of their choosing, as well as BBS proofs using those signatures.
 
-On the other hand, data confidentiality cannot be broken, even by a CRQC. This guarantees that an adversary with access to such a quantum computer, will not be able to reveal neither the messages undisclosed by a BBS proofs, nor the hidden signature value. As a result, the privacy and hiding properties of the BBS proofs that are currently used, will not be compromised by future quantum-attacks (a property that is often refered to as everlasting privacy).
+On the other hand, data confidentiality cannot be broken, even by adversaries with unbounded computational resources and in possession of the Signer's secret key. This means that even by utilizing a CRQC, adversaries will not be able to compromise the data confidentiality property of BBS Signatures. As a result, an adversary with access to such a quantum computer, will not be able to reveal neither the messages undisclosed by a BBS proof, nor the hidden signature value. This guarantees that the privacy and hiding properties of BBS proofs that are currently used, will not be compromised by future quantum-attacks (a property that is often referred to as everlasting privacy).
 
 # Ciphersuites
 
