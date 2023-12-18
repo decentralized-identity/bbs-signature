@@ -1756,7 +1756,7 @@ The following section defines the format of the unique identifier for the cipher
 
   *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
 
-  *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST NOT contain any other underscores (ASCII code: 0x5f).
+  *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f). The last character MUST be the only underscore.
 
 ### Additional Parameters
 
