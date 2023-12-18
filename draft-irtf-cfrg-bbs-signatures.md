@@ -89,7 +89,7 @@ Below is a basic diagram describing the main entities involved in the scheme
                                                      |
                                                      |
                                                      |
-                                      (4)* Send proof + disclosed msgs
+                                    (4)* Send proof + disclosed msgs
                                                      |
                                                      |
                                                     \ /
@@ -346,9 +346,9 @@ Inputs:
                            above.
 - key_info (OPTIONAL), an octet string. Defaults to an empty string if
                        not supplied.
-- key_dst (OPTIONAL), an octet string representing the domain separation tag.
-                      Defaults to the octet string ciphersuite_id || "KEYGEN_DST_"
-                      if not supplied.
+- key_dst (OPTIONAL), an octet string representing the domain separation
+                      tag. Defaults to the octet string
+                      ciphersuite_id || "KEYGEN_DST_" if not supplied.
 
 Outputs:
 
@@ -759,8 +759,14 @@ Deserialization:
 Procedure:
 
 1. random_scalars = calculate_random_scalars(5+U)
-2. init_res = ProofInit(PK, signature_result, generators, random_scalars,
-                          header, messages, undisclosed_indexes, api_id)
+2. init_res = ProofInit(PK,
+                        signature_result,
+                        generators,
+                        random_scalars,
+                        header,
+                        messages,
+                        undisclosed_indexes,
+                        api_id)
 3. if init_res is INVALID, return INVALID
 4. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
                                                  disclosed_messages, ph)
@@ -1098,7 +1104,7 @@ Each Interface MUST also define a unique ID as a parameter, called `api_id`. It 
 ciphersuite_id || CREATE_GENERATORS_ID || MAP_TO_SCALAR_ID || ADD_INFO
 ```
 
-Where `ciphersuite_id` is defined by the ciphersuite, `CREATE_GENERATORS_ID` is the unique IDs of the operation that creates the generators, `MAP_TO_SCALAR_ID` is the unique ID of the operation that maps the messages to scalars and the `ADD_INFO` value is an optional octet string indicating any additional information used to uniquely qualify the Interface. When `ADD_INFO` is present, it MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f). The `api_id` value, MUST be used by all subroutines an Interface calls, to ensure proper domain separation.
+Where `ciphersuite_id` is defined by the ciphersuite, `CREATE_GENERATORS_ID` is the unique IDs of the operation that creates the generators, `MAP_TO_SCALAR_ID` is the unique ID of the operation that maps the messages to scalars and the `ADD_INFO` value is an optional octet string indicating any additional information used to uniquely qualify the Interface. When `ADD_INFO` is present, it MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST NOT contain any other underscores (ASCII code: 0x5f). The `api_id` value, MUST be used by all subroutines an Interface calls, to ensure proper domain separation.
 
 Interfaces are meant to make it easier to use BBS Signature as part of other protocols with different requirements (for example, different types of input messages or different ways to create the generators), or to extend BBS Signatures with additional functionality (for example, using blinded messages as in [@CDL16]). Documents defining new BBS Interfaces, other than adhering to the requirements listed in this section, should also include a detailed and peer reviewed analyses showcasing that, under reasonable cryptographic assumptions, the documented scheme is secure under the required security definitions and threat model of each protocol. In other words, Interfaces must be treated like Ciphersuites ((#ciphersuites)), in the sense that applications should avoid creating their own, proprietary Interfaces.
 
@@ -1695,7 +1701,7 @@ As an example, if the type (i.e., octet string or scalar) of the messages inputt
 
 If the application defines that the first (or last) `n` messages will be scalars and everything else octet strings, it could just publish the `n` value as part of the Issuer's public parameters or again sign it as part of the `header` value.
 
-In any case, the privacy considerations described in (#privacy-considerations) MUST not be violated, for example, by using unique pre-processing rules or maps between message index and type. To validate the consistency of the message processing rules, the Prover could use mechanisms like the ones described in [@I-D.ietf-privacypass-key-consistency].
+In any case, the privacy considerations described in (#privacy-considerations) MUST NOT be violated, for example, by using unique pre-processing rules or maps between message index and type. To validate the consistency of the message processing rules, the Prover could use mechanisms like the ones described in [@I-D.ietf-privacypass-key-consistency].
 
 ## Post-quantum Security and Everlasting Privacy
 
@@ -1726,7 +1732,7 @@ The following section defines the format of the unique identifier for the cipher
 
   *  H2C\_SUITE\_ID is the suite ID of the hash-to-curve suite used to define the hash_to_curve function.
 
-  *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST not contain any other underscores (ASCII code: 0x5f).
+  *  ADD\_INFO is an optional octet string indicating any additional information used to uniquely qualify the ciphersuite. When present this value MUST only contain ASCII encoded characters with codes between 0x21 and 0x7e (inclusive) and MUST end with an underscore (ASCII code: 0x5f), other than the last character the string MUST NOT contain any other underscores (ASCII code: 0x5f).
 
 ### Additional Parameters
 
@@ -3006,7 +3012,7 @@ Let `(i1, ..., iR)` be the indexes of the messages the prover wants to disclose 
     [3]    Bbar = B * r1 + Abar * (-e)
     ```
 
-    The values `(Abar, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signatures as above, then `Abar * SK = Bbar => e(Abar, PK) = e(Bbar, BP2)` where `SK`, `PK` the signer's secret and public key and `BP2` the base element in `G2` (used to create the signer’s `PK`, see (#public-key)). This last equation is something that the verifier can check. This also serves to bind the proof to the signer's `PK`.
+    The values `(Abar, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signatures as above, then `Abar * SK = Bbar => e(Abar, PK) = e(Bbar, BP2)` where `SK`, `PK` the signer's secret and public key and `BP2` the base element in `G2` (used to create the signer's `PK`, see (#public-key)). This last equation is something that the verifier can check. This also serves to bind the proof to the signer's `PK`.
 
 - Prove that the disclosed messages are signed by that signature. Set the following,
 
@@ -3162,7 +3168,7 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
     <author initials="N." surname="Desmoulins" fullname="Nicolas Desmoulins">
       <organization>Orange Labs</organization>
     </author>
-    <author initials="J." surname="Traoré" fullname="Jacques Traoré">
+    <author initials="J." surname="Traore" fullname="Jacques Traore">
       <organization>Orange Labs</organization>
     </author>
     <date year="1016"/>
@@ -3262,7 +3268,7 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
 <reference anchor="BBB17" target="https://ia.cr/2017/1066">
   <front>
     <title>Bulletproofs: Short Proofs for Confidential Transactions and More</title>
-    <author initials="B." surname="Bünz" fullname="Benedikt Bünz">
+    <author initials="B." surname="Bunz" fullname="Benedikt Bunz">
       <organization>Stanford University</organization>
     </author>
     <author initials="J." surname="Bootle" fullname="Jonathan Bootle">
@@ -3287,7 +3293,7 @@ To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) =
 
 <reference anchor="ISO8601" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">
  <front>
-   <title>Date and time — Representations for information interchange — Part 1: Basic rules</title>
+   <title>Date and time - Representations for information interchange - Part 1: Basic rules</title>
    <author><organization>ISO</organization></author>
  </front>
 </reference>
