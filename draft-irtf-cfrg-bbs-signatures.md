@@ -3038,7 +3038,7 @@ e(Abar * r1' * r2', PK + BP2 * e) = e(D * r2', BP2) = e(B, BP2)
 
 Note that the above is what `CoreVerify` checks, for `A = Abar * r1' * r2'`. Since the Prover showcased knowledge of `r1'` and `r2'` and revealed `Abar` as part of the proof, the Verifier can be assured that the Prover knows the value `A = Abar * r1' * r2'`. So setting `A = Abar * r1' * r2'`, the values `A`, `e`, `B` that the Prover showed knowledge of, will form a valid BBS signature. Note that the Verifier doesn't know `A` (since they don't know `r1'` and `r2'`), `e` or `B` (since they don't know `r2'` or the undisclosed messages). However, they know that the prover knows them and as we saw above, these values form a valid signature on (among others) the disclosed messages.
 
-To sum up; in order to validate the proof, a Verifier checks that `e(Abar, PK) = e(Bbar, BP2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
+To sum up; in order to validate the proof, a Verifier checks that `e(Abar, PK) = e(Bbar, BP2)` and verifies the `nizk`. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
 
 # Document History
 
