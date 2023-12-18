@@ -3054,7 +3054,7 @@ If the above equation (\[6\]) holds, and `e(Abar, PK) = e(Bbar, BP2)`, one could
 e(Abar * r1', PK + BP2 * e) = (B, BP2)
 ```
 
-which is exactly what [Verify](#signature-verification-verify) checks for `A = Abar * r1'`. So seting `A = Abar * r1'`, the values `A`, `e`, `B` will format a valid BBS signature. Note that the verifier doesn't know `r1'`, `e` or all the values to compute `B`. However, they know that the Prover knows them, and as we saw above, knowledge of those values means knowledge of a valid signature on (among others) the disclosed messages.
+which is exactly what [Verify](#signature-verification-verify) checks for `A = Abar * r1'`. So seting `A = Abar * r1'`, the values `A`, `e`, `B` will form a valid BBS signature. Note that the verifier doesn't know `r1'`, `e` or all the values to compute `B`. However, they know that the Prover knows them, and as we saw above, knowledge of those values means knowledge of a valid signature on (among others) the disclosed messages.
 
 To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) = e(Bbar, BP2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
 
