@@ -1640,7 +1640,7 @@ Outputs:
 
 Procedure:
 
-1. W = octets_to_point_g2(PK)
+1. W = octets_to_point_E2(PK)
 2. if W is INVALID, return INVALID
 3. if subgroup_check_G2(W) is INVALID, return INVALID
 4. if W == Identity_G2, return INVALID
@@ -1672,10 +1672,6 @@ For certain types of message values, set membership proofs (for example, [@VB22]
 ## Validating Public Keys
 
 Note that all core operations as defined in (#core-operations) expect the Signer's public key as input. It is RECOMMENDED for all those operations, that they deserialize the public key first using the `octets_to_pubkey` procedure defined in (#octets-to-public-key), even if they only require the octet-string representation of the public key. If the `octets_to_pubkey` procedure returns INVALID, the calling operation should also return INVALID and abort. This recommendation applies is the `CoreSign` ((#coresign)) and `CoreProofGen` ((#coreproofgen)) operations. An explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required in the `CoreVerify` ((#coreverify)) and `CoreProofVerify` ((#coreproofverify)) operations.
-
-## Point Deserialization
-
-This document makes use of `octet_to_point_g*` to parse octet strings to elliptic curve points (either in G1 or G2). It is assumed (even if not explicitly described) that the result of this operation will not be INVALID. If `octet_to_point_g*` returns INVALID, then the calling operation should immediately return INVALID as well and abort the operation. Note that the only place where the output is assumed to be VALID implicitly is in the [EncodingForHash](#encodingforhash) section.
 
 ## Skipping Membership Checks
 
@@ -1828,7 +1824,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 - expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
-- P1: the following point of G1, serialized using the point\_to\_octets\_g1 procedure defined by this ciphersuite and hex encoded
+- P1: the following point of G1, serialized using the point\_to\_octets\_E1 procedure defined by this ciphersuite and hex encoded
     ```
     P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.P1 }}
     ```
@@ -1857,7 +1853,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 - expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
-- P1: the following point of G1, serialized using the point\_to\_octets\_g1 procedure defined by this ciphersuite and hex encoded
+- P1: the following point of G1, serialized using the point\_to\_octets\_E1 procedure defined by this ciphersuite and hex encoded
     ```
     P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.P1 }}
     ```
@@ -1882,7 +1878,7 @@ The following section details a basic set of test vectors that can be used to co
 
 ## Mocked Random Scalars
 
-For the purpose of presenting fixtures for the [ProofGen](#proof-generation-proofgen) operation we describe here a way to mock the `calculate_random_scalars` operation ((#random-scalars)), used by `CoreProofGen` ((#coreproofgen)) to create all the necessary random scalars.
+For the purpose of presenting fixtures for the `ProofGen` operation ((#proof-generation-proofgen)), we describe here a way to mock the `calculate_random_scalars` operation ((#random-scalars)), used by `CoreProofGen` ((#coreproofgen)) to create all the necessary random scalars.
 
 To that end, the `seeded_random_scalars` operation is defined, which will deterministically calculate `count` random-looking scalars from a single `SEED`, given a domain separation tag (`DST`). The proof test vector will then define a `SEED` (as a nothing-up-my-sleeve value) and a `DST` and then set
 
@@ -2526,13 +2522,13 @@ In the most general sense BBS signatures can be used in any application where a 
 
 For example in protocols like OAuth2.0 the most commonly used form of the access token leverages the JWT format alongside conventional cryptographic primitives such as traditional digital signatures or HMACs. These access tokens are then used by a relying party to prove authority to a resource server during a request. However, because the access token is most commonly sent by value as it was issued by the authorization server (e.g in a bearer style scheme), the access token can act as a source of strong correlation for the relying party. Relevant prior art can be found [here](https://www.ietf.org/archive/id/draft-private-access-tokens-01.html).
 
-BBS Signatures due to their unique properties removes this source of correlation but maintains the same set of guarantees required by a resource server to validate an access token back to its relevant authority (note that an approach to signing JSON tokens with BBS that may be of relevance is the [JWP](https://json-web-proofs.github.io/json-web-proofs/draft-ietf-jose-json-web-proof.html) format and serialization). In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they generate a unique proof from the original access token and include that in the request instead, thus removing this vector of correlation.
+BBS Signatures due to their unique properties removes this source of correlation but maintains the same set of guarantees required by a resource server to validate an access token back to its relevant authority (note that an approach to signing JSON tokens with BBS that may be of relevance is the JSON Web Proofs (JWP) format and serialization described in [@I-D.ietf-jose-json-web-proof]). In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they generate a unique proof from the original access token and include that in the request instead, thus removing this vector of correlation.
 
 ## Improved Bearer Security Token
 
 Bearer based security tokens such as JWT based access tokens used in the OAuth2.0 protocol are a highly popular format for expressing authorization grants. However their usage has several security limitations. Notably a bearer based authorization scheme often has to rely on a secure transport between the authorized party (client) and the resource server to mitigate the potential for a MITM attack or a malicious interception of the access token. The scheme also has to assume a degree of trust in the resource server it is presenting an access token to, particularly when the access token grants more than just access to the target resource server, because in a bearer based authorization scheme, anyone who possesses the access token has authority to what it grants. Bearer based access tokens also suffer from the threat of replay attacks.
 
-Improved schemes around authorization protocols often involve adding a layer of proof of cryptographic key possession to the presentation of an access token, which mitigates the deficiencies highlighted above as well as providing a way to detect a replay attack. However, approaches that involve proof of cryptographic key possession such as DPoP (https://datatracker.ietf.org/doc/html/draft-ietf-oauth-dpop-04) suffer from an increase in protocol complexity. A party requesting authorization must pre-generate appropriate key material, share the public portion of this with the authorization server alongside proving possession of the private portion of the key material. The authorization server must also be-able to accommodate receiving this information and validating it.
+Improved schemes around authorization protocols often involve adding a layer of proof of cryptographic key possession to the presentation of an access token, which mitigates the deficiencies highlighted above as well as providing a way to detect a replay attack. However, approaches that involve proof of cryptographic key possession such as DPoP ([@RFC9449]), suffer from an increase in protocol complexity. A party requesting authorization must pre-generate appropriate key material, share the public portion of this with the authorization server alongside proving possession of the private portion of the key material. The authorization server must also be-able to accommodate receiving this information and validating it.
 
 BBS Signatures ofter an alternative model that solves the same problems that proof of cryptographic key possession schemes do for bearer based schemes, but in a way that doesn't introduce new up-front protocol complexity. In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the client providing this access token as issued, in their request to a resource server, they generate a unique proof from the original access token and include that in the request instead. Because the access token is not shared in a request to a resource server, attacks such as MITM are mitigated. A resource server also obtains the ability to detect a replay attack by ensuring the proof presented is unique.
 
