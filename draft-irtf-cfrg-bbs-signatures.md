@@ -2449,7 +2449,7 @@ This document does not make any requests of IANA.
 
 # Acknowledgements
 
-The authors would like to acknowledge the significant amount of academic work that preceeded the development of this document. In particular the original work of [@BBS04] which was subsequently developed in [@ASM06] and in [@CDL16]. This last academic work is the one mostly used by this document.
+The authors would like to acknowledge the significant amount of academic work that preceeded the development of this document. In particular the original work of [@BBS04] which was subsequently developed in [@ASM06] [@CL04] [@BBDT16] [@CDL16] and in [@TZ23]. This last academic work is the one mostly used by this document.
 
 The current state of this document is the product of the work of the Decentralized Identity Foundation Applied Cryptography Working group, which includes numerous active participants. In particular, the following individuals contributed ideas, feedback and wording that influenced this specification:
 
