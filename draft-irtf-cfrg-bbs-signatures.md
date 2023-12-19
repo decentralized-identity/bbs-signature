@@ -1065,8 +1065,8 @@ As inputs, this operation will accept the proof generation or verification initi
 This operation makes use of the `serialize` function, defined in (#serialize).
 
 ```
-challenge = ProofChallengeCalculate(init_res, disclosed_messages, disclosed_indexes, ph,
-                                                                 api_id)
+challenge = ProofChallengeCalculate(init_res, disclosed_messages,
+                                          disclosed_indexes, ph, api_id)
 
 Inputs:
 - init_res (REQUIRED), vector representing the value returned after
