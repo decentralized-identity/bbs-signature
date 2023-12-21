@@ -3008,7 +3008,7 @@ scalar = {{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}
 
 # Proof Generation and Verification Algorithmic Explanation
 
-The following section provides a high-level explanation of how the `CoreProofGen` and `CoreProofVerify` operations work, as presented in Appendix B of [@TZ23] and used by this document. The `CoreProofGen` procedure can be categorized as a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`) protocol, executed between a Prover and a Verifier. A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group points are publicly known, while only the exponent `e_0` is known to the Verifier of the `nizk` and the exponents `e_1`, ..., `e_n` are known only by the Prover of the protocol. The `nizk` can be used to prove a relationship of the form,
+The following section provides a high-level explanation of how the `CoreProofGen` and `CoreProofVerify` operations work, as presented in Appendix B of [@TZ23] and used by this document. The `CoreProofGen` procedure uses a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`) protocol, executed between a Prover and a Verifier. A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group points are publicly known, while only the exponent `e_0` is known to the Verifier of the `nizk` and the exponents `e_1`, ..., `e_n` are known only by the Prover of the protocol. The `nizk` can be used to prove a relationship of the form,
 
 ```
 J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
@@ -3023,7 +3023,7 @@ For BBS, let the Prover be in possession of a BBS signature `(A, e)` on messages
 ```
 Let `(i1, ..., iR)` be the indexes of the messages the Prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = (1, 2, ..., L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows;
 
-- Prove possession of a valid signature. As defined above, a signature `(A, e)`, on messages `msg_1, ..., msg_L` is valid if `A = B * 1/(e + SK)`, where `B` as in \[1\]. However, the Prover cannot reveal neither `A`, `e` nor `B` to the Verifier (signature is uniquely identifiable and `B` will reveal information about the signed messages, even the undisclosed ones). To get around this, the Prover needs to hide the signature `(A, e)` and the value of `B`, in a way that will allow proving knowledge of such elements with the aforementioned relationship (i.e., that `A = B * 1/(e + SK)`), without revealing their value. We do this by randomizing them. To do that, they take uniformly random `r1, r2` in `[1, r-1]`, and calculate,
+- Prove possession of a valid signature. As defined above, a signature `(A, e)`, on messages `msg_1, ..., msg_L` is valid if `A = B * 1/(e + SK)`, where `B` as in \[1\]. However, the Prover cannot reveal neither `A`, `e` nor `B` to the Verifier (signature is uniquely identifiable and `B` will reveal information about the signed messages, even the undisclosed ones). To get around this, the Prover needs to hide the signature `(A, e)` and the value of `B`, in a way that will allow proving knowledge of such elements with the aforementioned relationship (i.e., that `A = B * 1/(e + SK)`), without revealing their value. The Prover will do this by randomizing them. To do that, they take uniformly random `r1, r2` in `[1, r-1]`, and calculate,
 
 	```
 	[2]	Abar = A * (r1 * r2)
