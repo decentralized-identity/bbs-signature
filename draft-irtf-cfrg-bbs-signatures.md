@@ -187,7 +187,7 @@ length(input)
 X\[i\]
 : Denotes the element of array `X` at index `i`. Note that arrays in this document are considered "zero-indexed", meaning that element indexing starts from 0 rather than 1. For example, if `X = [a, b, c, d]` then `X[0] = a`, `X[1] = b`, `X[2] = c` and `X[3] = d`.
 
-Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@!I-D.irtf-cfrg-pairing-friendly-curves].
+Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@I-D.irtf-cfrg-pairing-friendly-curves].
 
 E1, E2
 : elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication.
@@ -211,7 +211,7 @@ Identity\_G1, Identity\_G2, Identity\_GT
 : The identity element for the G1, G2, and GT subgroups respectively.
 
 hash\_to\_curve\_g1(ostr, dst) -> P
-: A cryptographic hash function that takes an arbitrary octet string as input and returns a point in G1, using the hash\_to\_curve operation defined in [@!I-D.irtf-cfrg-hash-to-curve] and the inputted dst as the domain separation tag for that operation (more specifically, the inputted dst will become the DST parameter for the hash\_to\_field operation, called by hash\_to\_curve).
+: A cryptographic hash function that takes an arbitrary octet string as input and returns a point in G1, using the hash\_to\_curve operation defined in [@!RFC9380] and the inputted dst as the domain separation tag for that operation (more specifically, the inputted dst will become the DST parameter for the hash\_to\_field operation, called by hash\_to\_curve).
 
 point\_to\_octets\_E1(P) -> ostr, point\_to\_octets\_E2(P) -> ostr
 : returns the canonical representation of the point P of the elliptic curve E1 or E2 as an octet string. This operation is also known as serialization. Note that we assume that when the point is valid, all the serialization operations will always succeed to return the octet string representation of the point.
@@ -251,7 +251,7 @@ The schemes operations defined in this section depend on the following parameter
 
 * A pairing-friendly elliptic curve, plus associated functionality given in (#notation).
 
-* A hash-to-curve suite as defined in [@!I-D.irtf-cfrg-hash-to-curve], using the aforementioned pairing-friendly curve. This defines the hash\_to\_curve and expand\_message operations, used by this document.
+* A hash-to-curve suite as defined in [@!RFC9380], using the aforementioned pairing-friendly curve. This defines the hash\_to\_curve and expand\_message operations, used by this document.
 
 * get\_random(n): returns a random octet string with a length of n bytes, sampled uniformly at random using a cryptographically secure pseudo-random number generator (CSPRNG) or a pseudo random function. See [@!RFC4086] for recommendations and requirements on the generation of random numbers.
 
@@ -588,9 +588,10 @@ The operations defined in this section perform the low-level cryptographic funct
 
 The operations of this section make use of functions and sub-routines defined in [Utility Operations](#utility-operations). More specifically,
 
-- `hash_to_scalar` as defined in (#hash-to-scalar).
-- `calculate_domain` and `calculate_challenge` as defined in (#domain-calculation) and (#challenge-calculation) correspondingly.
-- `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` as defined in (#serialization).
+- `hash_to_scalar` is defined in (#hash-to-scalar)
+- `calculate_domain` is defined in (#domain-calculation).
+- `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization).
+- `e` is the pairing operation used (see (#notation)), defined as part of the ciphersuite.
 
 Each core operation will accept a vector of `generators` (points of G1) and optionally, a vector of `messages`. The generators MUST be unique and pseudo-random i.e., with no known relationship to each other. See (#defining-new-generators) for more details. Each message is represented as a scalar value. See (#messages-to-scalars) for ways to map a message to a scalar and the corresponding security requirements.
 
@@ -708,7 +709,7 @@ Procedure:
 
 ### CoreProofGen
 
-This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The Prover may also supply a presentation header (`ph`). See (#header-and-presentation-header-usage) for more details. Validating the resulting proof (using the `CoreProofVerify` algorithm defined in (#coreproofverify)), guarantees the integrity and authenticity of the revealed messages, as well as the possession of a valid signature (for the public key `PK`) by the Prover.
+This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The Prover may also supply a presentation header (`ph`). See (#header-and-presentation-header-usage) for more details. Validating the resulting proof (using the `CoreProofVerify` algorithm defined in (#coreproofverify)), guarantees the integrity and authenticity of the revealed messages, as well as the possession of a valid signature (for the public key `PK`) by the Prover. See (#proof-generation-and-verification-algorithmic-explanation) for a high level explanation on the inner-workings of the algorithm.
 
 The `CoreProofGen` operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key `PK` and `generators` set, against the supplied `messages` and `header`, with the `CoreVerify` operation defined in (#coreverify).
 
@@ -851,7 +852,7 @@ Procedure:
 
 ## Proof Protocol Subroutines
 
-This section describes the subroutines used by the `CoreProofGen` ((#coreproofgen)) and `CoreProofVerify` ((#coreproofverify)) operations.
+This section describes the subroutines used by the `CoreProofGen` ((#coreproofgen)) and `CoreProofVerify` ((#coreproofverify)) operations. See (#proof-generation-and-verification-algorithmic-explanation), for a high-level intuitive overview of the procedure used to generate and verify a BBS proof.
 
 ### Proof Initialization
 
@@ -1145,7 +1146,7 @@ It is RECOMMENDED that the `create_generators` and `messages_to_scalars` operati
 
 ### Generators Calculation
 
-The `create_generators` procedure defines how to create a set of randomly sampled points from the G1 subgroup, called the generators. It makes use of the primitives defined in [@!I-D.irtf-cfrg-hash-to-curve] (more specifically of `hash_to_curve` and `expand_message`) to hash a seed to a set of generators. Those primitives are implicitly defined by the ciphersuite, through the choice of a hash-to-curve suite (see the `hash_to_curve_suite` parameter in (#ciphersuite-format)).
+The `create_generators` procedure defines how to create a set of randomly sampled points from the G1 subgroup, called the generators. It makes use of the primitives defined in [@!RFC9380] (more specifically of `hash_to_curve` and `expand_message`) to hash a seed to a set of generators. Those primitives are implicitly defined by the ciphersuite, through the choice of a hash-to-curve suite (see the `hash_to_curve_suite` parameter in (#ciphersuite-format)).
 
 Since `create_generators` generates constant points, as an optimization, implementations MAY cache its result for a specific `count` (which can be arbitrarily large, depending on the application). Care must be taken, to guarantee that the generators will be fetched from the cache in the same order they had when they where created (i.e., an application should not sort or in any way rearrange the cached generators).
 
@@ -1327,9 +1328,9 @@ Procedure:
 
 This operation describes how to hash an arbitrary octet string to a scalar values in the multiplicative group of integers mod r (i.e., values in the range from  1 to r - 1).  This procedure acts as a helper function, used internally in various places within the operations described in the spec.
 
-The operation takes as input an octet string representing the octet string to hash (`msg`) and a domain separation tag (`dst`). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!I-D.irtf-cfrg-hash-to-curve] for guidance on using larger dst values.
+The operation takes as input an octet string representing the octet string to hash (`msg`) and a domain separation tag (`dst`). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!RFC9380] for guidance on using larger dst values.
 
-**Note** This operation makes use of `expand_message` defined in [@!I-D.irtf-cfrg-hash-to-curve]. The operation `expand_message` may fail (abort). In that case, `hash_to_scalar` MUST also ABORT.
+**Note** This operation makes use of `expand_message` defined in [@!RFC9380]. The operation `expand_message` may fail (abort). In that case, `hash_to_scalar` MUST also ABORT.
 
 ```
 hashed_scalar = hash_to_scalar(msg_octets, dst)
@@ -1695,7 +1696,7 @@ The signature proofs of knowledge generated in this specification are created us
 
 ## Implementing hash\_to\_curve\_g1
 
-The security analysis models hash\_to\_curve\_g1 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!I-D.irtf-cfrg-hash-to-curve].
+The security analysis models hash\_to\_curve\_g1 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of [@!RFC9380].
 
 In addition, ciphersuites MUST specify unique domain separation tags for hash\_to\_curve.  Some guidance around defining this can be found in (#ciphersuites).
 
@@ -1741,7 +1742,7 @@ On the other hand, data confidentiality cannot be broken, even by adversaries wi
 
 # Ciphersuites
 
-This section defines the format for a BBS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@!I-D.irtf-cfrg-pairing-friendly-curves].
+This section defines the format for a BBS ciphersuite. It also gives concrete ciphersuites based on the BLS12-381 pairing-friendly elliptic curve [@I-D.irtf-cfrg-pairing-friendly-curves].
 
 ## Ciphersuite Format
 
@@ -1770,11 +1771,13 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - octet\_point\_length: Number of bytes to represent a point encoded as an octet string outputted by the `point_to_octets_E*` function.
 
-- hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!I-D.irtf-cfrg-hash-to-curve]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the Notation defined in (#notation)) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
+- hash\_to\_curve\_suite: The hash-to-curve ciphersuite id, in the form defined in [@!RFC9380]. This defines the hash\_to\_curve\_g1 (the hash\_to\_curve operation for the G1 subgroup, see the Notation defined in (#notation)) and the expand\_message (either expand\_message\_xmd or expand\_message\_xof) operations used in this document.
 
-- expand\_len: Must be defined to be at least `ceil((ceil(log2(r))+k)/8)`, where `log2(r)` and `k` are defined by each ciphersuite (see Section 5 in [@!I-D.irtf-cfrg-hash-to-curve] for a more detailed explanation of this definition).
+- expand\_len: Must be defined to be at least `ceil((ceil(log2(r))+k)/8)`, where `log2(r)` and `k` are defined by each ciphersuite (see Section 5 in [@!RFC9380] for a more detailed explanation of this definition).
 
 - P1: A fixed point in the G1 subgroup, different from the point BP1 (i.e., the base point of G1, see (#terminology)). This leaves the base point "free", to be used with other protocols, like key commitment and proof of possession schemes (for example, like the one described in Section 3.3 of [@I-D.irtf-cfrg-bls-signature]).
+
+- e: The pairing operation used.
 
 **Serialization functions**:
 
@@ -1792,11 +1795,11 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 
 ## BLS12-381 Ciphersuites
 
-The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128`. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@!I-D.irtf-cfrg-pairing-friendly-curves].
+The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128` (the actual security leven is closer to 126 bits). The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. For completeness, BLS12-381 and the relevant functionality (base points `BP1` and `BP2`, the pairing `e` as well as the point encoding and decoding operations) are defined in (#the-bls12-381-curve).
 
 The first ciphersuite uses the hash-to-curve suite `BLS12381G1_XOF:SHAKE-256_SSWU_RO_`, defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of [@!SHA3].
 
-The second ciphersuite uses the hash-to-curve suite `BLS12381G1_XMD:SHA-256_SSWU_RO_`, defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] document, which is based on the SHA-256, as defined in Section 6.2 of [@!SHA2] .
+The second ciphersuite uses the hash-to-curve suite `BLS12381G1_XMD:SHA-256_SSWU_RO_`, defined in Section 8.8.1 of the [@!RFC9380] document, which is based on the SHA-256, as defined in Section 6.2 of [@!SHA2] .
 
 For both ciphersuites defined in this section, the fixed point `P1` of G1 is defined as the output of the `create_generators` procedure defined in (#generators-calculation) instantiated with the parameters defined by each ciphersuite, with the inputs `count = 1`, not supplying an `api_id` value and making use of the following "Definitions" for the `seed_dst`, `generator_dst` and `generator_seed` variables;
 
@@ -1835,15 +1838,17 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
     P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.P1 }}
     ```
 
+- e: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
+
 **Serialization functions**:
 
-- point\_to\_octets\_E1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E1: as defined in (#point-serialization) for points of the curve `E1` (which follows the format documented in Appendix C.1 of [@I-D.irtf-cfrg-pairing-friendly-curves] for the `E1` elliptic curve, using compression).
 
-- point\_to\_octets\_E2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E2: as defined in (#point-serialization) for points of the curve `E2` (which follows the format documented in Appendix C.1 of [@I-D.irtf-cfrg-pairing-friendly-curves] for the `E2` elliptic curve, using compression).
 
-- octets\_to\_point\_E1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve.
+- octets\_to\_point\_E1: as defined in (#point-de-serialization) (which follows the format documented in Appendix C.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), returning INVALID if the resulting point is not in `E1`.
 
-- octets\_to\_point\_E2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve.
+- octets\_to\_point\_E2: as defined in (#point-de-serialization) (which follows the format documented in Appendix C.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), returning INVALID if the resulting point is not in `E2`.
 
 ### BLS12-381-SHA-256
 
@@ -1855,7 +1860,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 - octet\_point\_length: 48, based on the RECOMMENDED approach of `ceil(log2(p)/8)`.
 
-- hash\_to\_curve\_suite: "BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_" as defined in Section 8.8.1 of the [@!I-D.irtf-cfrg-hash-to-curve] for the G1 subgroup.
+- hash\_to\_curve\_suite: "BLS12381G1\_XMD:SHA-256\_SSWU\_RO\_" as defined in Section 8.8.1 of the [@!RFC9380] for the G1 subgroup.
 
 - expand\_len: 48 ( `= ceil((ceil(log2(r))+k)/8)`)
 
@@ -1864,15 +1869,17 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
     P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.P1 }}
     ```
 
+- e: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
+
 **Serialization functions**:
 
-- point\_to\_octets\_E1: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E1: as defined in (#point-serialization) for points of the curve `E1` (which follows the format documented in Appendix C.1 of [@I-D.irtf-cfrg-pairing-friendly-curves] for the `E1` elliptic curve, using compression).
 
-- point\_to\_octets\_E2: follows the format documented in Appendix C section 1 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve, using compression (i.e., setting C\_bit = 1).
+- point\_to\_octets\_E2: as defined in (#point-serialization) for points of the curve `E2` (which follows the format documented in Appendix C.1 of [@I-D.irtf-cfrg-pairing-friendly-curves] for the `E2` elliptic curve, using compression).
 
-- octets\_to\_point\_E1: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E1 elliptic curve.
+- octets\_to\_point\_E1: as defined in (#point-de-serialization) (which follows the format documented in Appendix C.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), returning INVALID if the resulting point is not in `E1`.
 
-- octets\_to\_point\_E2: follows the format documented in Appendix C section 2 of [@!I-D.irtf-cfrg-pairing-friendly-curves] for the E2 elliptic curve.
+- octets\_to\_point\_E2: as defined in (#point-de-serialization) (which follows the format documented in Appendix C.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), returning INVALID if the resulting point is not in `E2`.
 
 # Test Vectors
 
@@ -2455,7 +2462,7 @@ This document does not make any requests of IANA.
 
 # Acknowledgements
 
-The authors would like to acknowledge the significant amount of academic work that preceeded the development of this document. In particular the original work of [@BBS04] which was subsequently developed in [@ASM06] and in [@CDL16]. This last academic work is the one mostly used by this document.
+The authors would like to acknowledge the significant amount of academic work that preceeded the development of this document. In particular the original work of [@BBS04] which was subsequently developed in [@ASM06] [@CL04] [@BBDT16] [@CDL16] and in [@TZ23]. This last academic work is the one mostly used by this document.
 
 The current state of this document is the product of the work of the Decentralized Identity Foundation Applied Cryptography Working group, which includes numerous active participants. In particular, the following individuals contributed ideas, feedback and wording that influenced this specification:
 
@@ -2467,9 +2474,9 @@ Additionally, the authors would like to acknoledge Jacques Traore and Antoine Du
 
 # BLS12-381 hash\_to\_curve Definition Using SHAKE-256
 
-The following defines a hash\_to\_curve suite [@!I-D.irtf-cfrg-hash-to-curve] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (xof) of SHAKE-256 as per the guidance defined in section 8.9 of [@!I-D.irtf-cfrg-hash-to-curve].
+The following defines a hash\_to\_curve suite [@!RFC9380] for the BLS12-381 curve for both the G1 and G2 subgroups using the extendable output function (xof) of SHAKE-256 as per the guidance defined in section 8.9 of [@!RFC9380].
 
-Note the notation used in the below definitions is sourced from [@!I-D.irtf-cfrg-hash-to-curve].
+Note the notation used in the below definitions is sourced from [@!RFC9380].
 
 ## BLS12-381 G1
 
@@ -2477,7 +2484,7 @@ The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_RO_` is defined as follows:
 
 ```
 * encoding type: hash_to_curve (Section 3 of
-                 [@!I-D.irtf-cfrg-hash-to-curve])
+                 [@!RFC9380])
 
 * E: y^2 = x^3 + 4
 
@@ -2491,14 +2498,14 @@ The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_RO_` is defined as follows:
 * k: 128
 
 * expand_message: expand_message_xof (Section 5.3.2 of
-                  [@!I-D.irtf-cfrg-hash-to-curve])
+                  [@!RFC9380])
 
 * hash: SHAKE-256
 
 * L: 64
 
 * f: Simplified SWU for AB == 0 (Section 6.6.3 of
-     [@!I-D.irtf-cfrg-hash-to-curve])
+     [@!RFC9380])
 
 * Z: 11
 
@@ -2511,14 +2518,199 @@ The suite of `BLS12381G1_XOF:SHAKE-256_SSWU_RO_` is defined as follows:
                 cef35ef55a23215a316ceaa5d1cc48e98e172be0
 
 *  iso_map: the 11-isogeny map from E' to E given in Appendix E.2 of
-            [@!I-D.irtf-cfrg-hash-to-curve]
+            [@!RFC9380]
 
 *  h_eff: 0xd201000000010001
 ```
 
-Note that the h_eff values for this suite are copied from that defined for the `BLS12381G1_XMD:SHA-256_SSWU_RO_` suite defined in section 8.8.1 of [@!I-D.irtf-cfrg-hash-to-curve].
+Note that the `h_eff` values for this suite are copied from that defined for the `BLS12381G1_XMD:SHA-256_SSWU_RO_` suite defined in section 8.8.1 of [@!RFC9380].
 
-An optimized example implementation of the Simplified SWU mapping to the curve E' isogenous to BLS12-381 G1 is given in Appendix F.2 [@!I-D.irtf-cfrg-hash-to-curve].
+An optimized example implementation of the Simplified SWU mapping to the curve E' isogenous to BLS12-381 G1 is given in Appendix F.2 [@!RFC9380].
+
+# The BLS12-381 Curve
+
+This section defines BLS12-381. The definitions of this section have been originally described in [@I-D.irtf-cfrg-pairing-friendly-curves], where they are discussed in greater detail.
+
+BLS12-381 are Barreto-Lynn-Scott curves, defined by two elliptic curves `E1` and `E2`, parameterized by an integer `t`. In the case of BLS12-381, `t` is defined as,
+
+```
+t = -2^63 - 2^62 - 2^60 - 2^57 - 2^48 - 2^16
+```
+
+The curves `E1` and `E2` are defined over the finite fields `GF(p)` and `GF(p^2)` correspondingly, where `p` is defined as,
+
+```
+p = (t - 1)^2 * (t^4 - t^2 + 1) / 3 + t
+```
+
+Let `(1, I)` be the bases of the finite field `GF(p^2)`, where `I ^ 2 + 1 = 0` in `GF(p^2)`. We will denote an element `y` of `GF(p^2)` as a tuple `y = (y_0, y_1)`, where `y_0` and `y_1` elements of `GF(p)` for which it holds `y = y_0 * 1 + y_1 * I`. The two elliptic curves are defined by the following equations,
+
+```
+E1: y ^ 2 = x ^ 3 + 4
+E2: y ^ 2 = x ^ 3 + 4 * (I + 1)
+```
+
+The group `G1` and `G2` are defined as the the order `r` subgroup of `E1` defined over `GF(p)` and `E2` defined over `GF(p^2)` correspondingly, where `r` is defined as,
+
+```
+r = 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
+```
+
+Note that `r` is a prime factor of `p`. The target group `G_T` is defined as the finite group `GF(p^12)` minus the element `0`.
+
+The base points of BLS12-381, encoded to octets using the procedure defined in (#point-serialization) and then represented in hexadecimal format, are defined as,
+
+```
+BP1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586
+       c55e83ff97a1aeffb3af00adb22c6bb"
+BP2 = "93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f50493
+       34cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6
+       e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"
+```
+
+## Optimal Ate pairing
+
+This section describes the optimal Ate pairing for BLS12-381. The pairing computation uses the following utility function.
+
+```
+res = Line_function(Q1, Q2, P)
+
+Inputs:
+
+- Q1 (REQUIRED), point of G2.
+- Q2 (REQUIRED), point of G2.
+- P (REQUIRED), point of G1.
+
+Outputs:
+
+- res: an element on the target group G_T.
+
+Procedure:
+
+1. (x_1, y_1) = Q1
+2. (x_2, y_2) = Q2
+3. (x, y) = P
+4. if Q1 = Q2, set l = (3 * x_1^2) / (2 * y_1)
+5. else if Q1 = - Q2, return x - x_1
+6. else set l = (y_2 - y_1) / (x_2 - x_1)
+7. return (l * (x - x_1) + y_1 - y)
+```
+
+Let `c = t` for `t` as defined above ((#the-bls12-381-curve)) and `c_0, c_1, ... , c_L` in `(-1, 0, 1)` such that the sum of `c_i * 2^i` for `i = 0, 1, ..., L` equals `c`.
+
+Given a point `P` of `G1`, and a point `Q` of `G2`, the output `e(P, Q)` where `e` the Ate pairing for BLS12-381 is calculated as follows,
+
+```
+1.  set f = 1 and T = Q
+2.  if c_L = -1, set T = -T
+3.  for i in (L-1, L-2, ..., 1, 0)
+4.      f = f^2 * Line_function(T, T, P)
+5.      T = T + T
+6.      if c_i = 1,
+7.          f = f * Line_function(T, Q, P)
+8.          T = T + Q
+9.      else if c_i = -1,
+10.         f = f * Line_function(T, -Q, P)
+11.         T = T - Q
+12. f = f ^ ((p ^ 12 - 1) / r)
+13. return f
+```
+
+## Point Encoding
+
+This section defines point encoding and decoding procedures for BLS12-381. Although more flexible point encoding procedures may exist (for example [@I-D.ietf-lwig-curve-representations]), the vast majority of current libraries implementing BLS12-381 use (most of them explicitly) the encoding method defined in Appendix C of [@I-D.irtf-cfrg-pairing-friendly-curves]. For this reason, the ciphersuites defined in (#bls12-381-ciphersuites), use those encoding and decoding procedures. For completeness, those operations are defined in this section as well. See [@I-D.irtf-cfrg-pairing-friendly-curves] for a more detailed explanation of the encoding and decoding steps. Note also that we will only consider compressed point encoding (in contrast to [@I-D.irtf-cfrg-pairing-friendly-curves], which supports both compressed and uncompressed point encoding).
+
+In this section we will use the following notation,
+
+- For an octet string `x`, `x[0]` will denote the first octet (i.e., 8 most significant bits) of `x`.
+- On input an element `y` of `GF(p)` or `GF(p^2)`, `sqrt(y)` will return the square root of that element in the respective group, i.e., an element `a` such that `a^2 = y`, or INVALID.
+- For clarity, we will use `Identity_E1`, `Identity_E2` to denote the identity points of `E1` and `E2` correspondingly (note that `Identity_E1` is the same point as `Identity_G1` and `Identity_E2` is the same point as `Identity_G2`).
+
+We first have to define the following utility operations.
+
+The following procedure returns one bit corresponding to the sign of an element of `GF(p)`.
+
+```
+res = sign_GF_p(y)
+
+Inputs:
+
+- y (REQUIRED), point of the GF(p) group
+
+Outputs:
+
+- res, either 0 or 1
+
+Procedure:
+
+1. if y > (p - 1) / 2, return 1
+2. return 0
+```
+
+The following procedure returns one bit corresponding to the sign of an element in `GF(p^2)`.
+
+```
+res = sign_GF_p^2(y)
+
+Inputs:
+
+- y (REQUIRED), point of the GF(p^2) group
+
+Outputs:
+
+- res, either 0 or 1
+
+Procedure:
+
+1. (y_0, y_1) = y
+2. if y_1 is 0, return sign_GF_p(y_0)
+3. if y_1 > (p - 1) / 2, return 1
+4. return 0
+```
+
+### Point Serialization
+
+Let `P = (x, y)` the point to be serialized.
+
+Compute three metadata bits `C_bit`, `I_bit`, and `S_bit`, as follows,
+
+1. `C_bit` is set to 1 (indicating that point compression is used).
+2. `I_bit` is 1 if `P` is either the `Identity_E1` or `Identity_E2` points, otherwise it is 0.
+3. `S_bit` is 0 if `I_bit` is 1 (again note that the ciphersuites described in this document always use point compression). Otherwise (i.e., when point compression is used and `P` is not the identity point of its respective curve), if `P` is a point on `E1`, set `S_bit = sign_GF_p(y)`, else if `P` is a point on `E2`, `S_bit = sign_GF_p^2(y)`.
+
+Let `m = (C_bit * 2^7) + (I_bit * 2^6) + (S_bit * 2^5)` and set `m_byte = I2OSP(m, 1)`. Define `x_string` as follows,
+
+1. If `P = Identity_E1`, set `x_string = I2OSP(0, 48)`.
+2. If `P` is a point on `E1` and `P != Identity_E1`, set `x_string = I2OSP(x, 48)`.
+3. If `P = Identity_E2`, set `x_string = I2OSP(0, 96)`.
+4. If `P` is a point on `E2` and `P != Identity_E2`, then let `x_0` and `x_1` elements of `GF(p)` such that `x = (x_0, x_1)` and set `x_string = I2OSP(x_1, 48) || I2OSP(x_0, 48)`.
+
+Let `s_string = x_string`. Set `s_string[0] = x_string[0] OR m_byte`, where `OR` is computed for each bit. Output `s_string` as the serialization result of the point `P`.
+
+### Point De-serialization
+
+Let `m_byte = s_string[0] AND 0xE0`, where `AND` is computed bitwise. If `m_byte` equals `0x20` or `0x60` or `0xE0`, output INVALID and abort the operation. Otherwise, let `C_bit` equal the most significant bit of `m_byte`, `I_bit` equal the second most significant bit of `m_byte`, and `S_bit` equal the third most significant bit of `m_byte`. If `C_bit` is 0 return INVALID and abort the operation (note again that we only consider compressed encoding).
+
+1. Determine the curve of the encoded point as follows,
+    - If `s_string` has length 48 octets, the encoded point is on the curve `E1`.
+    - If `s_string` has length 96 octets, the encoded point is on the curve `E2`.
+    - If `s_string` has any other length, output INVALID and abort the operation.
+
+
+2. Let `s_string[0] = s_string[0] AND 0x1F`, where `AND` is computed bitwise (this will set the three most significant bits of `s_string[0]` to 0).
+
+3. If `I_bit` is 1, then the encoded point must be the Identity point of the curve determined on step 1. If `s_string` is not the all zeros string, output INVALID and abort the operation. Otherwise, output the Identity point of the curve that was determined in step 1 (i.e., either `Identity_E1` or `Identity_E2`).
+
+4. Let `x = OS2IP(s_string)`.
+5. If the curve that was determined in step 1 is `E1`,
+    - Let `y2 = x^3 + 4` in `GF(p)`.
+    - If `y2` is not square in `GF(p)`, output INVALID and abort the operation. Otherwise, let `y = sqrt(y2)` in `GF(p)` and set `Y_bit = sign_GF_p(y)`.
+
+6. If the curve that was determined in step 1 is `E2`,
+    - Let `y2 = x^3 + 4 * (I + 1)` in `GF(p^2)`.
+    - If `y2` is not square in `GF(p^2)`, output INVALID and abort the operation. Otherwise, let `y = sqrt(y2)` in `GF(p^2)` and set `Y_bit = sign_GF_p^2(y)`.
+
+7. If `S_bit` equals `Y_bit`, output `P = (x, y)`. Otherwise, output `P = (x, -y)`.
 
 # Use Cases
 
@@ -3014,55 +3206,61 @@ scalar = {{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}
 
 # Proof Generation and Verification Algorithmic Explanation
 
-The following section provides a high level explanation of how the ProofGen and ProofVerify operations work. ProofGen can be categorized as a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`). A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group point are publicly known, while only the exponent `e_0` is known to the verifier and the exponents `e_1`, ..., `e_n` are known only by the Prover. The `nizk` can be used to prove a relationship of the form,
+The following section provides a high-level explanation of how the `CoreProofGen` and `CoreProofVerify` operations work, as presented in Appendix B of [@TZ23] and used by this document. The `CoreProofGen` procedure uses a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`) protocol, executed between a Prover and a Verifier. A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group points are publicly known, while only the exponent `e_0` is known to the Verifier of the `nizk` and the exponents `e_1`, ..., `e_n` are known only by the Prover of the protocol. The `nizk` can be used to prove a relationship of the form,
 
 ```
 J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
 ```
 
-While revealing nothing about the secret exponents (i.e., `e_1`, ..., `e_n`).
+While revealing nothing about the secret exponents (i.e., `e_1`, ..., `e_n`), other than the fact that the Prover knows them.
 
-For BBS, let the Prover be in possession of a BBS signature `(A, e)` on messages `msg_1, ..., msg_L` and a `domain` value (see [Sign](#signature-generation-sign)). Let `A = B * (1/(e + SK))` where `SK` the signer's secret key and,
+For BBS, let the Prover be in possession of a BBS signature `(A, e)` on messages `msg_1, ..., msg_L` and a `domain` value (see  `CoreSign` defined in (#coresign)). Let `A = B * (1/(e + SK))` where `SK` the Signer's secret key and,
 
 ```
-[1]    B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+[1]	B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 ```
 Let `(i1, ..., iR)` be the indexes of the messages the Prover wants to disclose and `(j1, ..., jU)` be the indexes corresponding to undisclosed messages (i.e., `(j1, ..., jU) = (1, 2, ..., L) \ (i1, ..., iR)`). To prove knowledge of a signature on the disclosed messages, work as follows;
 
-- Prove possession of a valid signature. As defined above, a signature `(A, e)`, on messages `msg_1, ..., msg_L` is valid, if `A = B * 1/(e + SK)`, where `B` as in \[1\]. However we cannot reveal neither `A`, `e` nor `B` to the verifier (signature is uniquely identifiable and `B` will reveal information about the signed messages, even the undisclosed ones). To get around this, we need to hide the signature `(A, e)` and the value of `B`, in a way that will allow proving knowledge of such ellements with the aformentioned relationship (i.e., that `A = B * 1/(e + SK)`), without revealing their value. We do this by randomizing them. To do that, take uniformly random `r1` in `[1, r-1]`, and calculate,
+- Prove possession of a valid signature. As defined above, a signature `(A, e)`, on messages `msg_1, ..., msg_L` is valid if `A = B * 1/(e + SK)`, where `B` as in \[1\]. However, the Prover cannot reveal neither `A`, `e` nor `B` to the Verifier (signature is uniquely identifiable and `B` will reveal information about the signed messages, even the undisclosed ones). To get around this, the Prover needs to hide the signature `(A, e)` and the value of `B`, in a way that will allow proving knowledge of such elements with the aforementioned relationship (i.e., that `A = B * 1/(e + SK)`), without revealing their value. The Prover will do this by randomizing them. To do that, they take uniformly random `r1, r2` in `[1, r-1]`, and calculate,
 
-    ```
-    [2]    Abar = A * r1,
-    [3]    Bbar = B * r1 + Abar * (-e)
-    ```
+	```
+	[2]	Abar = A * (r1 * r2)
+	[3]	D = B * r2
+	[4]	Bbar = D * r1 + Abar * (-e)
+	```
 
-    The values `(Abar, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signatures as above, then `Abar * SK = Bbar => e(Abar, PK) = e(Bbar, BP2)` where `SK`, `PK` the signer's secret and public key and `BP2` the base element in `G2` (used to create the signer's `PK`, see (#public-key)). This last equation is something that the verifier can check. This also serves to bind the proof to the signer's `PK`.
+    The values `(Abar, D, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signature as above, then `Abar * SK = Bbar` which is equivalent to `e(Abar, PK) = e(Bbar, BP2)`, where `SK`, `PK` the Signer's secret and public key and `BP2` the base generator of `G2` (used to create the Signer’s `PK`, see (#public-key)). This last equation is something that the Verifier can check using the Signer's `PK`.
 
-- Prove that the disclosed messages are signed by that signature. Set the following,
+- Prove that the disclosed messages are signed as part of that signature. The Prover will start by setting the following,
 
-    ```
-    [4]    D = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-    [5]    r1' = r1 ^ -1 mod r
-    ```
+	```
+	[5]	r2' = (1 / r2) mod r
+	```
 
-    If the `Abar` and `Bbar` values are constructed using a valid BBS signature as in \[2\] and \[3\], then the following equation will hold,
+	If the `Abar`, `D` and `Bbar` values are constructed using a valid BBS signature as in \[2\], \[3\] and \[4\], then the following will hold,
 
-    ```
-    [6]    D = Bbar * r1' + Abar * (e * r1') - H_ji * msg_j1 - ...
-                                                     ... - H_jU * msg_jU
-    ```
+	```
+	[6]	P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR =
+                       	D * r2' - H_ji * msg_j1 - ... - H_jU * msg_jU
+	```
 
-Note that the verifier will know the elements in the left side of \[6\] (i.e., `D`, or rather they will know all the values needed to calculate `D`, as it depends on the public `doamin` value and the disclosed messages) but not the exponents in the right side (i.e., `r1'`, `e` and the undisclosed messages: `msg_j1, ..., msg_jU`). However, using a `nizk`, the Prover can convince the verifier that they (the Prover) know the exponents that satisfy that equation, without disclosing them.
+Note that the Verifier will know the elements in the left side of \[6\] (i.e., `P1`, `Q_1`, `H_i1`, ..., `H_iR` and the disclosed messages: `msg_i1`, ..., `msg_iR`) as well as the base points of the right side (i.e., the points `D` and `H_j1, ..., H_jU`). They will not however know the exponents on the right side of \[6\] (i.e., `r2'` and the undisclosed messages: `msg_j1, ..., msg_jU`). The same holds for equation \[4\] where the Verifier will know the left side of the equation (i.e., `Bbar`) and the base points of the right side (i.e., `D` and `Abar`) but not the exponents (i.e., `r1` and `-e`).
 
-If the above equation (\[6\]) holds, and `e(Abar, PK) = e(Bbar, BP2)`, one could solve \[6\] to get `B = Bbar * r1' + Abar * e * r1'` (where `B` as in \[1\]). Note that `B` will also contain the disclosed messages. Then, using the properties of pairings, one can see that,
+To convince the Verifier that both \[4\] and \[6\] hold, the Prover can use a `nizk`, to prove that they know the exponents that satisfy those equations, without disclosing them.
+
+Note that if the value `D` is constructed correctly (as in \[3\]), then `B = D * r2'`. Proving knowledge of \[6\] corresponds to proving knowledge of `r2'`, which means that the Prover does actually know a value `B = D * r2'`. If \[6\] holds, then that `B` value that the Prover knows (i.e., `D * r2'`) will also have the "correct form" for `B` (as in \[1\]), including all (the disclosed and "some" undisclosed) messages.
+
+All that remains is proving that this `B` value the Prover knows, is also "signed" by the Signer i.e., that the Prover also knows values `A` and `e`, such that `A = B * 1/(e + SK)` or, equivalently, that `e(A, PK + BP2 * e) = e(B, BP2)`, which is what `CoreVerify` checks to validate a signature (see (#coreverify)).
+
+Note that, the Prover will use a `nizk` to showcase (among other things), knowledge of values `r1` and `e` so that \[4\] holds (`Bbar`, `D` and `Abar` will be part of the proof and hence known to the Verifier). Setting `r1' = (1 / r1) mod r` (note that proving knowledge of `r1` indirectly proves knowledge of `r1'` as well), using \[4\] and the fact that `e(Abar, PK) = e(Bbar, BP2)` we can get that,
 
 ```
-e(Abar * r1', PK + BP2 * e) = (B, BP2)
+e(Abar * r1' * r2', PK + BP2 * e) = e(D * r2', BP2) = e(B, BP2)
 ```
 
-which is exactly what [Verify](#signature-verification-verify) checks for `A = Abar * r1'`. So seting `A = Abar * r1'`, the values `A`, `e`, `B` will form a valid BBS signature. Note that the verifier doesn't know `r1'`, `e` or all the values to compute `B`. However, they know that the Prover knows them, and as we saw above, knowledge of those values means knowledge of a valid signature on (among others) the disclosed messages.
+Note that the above is what `CoreVerify` checks, for `A = Abar * r1' * r2'`. Since the Prover showcased knowledge of `r1'` and `r2'` and revealed `Abar` as part of the proof, the Verifier can be assured that the Prover knows the value `A = Abar * r1' * r2'`. So setting `A = Abar * r1' * r2'`, the values `A`, `e`, `B` that the Prover showed knowledge of, will form a valid BBS signature. Note that the Verifier doesn't know `A` (since they don't know `r1'` and `r2'`), `e` or `B` (since they don't know `r2'` or the undisclosed messages). However, they know that the prover knows them and as we saw above, these values form a valid signature on (among others) the disclosed messages.
 
-To sum up; in order to validate the proof, a verifier checks that `e(Abar, PK) = e(Bbar, BP2)` and verifies the `nizk`. Validating the proof, will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
+To sum up; in order to validate the proof, a Verifier checks that `e(Abar, PK) = e(Bbar, BP2)` and verifies the `nizk`. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
 
 # Document History
 
