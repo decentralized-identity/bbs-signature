@@ -3298,13 +3298,21 @@ To sum up; in order to validate the proof, a Verifier checks that `e(Abar, PK) =
 * Added signature/proof fixtures with an empty header or an empty presentation header input
 * Updated the fixtures to use variable length messages (one of which is now the empty message "")
 
-- 04
+-04
 
 * Restructure Proof Generation and Verification operation to different subroutines.
 * Separate high-level (Interface) operations from low-level (Core) operations.
 * Update the ciphersuite ID to remove from it the `create_generators` and `map_message_to_scalar` IDs, since those are defined as part of the high-level interface instead of the ciphersuite.
 * Add a `commitment` optional value to the `CoreSign` operation. The `commitment` value is added to allow using BBS as part of other protocols but is ignored in this document.
 * Update test-vectors display.
+
+-05
+
+* Proof Generation and Verification operations updated based on Appendix B of [@TZ23].
+* Test vectors updated based on the new proof generation procedure.
+* Removed the optional `commitment` value from the `CoreSign` operation, as the intended use case (blind signatures) will be addressed differently and in another document.
+* Changed the reference to [@I-D.irtf-cfrg-pairing-friendly-curves] from Normative to Informative, by re-defining the relevant functionality to this document.
+* Various editorial updates.
 
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
