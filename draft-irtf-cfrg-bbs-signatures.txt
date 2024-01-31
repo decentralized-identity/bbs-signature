@@ -5,11 +5,11 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 23 June 2024                                       A. Whitehead
+Expires: 3 August 2024                                      A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
-                                                        21 December 2023
+                                                         31 January 2024
 
 
                         The BBS Signature Scheme
@@ -51,11 +51,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 June 2024.
+   This Internet-Draft will expire on 3 August 2024.
 
 Copyright Notice
 
-   Copyright (c) 2023 IETF Trust and the persons identified as the
+   Copyright (c) 2024 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -2196,7 +2196,7 @@ Procedure:
    that a BBS proof is unlinkable against both the Verifiers and the
    Signer, as well as multiple Verifiers colluding with each other and
    Verifiers colluding with the Signer.  The following sections will
-   describe possible threats, resulting from side chanel information or
+   describe possible threats, resulting from side channel information or
    identifying disclosed messages, that could compromise the
    unlinkability property of the BBS proof.  Such threats, if exploited,
    could lead to correlation of the Prover's interactions with different
@@ -2383,7 +2383,7 @@ Procedure:
    that need to monitor and potentially restrict outbound traffic, in
    order to minimize data leakage during a breach.  In such cases, the
    attacker could manipulate couple of bits in the output of the
-   get_random function (Section 3.1) to create an undetected chanel out
+   get_random function (Section 3.1) to create an undetected channel out
    of the system.  Although the applicability of such attacks is limited
    for most of the targeted use cases of the BBS scheme, some
    applications may want to take measures towards mitigating them.  To
