@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-01-30T00:08:45.037944+00:00",
+  "timestamp": "2024-02-01T00:09:55.316495+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -36174,6 +36174,69 @@
           "body": "",
           "createdAt": "2023-12-21T19:09:59Z",
           "updatedAt": "2023-12-21T19:09:59Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 312,
+      "id": "PR_kwDOF8lax85lZUVP",
+      "title": "spelling fix",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/312",
+      "state": "MERGED",
+      "author": "kdenhartog",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-01-30T01:51:48Z",
+      "updatedAt": "2024-01-31T19:23:02Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "64f45aa812d17f10833027db9b685cf10604064e",
+      "headRepository": "kdenhartog/bbs-signature",
+      "headRefName": "patch-1",
+      "headRefOid": "e006d207da8d9eedb408c84624d0765a2a3f1aaf",
+      "closedAt": "2024-01-31T19:22:55Z",
+      "mergedAt": "2024-01-31T19:22:55Z",
+      "mergedBy": "andrewwhitehead",
+      "mergeCommit": {
+        "oid": "6946837b55d93615d3176e57d8a2a660c9b893b1"
+      },
+      "comments": [
+        {
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Thanks!",
+          "createdAt": "2024-01-31T19:23:01Z",
+          "updatedAt": "2024-01-31T19:23:01Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax85uRipe",
+          "commit": {
+            "abbreviatedOid": "e006d20"
+          },
+          "author": "OR13",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-01-30T01:52:29Z",
+          "updatedAt": "2024-01-30T01:52:29Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax85uSHTr",
+          "commit": {
+            "abbreviatedOid": "e006d20"
+          },
+          "author": "dwaite",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-01-30T05:13:45Z",
+          "updatedAt": "2024-01-30T05:13:45Z",
           "comments": []
         }
       ]
