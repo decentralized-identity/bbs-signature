@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-02-01T00:09:55.316495+00:00",
+  "timestamp": "2024-02-04T00:09:49.276080+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -36190,7 +36190,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2024-01-30T01:51:48Z",
-      "updatedAt": "2024-01-31T19:23:02Z",
+      "updatedAt": "2024-02-01T03:25:49Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "64f45aa812d17f10833027db9b685cf10604064e",
