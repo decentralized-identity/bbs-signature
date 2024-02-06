@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-02-04T00:09:49.276080+00:00",
+  "timestamp": "2024-02-06T00:08:55.309447+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6916,6 +6916,22 @@
       "body": "In the Test vector \"[D.2.3. ](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bbs-signatures-05#appendix-D.2.3)[Hash to Scalar Test Vectors](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bbs-signatures-05#name-hash-to-scalar-test-vectors-2)\"\r\nthe dst is \"4242535f424c53313233383147315f584d443a5348412d3235365f535357555f524f5f4832475f484d32535f4832535f\"\r\n\r\nin your own [files](https://github.com/decentralized-identity/bbs-signature/blob/main/tooling/fixtures/fixture_data/bls12-381-sha-256/MapMessageToScalarAsHash.json) the used dst is as follows:\r\n\"4242535f424c53313233383147315f584d443a5348412d3235365f535357555f524f5f4832475f484d32535f4d41505f4d53475f544f5f5343414c41525f41535f484153485f\"\r\n\r\nWith the dst in your files the test vector works",
       "createdAt": "2024-01-18T17:23:04Z",
       "updatedAt": "2024-01-18T17:23:04Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 313,
+      "id": "I_kwDOF8lax85-SofS",
+      "title": "Support Bounded-Memory Implementations with a single Message Pass",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/313",
+      "state": "OPEN",
+      "author": "bellebaum",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Hi all,\r\n\r\nI am trying to implement the IETF-draft in C using no dynamically allocated memory, thus suitable for e.g. embedded devices with no heap implementation.\r\n\r\nThere are only a few places in the specification which are troublesome to such an endeavour and I wanted to share these with you, and suggest improvements, should you wish to explicitly support this use case.\r\n\r\nFor efficiency, there are two critical points to consider:\r\n\r\nIdeally, it should be possible to only go over every message once per high level API call (Sign, Verify, ProofGen, ProofVerify). Among other things, this requires being able to generate message scalars individually, given a message's index and optionally the total number of messages (which the current draft supports).\r\n\r\nLikewise, it would be helpful if one could avoid generating the generators more than once during such API calls.\r\n\r\nLet us briefly go over every high-level API function dealing with messages to see how this would work. Below algorithm sketches rely on the ability to incrementally hash arbitrary octet strings, but this is typical with many hashing APIs.\r\n\r\n### Sign\r\n\r\n`Sign` can be implemented with a single message pass. While iterating over the messages, the algorithm would use `B` as an accumulator, and incrementally prepare the input to hash into `e` (as part of `hash_to_scalar`).\r\n\r\n`Sign` does not allow to only generate generators once when doing this: Before adding any messages to be hashed into `e`, the `domain` must be added, for which all generators must already be generated. Then while accumulating `B`, the generators need to be regenerated, as there is no way to store an arbitrary amount of generators in bounded memory.\r\n\r\nA simple fix would be to reorder the inputs to the generation of `e`:\r\n\r\n```\r\n2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)), signature_dst)\r\n```\r\n\r\nThis should not have an effect on security, as `e` is essentially only supposed to be \"random\" but unique for each message. But please double-check :)\r\n\r\n### Verify\r\n\r\n`Verify` can be implemented efficiently due to commutativity of field elements. Essentially, one iterates over the messages, generates generators on the fly, accumulates \"generator * message_scalar\" into `B` while adding the generators to the domain-Hash, and finally adds `Q_1 * domain` to `B`.\r\n\r\n### ProofGen\r\n\r\nOther than some ideas from above, this function runs into two issues, one of which is easily fixed.\r\n\r\n1. The `m_tilde` values need to be generated before the the challenge phase (accumulated into `T2` and hashed into the challenge) and after it (to generate `m_hat`s, which are part of the signature). Fortunately, the values are essentially pseudorandom, and can deterministically be regenerated from a PRG at little to no cost. An algorithm would store the undisclosed message scalars temporarily into the proof, and after the challenge phase multiply it with the challenge and add `m_tilde`.\r\n\r\n2. The challenge calculation hashes first `Bbar` and friends, then the messages. Because the messages are required for the calculation of `B`, an implementation has to iterate over them multiple times. The fix involves a reordering of the inputs to the random oracle, which again should not have an impact on security. The ideal ordering would look like this:\r\n\r\n```\r\n1. c_arr = (R, i1, msg_i1, ..., iR, msg_iR, Abar, Bbar, D, T1, T2, domain)\r\n```\r\n\r\n### ProofVerify\r\n\r\nBesides the problems already mentioned, this function seems fine. In particular, the modified challenge calculation should work here as well.\r\n\r\n## TL;DR\r\n\r\nBy reording a few inputs to hash functions in two places, low-resource implementations can become potentially a lot more efficient. Thanks for reading :)",
+      "createdAt": "2024-02-05T15:19:57Z",
+      "updatedAt": "2024-02-05T15:19:57Z",
       "closedAt": null,
       "comments": []
     }
