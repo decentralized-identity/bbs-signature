@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-02-11T00:10:10.873340+00:00",
+  "timestamp": "2024-02-13T00:09:41.865736+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6934,6 +6934,30 @@
       "updatedAt": "2024-02-05T15:19:57Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 314,
+      "id": "I_kwDOF8lax85--v9c",
+      "title": "Missing Argument in ProofChallengeCalculate",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/314",
+      "state": "CLOSED",
+      "author": "RockstaYT",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "In 3.7.4. ProofChallengeCalculate the domain is used.\r\n`1. c_arr = (Abar, Bbar, D, T1, T2, R, i1, ..., iR,\r\n                                            msg_i1, ..., msg_iR, domain)`\r\n\r\nBut it is not provided as an argument.\r\n`challenge = ProofChallengeCalculate(init_res, disclosed_messages,\r\n                                          disclosed_indexes, ph, api_id)`",
+      "createdAt": "2024-02-12T15:30:19Z",
+      "updatedAt": "2024-02-12T15:32:47Z",
+      "closedAt": "2024-02-12T15:32:47Z",
+      "comments": [
+        {
+          "author": "RockstaYT",
+          "authorAssociation": "NONE",
+          "body": "Missed that the domain is in the init_res array....",
+          "createdAt": "2024-02-12T15:32:47Z",
+          "updatedAt": "2024-02-12T15:32:47Z"
+        }
+      ]
     }
   ],
   "pulls": [
