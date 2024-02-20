@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-02-18T00:09:47.167985+00:00",
+  "timestamp": "2024-02-20T00:08:48.911330+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6982,6 +6982,30 @@
       "updatedAt": "2024-02-16T23:54:22Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 316,
+      "id": "I_kwDOF8lax85_n7Pr",
+      "title": "SecretKey KeyGen function using ciphersuiteID instead of api_id",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/316",
+      "state": "OPEN",
+      "author": "RockstaYT",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "In the generate secret key function (see [here](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bbs-signatures-05#name-secret-key)) only the cyphersuiteID is used for the key_dst.\r\nInstead the api_id needs to be used.\r\n\r\nSo in the definition of key_dst it should be: \r\n\r\n> Defaults to the octet string ciphersuite_id || \"H2G_HM2S_\" || \"KEYGEN_DST_\" if not supplied",
+      "createdAt": "2024-02-18T20:33:34Z",
+      "updatedAt": "2024-02-19T20:56:35Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "RockstaYT",
+          "authorAssociation": "NONE",
+          "body": "Additional Information:\r\nThe Error comes from the keypair.json fixture in the SHA folder.\r\nIf \"H2G_HM2S_\" is not included the test fails as it produces a different secret key.\r\nWhen using api_id || \"KEYGEN_DST_\" the secret key is correct.",
+          "createdAt": "2024-02-19T20:56:34Z",
+          "updatedAt": "2024-02-19T20:56:34Z"
+        }
+      ]
     }
   ],
   "pulls": [
