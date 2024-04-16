@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-04-14T00:13:18.914141+00:00",
+  "timestamp": "2024-04-16T00:08:59.377369+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6838,7 +6838,7 @@
       "title": "Misspelling in api_id",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/308",
       "state": "OPEN",
-      "author": "RockstaYT",
+      "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
@@ -6855,7 +6855,7 @@
           "updatedAt": "2024-01-18T17:42:34Z"
         },
         {
-          "author": "RockstaYT",
+          "author": "roblesjoel",
           "authorAssociation": "NONE",
           "body": "Hey @Wind4Greg, thank you for the invite!\r\nI was accepted yesterday as an DIF Member, but sadly im not receiving the slack invite.\r\nMaybe you could fix that in todays call.\r\nMy email would either be joel.roblesgasser@proton.me (preffered) or joel.robles@ryu.land\r\nWill delete this comment tomorrow, as it doesnt add anything to the discussion :)",
           "createdAt": "2024-01-22T18:58:23Z",
@@ -6869,7 +6869,7 @@
       "title": "Referencing wrong step in pseudocode",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/309",
       "state": "OPEN",
-      "author": "RockstaYT",
+      "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
@@ -6885,7 +6885,7 @@
       "title": "Checking wrong number of generators in proof validation",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/310",
       "state": "OPEN",
-      "author": "RockstaYT",
+      "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
@@ -6895,7 +6895,7 @@
       "closedAt": null,
       "comments": [
         {
-          "author": "RockstaYT",
+          "author": "roblesjoel",
           "authorAssociation": "NONE",
           "body": "After tinkering more with the code, wondering why it did not work i found out something more.\r\nThe challenge check in CoreProofVerify was returning INVALID.\r\n\r\nI looked at the objects and saw that init_res was different in the ProofVerify step than the ProofGen Step.\r\n\r\nIn the ProofGen we generate then number of messages + 1 number of generators.\r\nIn the ProofVerify we generate U (number of commitments) + number of disclosed indexes + 2.\r\nThe problem for me lies with:\r\n`1. proof_len_floor = 2 * octet_point_length + 3 * octet_scalar_length`\r\n\r\nThe Proof had 5 Elements + msg scalars, but with the newest draft it was updated to 7 Elements + msg scalars.\r\nso the proof_len_floor value is incorrect, but that is also the value which is used to calculate U.\r\n\r\nThe correct version would be:\r\n`1. proof_len_floor = 3 * octet_point_length + 4 * octet_scalar_length`\r\nWith that U would be correct and represent the number of msg scalars.\r\n\r\nNow there is still an error.\r\n\r\nR + U + 2 is not completely correct.\r\n\r\nRemember in ProofGen we only generate total messages + 1 generators.\r\nR + U should represent the number of total messages (number of disclosed indexes + those messages which are not disclosed).\r\nSo it should be **R + U + 1**\r\n\r\nWith that we generate the correct number of generators.\r\nSo instead of changing L + 1 to L + 3, we need to change the proof_len_floor calc and the amount of generators to be generated.\r\n\r\n",
           "createdAt": "2024-01-17T23:58:49Z",
@@ -6909,7 +6909,7 @@
       "title": "Mistake in Test Vector for SHA-256 MsgToScalars",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/311",
       "state": "OPEN",
-      "author": "RockstaYT",
+      "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
@@ -7019,7 +7019,7 @@
       "title": "Missing Argument in ProofChallengeCalculate",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/314",
       "state": "CLOSED",
-      "author": "RockstaYT",
+      "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
@@ -7029,7 +7029,7 @@
       "closedAt": "2024-02-12T15:32:47Z",
       "comments": [
         {
-          "author": "RockstaYT",
+          "author": "roblesjoel",
           "authorAssociation": "NONE",
           "body": "Missed that the domain is in the init_res array....",
           "createdAt": "2024-02-12T15:32:47Z",
@@ -7043,7 +7043,7 @@
       "title": "Fixture Proof010.json open to Interpretation",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/315",
       "state": "OPEN",
-      "author": "RockstaYT",
+      "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
@@ -7059,7 +7059,7 @@
       "title": "SecretKey KeyGen function using ciphersuiteID instead of api_id",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/316",
       "state": "OPEN",
-      "author": "RockstaYT",
+      "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
@@ -7069,7 +7069,7 @@
       "closedAt": null,
       "comments": [
         {
-          "author": "RockstaYT",
+          "author": "roblesjoel",
           "authorAssociation": "NONE",
           "body": "Additional Information:\r\nThe Error comes from the keypair.json fixture in the SHA folder.\r\nIf \"H2G_HM2S_\" is not included the test fails as it produces a different secret key.\r\nWhen using api_id || \"KEYGEN_DST_\" the secret key is correct.",
           "createdAt": "2024-02-19T20:56:34Z",
