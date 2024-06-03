@@ -647,7 +647,7 @@ Procedure:
 
 1. domain = calculate_domain(PK, generators, header, api_id)
 
-2. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)),
+2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
                                                           signature_dst)
 3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 4. A = B * (1 / (SK + e))
@@ -1110,8 +1110,8 @@ ABORT if:
 
 Procedure:
 
-1. c_arr = (Abar, Bbar, D, T1, T2, R, i1, ..., iR,
-                                            msg_i1, ..., msg_iR, domain)
+1. c_arr = (R, i1, msg_i1, ..., iR, msg_iR, domain,
+                                    Abar, Bbar, D, T1, T2)
 2. c_octs = serialize(c_arr) || I2OSP(length(ph), 8) || ph
 3. return hash_to_scalar(c_octs, challenge_dst)
 ```
