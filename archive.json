@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-06-02T00:10:40.395857+00:00",
+  "timestamp": "2024-06-04T00:09:48.021104+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6931,7 +6931,7 @@
       "labels": [],
       "body": "Hi all,\r\n\r\nI am trying to implement the IETF-draft in C using no dynamically allocated memory, thus suitable for e.g. embedded devices with no heap implementation.\r\n\r\nThere are only a few places in the specification which are troublesome to such an endeavour and I wanted to share these with you, and suggest improvements, should you wish to explicitly support this use case.\r\n\r\nFor efficiency, there are two critical points to consider:\r\n\r\nIdeally, it should be possible to only go over every message once per high level API call (Sign, Verify, ProofGen, ProofVerify). Among other things, this requires being able to generate message scalars individually, given a message's index and optionally the total number of messages (which the current draft supports).\r\n\r\nLikewise, it would be helpful if one could avoid generating the generators more than once during such API calls.\r\n\r\nLet us briefly go over every high-level API function dealing with messages to see how this would work. Below algorithm sketches rely on the ability to incrementally hash arbitrary octet strings, but this is typical with many hashing APIs.\r\n\r\n### Sign\r\n\r\n`Sign` can be implemented with a single message pass. While iterating over the messages, the algorithm would use `B` as an accumulator, and incrementally prepare the input to hash into `e` (as part of `hash_to_scalar`).\r\n\r\n`Sign` does not allow to only generate generators once when doing this: Before adding any messages to be hashed into `e`, the `domain` must be added, for which all generators must already be generated. Then while accumulating `B`, the generators need to be regenerated, as there is no way to store an arbitrary amount of generators in bounded memory.\r\n\r\nA simple fix would be to reorder the inputs to the generation of `e`:\r\n\r\n```\r\n2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)), signature_dst)\r\n```\r\n\r\nThis should not have an effect on security, as `e` is essentially only supposed to be \"random\" but unique for each message. But please double-check :)\r\n\r\n### Verify\r\n\r\n`Verify` can be implemented efficiently due to commutativity of field elements. Essentially, one iterates over the messages, generates generators on the fly, accumulates \"generator * message_scalar\" into `B` while adding the generators to the domain-Hash, and finally adds `Q_1 * domain` to `B`.\r\n\r\n### ProofGen\r\n\r\nOther than some ideas from above, this function runs into two issues, one of which is easily fixed.\r\n\r\n1. The `m_tilde` values need to be generated before the the challenge phase (accumulated into `T2` and hashed into the challenge) and after it (to generate `m_hat`s, which are part of the signature). Fortunately, the values are essentially pseudorandom, and can deterministically be regenerated from a PRG at little to no cost. An algorithm would store the undisclosed message scalars temporarily into the proof, and after the challenge phase multiply it with the challenge and add `m_tilde`.\r\n\r\n2. The challenge calculation hashes first `Bbar` and friends, then the messages. Because the messages are required for the calculation of `B`, an implementation has to iterate over them multiple times. The fix involves a reordering of the inputs to the random oracle, which again should not have an impact on security. The ideal ordering would look like this:\r\n\r\n```\r\n1. c_arr = (R, i1, msg_i1, ..., iR, msg_iR, Abar, Bbar, D, T1, T2, domain)\r\n```\r\n\r\n### ProofVerify\r\n\r\nBesides the problems already mentioned, this function seems fine. In particular, the modified challenge calculation should work here as well.\r\n\r\n## TL;DR\r\n\r\nBy reording a few inputs to hash functions in two places, low-resource implementations can become potentially a lot more efficient. Thanks for reading :)",
       "createdAt": "2024-02-05T15:19:57Z",
-      "updatedAt": "2024-03-12T15:16:10Z",
+      "updatedAt": "2024-06-03T18:17:16Z",
       "closedAt": null,
       "comments": [
         {
@@ -7010,6 +7010,20 @@
           "body": "> (note also that we allow for 2^64 messages to be signed. The adversaries goal can then be to find a suitable si * c^-1 for any 1 =< i < 2^64, further increasing their chances of success).\r\n\r\nRight, I guess I missed that there is no domain separation in `hash_to_scalar` for different message indexes. Without it, this is indeed dangerous. Even with domain separation, a formal proof might be pose more challenges.\r\n\r\n> we are actually using the strong Fiat-Shamir transformation described in [[BPW16]](https://eprint.iacr.org/2016/771.pdf).\r\n\r\nAm I missing a proof of Theorem 1 somewhere? I would have liked to see how they tightly handle the case of an A choosing `n` statement-proof pairs more or less randomly, but updating its randomness after each pair by applying SHAKE to its old randomness and all received query responses. My intuition tells me that with the provided query options, K has to start over after extracting each witness, leading to a runtime in `O(n^2)`. This particular case can probably be avoided using partial rewinds, but I cannot tell if there are other corner cases then.\r\n\r\nI have been thinking about possible proofs for the hash_to_scalar case, but so far have not come up with anything, in part because I do not fully understand the tightness of the current proof. A proof _should_ not be too complex to adapt I would think, but I am unsure. For now, I agree that hashing the disclosed messages is the safest way forward.\r\n\r\n> Is this something that would make a significant difference in your use case?? (note that we are willing to apply the suggested re-arrangements).\r\n\r\nIt really depends on where this is used. For credentials, I would guess that signing authorities can get quite busy (which is why the removal of messages in the calculation of `e` is a good thing), but proofs are created by many users with few generated proofs per person. The more pressing issue could be on the proof verifier's side when protecting against DDoS, but even then the serialization and hashing of the message scalars is probably nothing compared to hashing the messages in the first place (at least with SHA).\r\n\r\nSo no, the most important part is the re-arrangement, hence this issue :)\r\n\r\n>  If we fully describe how to do this (which we tried before), we make the document more complicated and restrictive.\r\n\r\nThis is probably a separate issue, but I would really like to see an interface for additional proofs, so that extensions for other proof types have a single correct way to interface with this specification. For example the \"extended presentation header\" idea above could be adapted into a more standard interface or additional argument, so people do not have to redefine core operations for their extensions. \r\n\r\nThe reason I am bringing this up here is that such additional inputs to the challenge are not trivially handled by constant-memory implementations.\r\nThe most efficient place to hash in additional values would usually be the spot in the challenge where the last affected message would be revealed (if we were revealing them).\r\n\r\nFor example, with the pseudonyms idea above, the triple `(Pseudonym, OP, U)` can most efficiently be calculated when processing the (in this case) final message scalar (=the pid_scalar) and its commitment (=pid~). This corresponds to something like this:\r\n\r\n```\r\n1. c_arr = (R, i1, msg_i1, ..., iR, msg_iR, Pseudonym, OP, U, Abar, Bbar, D, T1, T2, domain)\r\n```",
           "createdAt": "2024-03-12T15:16:09Z",
           "updatedAt": "2024-03-12T15:16:09Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Hey all!\r\n\r\nOpened PR #319 to address this issue.\r\n\r\nJust a question (sorry if this is obvious). Was wondering if the proposed updates are to increase efficiency and ease of implementation, or are they \"absolutely necessary\"? \r\n\r\nFor example, for the calculation of `e`, could we create a temporal accumulator for the messages, lets say `msg_acc`, go through the messages once, accumulating each `msg` to `msg_acc` (and each generator to the `domain` digest input etc.,) and then calculate `e` as `hash(SK || domain || msg_acc)`??\r\n\r\nSimilar for the challenge hash during proof gen.\r\n\r\nI can see that the proposed alternatives are simpler and more efficient, I'm just curious around the motivation (which will be needed when we present the update to the cfrg).\r\n\r\n> Am I missing a proof of Theorem 1 somewhere?\r\n\r\nSorry @bellebaum  for the delayed reply. AFAIK there is not any generic formal proof for Theorem 1, just security arguments based on counterexamples.\r\n",
+          "createdAt": "2024-06-03T14:58:33Z",
+          "updatedAt": "2024-06-03T18:17:16Z"
+        },
+        {
+          "author": "bellebaum",
+          "authorAssociation": "NONE",
+          "body": "Hey Vasilis,\r\n\r\nas far as I can see, the schemes appear to be working without any modifications, since each message scalar is of fixed length and hash_to_scalar is sensitive to the message length. When accumulating message scalars, the accumulator should in any case be collision resistant, and so introducing another cryptographic hash or otherwise universal hash function (using an extra key; this seems to be the most efficient accumulator I can think of right now, I have not thought this through at all) for aggregation appears to have marginal benefit. That is, unless we use `B` as `msg_acc`, which we are calculating anyway, and which is already covered by security proofs. This would save a few hash instructions.\r\n\r\nWhile we are at the calculation of `e`: There is [this draft](https://datatracker.ietf.org/doc/draft-irtf-cfrg-det-sigs-with-noise/) at the CFRG, which aims to introduce some additional randomness into the calculation of their `e`-equivalent to e.g. provide some heuristic fault-tolerance in embedded devices. I don't know of the performance implications, but this might be reasonable to adopt as a heuristic here as well.\r\n\r\nThanks for opening the pull request and working on this :)",
+          "createdAt": "2024-06-03T15:26:21Z",
+          "updatedAt": "2024-06-03T15:26:50Z"
         }
       ]
     },
@@ -36435,6 +36449,74 @@
           "body": "",
           "createdAt": "2024-01-30T05:13:45Z",
           "updatedAt": "2024-01-30T05:13:45Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 319,
+      "id": "PR_kwDOF8lax85xSqNz",
+      "title": "Bound memory improvements",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/319",
+      "state": "OPEN",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes #313\r\n\r\n\\+ new test vectors",
+      "createdAt": "2024-06-03T12:15:10Z",
+      "updatedAt": "2024-06-03T17:47:40Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "6946837b55d93615d3176e57d8a2a660c9b893b1",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "vasilis/bounded-memory",
+      "headRefOid": "dee425f810c276c751a6cd0c83addf4149f47cb1",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "Wind4Greg",
+          "authorAssociation": "NONE",
+          "body": "Great! Can you brief us at today's meeting?",
+          "createdAt": "2024-06-03T17:34:17Z",
+          "updatedAt": "2024-06-03T17:34:17Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax85817mH",
+          "commit": {
+            "abbreviatedOid": "dee425f"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-06-03T17:46:46Z",
+          "updatedAt": "2024-06-03T17:46:46Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "1. c_arr = (R, i1, ..., iR, msg_i1, ..., msg_iR, domain,",
+              "createdAt": "2024-06-03T17:46:46Z",
+              "updatedAt": "2024-06-03T17:46:47Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax858179Z",
+          "commit": {
+            "abbreviatedOid": "dee425f"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "See small change in text for c_arr.",
+          "createdAt": "2024-06-03T17:47:40Z",
+          "updatedAt": "2024-06-03T17:47:40Z",
           "comments": []
         }
       ]
