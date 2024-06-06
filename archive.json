@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-06-04T00:09:48.021104+00:00",
+  "timestamp": "2024-06-06T00:09:40.001885+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -36465,7 +36465,7 @@
       "labels": [],
       "body": "Fixes #313\r\n\r\n\\+ new test vectors",
       "createdAt": "2024-06-03T12:15:10Z",
-      "updatedAt": "2024-06-03T17:47:40Z",
+      "updatedAt": "2024-06-04T23:38:54Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "6946837b55d93615d3176e57d8a2a660c9b893b1",
@@ -36518,6 +36518,26 @@
           "createdAt": "2024-06-03T17:47:40Z",
           "updatedAt": "2024-06-03T17:47:40Z",
           "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax859Bp1w",
+          "commit": {
+            "abbreviatedOid": "dee425f"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-06-04T23:38:54Z",
+          "updatedAt": "2024-06-04T23:38:54Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "My mistake. Didn't understand the syntax.",
+              "createdAt": "2024-06-04T23:38:54Z",
+              "updatedAt": "2024-06-04T23:38:54Z"
+            }
+          ]
         }
       ]
     }
