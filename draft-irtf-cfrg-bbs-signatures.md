@@ -1063,6 +1063,13 @@ This operation calculates the challenge scalar value, used during the `CoreProof
 
 As inputs, this operation will accept the proof generation or verification initialization result, as outputted by the `ProofInit` ((#proof-initialization)) or `ProofVerifyInit` ((#proof-verification-initialization)) operations (`init_res`). It will additionally accept the set of scalars representing the messages the Prover disclosed (`disclosed_messages`) as well as the list of indexes those messages had in the vector of signed messages (`disclosed_indexes`), together with the presentation header (`ph`).
 
+The challenge will be calculated as the digest of the following values:
+
+- The total number of disclosed messages `R`.
+- Each index in the `disclosed_indexes` list, followed by the corresponding disclosed message (i.e., if `disclosed_indexes = [i1, i2]` and `disclosed_messages = [msg_i1, msg_i2]`, the input to the challenge digest, after `R`, will include `i1 || msg_i1 || i2 || msg_i2`).
+- The points `Abar, Bbar, D, T1, T2` and the `domain` scalar, calculated during the proof initialization phase of `CoreProofGen` (see (#coreproofgen)).
+- The inputted presentation header (`ph`) values.
+
 This operation makes use of the `serialize` function, defined in (#serialize).
 
 ```
@@ -1110,8 +1117,8 @@ ABORT if:
 
 Procedure:
 
-1. c_arr = (R, i1, msg_i1, ..., iR, msg_iR, Abar, Bbar, D,
-                                                     T1, T2, domain)
+1. c_arr = (R, i1, msg_i1, i2, msg_i2, ..., iR, msg_iR, Abar, Bbar,
+                                                      D, T1, T2, domain)
 2. c_octs = serialize(c_arr) || I2OSP(length(ph), 8) || ph
 3. return hash_to_scalar(c_octs, challenge_dst)
 ```
