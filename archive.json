@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-06-09T00:11:23.669807+00:00",
+  "timestamp": "2024-06-11T00:09:58.497669+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -36465,13 +36465,13 @@
       "labels": [],
       "body": "Fixes #313\r\n\r\n\\+ new test vectors",
       "createdAt": "2024-06-03T12:15:10Z",
-      "updatedAt": "2024-06-04T23:38:54Z",
+      "updatedAt": "2024-06-10T18:23:06Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "6946837b55d93615d3176e57d8a2a660c9b893b1",
       "headRepository": "decentralized-identity/bbs-signature",
       "headRefName": "vasilis/bounded-memory",
-      "headRefOid": "dee425f810c276c751a6cd0c83addf4149f47cb1",
+      "headRefOid": "bf1d94bec67ba9723fdda90be2ecb48f5982d60b",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -36538,6 +36538,39 @@
               "updatedAt": "2024-06-04T23:38:54Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax859mGAd",
+          "commit": {
+            "abbreviatedOid": "dee425f"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-06-10T08:55:38Z",
+          "updatedAt": "2024-06-10T08:55:38Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "Added an extended description of the inputs to the challenge digest calculation. Hopefully this should better explain the intended ordering of the index, message pair in `c_arr`.",
+              "createdAt": "2024-06-10T08:55:38Z",
+              "updatedAt": "2024-06-10T08:55:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax859rP3D",
+          "commit": {
+            "abbreviatedOid": "bf1d94b"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "Nice clear, higher level description of the challenge computation.",
+          "createdAt": "2024-06-10T18:23:06Z",
+          "updatedAt": "2024-06-10T18:23:06Z",
+          "comments": []
         }
       ]
     }
