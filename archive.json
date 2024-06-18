@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-06-16T00:10:43.159196+00:00",
+  "timestamp": "2024-06-18T00:10:20.897345+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -36465,7 +36465,7 @@
       "labels": [],
       "body": "Fixes #313\r\n\r\n\\+ new test vectors",
       "createdAt": "2024-06-03T12:15:10Z",
-      "updatedAt": "2024-06-10T18:23:06Z",
+      "updatedAt": "2024-06-17T18:15:35Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "6946837b55d93615d3176e57d8a2a660c9b893b1",
@@ -36570,6 +36570,19 @@
           "body": "Nice clear, higher level description of the challenge computation.",
           "createdAt": "2024-06-10T18:23:06Z",
           "updatedAt": "2024-06-10T18:23:06Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax85-kumd",
+          "commit": {
+            "abbreviatedOid": "bf1d94b"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-06-17T18:15:35Z",
+          "updatedAt": "2024-06-17T18:15:35Z",
           "comments": []
         }
       ]
