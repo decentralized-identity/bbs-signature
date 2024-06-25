@@ -198,7 +198,7 @@ G1, G2
 GT
 : a subgroup, of prime order r, of the multiplicative group of a field extension.
 
-e
+h
 : G1 x G2 -> GT: a non-degenerate bilinear map.
 
 r
@@ -517,7 +517,7 @@ Outputs:
 Procedure:
 
 1. message_scalars = messages_to_scalars(messages, api_id)
-2. generators = create_generators(length(messages)+1, api_id)
+2. generators = create_generators(length(messages) + 1, api_id)
 
 3. proof = CoreProofGen(PK, signature, generators, header, ph,
                              message_scalars, disclosed_indexes, api_id)
@@ -567,7 +567,7 @@ Outputs:
 
 Deserialization:
 
-1. proof_len_floor = 2 * octet_point_length + 3 * octet_scalar_length
+1. proof_len_floor = 2 * octet_point_length + 4 * octet_scalar_length
 2. if length(proof) < proof_len_floor, return INVALID
 3. U = floor((length(proof) - proof_len_floor) / octet_scalar_length)
 4. R = length(disclosed_indexes)
@@ -591,7 +591,7 @@ The operations of this section make use of functions and sub-routines defined in
 - `hash_to_scalar` is defined in (#hash-to-scalar)
 - `calculate_domain` is defined in (#domain-calculation).
 - `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization).
-- `e` is the pairing operation used (see (#notation)), defined as part of the ciphersuite.
+- `h` is the pairing operation used (see (#notation)), defined as part of the ciphersuite.
 
 Each core operation will accept a vector of `generators` (points of G1) and optionally, a vector of `messages`. The generators MUST be unique and pseudo-random i.e., with no known relationship to each other. See (#defining-new-generators) for more details. Each message is represented as a scalar value. See (#messages-to-scalars) for ways to map a message to a scalar and the corresponding security requirements.
 
@@ -632,9 +632,9 @@ Outputs:
 
 Definitions:
 
-1. signature_dst, an octet string representing the domain separation
-                  tag: api_id || "H2S_" where "H2S_" is an ASCII string
-                  comprised of 4 bytes.
+1. hash_to_scalar_dst, an octet string representing the domain
+                       separation tag: api_id || "H2S_" where "H2S_" is
+                       an ASCII string comprised of 4 bytes.
 
 Deserialization:
 
@@ -648,13 +648,13 @@ Procedure:
 1. domain = calculate_domain(PK, generators, header, api_id)
 
 2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
-                                                          signature_dst)
+                                                     hash_to_scalar_dst)
 3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 4. A = B * (1 / (SK + e))
 5. return signature_to_octets((A, e))
 ```
 
-**Note** When computing step 12 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
+**Note** When computing step 4 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
 
 ### CoreVerify
 
@@ -703,7 +703,7 @@ Procedure:
 
 1. domain = calculate_domain(PK, generators, header, api_id)
 2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-3. if e(A, W + BP2 * e) * e(B, -BP2) != Identity_GT, return INVALID
+3. if h(A, W + BP2 * e) * h(B, -BP2) != Identity_GT, return INVALID
 4. return VALID
 ```
 
@@ -792,7 +792,7 @@ This operation checks that a `proof` is valid for a `header`, vector of disclose
 
 The inputted disclosed messages (`disclosed_messages`) MUST be supplied to this operation in the same order as they had as part of the `messages` input of the `CoreSign` operation defined in (#coresign). Similarly, the indexes of the disclosed messages (`disclosed_indexes`) MUST be the same and in the same order as the `disclosed_indexes` input of `CoreProofGen` ((#coreproofgen)). Failure to comply with these requirements will result to the proof verification procedure returning INVALID.
 
-The operation works by first initializing the proof verification procedure using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be inputted to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the 2 first components of the received proof (points of G1) will be checked for correctness (steps 5 and 6 in the following procedure), to verify the proof.
+The operation works by first initializing the proof verification procedure using the `ProofVerifyInit` subroutine defined in (#proof-verification-initialization). The result will be inputted to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The resulting challenge and the two first components of the received proof (points of G1) will be checked for correctness (steps 5 and 6 in the following procedure), to verify the proof.
 
 ```
 result = CoreProofVerify(PK, proof, generators, header, ph,
@@ -846,7 +846,7 @@ Procedure:
                                                    messages, ph, api_id)
 4. if challenge is INVALID, return INVALID
 5. if cp != challenge, return INVALID
-6. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
+6. if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID
 7. return VALID
 ```
 
@@ -860,7 +860,7 @@ This operation initializes the proof and returns one of the inputs passed to the
 
 The inputted `messages` MUST be supplied to this operation in the same order they had when inputted to the `CoreSign` operation ((#coresign)).
 
-The defined procedure needs the messages the Prover decided to not disclose. For this purpose, along the list of signed messages, the operation also accepts a set of integers in the range from `0` to `length(messages) - 1` (inclusive) in ascending order, representing the indexes of the undisclosed messages (`undisclosed_indexes`). To blind the inputted `signature` and the undisclosed messages, the operation will also accept a set of uniformly random scalars (`random_scalars`). This set must have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 3`).
+The defined procedure needs the messages the Prover decided to not disclose. For this purpose, along the list of signed messages, the operation also accepts a set of integers in the range from `0` to `length(messages) - 1` (inclusive) in ascending order, representing the indexes of the undisclosed messages (`undisclosed_indexes`). To blind the inputted `signature` and the undisclosed messages, the operation will also accept a set of uniformly random scalars (`random_scalars`). This set must have exactly 5 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 5`).
 
 
 This operation makes use of the `calculate_domain` function defined in (#domain-calculation).
@@ -1098,9 +1098,9 @@ Outputs:
 
 Definitions:
 
-1. challenge_dst, an octet string representing the domain separation
-                  tag: api_id || "H2S_" where "H2S_" is an ASCII string
-                  comprised of 4 bytes.
+1. hash_to_scalar_dst, an octet string representing the domain
+                       separation tag: api_id || "H2S_" where "H2S_" is
+                       an ASCII string comprised of 4 bytes.
 
 Deserialization:
 
@@ -1120,7 +1120,7 @@ Procedure:
 1. c_arr = (R, i1, msg_i1, i2, msg_i2, ..., iR, msg_iR, Abar, Bbar,
                                                       D, T1, T2, domain)
 2. c_octs = serialize(c_arr) || I2OSP(length(ph), 8) || ph
-3. return hash_to_scalar(c_octs, challenge_dst)
+3. return hash_to_scalar(c_octs, hash_to_scalar_dst)
 ```
 
 **Note**: If the presentation header (ph) is not supplied in `ProofChallengeCalculate`, 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), must still be appended after the `serialize(c_arr)` value, during the concatenation step of the above procedure (step 2).
@@ -1292,7 +1292,7 @@ Note that the above property ensures that if a message is mapped to a scalar on 
 Additionally, the new operation MUST conform to the following requirements:
 
 - The returned scalars MUST be independent. More specifically, knowledge of any subset of the returned scalars MUST NOT reveal any information about the scalars not in that subset.
-- Unique inputs MUST result to unique outputs.
+- Unique inputs MUST result in unique outputs.
 - If the inputted vector of messages does not include any duplicates, the outputted scalars MUST NOT include any duplicates either.
 - It MUST be deterministic and constant time on the length of the inputted vector of messages.
 
@@ -1333,7 +1333,7 @@ Procedure:
 
 ### Hash to Scalar
 
-This operation describes how to hash an arbitrary octet string to a scalar values in the multiplicative group of integers mod r (i.e., values in the range from  1 to r - 1).  This procedure acts as a helper function, used internally in various places within the operations described in the spec.
+This operation describes how to hash an arbitrary octet string to a scalar value in the multiplicative group of integers mod r (i.e., values in the range from  1 to r - 1).  This procedure acts as a helper function, used internally in various places within the operations described in the spec.
 
 The operation takes as input an octet string representing the octet string to hash (`msg`) and a domain separation tag (`dst`). The length of the dst MUST be less than 255 octets. See section 5.3.3 of [@!RFC9380] for guidance on using larger dst values.
 
@@ -1400,9 +1400,9 @@ Outputs:
 
 Definitions:
 
-1. domain_dst, an octet string representing the domain separation tag:
-               api_id || "H2S_" where "H2S_" is an ASCII string
-               comprised of 4 bytes.
+1. hash_to_scalar_dst, an octet string representing the domain
+                       separation tag: api_id || "H2S_" where "H2S_" is
+                       an ASCII string comprised of 4 bytes.
 
 Deserialization:
 
@@ -1418,7 +1418,7 @@ Procedure:
 1. dom_array = (L, Q_1, H_1, ..., H_L)
 2. dom_octs = serialize(dom_array) || api_id
 3. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
-4. return hash_to_scalar(dom_input, domain_dst)
+4. return hash_to_scalar(dom_input, hash_to_scalar_dst)
 ```
 
 **Note**: If the header is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 3), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
@@ -1471,8 +1471,7 @@ Procedure:
 
 This operation describes how to encode a signature to an octet string.
 
-*Note* this operation deliberately does not perform the relevant checks on the inputs `A` and `e`
-because its assumed these are done prior to its invocation, e.g as is the case with the `CoreSign` (#coresign) operation.
+*Note* this operation deliberately does not perform the relevant checks on the inputs `A` and `e` because its assumed these are done prior to its invocation, e.g., as is the case with the `CoreSign` (#coresign) operation.
 
 ```
 signature_octets = signature_to_octets(signature)
@@ -1669,7 +1668,7 @@ Note that, the following sections describe ways to minimize possible identifying
 
 ## Total Number and Index of Signed Messages
 
-When a Prover presents a BBS proof to a Verifier, other than the messages they decide to disclose, there are two additional pieces of information that will be revealed. First, the total number of signed messages, which can be inferred from the size of the BBS proof and the length of the disclosed messages list. Second, the index the disclosed messages had in the list of signed messages (see (#proof-generation-proofgen)). This information, if unique to each Prover, could be employed to correlate multiple proof presentations together. As a result, the Signer should not sign lists of messages with unique lengths or unique indexing. For this reason, it is RECOMMENDED that signed lists of messages are padded to a common length (using either random, or an unused by the application message, like 0 or 1). It is also RECOMMENDED that a constant ordering of messages will be preserved when possible. For example, if an application creates signatures for the messages `[<user_name>, <user_affiliation>, <user_country>]`, then those messages should always be signed in the same order, i.e., first message should always be the user's name (`<user_name>`), second message should always be the user's affiliation (`<user_affiliation>`) and the last message should always be the user's country of origins (`<user_country>`). Provers can employ consistency validation mechanisms, like the ones described in [@I-D.ietf-privacypass-key-consistency], to validate that those values are not used to correlate them.
+When a Prover presents a BBS proof to a Verifier, other than the messages they decide to disclose, there are two additional pieces of information that will be revealed. First, the total number of signed messages, which can be inferred from the size of the BBS proof and the length of the disclosed messages list. Second, the indexes that the disclosed messages had in the list of signed messages (see (#proof-generation-proofgen)). This information, if unique to each Prover, could be employed to correlate multiple proof presentations together. As a result, the Signer should not sign lists of messages with unique lengths or unique indexing. For this reason, it is RECOMMENDED that signed lists of messages are padded to a common length (using either random, or an unused by the application message, like 0 or 1). It is also RECOMMENDED that a constant ordering of messages will be preserved when possible. For example, if an application creates signatures for the messages `[<user_name>, <user_affiliation>, <user_country>]`, then those messages should always be signed in the same order, i.e., first message should always be the user's name (`<user_name>`), second message should always be the user's affiliation (`<user_affiliation>`) and the last message should always be the user's country of origins (`<user_country>`). Provers can employ consistency validation mechanisms, like the ones described in [@I-D.ietf-privacypass-key-consistency], to validate that those values are not used to correlate them.
 
 ## Signer Public Keys
 
@@ -1695,7 +1694,7 @@ Note that checking that the points are in the correct subgroup is essential to a
 
 ## Side Channel Attacks
 
-There are two places where side channel attacks could be relevant in the BBS Signatures scheme. First, against the Signer, where side channel leakage during signature generation could reveal their secret key. Second, against the Prover, where a side channel attack could be used during proof generation to either directly reveal the udnisclosed messages and signature value, or reveal the random scalars used, leading again to the leakage of the undisclosed messages or the hidden signature. Therefore, implementations MUST apply proper side channel attack protection. One method to achieve this, is by using elliptic curve implementations that execute curve operations in constant time.
+There are two places where side channel attacks could be relevant in the BBS Signatures scheme. First, against the Signer, where side channel leakage during signature generation could reveal their secret key. Second, against the Prover, where a side channel attack could be used during proof generation to either directly reveal the undisclosed messages and signature value, or reveal the random scalars used, leading again to the leakage of the undisclosed messages or the hidden signature. Therefore, implementations MUST apply proper side channel attack protection. One method to achieve this, is by using elliptic curve implementations that execute curve operations in constant time.
 
 ## Presentation Header Selection
 
@@ -1715,15 +1714,15 @@ BBS signatures can be implemented on any pairing-friendly curves suitable for ty
 
 The `key_material` input to the `KeyGen` operation defined in (#secret-key) MUST be infeasible to guess and MUST be kept secret. One possibility is to generate the `key_material` from a trusted, cryptographically secure pseudo random function [@!RFC4086]. Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.
 
-The `ProofGen` operation defined in (#proof-generation-proofgen) is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes `ProofGen` vulnerable to attacks caused by bad entropy (like the ones described in [@HDWH12]). If randomness is re-used or is in any way predictable or maliciously constructed, an adversary may be able to unveil the undisclosed from the proof messages or the hidden signature value. More subtle attacks are also possible, where the security properties of the BBS proof may not be broken, but a system making use of the BBS scheme may still be compromised. As an example, consider systems that need to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the `get_random` function ((#parameters)) to create an undetected channel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed [@!DRBG]. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).
+The `ProofGen` operation defined in (#proof-generation-proofgen) is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes `ProofGen` vulnerable to attacks caused by bad entropy (like the ones described in [@HDWH12]). If randomness is re-used or is in any way predictable or maliciously constructed, an adversary may be able to unveil undisclosed information from the proof messages or the hidden signature value. More subtle attacks are also possible, where the security properties of the BBS proof may not be broken, but a system making use of the BBS scheme may still be compromised. As an example, consider systems that needs to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the `get_random` function ((#parameters)) to create an undetected channel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed [@!DRBG]. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).
 
 In any case, the randomness used in ProofGen MUST be unique in each call and MUST have a distribution that is indistinguishable from uniform. If the random scalars are re-used, created from "bad randomness" (for example with a known relationship to each other) or are in any way predictable, the undisclosed messages or the signature value may be compromised. Naturally, a cryptographically secure pseudorandom number generator or pseudo random function is REQUIRED to implement the `get_random` functionality. See [@!RFC4086] for guidance on implementing such functionality. See also [@!RFC8937], for recommendations on generating good randomness in cases where the Prover has direct or in-direct access to a secret key.
 
 ## Mapping Messages to Scalars
 
-In an application using BBS Signatures, there are 2 places where messages could be processed. First, before the messages are passed to the BBS Interface operations, and second, after they are passed to the BBS Interface operations but before they are passed to the BBS Core operations.
+In an application using BBS Signatures, there are two places where messages could be processed. First, before the messages are passed to the BBS Interface operations, and second, after they are passed to the BBS Interface operations but before they are passed to the BBS Core operations.
 
-To allow for re-usability of software, it is RECOMMENDED that application specific processing (like UTF-8 encoding [@RFC3629], Base-64  decoding [@RFC4648] etc.,) should happen before messages are passed to the BBS Interface operations. In those cases, the application should ensure that all protocol participants have a clear and consistent understating for which method should be used to process a message. This can be achieved by associating specific Interfaces (with unique `api_id` values, see (#defining-new-interfaces)) or unique header values (see (#signature-generation-sign)) with different pre-processing methodologies.
+To allow for re-usability of software, it is RECOMMENDED that application specific processing (like UTF-8 encoding [@RFC3629], Base-64  decoding [@RFC4648] etc.,) should happen before messages are passed to the BBS Interface operations. In those cases, the application should ensure that all protocol participants have a clear and consistent understanding of which method should be used to process a message. This can be achieved by associating specific Interfaces (with unique `api_id` values, see (#defining-new-interfaces)) or unique header values (see (#signature-generation-sign)) with different pre-processing methodologies.
 
 Note that the BBS Interface defined in this document (see (#bbs-signatures-interface)) only accepts messages that are represented as octet strings. However, in some more advanced applications, like the ones using range proofs ([@BBB17]) to prove that a signed message is within some range (without disclosing that message), the pre-processing of messages may result to some of them being mapped to scalar values, before they are passed to the BBS Interface (for example, an application could use [@ISO8601] to represent dates as integers etc.,) that should directly be signed (e.g., to not be further processed by `hash_to_scalar`).
 
@@ -1741,7 +1740,7 @@ BBS Signatures compine two security properties; data authenticity and data confi
 
 Data authenticity refers to the inability of anyone other that the Signer being able to generate BBS signatures that are valid under the Signer's public key (this property is often refered to as unforgeability, or in the case of BBS Signatures, strong unforgeability, e.g., by [@TZ23]). It also means that no one should be able to generate valid BBS proofs disclosing sets of messages, without first optaining a valid BBS signature on those messages (in academic works, this is refered to as the BBS proof being a proof-of-knowledge of a BBS signature [@CDL16] [@TZ23]).
 
-Data confidenciality means that no one (not even the Signer) should be able to use a BBS proof to extract information about the messages the Prover decided not to disclose during the proof generation process, or the signature that was used to generate that proof (something that is refered to as the zero-knowledge proeprty of the BBS proof [@BBDT16] [@CDL16] [@TZ23]).
+Data confidenciality means that no one (not even the Signer) should be able to use a BBS proof to extract information about the messages the Prover decided not to disclose during the proof generation process, or the signature that was used to generate that proof (something that is refered to as the zero-knowledge property of the BBS proof [@BBDT16] [@CDL16] [@TZ23]).
 
 On the presence of a Cryptographically Relevant Quantum Computer (CRQC), meaning a computer that will be able to break the discrete logarithm problem in the groups used by BBS Signatures (see [@I-D.ietf-pquip-pqc-engineers]), the data authenticity property will not hold. Specifically, an adversary could use a CRQC to reveal the Signer's secret key from their public key, hence giving them the ability to generate BBS signatures on behalf of that Signer, for messages of their choosing, as well as BBS proofs using those signatures.
 
@@ -1784,7 +1783,7 @@ The parameters that each ciphersuite needs to define are generally divided into 
 
 - P1: A fixed point in the G1 subgroup, different from the point BP1 (i.e., the base point of G1, see (#terminology)). This leaves the base point "free", to be used with other protocols, like key commitment and proof of possession schemes (for example, like the one described in Section 3.3 of [@I-D.irtf-cfrg-bls-signature]).
 
-- e: The pairing operation used.
+- h: The pairing operation used.
 
 **Serialization functions**:
 
@@ -1802,7 +1801,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 
 ## BLS12-381 Ciphersuites
 
-The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128` (the actual security leven is closer to 126 bits). The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. For completeness, BLS12-381 and the relevant functionality (base points `BP1` and `BP2`, the pairing `e` as well as the point encoding and decoding operations) are defined in (#the-bls12-381-curve).
+The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128` (the actual security leven is closer to 126 bits). The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. For completeness, BLS12-381 and the relevant functionality (base points `BP1` and `BP2`, the pairing `h` as well as the point encoding and decoding operations) are defined in (#the-bls12-381-curve).
 
 The first ciphersuite uses the hash-to-curve suite `BLS12381G1_XOF:SHAKE-256_SSWU_RO_`, defined by this document in [Appendix A.1](#bls12-381-hash_to_curve-def), which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of [@!SHA3].
 
@@ -1845,7 +1844,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
     P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.P1 }}
     ```
 
-- e: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
+- h: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
 
 **Serialization functions**:
 
@@ -1876,7 +1875,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
     P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.P1 }}
     ```
 
-- e: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
+- h: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
 
 **Serialization functions**:
 
@@ -2605,7 +2604,7 @@ Procedure:
 
 Let `c = t` for `t` as defined above ((#the-bls12-381-curve)) and `c_0, c_1, ... , c_L` in `(-1, 0, 1)` such that the sum of `c_i * 2^i` for `i = 0, 1, ..., L` equals `c`.
 
-Given a point `P` of `G1`, and a point `Q` of `G2`, the output `e(P, Q)` where `e` the Ate pairing for BLS12-381 is calculated as follows,
+Given a point `P` of `G1`, and a point `Q` of `G2`, the output `h(P, Q)` where `h` the Ate pairing for BLS12-381 is calculated as follows,
 
 ```
 1.  set f = 1 and T = Q
@@ -2725,7 +2724,7 @@ Let `m_byte = s_string[0] AND 0xE0`, where `AND` is computed bitwise. If `m_byte
 
 In the most general sense BBS signatures can be used in any application where a cryptographically secured token is required but correlation caused by usage of the token is un-desirable.
 
-For example in protocols like OAuth2.0 the most commonly used form of the access token leverages the JWT format alongside conventional cryptographic primitives such as traditional digital signatures or HMACs. These access tokens are then used by a relying party to prove authority to a resource server during a request. However, because the access token is most commonly sent by value as it was issued by the authorization server (e.g in a bearer style scheme), the access token can act as a source of strong correlation for the relying party. Relevant prior art can be found [here](https://www.ietf.org/archive/id/draft-private-access-tokens-01.html).
+For example in protocols like OAuth2.0 the most commonly used form of the access token leverages the JWT format alongside conventional cryptographic primitives such as traditional digital signatures or HMACs. These access tokens are then used by a relying party to prove authority to a resource server during a request. However, because the access token is most commonly sent by value as it was issued by the authorization server (e.g., in a bearer style scheme), the access token can act as a source of strong correlation for the relying party. Relevant prior art can be found [here](https://www.ietf.org/archive/id/draft-private-access-tokens-01.html).
 
 BBS Signatures due to their unique properties removes this source of correlation but maintains the same set of guarantees required by a resource server to validate an access token back to its relevant authority (note that an approach to signing JSON tokens with BBS that may be of relevance is the JSON Web Proofs (JWP) format and serialization described in [@I-D.ietf-jose-json-web-proof]). In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they generate a unique proof from the original access token and include that in the request instead, thus removing this vector of correlation.
 
@@ -3236,7 +3235,7 @@ Let `(i1, ..., iR)` be the indexes of the messages the Prover wants to disclose 
 	[4]	Bbar = D * r1 + Abar * (-e)
 	```
 
-    The values `(Abar, D, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signature as above, then `Abar * SK = Bbar` which is equivalent to `e(Abar, PK) = e(Bbar, BP2)`, where `SK`, `PK` the Signer's secret and public key and `BP2` the base generator of `G2` (used to create the Signer’s `PK`, see (#public-key)). This last equation is something that the Verifier can check using the Signer's `PK`.
+    The values `(Abar, D, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signature as above, then `Abar * SK = Bbar` which is equivalent to `h(Abar, PK) = h(Bbar, BP2)`, where `SK`, `PK` the Signer's secret and public key and `BP2` the base generator of `G2` (used to create the Signer’s `PK`, see (#public-key)). This last equation is something that the Verifier can check using the Signer's `PK`.
 
 - Prove that the disclosed messages are signed as part of that signature. The Prover will start by setting the following,
 
@@ -3257,17 +3256,17 @@ To convince the Verifier that both \[4\] and \[6\] hold, the Prover can use a `n
 
 Note that if the value `D` is constructed correctly (as in \[3\]), then `B = D * r2'`. Proving knowledge of \[6\] corresponds to proving knowledge of `r2'`, which means that the Prover does actually know a value `B = D * r2'`. If \[6\] holds, then that `B` value that the Prover knows (i.e., `D * r2'`) will also have the "correct form" for `B` (as in \[1\]), including all (the disclosed and "some" undisclosed) messages.
 
-All that remains is proving that this `B` value the Prover knows, is also "signed" by the Signer i.e., that the Prover also knows values `A` and `e`, such that `A = B * 1/(e + SK)` or, equivalently, that `e(A, PK + BP2 * e) = e(B, BP2)`, which is what `CoreVerify` checks to validate a signature (see (#coreverify)).
+All that remains is proving that this `B` value the Prover knows, is also "signed" by the Signer i.e., that the Prover also knows values `A` and `e`, such that `A = B * 1/(e + SK)` or, equivalently, that `h(A, PK + BP2 * e) = h(B, BP2)`, which is what `CoreVerify` checks to validate a signature (see (#coreverify)).
 
-Note that, the Prover will use a `nizk` to showcase (among other things), knowledge of values `r1` and `e` so that \[4\] holds (`Bbar`, `D` and `Abar` will be part of the proof and hence known to the Verifier). Setting `r1' = (1 / r1) mod r` (note that proving knowledge of `r1` indirectly proves knowledge of `r1'` as well), using \[4\] and the fact that `e(Abar, PK) = e(Bbar, BP2)` we can get that,
+Note that, the Prover will use a `nizk` to showcase (among other things), knowledge of values `r1` and `e` so that \[4\] holds (`Bbar`, `D` and `Abar` will be part of the proof and hence known to the Verifier). Setting `r1' = (1 / r1) mod r` (note that proving knowledge of `r1` indirectly proves knowledge of `r1'` as well), using \[4\] and the fact that `h(Abar, PK) = h(Bbar, BP2)` we can get that,
 
 ```
-e(Abar * r1' * r2', PK + BP2 * e) = e(D * r2', BP2) = e(B, BP2)
+h(Abar * r1' * r2', PK + BP2 * e) = h(D * r2', BP2) = h(B, BP2)
 ```
 
 Note that the above is what `CoreVerify` checks, for `A = Abar * r1' * r2'`. Since the Prover showcased knowledge of `r1'` and `r2'` and revealed `Abar` as part of the proof, the Verifier can be assured that the Prover knows the value `A = Abar * r1' * r2'`. So setting `A = Abar * r1' * r2'`, the values `A`, `e`, `B` that the Prover showed knowledge of, will form a valid BBS signature. Note that the Verifier doesn't know `A` (since they don't know `r1'` and `r2'`), `e` or `B` (since they don't know `r2'` or the undisclosed messages). However, they know that the prover knows them and as we saw above, these values form a valid signature on (among others) the disclosed messages.
 
-To sum up; in order to validate the proof, a Verifier checks that `e(Abar, PK) = e(Bbar, BP2)` and verifies the `nizk`. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
+To sum up; in order to validate the proof, a Verifier checks that `h(Abar, PK) = h(Bbar, BP2)` and verifies the `nizk`. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
 
 # Document History
 
