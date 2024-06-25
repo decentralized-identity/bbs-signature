@@ -5,11 +5,11 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 3 August 2024                                      A. Whitehead
+Expires: 27 December 2024                                   A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
-                                                         31 January 2024
+                                                            25 June 2024
 
 
                         The BBS Signature Scheme
@@ -51,7 +51,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 3 August 2024.
+   This Internet-Draft will expire on 27 December 2024.
 
 Copyright Notice
 
@@ -958,7 +958,7 @@ Procedure:
 
 1. domain = calculate_domain(PK, generators, header, api_id)
 
-2. e = hash_to_scalar(serialize((SK, domain, msg_1, ..., msg_L)),
+2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
                                                           signature_dst)
 3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 4. A = B * (1 / (SK + e))
@@ -1468,6 +1468,21 @@ Procedure:
    signed messages (disclosed_indexes), together with the presentation
    header (ph).
 
+   At a high level, the challenge will be calculated as the digest
+   (using hash_to_scalar defined in Section 4.2.2, to map it to a scalar
+   value) of the following values:
+
+   *  The total number of disclosed messages R.
+   *  Each index in the disclosed_indexes list, followed by the
+      corresponding disclosed message (i.e., if disclosed_indexes = [i1,
+      i2] and disclosed_messages = [msg_i1, msg_i2], the input to the
+      challenge digest, after R, will include i1 || msg_i1 || i2 ||
+      msg_i2).
+   *  The points Abar, Bbar, D, T1, T2 and the domain scalar, calculated
+      during the proof initialization phase of CoreProofGen (see
+      Section 3.6.3).
+   *  The inputted presentation header (ph) values.
+
    This operation makes use of the serialize function, defined in
    Section 4.2.4.1.
 
@@ -1515,8 +1530,8 @@ ABORT if:
 
 Procedure:
 
-1. c_arr = (Abar, Bbar, D, T1, T2, R, i1, ..., iR,
-                                            msg_i1, ..., msg_iR, domain)
+1. c_arr = (R, i1, msg_i1, i2, msg_i2, ..., iR, msg_iR, Abar, Bbar,
+                                                      D, T1, T2, domain)
 2. c_octs = serialize(c_arr) || I2OSP(length(ph), 8) || ph
 3. return hash_to_scalar(c_octs, challenge_dst)
 
@@ -2962,9 +2977,9 @@ B = "8bbc8c123d3f128f206dd0d2dae490e82af08b84e8d70af3dc291d32a6e98f635be
 domain = "2f18dd269c11c512256a9d1d57e61a7d2de6ebcf41cac3053f37afedc4e650
           a9"
 
-signature = "98eb37fceb31115bf647f2983aef578ad895e55f7451b1add02fa738224
-             cb89a31b148eace4d20d001be31d162c58d12574f30e68665b6403956a8
-             3b23a16f1daceacce8c5fde25d3defd52d6d5ff2e1"
+signature = "b9a622a4b404e6ca4c85c15739d2124a1deb16df750be202e2430e169bc
+             27fb71c44d98e6d40792033e1c452145ada95030832c5dc778334f2f1b5
+             28eced21b0b97a12025a283d78b7136bb9825d04ef"
 
 8.3.4.2.  Valid Multi-Message Signature
 
@@ -2990,9 +3005,9 @@ B = "ae8d4ebe248b9ad9c933d5661bfb46c56721fba2a1182ddda7e8fb443bda3c0a571
 domain = "6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400f
           7b"
 
-signature = "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420b
-             fdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd8
-             50aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f"
+signature = "956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c2
+             0cf08faabb913ac94d18e1e92832e924cb6e202912b624261fc6c59b0fe
+             a801547f67fb7d3253e1e2acbcf90ef59a6911931e"
 
 8.3.5.  Proof Fixtures
 
@@ -3052,9 +3067,9 @@ public_key = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd4594
               9cdeb18fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b9
               9c2c41b38179eb001963bc3decaae0d9f702c7a8c004f207f46c734a5e
               ae2e8e82833f3e7ea5"
-signature = "98eb37fceb31115bf647f2983aef578ad895e55f7451b1add02fa738224
-             cb89a31b148eace4d20d001be31d162c58d12574f30e68665b6403956a8
-             3b23a16f1daceacce8c5fde25d3defd52d6d5ff2e1"
+signature = "b9a622a4b404e6ca4c85c15739d2124a1deb16df750be202e2430e169bc
+             27fb71c44d98e6d40792033e1c452145ada95030832c5dc778334f2f1b5
+             28eced21b0b97a12025a283d78b7136bb9825d04ef"
 header = "11223344556677889900aabbccddeeff"
 presentation_header = "bed231d880675ed101ead304512e043ade9958dd0241ea70b
                        4b3957fba941501"
@@ -3073,22 +3088,22 @@ random scalars:
                 a8ea7da2"
     m_tilde_scalars: "[  ]"
 
-T1 = "aa74110474fcb00285be4fef3189da207720a7fbc84e3afae2c75b12d936f365c8
-      6c9ac5fa39119ef5e094d151bfef0f"
+T1 = "91a10e73cf4090812e8ea25f31aaa61be53fcb42ce86e9f0e5df6f6dac4c3eee62
+      ac846b0b83a5cfcbe78315175a4961"
 T2 = "988f3d473186634e41478dc4527cf240e64de23a763037454d39a876862ebc6177
       38ba6c458142e3746b01eab58ca8d7"
 domain = "2f18dd269c11c512256a9d1d57e61a7d2de6ebcf41cac3053f37afedc4e650
           a9"
 
-proof = "89b485c2c7a0cd258a5d265a6e80aae416c52e8d9beaf0e38313d6e5fe31e7f
-         7dcf62023d130fbc1da747440e61459b1929194f5527094f56a7e812afb7d92
-         ff2c081654c6d5a70e369474267f1c7f769d47160cd92d79f66bb86e994c999
-         226b023d58ee44d660434e6ba60ed0da1a5d2cde031b483684cd7c5b13295a8
-         2f57e209b584e8fe894bcc964117bf3521b468cc9c6ba22419b3e567c7f72b6
-         af815ddeca161d6d5270c3e8f269cdabb7d60230b3c66325dcf6caf39bcca06
-         d889f849d301e7f30031fdeadc443a7575de547259ffe5d21a45e5a0da9b113
-         512f7b124f031b0b8329a8625715c9245033ae13dfadd6bdb0b4364952647db
-         3d7b91faa4c24cbb65344c03473c5065bb414ff7"
+proof = "89e4ab0c160880e0c2f12a754b9c051ed7f5fccfee3d5cbbb62e1239709196c
+         737fff4303054660f8fcd08267a5de668a2e395ebe8866bdcb0dff9786d7014
+         fa5e3c8cf7b41f8d7510e27d307f18032f6b788e200b9d6509f40ce1d2f962c
+         eedb023d58ee44d660434e6ba60ed0da1a5d2cde031b483684cd7c5b13295a8
+         2f57e209b584e8fe894bcc964117bf3521b43d8e2eb59ce31f34d68b39f05bb
+         2c625e4de5e61e95ff38bfd62ab07105d016414b45b01625c69965ad3c8a933
+         e7b25d93daeb777302b966079827a99178240e6c3f13b7db2fb1f14790940e2
+         39d775ab32f539bdf9f9b582b250b05882996832652f7f5d3b6e04744c73ada
+         1702d6791940ccbd75e719537f7ace6ee817298d"
 
 8.3.5.2.  Valid Multi-Message, All Messages Disclosed Proof
 
@@ -3107,9 +3122,9 @@ public_key = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd4594
               9cdeb18fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b9
               9c2c41b38179eb001963bc3decaae0d9f702c7a8c004f207f46c734a5e
               ae2e8e82833f3e7ea5"
-signature = "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420b
-             fdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd8
-             50aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f"
+signature = "956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c2
+             0cf08faabb913ac94d18e1e92832e924cb6e202912b624261fc6c59b0fe
+             a801547f67fb7d3253e1e2acbcf90ef59a6911931e"
 header = "11223344556677889900aabbccddeeff"
 presentation_header = "bed231d880675ed101ead304512e043ade9958dd0241ea70b
                        4b3957fba941501"
@@ -3128,22 +3143,22 @@ random scalars:
                 a8ea7da2"
     m_tilde_scalars: "[  ]"
 
-T1 = "8aae12173b9fc9032a603c9e61b0c3dfa9b8d0c4428d7acba4317aa90354ed3fff
-      1afb720cd0e15a912eb2d7ece8037f"
+T1 = "8890adfc78da24768d59dbfdb3f380e2793e9018b20c23e9ba05baa60f1b21456b
+      c047a5d27049dab5dc6a94696ce711"
 T2 = "a49f953636d3651a3ae6fe45a99a2e4fec079eef3be8b8a6a4ba70885d7e028642
       f7224e9f451529915c88a7edc59fbe"
 domain = "6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400f
           7b"
 
-proof = "80ff9367fda28896618e8ede02481d660fe80bfce51a46bebe7e1d6a4c751d6
-         0e09e87cd8d1e2a078d0838de56b6a7ca94651eec82e5f689b4dfc7e3c879ff
-         7e33906271b17af20eab678d64903515971e39484e712fd3c8a45f279c1e058
-         955b3dd7ed57aaadc348361e2501a17317352e555a333e014e8e7d71eef808a
-         e4f8fbdf45cd19fde45038bb310d5135f5205611672c8d50d505af8a6e03872
-         9230458a6ceb663fa048f4ce3a7a92998de4200882156ba6b6e60d855c0645d
-         2fdd628518d2e6fc5221b7456ccbc1c5210a1704e4d662dddd1f99a767344a7
-         944ab7f9b6f9d9069de4a132e4feebb6d70a87b0856635e1b8b8ca49e2992f8
-         c80221398e08935824f959a821b4120cdfb5e6be"
+proof = "91b0f598268c57b67bc9e55327c3c2b9b1654be89a0cf963ab392fa9e1637c5
+         65241d71fd6d7bbd7dfe243de85a9bac8b7461575c1e13b5055fed0b51fd0ec
+         1433096607755b2f2f9ba6dc614dfa456916ca0d7fc6482b39c679cfb747a50
+         ea1b3dd7ed57aaadc348361e2501a17317352e555a333e014e8e7d71eef808a
+         e4f8fbdf45cd19fde45038bb310d5135f5205fc550b077e381fb3a3543dca31
+         a0d8bba97bc0b660a5aa239eb74921e184aa3035fa01eaba32f52029319ec3d
+         f4fa4a4f716edb31a6ce19a19dbb971380099345070bd0fdeecf7c4774a33e0
+         a116e069d5e215992fb637984802066dee6919146ae50b70ea52332dfe57f6e
+         05c66e99f1764d8b890d121d65bfcc2984886ee0"
 
 8.3.5.3.  Valid Multi-Message, Some Messages Disclosed Proof
 
@@ -3162,9 +3177,9 @@ public_key = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd4594
               9cdeb18fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b9
               9c2c41b38179eb001963bc3decaae0d9f702c7a8c004f207f46c734a5e
               ae2e8e82833f3e7ea5"
-signature = "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420b
-             fdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd8
-             50aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f"
+signature = "956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c2
+             0cf08faabb913ac94d18e1e92832e924cb6e202912b624261fc6c59b0fe
+             a801547f67fb7d3253e1e2acbcf90ef59a6911931e"
 header = "11223344556677889900aabbccddeeff"
 presentation_header = "bed231d880675ed101ead304512e043ade9958dd0241ea70b
                        4b3957fba941501"
@@ -3195,28 +3210,28 @@ random scalars:
         m~_9 = "07d7c41b02158a9c5eac212ed6d7c2cddeb8e38baea6e93e1a00b2e8
                 3e2a0995"
 
-T1 = "8bec86c26337655162b39f97e38ee5c0bbd2b6e8900d1d68fc4c27679dbe88dc76
-      f313526bc800dd3209bef6b8907e95"
+T1 = "8b497dd4dcdcf7eb58c9b43e57e06bcea3468a223ae2fc015d7a86506a952d6805
+      5e73f5a5847e58f133ea154256d0da"
 T2 = "8655584d3da1313f881f48c239384a5623d2d292f08dae7ac1d8129c19a02a89b8
       2fa45de3f6c2c439510fce5919656f"
 domain = "6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400f
           7b"
 
-proof = "853f4927bd7e4998af27df65566c0a071a33a5207d1af33ef7c3be04004ac5d
-         a860f34d35c415498af32729720ca4d92977bbbbd60fdc70ddbb2588878675b
-         90815273c9eaf0caa1123fe5d0c4833fefc459d18e1dc83d669268ec702c0e1
-         6a6b73372346feb94ab16189d4c525652b8d3361bab43463700720ecfb0ee75
-         e595ea1b13330615011050a0dfcffdb21af36ac442df87545e0e8303260a97a
-         0d251de15fc1447b82fff6b47ffb0ff94022869b315dc48c9302523b2715dde
-         c9f56975a0892f5f3aeed3203c29c7a03cfc79187eef45f72b7c5bf0d4fc852
-         adcc7528c05b0ba9554f2eb9b39c168a4dd6bdc3ac603ce14856184f6d71313
-         9f9d3930efcc9842e724517dbccff6912088b399447ff786e2f9db8b1061cc8
-         9a1636ba9282344729bcd19228ccde2318286c5a115baaf317b48341ac7906c
-         6cc957f94b060351563907dca7f598a4cbdaeab26c4a4fcb6aa7ff6fd999c5f
-         9bc0c9a9b0e4f4a3301de901a6c68b174ed24ccf5cd0cac6726766c91aded69
-         47c4b446a9dfc8ec0aa11ec9ddda57dcc22c554a83a25471be93ae69ad9234b
-         1fc3d133550d7ff570a4bc6555cd0bf23ee1b2a994b2434ea222bc221ba1615
-         adc53b47ba99fc5a66495585d4c86f1f0aecb18df802b8"
+proof = "b1f8bf99a11c39f04e2a032183c1ead12956ad322dd06799c50f20fb8cf6b0a
+         c279210ef5a2920a7be3ec2aa0911ace7b96811a98f3c1cceba4a2147ae763b
+         3ba036f47bc21c39179f2b395e0ab1ac49017ea5b27848547bedd27be481c1d
+         fc0b73372346feb94ab16189d4c525652b8d3361bab43463700720ecfb0ee75
+         e595ea1b13330615011050a0dfcffdb21af356dd39bf8bcbfd41bf95d913f4c
+         9b2979e1ed2ca10ac7e881bb6a271722549681e398d29e9ba4eac8848b168ed
+         dd5e4acec7df4103e2ed165e6e32edc80f0a3b28c36fb39ca19b4b8acee570d
+         eadba2da9ec20d1f236b571e0d4c2ea3b826fe924175ed4dfffbf18a9cfa985
+         46c241efb9164c444d970e8c89849bc8601e96cf228fdefe38ab3b7e289cac8
+         59e68d9cbb0e648faf692b27df5ff6539c30da17e5444a65143de02ca64cee7
+         b0823be65865cdc310be038ec6b594b99280072ae067bad1117b0ff3201a550
+         6a8533b925c7ffae9cdb64558857db0ac5f5e0f18e750ae77ec9cf35263474f
+         ef3f78138c7a1ef5cfbc878975458239824fad3ce05326ba3969b1f5451bd82
+         bd1f8075f3d32ece2d61d89a064ab4804c3c892d651d11bc325464a71cd7aac
+         c2d956a811aaff13ea4c35cef7842b656e8ba4758e7558"
 
 8.4.  BLS12381-SHA-256 Test Vectors
 
@@ -3343,9 +3358,9 @@ B = "92d264aed02bf23de022ebe778c4f929fddf829f504e451d011ed89a313b8167ac9
 domain = "25d57fab92a8274c68fde5c3f16d4b275e4a156f211ae34b3ab32fbaf506ed
           5c"
 
-signature = "88c0eb3bc1d97610c3a66d8a3a73f260f95a3028bccf7fff7d9851e2acd
-             9f3f32fdf58a5b34d12df8177adf37aa318a20f72be7d37a8e8d8441d1b
-             c0bc75543c681bf061ce7e7f6091fe78c1cb8af103"
+signature = "84773160b824e194073a57493dac1a20b667af70cd2352d8af241c77658
+             da5253aa8458317cca0eae615690d55b1f27164657dcafee1d5c1973947
+             aa70e2cfbb4c892340be5969920d0916067b4565a0"
 
 8.4.4.2.  Valid Multi-Message Signature
 
@@ -3371,9 +3386,9 @@ B = "84f48376f7df6af40bc329cf484cdbfd0b19d0b326fccab4e9d8f00d1dbcf48139d
 domain = "6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce5b
           47"
 
-signature = "895cd9c0ccb9aca4de913218655346d718711472f2bf1f3e68916de106a
-             0d93cf2f47200819b45920bbda541db2d91480665df253fedab2843055b
-             dc02535d83baddbbb2803ec3808e074f71f199751e"
+signature = "8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c9
+             6e1463e28f8c5f4fd0641d19cec5920d3a8ff4bedb6c9691454597bbd29
+             8288abed3632078557b2ace7d44caed846e1a0a1e8"
 
 8.4.5.  Proof Fixtures
 
@@ -3436,9 +3451,9 @@ public_key = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa
               136f2851bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d
               460acee0e96f1e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f
               63aebc364cd55ded0c"
-signature = "88c0eb3bc1d97610c3a66d8a3a73f260f95a3028bccf7fff7d9851e2acd
-             9f3f32fdf58a5b34d12df8177adf37aa318a20f72be7d37a8e8d8441d1b
-             c0bc75543c681bf061ce7e7f6091fe78c1cb8af103"
+signature = "84773160b824e194073a57493dac1a20b667af70cd2352d8af241c77658
+             da5253aa8458317cca0eae615690d55b1f27164657dcafee1d5c1973947
+             aa70e2cfbb4c892340be5969920d0916067b4565a0"
 header = "11223344556677889900aabbccddeeff"
 presentation_header = "bed231d880675ed101ead304512e043ade9958dd0241ea70b
                        4b3957fba941501"
@@ -3457,22 +3472,22 @@ random scalars:
                 ac2b2da1"
     m_tilde_scalars: "[  ]"
 
-T1 = "8ce960f5155d05a1795cc3422e6c975f6436a9b70c17ffbfd776346c93a9682bb6
-      c74abd70d8c32781ae783ec45ea005"
+T1 = "a862fa5d3ab4c264c22b8a02636fd4030e8b14ac20dee14e08fdb6cfc445432c08
+      abb49ec111c1eb9d90abef50134a60"
 T2 = "ab9543a6b04303e997621d3d5cbd85924e7e69da498a2a9e9d3a8b01f39259c9c5
       920bd530de1d3b0afb99eb0c549d5a"
 domain = "25d57fab92a8274c68fde5c3f16d4b275e4a156f211ae34b3ab32fbaf506ed
           5c"
 
-proof = "a7c217109e29ecab846691eaad757beb8cc93356daf889856d310af5fc5587e
-         a4f8b70b0d960c68b7aefa62cae806baa8edeca19ca3dd884fb977fc43d946d
-         c2a0be8778ec9ff7a1dae2b49c1b5d75d775ba37652ae759b9bb70ba484c74c
-         8b2aeea5597befbb651827b5eed5a66f1a959bb46cfd5ca1a817a14475960f6
-         9b32c54db7587b5ee3ab665fbd37b506830a0fdc9a7f71072daabd4cdb49038
-         f5c55e84623400d5f78043a18f76b272fd65667373702763570c8a2f7c83757
-         4f6c6c7d9619b0834303c0f55b2314cec804b33833c7047865587b8e5561912
-         3183f832021dd97439f324fa3ad90ec45417070067fb8c56b2af454562358b1
-         509632f92f2116c020fe7de1ba242effdb36e980"
+proof = "94916292a7a6bade28456c601d3af33fcf39278d6594b467e128a3f83686a10
+         4ef2b2fcf72df0215eeaf69262ffe8194a19fab31a82ddbe06908985abc4c98
+         25788b8a1610942d12b7f5debbea8985296361206dbace7af0cc834c80f33e0
+         aadaeea5597befbb651827b5eed5a66f1a959bb46cfd5ca1a817a14475960f6
+         9b32c54db7587b5ee3ab665fbd37b506830a49f21d592f5e634f47cee05a025
+         a2f8f94e73a6c15f02301d1178a92873b6e8634bafe4983c3e15a663d640806
+         78dbf29417519b78af042be2b3e1c4d08b8d520ffab008cbaaca5671a15b22c
+         239b38e940cfeaa5e72104576a9ec4a6fad78c532381aeaa6fb56409cef56ee
+         5c140d455feeb04426193c57086c9b6d397d9418"
 
 8.4.5.2.  Valid Multi-Message, All Messages Disclosed Proof
 
@@ -3491,9 +3506,9 @@ public_key = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa
               136f2851bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d
               460acee0e96f1e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f
               63aebc364cd55ded0c"
-signature = "895cd9c0ccb9aca4de913218655346d718711472f2bf1f3e68916de106a
-             0d93cf2f47200819b45920bbda541db2d91480665df253fedab2843055b
-             dc02535d83baddbbb2803ec3808e074f71f199751e"
+signature = "8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c9
+             6e1463e28f8c5f4fd0641d19cec5920d3a8ff4bedb6c9691454597bbd29
+             8288abed3632078557b2ace7d44caed846e1a0a1e8"
 header = "11223344556677889900aabbccddeeff"
 presentation_header = "bed231d880675ed101ead304512e043ade9958dd0241ea70b
                        4b3957fba941501"
@@ -3512,22 +3527,22 @@ random scalars:
                 ac2b2da1"
     m_tilde_scalars: "[  ]"
 
-T1 = "815064df090feebe9d089343add9ce0c46c55c45a7a75913c3ffe980cd51dd5af5
-      a6b45a10dcf7c56927b3a30c99adea"
+T1 = "9881efa96b2411626d490e399eb1c06badf23c2c0760bd403f50f45a6b470c5a9d
+      beef53a27916f2f165085a3878f1f4"
 T2 = "b9f8cf9271d10a04ae7116ad021f4b69c435d20a5af10ddd8f5b1ec6b9b8b91605
       aca76a140241784b7f161e21dfc3e7"
 domain = "6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce5b
           47"
 
-proof = "a6faacf33f935d1910f21b1bbe380adcd2de006773896a5bd2afce31a138742
-         98f92e602a4d35aef5880786cffc5aaf08978484f303d0c85ce657f463b7190
-         5ee7c3c0c9038671d8fb925525f623745dc825b14fc50477f3de79ce8d915d8
-         41ba73c8c97264177a76c4a03341956d2ae45ed3438ce598d5cda4f1bf9507f
-         ecef47855480b7b30b5e4052c92a4360110c322b4cb2d9796ff2d7419792262
-         49dc14d4b1fd5ca1a8f6fdfc16f726fc7683e3605d5ec28d331111a22ed8172
-         9cbb3c8c3732c7593e445f802fc3169c26857622ed31bc058fdfe68d25f0c3b
-         9615279719c64048ea9cdb74104b27757c2d01035507d39667d77d990ec5bda
-         22c866fcc9fe70bb5b7826a2b4e861b6b8124fbd"
+proof = "b1f468aec2001c4f54cb56f707c6222a43e5803a25b2253e67b2210ab2ef9ea
+         b52db2d4b379935c4823281eaf767fd37b08ce80dc65de8f9769d27099ae649
+         ad4c9b4bd2cc23edcba52073a298087d2495e6d57aaae051ef741adf1cbce65
+         c64a73c8c97264177a76c4a03341956d2ae45ed3438ce598d5cda4f1bf9507f
+         ecef47855480b7b30b5e4052c92a4360110c67327365763f5aa9fb85ddcbc29
+         75449b8c03db1216ca66b310f07d0ccf12ab460cdc6003b677fed36d0a23d08
+         18a9d4d098d44f749e91008cf50e8567ef936704c8277b7710f41ab7e6e1640
+         8ab520edc290f9801349aee7b7b4e318e6a76e028e1dea911e2e7baec6a6a17
+         4da1a22362717fbae1cd961d7bf4adce1d31c2ab"
 
 8.4.5.3.  Valid Multi-Message, Some Messages Disclosed Proof
 
@@ -3546,9 +3561,9 @@ public_key = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa
               136f2851bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d
               460acee0e96f1e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f
               63aebc364cd55ded0c"
-signature = "895cd9c0ccb9aca4de913218655346d718711472f2bf1f3e68916de106a
-             0d93cf2f47200819b45920bbda541db2d91480665df253fedab2843055b
-             dc02535d83baddbbb2803ec3808e074f71f199751e"
+signature = "8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c9
+             6e1463e28f8c5f4fd0641d19cec5920d3a8ff4bedb6c9691454597bbd29
+             8288abed3632078557b2ace7d44caed846e1a0a1e8"
 header = "11223344556677889900aabbccddeeff"
 presentation_header = "bed231d880675ed101ead304512e043ade9958dd0241ea70b
                        4b3957fba941501"
@@ -3579,28 +3594,28 @@ random scalars:
         m~_9 = "602b723c8bbaec1b057d70f18269ae5e6de6197a5884967b03b933fa
                 80006121"
 
-T1 = "896e010e182f0718400b1e694ebc740215c2dd703f5988b7312be5a7f824f86b22
-      1dd89d7a66f61b9fb238a73169e3bb"
+T1 = "84719c2b5bb275ee74913dbf95fb9054f690c8e4035f1259e184e9024544bc4bbe
+      a9c244e7897f9db7c82b7b14b27d28"
 T2 = "8f5f191c956aefd5c960e57d2dfbab6761eb0ebc5efdba1aca1403dcc19e05296b
       16c9feb7636cb4ef2a360c5a148483"
 domain = "6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce5b
           47"
 
-proof = "a8da259a5ae7a9a8e5e4e809b8e7718b4d7ab913ed5781ebbff4814c762033e
-         da4539973ed9bf557f882192518318cc4916fdffc857514082915a31df5bbb7
-         9992a59fd68dc3b48d19d2b0ad26be92b4cf78a30f472c0fd1e558b9d03940b
-         077897739228c88afc797916dca01e8f03bd9c5375c7a7c59996e514bb952a4
-         36afd24457658acbaba5ddac2e693ac481352bb6fce6084eb1867c71caeac2a
-         fc4f57f4d26504656b798b3e4009eb227c7fa41b6ae00daae0436d853e86b32
-         b366b0a9929e1570369e9c61b7b177eb70b7ff27326c467c362120dfeacc069
-         2d25ccdd62d733ff6e8614abd16b6b63a7b78d11632cf41bc44856aee370fee
-         6690a637b3b1d8d8525aff01cd3555c39d04f8ee1606964c2da8b988897e3d2
-         7cb444b8394acc80876d3916c485c9f36098fed6639f12a6a6e67150a641d74
-         85656408e9ae22b9cb7ec77e477f71c1fe78cab3ee5dd62c34dd595edb15cbc
-         e061b29192419dfadcdee179f134dd8feb9323c426c51454168ffacb6502199
-         5848e368a5c002314b508299f67d85ad0eaaaac845cb029927191152edee034
-         194cca3ae0d45cbd2f5e5afd1f9b8a3dd903adfa17ae43a191bf3119df57214
-         f19e662c7e01e8cc2eb6b038bc7d707f2f3e13545909e0"
+proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
+         d340394223a5397a3011b1c340ebc415199462ba6f31106d8a6da8b513b37a4
+         7afe93c9b3474d0d7a354b2edc1b88818b063332df774c141f7a07c48fe50d4
+         52f897739228c88afc797916dca01e8f03bd9c5375c7a7c59996e514bb952a4
+         36afd24457658acbaba5ddac2e693ac481356918cd38025d86b28650e909def
+         e9604a7259f44386b861608be742af7775a2e71a6070e5836f5f54dc43c6009
+         6834a5b6da295bf8f081f72b7cdf7f3b4347fb3ff19edaa9e74055c8ba46dbc
+         b7594fb2b06633bb5324192eb9be91be0d33e453b4d3127459de59a5e2193c9
+         00816f049a02cb9127dac894418105fa1641d5a206ec9c42177af9316f43341
+         7441478276ca0303da8f941bf2e0222a43251cf5c2bf6eac1961890aa740534
+         e519c1767e1223392a3a286b0f4d91f7f25217a7862b8fcc1810cdcfddde2a0
+         1c80fcc90b632585fec12dc4ae8fea1918e9ddeb9414623a457e88f53f54584
+         1f9d5dcb1f8e160d1560770aa79d65e2eca8edeaecb73fb7e995608b820c4a6
+         4de6313a370ba05dc25ed7c1d185192084963652f2870341bdaa4b1a37f8c06
+         348f38a4f80c5a2650a21d59f09e8305dcd3fc3ac30e2a"
 
 9.  IANA Considerations
 
@@ -3737,9 +3752,9 @@ proof = "a8da259a5ae7a9a8e5e4e809b8e7718b4d7ab913ed5781ebbff4814c762033e
    [I-D.ietf-jose-json-web-proof]
               Miller, J., Waite, D., and M. B. Jones, "JSON Web Proof",
               Work in Progress, Internet-Draft, draft-ietf-jose-json-
-              web-proof-02, 21 October 2023,
+              web-proof-03, 1 March 2024,
               <https://datatracker.ietf.org/doc/html/draft-ietf-jose-
-              json-web-proof-02>.
+              json-web-proof-03>.
 
    [I-D.ietf-lwig-curve-representations]
               Struik, R., "Alternative Elliptic Curve Representations",
@@ -3752,9 +3767,9 @@ proof = "a8da259a5ae7a9a8e5e4e809b8e7718b4d7ab913ed5781ebbff4814c762033e
               Banerjee, A., Reddy.K, T., Schoinianakis, D., and T.
               Hollebeek, "Post-Quantum Cryptography for Engineers", Work
               in Progress, Internet-Draft, draft-ietf-pquip-pqc-
-              engineers-02, 20 October 2023,
+              engineers-04, 21 May 2024,
               <https://datatracker.ietf.org/doc/html/draft-ietf-pquip-
-              pqc-engineers-02>.
+              pqc-engineers-04>.
 
    [I-D.ietf-privacypass-key-consistency]
               Davidson, A., Finkel, M., Thomson, M., and C. A. Wood,
@@ -4234,9 +4249,9 @@ B = "8607ebc413b397c1e27ce591d1daa39f73da329018bda0f90bf996355cc28c3cdba
 domain = "333d8686761cff65a3a2ef20bfa217d37bdf19105e87c210e9ce64ea1210a1
           57"
 
-signature = "abfa513cdb323e47214b7c182fb623197a0681b753f897545a73d82ee13
-             3a8ecf69db9aa09fe425df4e7687d99d779db5c66199c0dc9d2a442d331
-             c43f56e060edc69a69ed2f13de3813b98ce6b05737"
+signature = "88beeb970f803160d3058eacde505207c576a8c9e4e5dc7c5249cbcf2a0
+             46c15f8df047031eef3436e04b779d92a9cdb1fe4c6cc035ba1634f1740
+             f9dd49816d3ca745ecbe39f655ea61fb700137fded"
 
 D.1.1.2.  Modified Message Signature
 
@@ -4250,9 +4265,9 @@ PK = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18f
       1963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "98eb37fceb31115bf647f2983aef578ad895e55f7451b1add02fa738224
-             cb89a31b148eace4d20d001be31d162c58d12574f30e68665b6403956a8
-             3b23a16f1daceacce8c5fde25d3defd52d6d5ff2e1"
+signature = "b9a622a4b404e6ca4c85c15739d2124a1deb16df750be202e2430e169bc
+             27fb71c44d98e6d40792033e1c452145ada95030832c5dc778334f2f1b5
+             28eced21b0b97a12025a283d78b7136bb9825d04ef"
 
 valid: "false"
 reason: "modified message"
@@ -4270,9 +4285,9 @@ PK = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18f
       1963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "98eb37fceb31115bf647f2983aef578ad895e55f7451b1add02fa738224
-             cb89a31b148eace4d20d001be31d162c58d12574f30e68665b6403956a8
-             3b23a16f1daceacce8c5fde25d3defd52d6d5ff2e1"
+signature = "b9a622a4b404e6ca4c85c15739d2124a1deb16df750be202e2430e169bc
+             27fb71c44d98e6d40792033e1c452145ada95030832c5dc778334f2f1b5
+             28eced21b0b97a12025a283d78b7136bb9825d04ef"
 
 valid: "false"
 reason: "extra unsigned message"
@@ -4292,9 +4307,9 @@ PK = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18f
       1963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420b
-             fdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd8
-             50aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f"
+signature = "956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c2
+             0cf08faabb913ac94d18e1e92832e924cb6e202912b624261fc6c59b0fe
+             a801547f67fb7d3253e1e2acbcf90ef59a6911931e"
 
 valid: "false"
 reason: "missing messages"
@@ -4321,9 +4336,9 @@ PK = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18f
       1963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420b
-             fdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd8
-             50aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f"
+signature = "956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c2
+             0cf08faabb913ac94d18e1e92832e924cb6e202912b624261fc6c59b0fe
+             a801547f67fb7d3253e1e2acbcf90ef59a6911931e"
 
 valid: "false"
 reason: "re-ordered messages"
@@ -4349,9 +4364,9 @@ PK = "b24c723803f84e210f7a95f6265c5cbfa4ecc51488bf7acf24b921807801c0798b
       1d820cf1d36b20e79eee78c13a1a5da51a298f1aef86f07bc33388f089d8"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420b
-             fdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd8
-             50aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f"
+signature = "956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c2
+             0cf08faabb913ac94d18e1e92832e924cb6e202912b624261fc6c59b0fe
+             a801547f67fb7d3253e1e2acbcf90ef59a6911931e"
 
 valid: "false"
 reason: "wrong public key"
@@ -4377,9 +4392,9 @@ PK = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18f
       1963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5"
 header = "ffeeddccbbaa00998877665544332211"
 
-signature = "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420b
-             fdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd8
-             50aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f"
+signature = "956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c2
+             0cf08faabb913ac94d18e1e92832e924cb6e202912b624261fc6c59b0fe
+             a801547f67fb7d3253e1e2acbcf90ef59a6911931e"
 
 valid: "false"
 reason: "different header"
@@ -4403,36 +4418,36 @@ public_key = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd4594
               9cdeb18fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b9
               9c2c41b38179eb001963bc3decaae0d9f702c7a8c004f207f46c734a5e
               ae2e8e82833f3e7ea5"
-signature = "abfa513cdb323e47214b7c182fb623197a0681b753f897545a73d82ee13
-             3a8ecf69db9aa09fe425df4e7687d99d779db5c66199c0dc9d2a442d331
-             c43f56e060edc69a69ed2f13de3813b98ce6b05737"
+signature = "88beeb970f803160d3058eacde505207c576a8c9e4e5dc7c5249cbcf2a0
+             46c15f8df047031eef3436e04b779d92a9cdb1fe4c6cc035ba1634f1740
+             f9dd49816d3ca745ecbe39f655ea61fb700137fded"
 header = ""
 presentation_header = "bed231d880675ed101ead304512e043ade9958dd0241ea70b
                        4b3957fba941501"
 revealed_indexes = "[ 0, 2, 4, 6 ]"
 
-T1 = "913b100fcf5f9ac2d83635a31d806d01d4bd2d10adf2e90f377852eece1d9c0834
-      db5f062d2d4d4578c54338cd923eb1"
+T1 = "a5405cc2c5965dda18714ab35f4d4a7ae4024f388fa7a5ba71202d4455b50b316e
+      c37b360659e3012234562fa8989980"
 T2 = "9827a40454cdc90a70e9c927f097019dbdd84768babb10ebcb460c2d918e1ce1c0
       512bf2cc49ed7ec476dfcde7a6a10c"
 domain = "333d8686761cff65a3a2ef20bfa217d37bdf19105e87c210e9ce64ea1210a1
           57"
 
-proof = "ada2a57ae3d869255d1533f74317b131ad4f0f24cae413ac40028d70f0cf037
-         2b503ff6e705220532727002b8958ebf987e2e8378984afe3214511b9feeee8
-         30ffe3121ed005d2c382c04e6db37b646bc2f7002f3699648570fe9b67a0a5a
-         ac995644ee738810772d90c1033f1dfe45c0b1b453d131170aafa8a99f812f3
-         b90a5d1d9e6bd05a4dee6a50dd277ffc646f6b676faadceff172a0002325e7f
-         22f47ed9b5125f30dd5fffe9ed1dc99dc283100cb702fa63aaef1bd1f530a53
-         68ca4c7e78a01c7fcc3563b25c6c10c0e063092cbe2590fdfcc7b6a2859e482
-         796f1f6783a41dfdf133ce28d13071b77cbe7fe06bf6e138bd3323e7edc4a6e
-         c9942bfa0b6d1287836e2b1c2db84833d8325d145e6d2a3e94ddd5b6f58c1d1
-         b2a15a854f7cf46711239ebe522bf5e428131e31e2f5f322eba2399fa7a8efe
-         c4be722dcaf6ec6adaf84af72c3d7690072d07928045327f3a6587102b066fb
-         9cf96b27aca7f5698a2ec66d04efa05ed57fd6ac27636322c013a168100b733
-         269e9bd6f23d7562affebafc3d9b3c5f54a0c57216b733f8ecb24dc292c17e1
-         8b6b8e0f3b8303dfaedee84fba02d491994b95f965deb3c1295545bb9802d98
-         449d98d1af18e9c60536146cfa7aa267bd888b25552dd2"
+proof = "8ac336eea1d278656372d9914483c3d3b3069dfa4a7862293ac021dfeeebca9
+         3cadd7eb2b818f7b89719cdeffa5aa85989a7d691be11b1929a2bf089bfe9f2
+         adc2c06788edc30585546efb74877f34ad91f0d6923b4ed7a53c49051dda8d0
+         56a95644ee738810772d90c1033f1dfe45c0b1b453d131170aafa8a99f812f3
+         b90a5d1d9e6bd05a4dee6a50dd277ffc646f2429372f3ad9d5946ffeb53f24d
+         41ffcc83c32cbb68afc9b6e0b64eebd24c69c6a7bd3bca8a6394ed8ae315abd
+         555a6996f34d9da7680447947b3f35f54c38b562e990ee4d17a21569af4fc02
+         f2991e6db78cc32d3ef9f6069fc5c2d47c8d8ff116dfb8a59641641961b8544
+         27f67649df14ab6e63f2d0d2a0cba2b2e1e835d20cd45e41f274532e9d50f31
+         a690e5fef1c1456b65c668b80d8ec17b09bd5fb3b2c4edd6d6f5f790a5d6da2
+         2eb9a1aa2196d1a607f3c753813ba2bc6ece15d35263218fc7667c5f0fabfff
+         e74745a8000e0415c8dafd5654ce6850ac2c6485d02433fdaebd9993f8b86a2
+         eebb3beb10b4cc7735330384a3f4dfd4d5b21998ad0227b37e736cf9c144a03
+         86f28cccf27a01e50aab45dda8275eb877728e77d2055309dba8c6604e7cff0
+         d2c46ce6026b8e232c192955f909da6e47c2130c7e3f4f"
 
 D.1.2.2.  No Presentation Header Valid Proof
 
@@ -4451,35 +4466,35 @@ public_key = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd4594
               9cdeb18fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b9
               9c2c41b38179eb001963bc3decaae0d9f702c7a8c004f207f46c734a5e
               ae2e8e82833f3e7ea5"
-signature = "97a296c83ed3626fe254d26021c5e9a087b580f1e8bc91bb51efb04420b
-             fdaca215fe376a0bc12440bcc52224fb33c696cca9239b9f28dcddb7bd8
-             50aae9cd1a9c3e9f3639953fe789dbba53b8f0dd6f"
+signature = "956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c2
+             0cf08faabb913ac94d18e1e92832e924cb6e202912b624261fc6c59b0fe
+             a801547f67fb7d3253e1e2acbcf90ef59a6911931e"
 header = "11223344556677889900aabbccddeeff"
 presentation_header = ""
 revealed_indexes = "[ 0, 2, 4, 6 ]"
 
-T1 = "8bec86c26337655162b39f97e38ee5c0bbd2b6e8900d1d68fc4c27679dbe88dc76
-      f313526bc800dd3209bef6b8907e95"
+T1 = "8b497dd4dcdcf7eb58c9b43e57e06bcea3468a223ae2fc015d7a86506a952d6805
+      5e73f5a5847e58f133ea154256d0da"
 T2 = "8655584d3da1313f881f48c239384a5623d2d292f08dae7ac1d8129c19a02a89b8
       2fa45de3f6c2c439510fce5919656f"
 domain = "6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400f
           7b"
 
-proof = "853f4927bd7e4998af27df65566c0a071a33a5207d1af33ef7c3be04004ac5d
-         a860f34d35c415498af32729720ca4d92977bbbbd60fdc70ddbb2588878675b
-         90815273c9eaf0caa1123fe5d0c4833fefc459d18e1dc83d669268ec702c0e1
-         6a6b73372346feb94ab16189d4c525652b8d3361bab43463700720ecfb0ee75
-         e595ea1b13330615011050a0dfcffdb21af37286b5d6012208605b7c3fe5457
-         936db502aa7eec43ae4a9d1bdf5f675153d521b1e587c6ddd195e80358667aa
-         e42e64754595a0d35c1d6e72f147f67f591c823e75340360615b9c0173445af
-         e53002d4face239979f697eff7183826449d4dc285a15e0c6afec9289b0b39e
-         0741d0c4925c090f722569b8c64e2829904a02ec1ab6340cfe999a59196bbb8
-         da2be2a89ddd84378dba0a22533e76fd6ac14f2b52a3972b041950539c19deb
-         af7454e6ef3b9cec23086dc26b8a104e319aa4394e4e376c133d6c00133daf2
-         f414e1df8ebca2de0a23e6ba37663f8074b9c8f440e37459bc08a8a4a587b78
-         b2102c81b2f48f0fa73c331f7b6f64f6d8d50f3f8cb1424626f9cf3171cdea7
-         f8cedb7bbb5a269856b37e8ba16ba8604fb1681be22dc6b64827a8326691524
-         b7c05ac462ec8d8eee64bc6e09df622bb974fba93a75f8"
+proof = "b1f8bf99a11c39f04e2a032183c1ead12956ad322dd06799c50f20fb8cf6b0a
+         c279210ef5a2920a7be3ec2aa0911ace7b96811a98f3c1cceba4a2147ae763b
+         3ba036f47bc21c39179f2b395e0ab1ac49017ea5b27848547bedd27be481c1d
+         fc0b73372346feb94ab16189d4c525652b8d3361bab43463700720ecfb0ee75
+         e595ea1b13330615011050a0dfcffdb21af33fda9e14ba4cc0fcad8015bce3f
+         ecc4704799bef9924ab19688fc04f760c4da35017072a3e295788eff1b0dc23
+         11bb199c186f86ea0540379d5a2ac8b7bd02d22487f2acc0e299115e16097b9
+         70badea802752a6fcb56cfbbcc2569916a8d3fe6d2d0fb1ae801cfc5ce05669
+         9adf23e3cd16b1fdf197deac099ab093da049a5b4451d038c71b7cc69e83909
+         67594f6777a855c7f5d301f0f0573211ac85e2e165ea196f78c33f54092645a
+         51341b777f0f5342301991f3da276c04b0224f7308090ae0b290d428a0570a7
+         1605a27977e7daf01d42dfbdcec252686c3060a73d81f6e151e23e3df2473b3
+         22da389f15a55cb2cd8a2bf29ef0d83d4876117735465fae956d8df56ec9eb0
+         e4748ad3ef5587797368c51a0ccd67eb6da38602a1c2d4fd411214efc693233
+         4ba0bcbf562626e7c0e1ae0db912c28d99f194fa3cd3a2"
 
 D.1.3.  Hash to Scalar Test Vectors
 
@@ -4527,9 +4542,9 @@ B = "98e38eadb6a2232cf91f41861089cda14d7e3ddef0c6eaba4d11a2732f66408f394
 domain = "41c5fe0290d0da734ce9bba57bfe0dfc14f3f9cfef18a0d7438cf2075fd71c
           c7"
 
-signature = "ae0b1807865598b3884e3e9b110e8faec662050dc9b4d95309d957fd30f
-             6fc24161f6f8b5680f1f5d1b547be221547915ca665c7b3087a336d5e0c
-             5fcfea62576afd13e563b730ef6d6d81f9944ab95b"
+signature = "8c87e2080859a97299c148427cd2fcf390d24bea850103a974887903926
+             2ecf4f42206f6ef767f298b6a96b424c1e86c26f8fba62212d0e05b9526
+             1c2cc0e5fdc63a32731347e810fd12e9c58355aa0d"
 
 D.2.1.2.  Modified Message Signature
 
@@ -4544,9 +4559,9 @@ PK = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f2851
       4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "88c0eb3bc1d97610c3a66d8a3a73f260f95a3028bccf7fff7d9851e2acd
-             9f3f32fdf58a5b34d12df8177adf37aa318a20f72be7d37a8e8d8441d1b
-             c0bc75543c681bf061ce7e7f6091fe78c1cb8af103"
+signature = "84773160b824e194073a57493dac1a20b667af70cd2352d8af241c77658
+             da5253aa8458317cca0eae615690d55b1f27164657dcafee1d5c1973947
+             aa70e2cfbb4c892340be5969920d0916067b4565a0"
 
 valid: "false"
 reason: "modified message"
@@ -4565,9 +4580,9 @@ PK = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f2851
       4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "88c0eb3bc1d97610c3a66d8a3a73f260f95a3028bccf7fff7d9851e2acd
-             9f3f32fdf58a5b34d12df8177adf37aa318a20f72be7d37a8e8d8441d1b
-             c0bc75543c681bf061ce7e7f6091fe78c1cb8af103"
+signature = "84773160b824e194073a57493dac1a20b667af70cd2352d8af241c77658
+             da5253aa8458317cca0eae615690d55b1f27164657dcafee1d5c1973947
+             aa70e2cfbb4c892340be5969920d0916067b4565a0"
 
 valid: "false"
 reason: "extra unsigned message"
@@ -4588,9 +4603,9 @@ PK = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f2851
       4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "895cd9c0ccb9aca4de913218655346d718711472f2bf1f3e68916de106a
-             0d93cf2f47200819b45920bbda541db2d91480665df253fedab2843055b
-             dc02535d83baddbbb2803ec3808e074f71f199751e"
+signature = "8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c9
+             6e1463e28f8c5f4fd0641d19cec5920d3a8ff4bedb6c9691454597bbd29
+             8288abed3632078557b2ace7d44caed846e1a0a1e8"
 
 valid: "false"
 reason: "missing messages"
@@ -4618,9 +4633,9 @@ PK = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f2851
       4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "895cd9c0ccb9aca4de913218655346d718711472f2bf1f3e68916de106a
-             0d93cf2f47200819b45920bbda541db2d91480665df253fedab2843055b
-             dc02535d83baddbbb2803ec3808e074f71f199751e"
+signature = "8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c9
+             6e1463e28f8c5f4fd0641d19cec5920d3a8ff4bedb6c9691454597bbd29
+             8288abed3632078557b2ace7d44caed846e1a0a1e8"
 
 valid: "false"
 reason: "re-ordered messages"
@@ -4647,9 +4662,9 @@ PK = "b064bd8d1ba99503cbb7f9d7ea00bce877206a85b1750e5583dd9399828a4d2061
       556b438ceefb59650ddf67e7a8f103677561b7ef7fe3c3357ec6b94d41c6"
 header = "11223344556677889900aabbccddeeff"
 
-signature = "895cd9c0ccb9aca4de913218655346d718711472f2bf1f3e68916de106a
-             0d93cf2f47200819b45920bbda541db2d91480665df253fedab2843055b
-             dc02535d83baddbbb2803ec3808e074f71f199751e"
+signature = "8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c9
+             6e1463e28f8c5f4fd0641d19cec5920d3a8ff4bedb6c9691454597bbd29
+             8288abed3632078557b2ace7d44caed846e1a0a1e8"
 
 valid: "false"
 reason: "wrong public key"
@@ -4676,9 +4691,9 @@ PK = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f2851
       4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c"
 header = "ffeeddccbbaa00998877665544332211"
 
-signature = "895cd9c0ccb9aca4de913218655346d718711472f2bf1f3e68916de106a
-             0d93cf2f47200819b45920bbda541db2d91480665df253fedab2843055b
-             dc02535d83baddbbb2803ec3808e074f71f199751e"
+signature = "8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c9
+             6e1463e28f8c5f4fd0641d19cec5920d3a8ff4bedb6c9691454597bbd29
+             8288abed3632078557b2ace7d44caed846e1a0a1e8"
 
 valid: "false"
 reason: "different header"
@@ -4702,9 +4717,9 @@ public_key = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa
               136f2851bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d
               460acee0e96f1e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f
               63aebc364cd55ded0c"
-signature = "ae0b1807865598b3884e3e9b110e8faec662050dc9b4d95309d957fd30f
-             6fc24161f6f8b5680f1f5d1b547be221547915ca665c7b3087a336d5e0c
-             5fcfea62576afd13e563b730ef6d6d81f9944ab95b"
+signature = "8c87e2080859a97299c148427cd2fcf390d24bea850103a974887903926
+             2ecf4f42206f6ef767f298b6a96b424c1e86c26f8fba62212d0e05b9526
+             1c2cc0e5fdc63a32731347e810fd12e9c58355aa0d"
 header = ""
 presentation_header = "bed231d880675ed101ead304512e043ade9958dd0241ea70b
                        4b3957fba941501"
@@ -4713,24 +4728,24 @@ revealed_indexes = "[ 0, 2, 4, 6 ]"
 T = "undefined"
 domain = "41c5fe0290d0da734ce9bba57bfe0dfc14f3f9cfef18a0d7438cf2075fd71c
           c7"
-challenge = "1cc198830295ccc56e5f9527216765105eee34324c5f3834154943608a8
-             ca652"
+challenge = "4a70506add5b2eb0be9ff66e3ea8deae666f198edfbb1391c6834e6df4f
+             1026d"
 
-proof = "958783d7d535fe1860a71ad5a7cf42df6527246300e3f3d94d67639c7e8a7db
-         cf3f082f63e3b1bcc1cdad71e1f6d5f0d821c4c6bb4b2dcdfe945491d4f4a23
-         d10752431d364fcbdd199c753f0beee7ffe02abbad57384244294ef7c2031d9
-         c50ac310574f509c712bb1a181d64ea3c1ee075c018a2bc773e2480b5c033cc
-         b9bfea5af347a88ab83746c9342ba76db36771c74f1feec7f67b30e3805d71c
-         8f893837b455d734d360c80e119b00dc63e2756b81a320d659a9a0f1ee57c41
-         773f304c37c278d169faec5f6720bb9187e9333b793a57ba69f27e4b0c2ea35
-         271276fc0011306d6c909cf4d4a7a50dbc9f6ef35d43e2043046dc3041ac0a9
-         b893dfd2dcd147910d719e818b4189a76f791a3600acd76623573c1796262a3
-         914921ec504d0f727c63e16b432f6256db62b9667016e516e97e2ef0bfa3bd1
-         92306564df28e019af18c50ca86a0e1d8d6b08b0641e549accd5e34ada8903d
-         55021780865edfa70f63b85f0ddaf50787f8ced8eee658f2dd61673d2cbeca2
-         aa2a5b649c22501b72cc7ee2d10bc9fe3aa3a7e169dc070d90b37735488cd0c
-         27517ffd634b99c1dc016a4086d24feff6f19f3c92fa11cc198830295ccc56e
-         5f9527216765105eee34324c5f3834154943608a8ca652"
+proof = "81925c2e525d9fbb0ba95b438b5a13fff5874c7c0515c193628d7d143ddc3bb
+         487771ad73658895997a88dd5b254ed29abc019bfca62c09b8dafb37e5f09b1
+         d380e084ec3623d071ec38d6b8602af93aa0ddbada307c9309cca86be16db53
+         dc7ac310574f509c712bb1a181d64ea3c1ee075c018a2bc773e2480b5c033cc
+         b9bfea5af347a88ab83746c9342ba76db3675ff70ce9006d166fd813a81b448
+         a632216521c864594f3f92965974914992f8d1845230915b11680cf44b25886
+         c5670904ac2d88255c8c31aea7b072e9c4eb7e4c3fdd38836ae9d2e9fa271c8
+         d9fd42f669a9938aeeba9d8ae613bf11f489ce947616f5cbaee95511dfaa5c7
+         3d85e4ddd2f29340f821dc2fb40db3eae5f5bc08467eb195e38d7d436b63e55
+         6ea653168282a23b53d5792a107f85b1203f82aab46f6940650760e5b320261
+         ffc0ca5f15917b51e7d2ad4bcbec94de792e229db663abff23af392a5e73ce1
+         15c27e8492ec24a0815091c69874dbd9dae2d2eed000810c748a798a78a804a
+         39034c6e745cee455812cc982eea7105948b2cb55b82278a77237fcbec4748e
+         2d2255af0994dd09dba8ac60515a39b24632a2c1c840c4a70506add5b2eb0be
+         9ff66e3ea8deae666f198edfbb1391c6834e6df4f1026d"
 
 D.2.2.2.  No Presentation Header Valid Proof
 
@@ -4749,35 +4764,35 @@ public_key = "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa
               136f2851bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d
               460acee0e96f1e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f
               63aebc364cd55ded0c"
-signature = "895cd9c0ccb9aca4de913218655346d718711472f2bf1f3e68916de106a
-             0d93cf2f47200819b45920bbda541db2d91480665df253fedab2843055b
-             dc02535d83baddbbb2803ec3808e074f71f199751e"
+signature = "8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c9
+             6e1463e28f8c5f4fd0641d19cec5920d3a8ff4bedb6c9691454597bbd29
+             8288abed3632078557b2ace7d44caed846e1a0a1e8"
 header = "11223344556677889900aabbccddeeff"
 presentation_header = ""
 revealed_indexes = "[ 0, 2, 4, 6 ]"
 
-T1 = "896e010e182f0718400b1e694ebc740215c2dd703f5988b7312be5a7f824f86b22
-      1dd89d7a66f61b9fb238a73169e3bb"
+T1 = "84719c2b5bb275ee74913dbf95fb9054f690c8e4035f1259e184e9024544bc4bbe
+      a9c244e7897f9db7c82b7b14b27d28"
 T2 = "8f5f191c956aefd5c960e57d2dfbab6761eb0ebc5efdba1aca1403dcc19e05296b
       16c9feb7636cb4ef2a360c5a148483"
 domain = "6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce5b
           47"
 
-proof = "a8da259a5ae7a9a8e5e4e809b8e7718b4d7ab913ed5781ebbff4814c762033e
-         da4539973ed9bf557f882192518318cc4916fdffc857514082915a31df5bbb7
-         9992a59fd68dc3b48d19d2b0ad26be92b4cf78a30f472c0fd1e558b9d03940b
-         077897739228c88afc797916dca01e8f03bd9c5375c7a7c59996e514bb952a4
-         36afd24457658acbaba5ddac2e693ac481356d60aa96c9b53ff5c63b3930bbc
-         b3940f2132b7dcd800be4afbffd3325ecedaf033d354de52e12e924b32dd13c
-         2f7cebef3614a4a519ff94d1bcceb7e22562ab4a5729a74cc3746558e254696
-         51d7da37f714951c2ca03fc364a2272d13b2dee53412f97f42dfd6b57ae92fc
-         7cb4859f418d6a912f5c446002cbf96ee6b8f4a849577a43ef303592c33e036
-         08a9ca93066084bdfb3d3974ba322b7523d48fc9b35227e776c994b0e2da158
-         7b496660836a7307a2125eae5912be3ea839bb4db16a21cc394c9a63fce9104
-         0d8321b30313677f7cbc4a9119fd0849aacef25fe9336db2dcbd85a2e3fd2ca
-         2efff623c13e6c48b832c9e07dbe4337320dd0264a573f25bb46876e8153db4
-         7de2f0176db68cca1f55406a78c89c1a65716c00e9230098c6a9690a190b207
-         20a7662ccd13b392fe08d045b99d5010f625cd74f7e90a"
+proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
+         d340394223a5397a3011b1c340ebc415199462ba6f31106d8a6da8b513b37a4
+         7afe93c9b3474d0d7a354b2edc1b88818b063332df774c141f7a07c48fe50d4
+         52f897739228c88afc797916dca01e8f03bd9c5375c7a7c59996e514bb952a4
+         36afd24457658acbaba5ddac2e693ac48135672556358e78b5398f1a547a2a9
+         8dfe16230f244ba742dea737e4f810b4d94e03ac068ef840aaadf12b2ed51d3
+         fb774c2a0a620019fd1f39c52c6f89a0e6067e3039413a91129791b2af215a8
+         2ad2356b6bc305c1d7a828fe519619dd026eaaf07ea81cee52b21aab3e83205
+         19bf37c2bb228a8b580f899d84327bdc5e84a66000e8bac17d2fa039bb2246c
+         8eacc623ccd9eb26e184a96a9e3a6702e1dbafe194772394b05251f72bcd2d2
+         0f542b15b2406f899791f6f285c7b469e7c7b9624147f305c38c903273a949f
+         6e85b9774aeeccfafa432e2cdd7c8f97d1687741ed30d725444428dd87d9884
+         711d9a46baaf0c04b03a2a228b7033be0841880134b03b15f698756eca5f375
+         03a0411a9586d3027a8b8b9118e95a9949b2719e85e4a669d9e4b7bb6d4544c
+         8cc558c30d79f9c85a87e1a95611400b7c7dac5673d800"
 
 D.2.3.  Hash to Scalar Test Vectors
 

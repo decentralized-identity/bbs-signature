@@ -7,7 +7,7 @@ none                                                           M. Lodder
                                                                T. Looker
                                                                    Mattr
                                                             A. Whitehead
-                                                         31 January 2024
+                                                            25 June 2024
 
 
          Blind Signatures extension of the BBS Signature Scheme
