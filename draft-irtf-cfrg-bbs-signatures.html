@@ -1031,7 +1031,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Looker, et al.</td>
-<td class="center">Expires 27 December 2024</td>
+<td class="center">Expires 28 December 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1044,12 +1044,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-irtf-cfrg-bbs-signatures-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-06-25" class="published">25 June 2024</time>
+<time datetime="2024-06-26" class="published">26 June 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-12-27">27 December 2024</time></dd>
+<dd class="expires"><time datetime="2024-12-28">28 December 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1103,7 +1103,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 27 December 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 28 December 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1681,7 +1681,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
           <dd style="margin-left: 1.5em" id="section-1.2-4.6">a subgroup, of prime order r, of the multiplicative group of a field extension.<a href="#section-1.2-4.6" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
-<dt id="section-1.2-4.7">e</dt>
+<dt id="section-1.2-4.7">h</dt>
           <dd style="margin-left: 1.5em" id="section-1.2-4.8">G1 x G2 -&gt; GT: a non-degenerate bilinear map.<a href="#section-1.2-4.8" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
@@ -2098,7 +2098,7 @@ Outputs:
 Procedure:
 
 1. message_scalars = messages_to_scalars(messages, api_id)
-2. generators = create_generators(length(messages)+1, api_id)
+2. generators = create_generators(length(messages) + 1, api_id)
 
 3. proof = CoreProofGen(PK, signature, generators, header, ph,
                              message_scalars, disclosed_indexes, api_id)
@@ -2153,7 +2153,7 @@ Outputs:
 
 Deserialization:
 
-1. proof_len_floor = 2 * octet_point_length + 3 * octet_scalar_length
+1. proof_len_floor = 2 * octet_point_length + 4 * octet_scalar_length
 2. if length(proof) &lt; proof_len_floor, return INVALID
 3. U = floor((length(proof) - proof_len_floor) / octet_scalar_length)
 4. R = length(disclosed_indexes)
@@ -2191,7 +2191,7 @@ Procedure:
             <code>serialize</code>, <code>signature_to_octets</code>, <code>octets_to_signature</code>, <code>proof_to_octets</code>, <code>octets_to_proof</code> and <code>octets_to_pubkey</code> are defined in <a href="#serialization" class="auto internal xref">Section 4.2.4</a>.<a href="#section-3.6-3.3" class="pilcrow">¶</a>
 </li>
           <li class="compact" id="section-3.6-3.4">
-            <code>e</code> is the pairing operation used (see <a href="#notation" class="auto internal xref">Section 1.2</a>), defined as part of the ciphersuite.<a href="#section-3.6-3.4" class="pilcrow">¶</a>
+            <code>h</code> is the pairing operation used (see <a href="#notation" class="auto internal xref">Section 1.2</a>), defined as part of the ciphersuite.<a href="#section-3.6-3.4" class="pilcrow">¶</a>
 </li>
         </ul>
 <p id="section-3.6-4">Each core operation will accept a vector of <code>generators</code> (points of G1) and optionally, a vector of <code>messages</code>. The generators MUST be unique and pseudo-random i.e., with no known relationship to each other. See <a href="#defining-new-generators" class="auto internal xref">Section 4.1.1.1</a> for more details. Each message is represented as a scalar value. See <a href="#messages-to-scalars" class="auto internal xref">Section 4.1.2</a> for ways to map a message to a scalar and the corresponding security requirements.<a href="#section-3.6-4" class="pilcrow">¶</a></p>
@@ -2232,9 +2232,9 @@ Outputs:
 
 Definitions:
 
-1. signature_dst, an octet string representing the domain separation
-                  tag: api_id || "H2S_" where "H2S_" is an ASCII string
-                  comprised of 4 bytes.
+1. hash_to_scalar_dst, an octet string representing the domain
+                       separation tag: api_id || "H2S_" where "H2S_" is
+                       an ASCII string comprised of 4 bytes.
 
 Deserialization:
 
@@ -2248,14 +2248,14 @@ Procedure:
 1. domain = calculate_domain(PK, generators, header, api_id)
 
 2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
-                                                          signature_dst)
+                                                     hash_to_scalar_dst)
 3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 4. A = B * (1 / (SK + e))
 5. return signature_to_octets((A, e))
 
 </pre><a href="#section-3.6.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-3.6.1-3"><strong>Note</strong> When computing step 12 of the above procedure there is an extremely small probability (around <code>2^(-r)</code>) that the condition <code>(SK + e) = 0 mod r</code> will be met. How implementations evaluate the inverse of the scalar value <code>0</code> may vary, with some returning an error and others returning <code>0</code> as a result. If the returned value from the inverse operation <code>1/(SK + e)</code> does evaluate to <code>0</code> the value of <code>A</code> will equal <code>Identity_G1</code> thus an invalid signature. Implementations MAY elect to check <code>(SK + e) = 0 mod r</code> prior to step 9, and or <code>A != Identity_G1</code> after step 9 to prevent the production of invalid signatures.<a href="#section-3.6.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.6.1-3"><strong>Note</strong> When computing step 4 of the above procedure there is an extremely small probability (around <code>2^(-r)</code>) that the condition <code>(SK + e) = 0 mod r</code> will be met. How implementations evaluate the inverse of the scalar value <code>0</code> may vary, with some returning an error and others returning <code>0</code> as a result. If the returned value from the inverse operation <code>1/(SK + e)</code> does evaluate to <code>0</code> the value of <code>A</code> will equal <code>Identity_G1</code> thus an invalid signature. Implementations MAY elect to check <code>(SK + e) = 0 mod r</code> prior to step 9, and or <code>A != Identity_G1</code> after step 9 to prevent the production of invalid signatures.<a href="#section-3.6.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="coreverify">
@@ -2307,7 +2307,7 @@ Procedure:
 
 1. domain = calculate_domain(PK, generators, header, api_id)
 2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-3. if e(A, W + BP2 * e) * e(B, -BP2) != Identity_GT, return INVALID
+3. if h(A, W + BP2 * e) * h(B, -BP2) != Identity_GT, return INVALID
 4. return VALID
 
 </pre><a href="#section-3.6.2-2" class="pilcrow">¶</a>
@@ -2402,7 +2402,7 @@ Procedure:
           </h4>
 <p id="section-3.6.4-1">This operation checks that a <code>proof</code> is valid for a <code>header</code>, vector of disclosed messages (<code>disclosed_messages</code>) along side their index corresponding to their original position when signed (<code>disclosed_indexes</code>) and presentation header (<code>ph</code>) against a public key (<code>PK</code>).<a href="#section-3.6.4-1" class="pilcrow">¶</a></p>
 <p id="section-3.6.4-2">The inputted disclosed messages (<code>disclosed_messages</code>) MUST be supplied to this operation in the same order as they had as part of the <code>messages</code> input of the <code>CoreSign</code> operation defined in <a href="#coresign" class="auto internal xref">Section 3.6.1</a>. Similarly, the indexes of the disclosed messages (<code>disclosed_indexes</code>) MUST be the same and in the same order as the <code>disclosed_indexes</code> input of <code>CoreProofGen</code> (<a href="#coreproofgen" class="auto internal xref">Section 3.6.3</a>). Failure to comply with these requirements will result to the proof verification procedure returning INVALID.<a href="#section-3.6.4-2" class="pilcrow">¶</a></p>
-<p id="section-3.6.4-3">The operation works by first initializing the proof verification procedure using the <code>ProofVerifyInit</code> subroutine defined in <a href="#proof-verification-initialization" class="auto internal xref">Section 3.7.3</a>. The result will be inputted to the challenge calculation operation (<code>ProofChallengeCalculate</code>, defined in <a href="#challenge-calculation" class="auto internal xref">Section 3.7.4</a>). The resulting challenge and the 2 first components of the received proof (points of G1) will be checked for correctness (steps 5 and 6 in the following procedure), to verify the proof.<a href="#section-3.6.4-3" class="pilcrow">¶</a></p>
+<p id="section-3.6.4-3">The operation works by first initializing the proof verification procedure using the <code>ProofVerifyInit</code> subroutine defined in <a href="#proof-verification-initialization" class="auto internal xref">Section 3.7.3</a>. The result will be inputted to the challenge calculation operation (<code>ProofChallengeCalculate</code>, defined in <a href="#challenge-calculation" class="auto internal xref">Section 3.7.4</a>). The resulting challenge and the two first components of the received proof (points of G1) will be checked for correctness (steps 5 and 6 in the following procedure), to verify the proof.<a href="#section-3.6.4-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.6.4-4">
 <pre>result = CoreProofVerify(PK, proof, generators, header, ph,
                           disclosed_messages, disclosed_indexes, api_id)
@@ -2455,7 +2455,7 @@ Procedure:
                                                    messages, ph, api_id)
 4. if challenge is INVALID, return INVALID
 5. if cp != challenge, return INVALID
-6. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
+6. if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID
 7. return VALID
 
 </pre><a href="#section-3.6.4-4" class="pilcrow">¶</a>
@@ -2477,7 +2477,7 @@ Procedure:
           </h4>
 <p id="section-3.7.1-1">This operation initializes the proof and returns one of the inputs passed to the challenge calculation operation (i.e., <code>ProofChallengeCalculate</code>, <a href="#challenge-calculation" class="auto internal xref">Section 3.7.4</a>), during the <code>CoreProofGen</code> operation defined in <a href="#coreproofgen" class="auto internal xref">Section 3.6.3</a>.<a href="#section-3.7.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.7.1-2">The inputted <code>messages</code> MUST be supplied to this operation in the same order they had when inputted to the <code>CoreSign</code> operation (<a href="#coresign" class="auto internal xref">Section 3.6.1</a>).<a href="#section-3.7.1-2" class="pilcrow">¶</a></p>
-<p id="section-3.7.1-3">The defined procedure needs the messages the Prover decided to not disclose. For this purpose, along the list of signed messages, the operation also accepts a set of integers in the range from <code>0</code> to <code>length(messages) - 1</code> (inclusive) in ascending order, representing the indexes of the undisclosed messages (<code>undisclosed_indexes</code>). To blind the inputted <code>signature</code> and the undisclosed messages, the operation will also accept a set of uniformly random scalars (<code>random_scalars</code>). This set must have exactly 3 more items than the list of undisclosed indexes (i.e., it must hold that <code>length(random_scalars) = length(undisclosed_indexes) + 3</code>).<a href="#section-3.7.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.7.1-3">The defined procedure needs the messages the Prover decided to not disclose. For this purpose, along the list of signed messages, the operation also accepts a set of integers in the range from <code>0</code> to <code>length(messages) - 1</code> (inclusive) in ascending order, representing the indexes of the undisclosed messages (<code>undisclosed_indexes</code>). To blind the inputted <code>signature</code> and the undisclosed messages, the operation will also accept a set of uniformly random scalars (<code>random_scalars</code>). This set must have exactly 5 more items than the list of undisclosed indexes (i.e., it must hold that <code>length(random_scalars) = length(undisclosed_indexes) + 5</code>).<a href="#section-3.7.1-3" class="pilcrow">¶</a></p>
 <p id="section-3.7.1-4">This operation makes use of the <code>calculate_domain</code> function defined in <a href="#domain-calculation" class="auto internal xref">Section 4.2.3</a>.<a href="#section-3.7.1-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.7.1-5">
 <pre>init_res = ProofInit(PK, signature, generators, random_scalars,
@@ -2725,9 +2725,9 @@ Outputs:
 
 Definitions:
 
-1. challenge_dst, an octet string representing the domain separation
-                  tag: api_id || "H2S_" where "H2S_" is an ASCII string
-                  comprised of 4 bytes.
+1. hash_to_scalar_dst, an octet string representing the domain
+                       separation tag: api_id || "H2S_" where "H2S_" is
+                       an ASCII string comprised of 4 bytes.
 
 Deserialization:
 
@@ -2747,7 +2747,7 @@ Procedure:
 1. c_arr = (R, i1, msg_i1, i2, msg_i2, ..., iR, msg_iR, Abar, Bbar,
                                                       D, T1, T2, domain)
 2. c_octs = serialize(c_arr) || I2OSP(length(ph), 8) || ph
-3. return hash_to_scalar(c_octs, challenge_dst)
+3. return hash_to_scalar(c_octs, hash_to_scalar_dst)
 
 </pre><a href="#section-3.7.4-6" class="pilcrow">¶</a>
 </div>
@@ -2948,7 +2948,7 @@ C1 == C2.
 <ul class="compact">
 <li class="compact" id="section-4.1.2.1-5.1">The returned scalars MUST be independent. More specifically, knowledge of any subset of the returned scalars MUST NOT reveal any information about the scalars not in that subset.<a href="#section-4.1.2.1-5.1" class="pilcrow">¶</a>
 </li>
-              <li class="compact" id="section-4.1.2.1-5.2">Unique inputs MUST result to unique outputs.<a href="#section-4.1.2.1-5.2" class="pilcrow">¶</a>
+              <li class="compact" id="section-4.1.2.1-5.2">Unique inputs MUST result in unique outputs.<a href="#section-4.1.2.1-5.2" class="pilcrow">¶</a>
 </li>
               <li class="compact" id="section-4.1.2.1-5.3">If the inputted vector of messages does not include any duplicates, the outputted scalars MUST NOT include any duplicates either.<a href="#section-4.1.2.1-5.3" class="pilcrow">¶</a>
 </li>
@@ -3007,7 +3007,7 @@ Procedure:
           <h4 id="name-hash-to-scalar">
 <a href="#section-4.2.2" class="section-number selfRef">4.2.2. </a><a href="#name-hash-to-scalar" class="section-name selfRef">Hash to Scalar</a>
           </h4>
-<p id="section-4.2.2-1">This operation describes how to hash an arbitrary octet string to a scalar values in the multiplicative group of integers mod r (i.e., values in the range from  1 to r - 1).  This procedure acts as a helper function, used internally in various places within the operations described in the spec.<a href="#section-4.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2.2-1">This operation describes how to hash an arbitrary octet string to a scalar value in the multiplicative group of integers mod r (i.e., values in the range from  1 to r - 1).  This procedure acts as a helper function, used internally in various places within the operations described in the spec.<a href="#section-4.2.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.2-2">The operation takes as input an octet string representing the octet string to hash (<code>msg</code>) and a domain separation tag (<code>dst</code>). The length of the dst MUST be less than 255 octets. See section 5.3.3 of <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> for guidance on using larger dst values.<a href="#section-4.2.2-2" class="pilcrow">¶</a></p>
 <p id="section-4.2.2-3"><strong>Note</strong> This operation makes use of <code>expand_message</code> defined in <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span>. The operation <code>expand_message</code> may fail (abort). In that case, <code>hash_to_scalar</code> MUST also ABORT.<a href="#section-4.2.2-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.2.2-4">
@@ -3073,9 +3073,9 @@ Outputs:
 
 Definitions:
 
-1. domain_dst, an octet string representing the domain separation tag:
-               api_id || "H2S_" where "H2S_" is an ASCII string
-               comprised of 4 bytes.
+1. hash_to_scalar_dst, an octet string representing the domain
+                       separation tag: api_id || "H2S_" where "H2S_" is
+                       an ASCII string comprised of 4 bytes.
 
 Deserialization:
 
@@ -3091,7 +3091,7 @@ Procedure:
 1. dom_array = (L, Q_1, H_1, ..., H_L)
 2. dom_octs = serialize(dom_array) || api_id
 3. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
-4. return hash_to_scalar(dom_input, domain_dst)
+4. return hash_to_scalar(dom_input, hash_to_scalar_dst)
 
 </pre><a href="#section-4.2.3-5" class="pilcrow">¶</a>
 </div>
@@ -3156,8 +3156,7 @@ Procedure:
 <a href="#section-4.2.4.2" class="section-number selfRef">4.2.4.2. </a><a href="#name-signature-to-octets" class="section-name selfRef">Signature to Octets</a>
             </h5>
 <p id="section-4.2.4.2-1">This operation describes how to encode a signature to an octet string.<a href="#section-4.2.4.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.4.2-2"><em>Note</em> this operation deliberately does not perform the relevant checks on the inputs <code>A</code> and <code>e</code>
-because its assumed these are done prior to its invocation, e.g as is the case with the <code>CoreSign</code> <a href="#coresign" class="auto internal xref">Section 3.6.1</a> operation.<a href="#section-4.2.4.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.4.2-2"><em>Note</em> this operation deliberately does not perform the relevant checks on the inputs <code>A</code> and <code>e</code> because its assumed these are done prior to its invocation, e.g., as is the case with the <code>CoreSign</code> <a href="#coresign" class="auto internal xref">Section 3.6.1</a> operation.<a href="#section-4.2.4.2-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.2.4.2-3">
 <pre>signature_octets = signature_to_octets(signature)
 
@@ -3394,7 +3393,7 @@ Procedure:
         <h3 id="name-total-number-and-index-of-s">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-total-number-and-index-of-s" class="section-name selfRef">Total Number and Index of Signed Messages</a>
         </h3>
-<p id="section-5.1-1">When a Prover presents a BBS proof to a Verifier, other than the messages they decide to disclose, there are two additional pieces of information that will be revealed. First, the total number of signed messages, which can be inferred from the size of the BBS proof and the length of the disclosed messages list. Second, the index the disclosed messages had in the list of signed messages (see <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>). This information, if unique to each Prover, could be employed to correlate multiple proof presentations together. As a result, the Signer should not sign lists of messages with unique lengths or unique indexing. For this reason, it is RECOMMENDED that signed lists of messages are padded to a common length (using either random, or an unused by the application message, like 0 or 1). It is also RECOMMENDED that a constant ordering of messages will be preserved when possible. For example, if an application creates signatures for the messages <code>[&lt;user_name&gt;, &lt;user_affiliation&gt;, &lt;user_country&gt;]</code>, then those messages should always be signed in the same order, i.e., first message should always be the user's name (<code>&lt;user_name&gt;</code>), second message should always be the user's affiliation (<code>&lt;user_affiliation&gt;</code>) and the last message should always be the user's country of origins (<code>&lt;user_country&gt;</code>). Provers can employ consistency validation mechanisms, like the ones described in <span>[<a href="#I-D.ietf-privacypass-key-consistency" class="cite xref">I-D.ietf-privacypass-key-consistency</a>]</span>, to validate that those values are not used to correlate them.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-1">When a Prover presents a BBS proof to a Verifier, other than the messages they decide to disclose, there are two additional pieces of information that will be revealed. First, the total number of signed messages, which can be inferred from the size of the BBS proof and the length of the disclosed messages list. Second, the indexes that the disclosed messages had in the list of signed messages (see <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>). This information, if unique to each Prover, could be employed to correlate multiple proof presentations together. As a result, the Signer should not sign lists of messages with unique lengths or unique indexing. For this reason, it is RECOMMENDED that signed lists of messages are padded to a common length (using either random, or an unused by the application message, like 0 or 1). It is also RECOMMENDED that a constant ordering of messages will be preserved when possible. For example, if an application creates signatures for the messages <code>[&lt;user_name&gt;, &lt;user_affiliation&gt;, &lt;user_country&gt;]</code>, then those messages should always be signed in the same order, i.e., first message should always be the user's name (<code>&lt;user_name&gt;</code>), second message should always be the user's affiliation (<code>&lt;user_affiliation&gt;</code>) and the last message should always be the user's country of origins (<code>&lt;user_country&gt;</code>). Provers can employ consistency validation mechanisms, like the ones described in <span>[<a href="#I-D.ietf-privacypass-key-consistency" class="cite xref">I-D.ietf-privacypass-key-consistency</a>]</span>, to validate that those values are not used to correlate them.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="signer-public-keys">
@@ -3443,7 +3442,7 @@ Procedure:
         <h3 id="name-side-channel-attacks">
 <a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-side-channel-attacks" class="section-name selfRef">Side Channel Attacks</a>
         </h3>
-<p id="section-6.3-1">There are two places where side channel attacks could be relevant in the BBS Signatures scheme. First, against the Signer, where side channel leakage during signature generation could reveal their secret key. Second, against the Prover, where a side channel attack could be used during proof generation to either directly reveal the udnisclosed messages and signature value, or reveal the random scalars used, leading again to the leakage of the undisclosed messages or the hidden signature. Therefore, implementations MUST apply proper side channel attack protection. One method to achieve this, is by using elliptic curve implementations that execute curve operations in constant time.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-1">There are two places where side channel attacks could be relevant in the BBS Signatures scheme. First, against the Signer, where side channel leakage during signature generation could reveal their secret key. Second, against the Prover, where a side channel attack could be used during proof generation to either directly reveal the undisclosed messages and signature value, or reveal the random scalars used, leading again to the leakage of the undisclosed messages or the hidden signature. Therefore, implementations MUST apply proper side channel attack protection. One method to achieve this, is by using elliptic curve implementations that execute curve operations in constant time.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="presentation-header-selection">
@@ -3477,7 +3476,7 @@ Procedure:
 <a href="#section-6.7" class="section-number selfRef">6.7. </a><a href="#name-randomness-requirements" class="section-name selfRef">Randomness Requirements</a>
         </h3>
 <p id="section-6.7-1">The <code>key_material</code> input to the <code>KeyGen</code> operation defined in <a href="#secret-key" class="auto internal xref">Section 3.4.1</a> MUST be infeasible to guess and MUST be kept secret. One possibility is to generate the <code>key_material</code> from a trusted, cryptographically secure pseudo random function <span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span>. Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.<a href="#section-6.7-1" class="pilcrow">¶</a></p>
-<p id="section-6.7-2">The <code>ProofGen</code> operation defined in <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a> is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes <code>ProofGen</code> vulnerable to attacks caused by bad entropy (like the ones described in <span>[<a href="#HDWH12" class="cite xref">HDWH12</a>]</span>). If randomness is re-used or is in any way predictable or maliciously constructed, an adversary may be able to unveil the undisclosed from the proof messages or the hidden signature value. More subtle attacks are also possible, where the security properties of the BBS proof may not be broken, but a system making use of the BBS scheme may still be compromised. As an example, consider systems that need to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the <code>get_random</code> function (<a href="#parameters" class="auto internal xref">Section 3.1</a>) to create an undetected channel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed <span>[<a href="#DRBG" class="cite xref">DRBG</a>]</span>. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).<a href="#section-6.7-2" class="pilcrow">¶</a></p>
+<p id="section-6.7-2">The <code>ProofGen</code> operation defined in <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a> is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes <code>ProofGen</code> vulnerable to attacks caused by bad entropy (like the ones described in <span>[<a href="#HDWH12" class="cite xref">HDWH12</a>]</span>). If randomness is re-used or is in any way predictable or maliciously constructed, an adversary may be able to unveil undisclosed information from the proof messages or the hidden signature value. More subtle attacks are also possible, where the security properties of the BBS proof may not be broken, but a system making use of the BBS scheme may still be compromised. As an example, consider systems that needs to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the <code>get_random</code> function (<a href="#parameters" class="auto internal xref">Section 3.1</a>) to create an undetected channel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed <span>[<a href="#DRBG" class="cite xref">DRBG</a>]</span>. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).<a href="#section-6.7-2" class="pilcrow">¶</a></p>
 <p id="section-6.7-3">In any case, the randomness used in ProofGen MUST be unique in each call and MUST have a distribution that is indistinguishable from uniform. If the random scalars are re-used, created from "bad randomness" (for example with a known relationship to each other) or are in any way predictable, the undisclosed messages or the signature value may be compromised. Naturally, a cryptographically secure pseudorandom number generator or pseudo random function is REQUIRED to implement the <code>get_random</code> functionality. See <span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span> for guidance on implementing such functionality. See also <span>[<a href="#RFC8937" class="cite xref">RFC8937</a>]</span>, for recommendations on generating good randomness in cases where the Prover has direct or in-direct access to a secret key.<a href="#section-6.7-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -3486,8 +3485,8 @@ Procedure:
         <h3 id="name-mapping-messages-to-scalars">
 <a href="#section-6.8" class="section-number selfRef">6.8. </a><a href="#name-mapping-messages-to-scalars" class="section-name selfRef">Mapping Messages to Scalars</a>
         </h3>
-<p id="section-6.8-1">In an application using BBS Signatures, there are 2 places where messages could be processed. First, before the messages are passed to the BBS Interface operations, and second, after they are passed to the BBS Interface operations but before they are passed to the BBS Core operations.<a href="#section-6.8-1" class="pilcrow">¶</a></p>
-<p id="section-6.8-2">To allow for re-usability of software, it is RECOMMENDED that application specific processing (like UTF-8 encoding <span>[<a href="#RFC3629" class="cite xref">RFC3629</a>]</span>, Base-64  decoding <span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span> etc.,) should happen before messages are passed to the BBS Interface operations. In those cases, the application should ensure that all protocol participants have a clear and consistent understating for which method should be used to process a message. This can be achieved by associating specific Interfaces (with unique <code>api_id</code> values, see <a href="#defining-new-interfaces" class="auto internal xref">Section 3.8</a>) or unique header values (see <a href="#signature-generation-sign" class="auto internal xref">Section 3.5.1</a>) with different pre-processing methodologies.<a href="#section-6.8-2" class="pilcrow">¶</a></p>
+<p id="section-6.8-1">In an application using BBS Signatures, there are two places where messages could be processed. First, before the messages are passed to the BBS Interface operations, and second, after they are passed to the BBS Interface operations but before they are passed to the BBS Core operations.<a href="#section-6.8-1" class="pilcrow">¶</a></p>
+<p id="section-6.8-2">To allow for re-usability of software, it is RECOMMENDED that application specific processing (like UTF-8 encoding <span>[<a href="#RFC3629" class="cite xref">RFC3629</a>]</span>, Base-64  decoding <span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span> etc.,) should happen before messages are passed to the BBS Interface operations. In those cases, the application should ensure that all protocol participants have a clear and consistent understanding of which method should be used to process a message. This can be achieved by associating specific Interfaces (with unique <code>api_id</code> values, see <a href="#defining-new-interfaces" class="auto internal xref">Section 3.8</a>) or unique header values (see <a href="#signature-generation-sign" class="auto internal xref">Section 3.5.1</a>) with different pre-processing methodologies.<a href="#section-6.8-2" class="pilcrow">¶</a></p>
 <p id="section-6.8-3">Note that the BBS Interface defined in this document (see <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a>) only accepts messages that are represented as octet strings. However, in some more advanced applications, like the ones using range proofs (<span>[<a href="#BBB17" class="cite xref">BBB17</a>]</span>) to prove that a signed message is within some range (without disclosing that message), the pre-processing of messages may result to some of them being mapped to scalar values, before they are passed to the BBS Interface (for example, an application could use <span>[<a href="#ISO8601" class="cite xref">ISO8601</a>]</span> to represent dates as integers etc.,) that should directly be signed (e.g., to not be further processed by <code>hash_to_scalar</code>).<a href="#section-6.8-3" class="pilcrow">¶</a></p>
 <p id="section-6.8-4">If a BBS Interface accepts both octet strings and scalar values as messages, where depending on the message's type different operations will be used to map it to a scalar (e.g., <code>hash_to_scalar</code> for octet strings and the identity operation for scalars), it must still ensure that the properties described in <a href="#define-a-new-map-to-scalar" class="auto internal xref">Section 4.1.2.1</a> holds. To that end, the application MUST ensure that it is clear to all participants, which message should be considered an octet string and which a scalar.<a href="#section-6.8-4" class="pilcrow">¶</a></p>
 <p id="section-6.8-5">As an example, if the type (i.e., octet string or scalar) of the messages inputted to the BBS Interface, is uniquely determined by its index in the messages list (for example, first message is an octet string, second message a scalar etc.,), the map between message index and message type (determined by the Signer), could be made available as part of the Signer's public parameters (similar to <span>[<a href="#UPROVE" class="cite xref">UPROVE</a>]</span>). This map would then be passed to the BBS Interface, which will use it to correctly map each message to a scalar. Another option, is to sign such configurations as part of the <code>header</code> parameter of the BBS signature (see <a href="#signature-generation-sign" class="auto internal xref">Section 3.5.1</a>). In this case, the map does not need to be published by the Signer.<a href="#section-6.8-5" class="pilcrow">¶</a></p>
@@ -3502,7 +3501,7 @@ Procedure:
         </h3>
 <p id="section-6.9-1">BBS Signatures compine two security properties; data authenticity and data confidentiality.<a href="#section-6.9-1" class="pilcrow">¶</a></p>
 <p id="section-6.9-2">Data authenticity refers to the inability of anyone other that the Signer being able to generate BBS signatures that are valid under the Signer's public key (this property is often refered to as unforgeability, or in the case of BBS Signatures, strong unforgeability, e.g., by <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>). It also means that no one should be able to generate valid BBS proofs disclosing sets of messages, without first optaining a valid BBS signature on those messages (in academic works, this is refered to as the BBS proof being a proof-of-knowledge of a BBS signature <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.9-2" class="pilcrow">¶</a></p>
-<p id="section-6.9-3">Data confidenciality means that no one (not even the Signer) should be able to use a BBS proof to extract information about the messages the Prover decided not to disclose during the proof generation process, or the signature that was used to generate that proof (something that is refered to as the zero-knowledge proeprty of the BBS proof <span>[<a href="#BBDT16" class="cite xref">BBDT16</a>]</span> <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.9-3" class="pilcrow">¶</a></p>
+<p id="section-6.9-3">Data confidenciality means that no one (not even the Signer) should be able to use a BBS proof to extract information about the messages the Prover decided not to disclose during the proof generation process, or the signature that was used to generate that proof (something that is refered to as the zero-knowledge property of the BBS proof <span>[<a href="#BBDT16" class="cite xref">BBDT16</a>]</span> <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.9-3" class="pilcrow">¶</a></p>
 <p id="section-6.9-4">On the presence of a Cryptographically Relevant Quantum Computer (CRQC), meaning a computer that will be able to break the discrete logarithm problem in the groups used by BBS Signatures (see <span>[<a href="#I-D.ietf-pquip-pqc-engineers" class="cite xref">I-D.ietf-pquip-pqc-engineers</a>]</span>), the data authenticity property will not hold. Specifically, an adversary could use a CRQC to reveal the Signer's secret key from their public key, hence giving them the ability to generate BBS signatures on behalf of that Signer, for messages of their choosing, as well as BBS proofs using those signatures.<a href="#section-6.9-4" class="pilcrow">¶</a></p>
 <p id="section-6.9-5">On the other hand, data confidentiality cannot be broken, even by adversaries with unbounded computational resources and in possession of the Signer's secret key. This means that even by utilizing a CRQC, adversaries will not be able to compromise the data confidentiality property of BBS Signatures. As a result, an adversary with access to such a quantum computer, will not be able to reveal neither the messages undisclosed by a BBS proof, nor the hidden signature value. This guarantees that the privacy and hiding properties of BBS proofs that are currently used, will not be compromised by future quantum-attacks (a property that is often referred to as everlasting privacy).<a href="#section-6.9-5" class="pilcrow">¶</a></p>
 </section>
@@ -3568,7 +3567,7 @@ Procedure:
               <p id="section-7.1.2-3.6.1">P1: A fixed point in the G1 subgroup, different from the point BP1 (i.e., the base point of G1, see <a href="#terminology" class="auto internal xref">Section 1.1</a>). This leaves the base point "free", to be used with other protocols, like key commitment and proof of possession schemes (for example, like the one described in Section 3.3 of <span>[<a href="#I-D.irtf-cfrg-bls-signature" class="cite xref">I-D.irtf-cfrg-bls-signature</a>]</span>).<a href="#section-7.1.2-3.6.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-7.1.2-3.7">
-              <p id="section-7.1.2-3.7.1">e: The pairing operation used.<a href="#section-7.1.2-3.7.1" class="pilcrow">¶</a></p>
+              <p id="section-7.1.2-3.7.1">h: The pairing operation used.<a href="#section-7.1.2-3.7.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-7.1.2-4"><strong>Serialization functions</strong>:<a href="#section-7.1.2-4" class="pilcrow">¶</a></p>
@@ -3599,7 +3598,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
         <h3 id="name-bls12-381-ciphersuites">
 <a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-bls12-381-ciphersuites" class="section-name selfRef">BLS12-381 Ciphersuites</a>
         </h3>
-<p id="section-7.2-1">The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. The targeted security level of both suites in bits is <code>k = 128</code> (the actual security leven is closer to 126 bits). The number of bits of the order <code>r</code>, of the G1 and G2 subgroups, is <code>log2(r) = 255</code>. The base points <code>BP1</code> and <code>BP2</code> of G1 and G2 are the points <code>BP</code> and <code>BP'</code> correspondingly, as defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. For completeness, BLS12-381 and the relevant functionality (base points <code>BP1</code> and <code>BP2</code>, the pairing <code>e</code> as well as the point encoding and decoding operations) are defined in <a href="#the-bls12-381-curve" class="auto internal xref">Appendix B</a>.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-1">The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. The targeted security level of both suites in bits is <code>k = 128</code> (the actual security leven is closer to 126 bits). The number of bits of the order <code>r</code>, of the G1 and G2 subgroups, is <code>log2(r) = 255</code>. The base points <code>BP1</code> and <code>BP2</code> of G1 and G2 are the points <code>BP</code> and <code>BP'</code> correspondingly, as defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. For completeness, BLS12-381 and the relevant functionality (base points <code>BP1</code> and <code>BP2</code>, the pairing <code>h</code> as well as the point encoding and decoding operations) are defined in <a href="#the-bls12-381-curve" class="auto internal xref">Appendix B</a>.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
 <p id="section-7.2-2">The first ciphersuite uses the hash-to-curve suite <code>BLS12381G1_XOF:SHAKE-256_SSWU_RO_</code>, defined by this document in <a href="#bls12-381-hash_to_curve-def">Appendix A.1</a>, which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of <span>[<a href="#SHA3" class="cite xref">SHA3</a>]</span>.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
 <p id="section-7.2-3">The second ciphersuite uses the hash-to-curve suite <code>BLS12381G1_XMD:SHA-256_SSWU_RO_</code>, defined in Section 8.8.1 of the <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> document, which is based on the SHA-256, as defined in Section 6.2 of <span>[<a href="#SHA2" class="cite xref">SHA2</a>]</span> .<a href="#section-7.2-3" class="pilcrow">¶</a></p>
 <p id="section-7.2-4">For both ciphersuites defined in this section, the fixed point <code>P1</code> of G1 is defined as the output of the <code>create_generators</code> procedure defined in <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a> instantiated with the parameters defined by each ciphersuite, with the inputs <code>count = 1</code>, not supplying an <code>api_id</code> value and making use of the following "Definitions" for the <code>seed_dst</code>, <code>generator_dst</code> and <code>generator_seed</code> variables;<a href="#section-7.2-4" class="pilcrow">¶</a></p>
@@ -3650,7 +3649,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 </div>
 </li>
             <li class="normal" id="section-7.2.1-2.7">
-              <p id="section-7.2.1-2.7.1">e: the optimal Ate pairing (Appendix A.2 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>), defined in <a href="#optimal-ate-pairing" class="auto internal xref">Appendix B.1</a>.<a href="#section-7.2.1-2.7.1" class="pilcrow">¶</a></p>
+              <p id="section-7.2.1-2.7.1">h: the optimal Ate pairing (Appendix A.2 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>), defined in <a href="#optimal-ate-pairing" class="auto internal xref">Appendix B.1</a>.<a href="#section-7.2.1-2.7.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-7.2.1-3"><strong>Serialization functions</strong>:<a href="#section-7.2.1-3" class="pilcrow">¶</a></p>
@@ -3702,7 +3701,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 </div>
 </li>
             <li class="normal" id="section-7.2.2-2.7">
-              <p id="section-7.2.2-2.7.1">e: the optimal Ate pairing (Appendix A.2 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>), defined in <a href="#optimal-ate-pairing" class="auto internal xref">Appendix B.1</a>.<a href="#section-7.2.2-2.7.1" class="pilcrow">¶</a></p>
+              <p id="section-7.2.2-2.7.1">h: the optimal Ate pairing (Appendix A.2 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>), defined in <a href="#optimal-ate-pairing" class="auto internal xref">Appendix B.1</a>.<a href="#section-7.2.2-2.7.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-7.2.2-3"><strong>Serialization functions</strong>:<a href="#section-7.2.2-3" class="pilcrow">¶</a></p>
@@ -4992,7 +4991,7 @@ Procedure:
 </pre><a href="#appendix-B.1-2" class="pilcrow">¶</a>
 </div>
 <p id="appendix-B.1-3">Let <code>c = t</code> for <code>t</code> as defined above (<a href="#the-bls12-381-curve" class="auto internal xref">Appendix B</a>) and <code>c_0, c_1, ... , c_L</code> in <code>(-1, 0, 1)</code> such that the sum of <code>c_i * 2^i</code> for <code>i = 0, 1, ..., L</code> equals <code>c</code>.<a href="#appendix-B.1-3" class="pilcrow">¶</a></p>
-<p id="appendix-B.1-4">Given a point <code>P</code> of <code>G1</code>, and a point <code>Q</code> of <code>G2</code>, the output <code>e(P, Q)</code> where <code>e</code> the Ate pairing for BLS12-381 is calculated as follows,<a href="#appendix-B.1-4" class="pilcrow">¶</a></p>
+<p id="appendix-B.1-4">Given a point <code>P</code> of <code>G1</code>, and a point <code>Q</code> of <code>G2</code>, the output <code>h(P, Q)</code> where <code>h</code> the Ate pairing for BLS12-381 is calculated as follows,<a href="#appendix-B.1-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-B.1-5">
 <pre>1.  set f = 1 and T = Q
 2.  if c_L = -1, set T = -T
@@ -5166,7 +5165,7 @@ Procedure:
 <a href="#appendix-C.1" class="section-number selfRef">C.1. </a><a href="#name-non-correlating-security-to" class="section-name selfRef">Non-correlating Security Token</a>
         </h3>
 <p id="appendix-C.1-1">In the most general sense BBS signatures can be used in any application where a cryptographically secured token is required but correlation caused by usage of the token is un-desirable.<a href="#appendix-C.1-1" class="pilcrow">¶</a></p>
-<p id="appendix-C.1-2">For example in protocols like OAuth2.0 the most commonly used form of the access token leverages the JWT format alongside conventional cryptographic primitives such as traditional digital signatures or HMACs. These access tokens are then used by a relying party to prove authority to a resource server during a request. However, because the access token is most commonly sent by value as it was issued by the authorization server (e.g in a bearer style scheme), the access token can act as a source of strong correlation for the relying party. Relevant prior art can be found <a href="https://www.ietf.org/archive/id/draft-private-access-tokens-01.html">here</a>.<a href="#appendix-C.1-2" class="pilcrow">¶</a></p>
+<p id="appendix-C.1-2">For example in protocols like OAuth2.0 the most commonly used form of the access token leverages the JWT format alongside conventional cryptographic primitives such as traditional digital signatures or HMACs. These access tokens are then used by a relying party to prove authority to a resource server during a request. However, because the access token is most commonly sent by value as it was issued by the authorization server (e.g., in a bearer style scheme), the access token can act as a source of strong correlation for the relying party. Relevant prior art can be found <a href="https://www.ietf.org/archive/id/draft-private-access-tokens-01.html">here</a>.<a href="#appendix-C.1-2" class="pilcrow">¶</a></p>
 <p id="appendix-C.1-3">BBS Signatures due to their unique properties removes this source of correlation but maintains the same set of guarantees required by a resource server to validate an access token back to its relevant authority (note that an approach to signing JSON tokens with BBS that may be of relevance is the JSON Web Proofs (JWP) format and serialization described in <span>[<a href="#I-D.ietf-jose-json-web-proof" class="cite xref">I-D.ietf-jose-json-web-proof</a>]</span>). In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the relying party providing this access token as issued, in their request to a resource server, they generate a unique proof from the original access token and include that in the request instead, thus removing this vector of correlation.<a href="#appendix-C.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -5982,7 +5981,7 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 
 </pre><a href="#appendix-E-7.1.2" class="pilcrow">¶</a>
 </div>
-<p id="appendix-E-7.1.3">The values <code>(Abar, D, Bbar)</code> will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if <code>Abar</code> and <code>Bbar</code> are constructed using a valid BBS signature as above, then <code>Abar * SK = Bbar</code> which is equivalent to <code>e(Abar, PK) = e(Bbar, BP2)</code>, where <code>SK</code>, <code>PK</code> the Signer's secret and public key and <code>BP2</code> the base generator of <code>G2</code> (used to create the Signer’s <code>PK</code>, see <a href="#public-key" class="auto internal xref">Section 3.4.2</a>). This last equation is something that the Verifier can check using the Signer's <code>PK</code>.<a href="#appendix-E-7.1.3" class="pilcrow">¶</a></p>
+<p id="appendix-E-7.1.3">The values <code>(Abar, D, Bbar)</code> will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if <code>Abar</code> and <code>Bbar</code> are constructed using a valid BBS signature as above, then <code>Abar * SK = Bbar</code> which is equivalent to <code>h(Abar, PK) = h(Bbar, BP2)</code>, where <code>SK</code>, <code>PK</code> the Signer's secret and public key and <code>BP2</code> the base generator of <code>G2</code> (used to create the Signer’s <code>PK</code>, see <a href="#public-key" class="auto internal xref">Section 3.4.2</a>). This last equation is something that the Verifier can check using the Signer's <code>PK</code>.<a href="#appendix-E-7.1.3" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-E-7.2">
           <p id="appendix-E-7.2.1">Prove that the disclosed messages are signed as part of that signature. The Prover will start by setting the following,<a href="#appendix-E-7.2.1" class="pilcrow">¶</a></p>
@@ -6003,15 +6002,15 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 <p id="appendix-E-8">Note that the Verifier will know the elements in the left side of [6] (i.e., <code>P1</code>, <code>Q_1</code>, <code>H_i1</code>, ..., <code>H_iR</code> and the disclosed messages: <code>msg_i1</code>, ..., <code>msg_iR</code>) as well as the base points of the right side (i.e., the points <code>D</code> and <code>H_j1, ..., H_jU</code>). They will not however know the exponents on the right side of [6] (i.e., <code>r2'</code> and the undisclosed messages: <code>msg_j1, ..., msg_jU</code>). The same holds for equation [4] where the Verifier will know the left side of the equation (i.e., <code>Bbar</code>) and the base points of the right side (i.e., <code>D</code> and <code>Abar</code>) but not the exponents (i.e., <code>r1</code> and <code>-e</code>).<a href="#appendix-E-8" class="pilcrow">¶</a></p>
 <p id="appendix-E-9">To convince the Verifier that both [4] and [6] hold, the Prover can use a <code>nizk</code>, to prove that they know the exponents that satisfy those equations, without disclosing them.<a href="#appendix-E-9" class="pilcrow">¶</a></p>
 <p id="appendix-E-10">Note that if the value <code>D</code> is constructed correctly (as in [3]), then <code>B = D * r2'</code>. Proving knowledge of [6] corresponds to proving knowledge of <code>r2'</code>, which means that the Prover does actually know a value <code>B = D * r2'</code>. If [6] holds, then that <code>B</code> value that the Prover knows (i.e., <code>D * r2'</code>) will also have the "correct form" for <code>B</code> (as in [1]), including all (the disclosed and "some" undisclosed) messages.<a href="#appendix-E-10" class="pilcrow">¶</a></p>
-<p id="appendix-E-11">All that remains is proving that this <code>B</code> value the Prover knows, is also "signed" by the Signer i.e., that the Prover also knows values <code>A</code> and <code>e</code>, such that <code>A = B * 1/(e + SK)</code> or, equivalently, that <code>e(A, PK + BP2 * e) = e(B, BP2)</code>, which is what <code>CoreVerify</code> checks to validate a signature (see <a href="#coreverify" class="auto internal xref">Section 3.6.2</a>).<a href="#appendix-E-11" class="pilcrow">¶</a></p>
-<p id="appendix-E-12">Note that, the Prover will use a <code>nizk</code> to showcase (among other things), knowledge of values <code>r1</code> and <code>e</code> so that [4] holds (<code>Bbar</code>, <code>D</code> and <code>Abar</code> will be part of the proof and hence known to the Verifier). Setting <code>r1' = (1 / r1) mod r</code> (note that proving knowledge of <code>r1</code> indirectly proves knowledge of <code>r1'</code> as well), using [4] and the fact that <code>e(Abar, PK) = e(Bbar, BP2)</code> we can get that,<a href="#appendix-E-12" class="pilcrow">¶</a></p>
+<p id="appendix-E-11">All that remains is proving that this <code>B</code> value the Prover knows, is also "signed" by the Signer i.e., that the Prover also knows values <code>A</code> and <code>e</code>, such that <code>A = B * 1/(e + SK)</code> or, equivalently, that <code>h(A, PK + BP2 * e) = h(B, BP2)</code>, which is what <code>CoreVerify</code> checks to validate a signature (see <a href="#coreverify" class="auto internal xref">Section 3.6.2</a>).<a href="#appendix-E-11" class="pilcrow">¶</a></p>
+<p id="appendix-E-12">Note that, the Prover will use a <code>nizk</code> to showcase (among other things), knowledge of values <code>r1</code> and <code>e</code> so that [4] holds (<code>Bbar</code>, <code>D</code> and <code>Abar</code> will be part of the proof and hence known to the Verifier). Setting <code>r1' = (1 / r1) mod r</code> (note that proving knowledge of <code>r1</code> indirectly proves knowledge of <code>r1'</code> as well), using [4] and the fact that <code>h(Abar, PK) = h(Bbar, BP2)</code> we can get that,<a href="#appendix-E-12" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-E-13">
-<pre>e(Abar * r1' * r2', PK + BP2 * e) = e(D * r2', BP2) = e(B, BP2)
+<pre>h(Abar * r1' * r2', PK + BP2 * e) = h(D * r2', BP2) = h(B, BP2)
 
 </pre><a href="#appendix-E-13" class="pilcrow">¶</a>
 </div>
 <p id="appendix-E-14">Note that the above is what <code>CoreVerify</code> checks, for <code>A = Abar * r1' * r2'</code>. Since the Prover showcased knowledge of <code>r1'</code> and <code>r2'</code> and revealed <code>Abar</code> as part of the proof, the Verifier can be assured that the Prover knows the value <code>A = Abar * r1' * r2'</code>. So setting <code>A = Abar * r1' * r2'</code>, the values <code>A</code>, <code>e</code>, <code>B</code> that the Prover showed knowledge of, will form a valid BBS signature. Note that the Verifier doesn't know <code>A</code> (since they don't know <code>r1'</code> and <code>r2'</code>), <code>e</code> or <code>B</code> (since they don't know <code>r2'</code> or the undisclosed messages). However, they know that the prover knows them and as we saw above, these values form a valid signature on (among others) the disclosed messages.<a href="#appendix-E-14" class="pilcrow">¶</a></p>
-<p id="appendix-E-15">To sum up; in order to validate the proof, a Verifier checks that <code>e(Abar, PK) = e(Bbar, BP2)</code> and verifies the <code>nizk</code>. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.<a href="#appendix-E-15" class="pilcrow">¶</a></p>
+<p id="appendix-E-15">To sum up; in order to validate the proof, a Verifier checks that <code>h(Abar, PK) = h(Bbar, BP2)</code> and verifies the <code>nizk</code>. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.<a href="#appendix-E-15" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="document-history">

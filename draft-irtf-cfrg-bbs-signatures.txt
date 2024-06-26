@@ -5,11 +5,11 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 27 December 2024                                   A. Whitehead
+Expires: 28 December 2024                                   A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
-                                                            25 June 2024
+                                                            26 June 2024
 
 
                         The BBS Signature Scheme
@@ -51,7 +51,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 December 2024.
+   This Internet-Draft will expire on 28 December 2024.
 
 Copyright Notice
 
@@ -358,7 +358,7 @@ Table of Contents
    G1, G2  subgroups of E1 and E2 (respectively) having prime order r.
    GT  a subgroup, of prime order r, of the multiplicative group of a
       field extension.
-   e  G1 x G2 -> GT: a non-degenerate bilinear map.
+   h  G1 x G2 -> GT: a non-degenerate bilinear map.
    r  The prime order of the G1 and G2 subgroups.
    BP1, BP2  base (constant) points on the G1 and G2 subgroups
       respectively.
@@ -810,7 +810,7 @@ Outputs:
 Procedure:
 
 1. message_scalars = messages_to_scalars(messages, api_id)
-2. generators = create_generators(length(messages)+1, api_id)
+2. generators = create_generators(length(messages) + 1, api_id)
 
 3. proof = CoreProofGen(PK, signature, generators, header, ph,
                              message_scalars, disclosed_indexes, api_id)
@@ -861,7 +861,7 @@ Outputs:
 
 Deserialization:
 
-1. proof_len_floor = 2 * octet_point_length + 3 * octet_scalar_length
+1. proof_len_floor = 2 * octet_point_length + 4 * octet_scalar_length
 2. if length(proof) < proof_len_floor, return INVALID
 3. U = floor((length(proof) - proof_len_floor) / octet_scalar_length)
 4. R = length(disclosed_indexes)
@@ -891,7 +891,7 @@ Procedure:
    *  serialize, signature_to_octets, octets_to_signature,
       proof_to_octets, octets_to_proof and octets_to_pubkey are defined
       in Section 4.2.4.
-   *  e is the pairing operation used (see Section 1.2), defined as part
+   *  h is the pairing operation used (see Section 1.2), defined as part
       of the ciphersuite.
 
    Each core operation will accept a vector of generators (points of G1)
@@ -943,9 +943,9 @@ Outputs:
 
 Definitions:
 
-1. signature_dst, an octet string representing the domain separation
-                  tag: api_id || "H2S_" where "H2S_" is an ASCII string
-                  comprised of 4 bytes.
+1. hash_to_scalar_dst, an octet string representing the domain
+                       separation tag: api_id || "H2S_" where "H2S_" is
+                       an ASCII string comprised of 4 bytes.
 
 Deserialization:
 
@@ -959,12 +959,12 @@ Procedure:
 1. domain = calculate_domain(PK, generators, header, api_id)
 
 2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
-                                                          signature_dst)
+                                                     hash_to_scalar_dst)
 3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 4. A = B * (1 / (SK + e))
 5. return signature_to_octets((A, e))
 
-   *Note* When computing step 12 of the above procedure there is an
+   *Note* When computing step 4 of the above procedure there is an
    extremely small probability (around 2^(-r)) that the condition (SK +
    e) = 0 mod r will be met.  How implementations evaluate the inverse
    of the scalar value 0 may vary, with some returning an error and
@@ -1025,7 +1025,7 @@ Procedure:
 
 1. domain = calculate_domain(PK, generators, header, api_id)
 2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-3. if e(A, W + BP2 * e) * e(B, -BP2) != Identity_GT, return INVALID
+3. if h(A, W + BP2 * e) * h(B, -BP2) != Identity_GT, return INVALID
 4. return VALID
 
 3.6.3.  CoreProofGen
@@ -1152,7 +1152,7 @@ Procedure:
    procedure using the ProofVerifyInit subroutine defined in
    Section 3.7.3.  The result will be inputted to the challenge
    calculation operation (ProofChallengeCalculate, defined in
-   Section 3.7.4).  The resulting challenge and the 2 first components
+   Section 3.7.4).  The resulting challenge and the two first components
    of the received proof (points of G1) will be checked for correctness
    (steps 5 and 6 in the following procedure), to verify the proof.
 
@@ -1207,7 +1207,7 @@ Procedure:
                                                    messages, ph, api_id)
 4. if challenge is INVALID, return INVALID
 5. if cp != challenge, return INVALID
-6. if e(Abar, W) * e(Bbar, -BP2) != Identity_GT, return INVALID
+6. if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID
 7. return VALID
 
 3.7.  Proof Protocol Subroutines
@@ -1235,9 +1235,9 @@ Procedure:
    indexes of the undisclosed messages (undisclosed_indexes).  To blind
    the inputted signature and the undisclosed messages, the operation
    will also accept a set of uniformly random scalars (random_scalars).
-   This set must have exactly 3 more items than the list of undisclosed
+   This set must have exactly 5 more items than the list of undisclosed
    indexes (i.e., it must hold that length(random_scalars) =
-   length(undisclosed_indexes) + 3).
+   length(undisclosed_indexes) + 5).
 
    This operation makes use of the calculate_domain function defined in
    Section 4.2.3.
@@ -1511,9 +1511,9 @@ Outputs:
 
 Definitions:
 
-1. challenge_dst, an octet string representing the domain separation
-                  tag: api_id || "H2S_" where "H2S_" is an ASCII string
-                  comprised of 4 bytes.
+1. hash_to_scalar_dst, an octet string representing the domain
+                       separation tag: api_id || "H2S_" where "H2S_" is
+                       an ASCII string comprised of 4 bytes.
 
 Deserialization:
 
@@ -1533,7 +1533,7 @@ Procedure:
 1. c_arr = (R, i1, msg_i1, i2, msg_i2, ..., iR, msg_iR, Abar, Bbar,
                                                       D, T1, T2, domain)
 2. c_octs = serialize(c_arr) || I2OSP(length(ph), 8) || ph
-3. return hash_to_scalar(c_octs, challenge_dst)
+3. return hash_to_scalar(c_octs, hash_to_scalar_dst)
 
    *Note*: If the presentation header (ph) is not supplied in
    ProofChallengeCalculate, 8 bytes representing a length of 0 (i.e.,
@@ -1783,7 +1783,7 @@ C1 == C2.
    *  The returned scalars MUST be independent.  More specifically,
       knowledge of any subset of the returned scalars MUST NOT reveal
       any information about the scalars not in that subset.
-   *  Unique inputs MUST result to unique outputs.
+   *  Unique inputs MUST result in unique outputs.
    *  If the inputted vector of messages does not include any
       duplicates, the outputted scalars MUST NOT include any duplicates
       either.
@@ -1836,7 +1836,7 @@ Procedure:
 4.2.2.  Hash to Scalar
 
    This operation describes how to hash an arbitrary octet string to a
-   scalar values in the multiplicative group of integers mod r (i.e.,
+   scalar value in the multiplicative group of integers mod r (i.e.,
    values in the range from 1 to r - 1).  This procedure acts as a
    helper function, used internally in various places within the
    operations described in the spec.
@@ -1899,45 +1899,45 @@ Procedure:
    This operation makes use of the serialize function, defined in
    Section 4.2.4.1.
 
-  domain = calculate_domain(PK, Q_1, H_Points, header, api_id)
+ domain = calculate_domain(PK, Q_1, H_Points, header, api_id)
 
-  Inputs:
+ Inputs:
 
-  - PK (REQUIRED), an octet string, representing the public key of the
-                   Signer of the form outputted by the SkToPk operation.
-  - Q_1 (REQUIRED), point of G1 (the first point returned from
-                    create_generators).
-  - H_Points (REQUIRED), array of points of G1.
-  - header (OPTIONAL), an octet string. If not supplied, it must default
-                       to the empty octet string ("").
-  - api_id (OPTIONAL), octet string. If not supplied it defaults to the
-                       empty octet string ("").
+ - PK (REQUIRED), an octet string, representing the public key of the
+                  Signer of the form outputted by the SkToPk operation.
+ - Q_1 (REQUIRED), point of G1 (the first point returned from
+                   create_generators).
+ - H_Points (REQUIRED), array of points of G1.
+ - header (OPTIONAL), an octet string. If not supplied, it must default
+                      to the empty octet string ("").
+ - api_id (OPTIONAL), octet string. If not supplied it defaults to the
+                      empty octet string ("").
 
-  Outputs:
+ Outputs:
 
-  - domain, a scalar.
+ - domain, a scalar.
 
-  Definitions:
+ Definitions:
 
-  1. domain_dst, an octet string representing the domain separation tag:
-                 api_id || "H2S_" where "H2S_" is an ASCII string
-                 comprised of 4 bytes.
+ 1. hash_to_scalar_dst, an octet string representing the domain
+                        separation tag: api_id || "H2S_" where "H2S_" is
+                        an ASCII string comprised of 4 bytes.
 
-  Deserialization:
+ Deserialization:
 
-  1. L = length(H_Points)
-  2. (H_1, ..., H_L) = H_Points
+ 1. L = length(H_Points)
+ 2. (H_1, ..., H_L) = H_Points
 
-  ABORT if:
+ ABORT if:
 
-  1. length(header) > 2^64 - 1 or L > 2^64 - 1
+ 1. length(header) > 2^64 - 1 or L > 2^64 - 1
 
-  Procedure:
+ Procedure:
 
-  1. dom_array = (L, Q_1, H_1, ..., H_L)
-  2. dom_octs = serialize(dom_array) || api_id
-  3. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
-  4. return hash_to_scalar(dom_input, domain_dst)
+ 1. dom_array = (L, Q_1, H_1, ..., H_L)
+ 2. dom_octs = serialize(dom_array) || api_id
+ 3. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
+ 4. return hash_to_scalar(dom_input, hash_to_scalar_dst)
 
    *Note*: If the header is not supplied in calculate_domain, it
    defaults to the empty octet string ("").  This means that in the
@@ -2003,8 +2003,8 @@ Procedure:
 
    _Note_ this operation deliberately does not perform the relevant
    checks on the inputs A and e because its assumed these are done prior
-   to its invocation, e.g as is the case with the CoreSign Section 3.6.1
-   operation.
+   to its invocation, e.g., as is the case with the CoreSign
+   Section 3.6.1 operation.
 
    signature_octets = signature_to_octets(signature)
 
@@ -2230,8 +2230,8 @@ Procedure:
    messages they decide to disclose, there are two additional pieces of
    information that will be revealed.  First, the total number of signed
    messages, which can be inferred from the size of the BBS proof and
-   the length of the disclosed messages list.  Second, the index the
-   disclosed messages had in the list of signed messages (see
+   the length of the disclosed messages list.  Second, the indexes that
+   the disclosed messages had in the list of signed messages (see
    Section 3.5.3).  This information, if unique to each Prover, could be
    employed to correlate multiple proof presentations together.  As a
    result, the Signer should not sign lists of messages with unique
@@ -2337,7 +2337,7 @@ Procedure:
    channel leakage during signature generation could reveal their secret
    key.  Second, against the Prover, where a side channel attack could
    be used during proof generation to either directly reveal the
-   udnisclosed messages and signature value, or reveal the random
+   undisclosed messages and signature value, or reveal the random
    scalars used, leading again to the leakage of the undisclosed
    messages or the hidden signature.  Therefore, implementations MUST
    apply proper side channel attack protection.  One method to achieve
@@ -2390,22 +2390,23 @@ Procedure:
    distributed, pseudo random scalars.  This makes ProofGen vulnerable
    to attacks caused by bad entropy (like the ones described in
    [HDWH12]).  If randomness is re-used or is in any way predictable or
-   maliciously constructed, an adversary may be able to unveil the
-   undisclosed from the proof messages or the hidden signature value.
-   More subtle attacks are also possible, where the security properties
-   of the BBS proof may not be broken, but a system making use of the
-   BBS scheme may still be compromised.  As an example, consider systems
-   that need to monitor and potentially restrict outbound traffic, in
-   order to minimize data leakage during a breach.  In such cases, the
-   attacker could manipulate couple of bits in the output of the
-   get_random function (Section 3.1) to create an undetected channel out
-   of the system.  Although the applicability of such attacks is limited
-   for most of the targeted use cases of the BBS scheme, some
-   applications may want to take measures towards mitigating them.  To
-   that end, it is RECOMMENDED to use a deterministic RNG (like a
-   ChaCha20 based deterministic RNG), seeded with a unique, uniformly
-   random, single seed [DRBG].  This will limit the amount of bits the
-   attacker can manipulate (note that some randomness is always needed).
+   maliciously constructed, an adversary may be able to unveil
+   undisclosed information from the proof messages or the hidden
+   signature value.  More subtle attacks are also possible, where the
+   security properties of the BBS proof may not be broken, but a system
+   making use of the BBS scheme may still be compromised.  As an
+   example, consider systems that needs to monitor and potentially
+   restrict outbound traffic, in order to minimize data leakage during a
+   breach.  In such cases, the attacker could manipulate couple of bits
+   in the output of the get_random function (Section 3.1) to create an
+   undetected channel out of the system.  Although the applicability of
+   such attacks is limited for most of the targeted use cases of the BBS
+   scheme, some applications may want to take measures towards
+   mitigating them.  To that end, it is RECOMMENDED to use a
+   deterministic RNG (like a ChaCha20 based deterministic RNG), seeded
+   with a unique, uniformly random, single seed [DRBG].  This will limit
+   the amount of bits the attacker can manipulate (note that some
+   randomness is always needed).
 
    In any case, the randomness used in ProofGen MUST be unique in each
    call and MUST have a distribution that is indistinguishable from
@@ -2421,7 +2422,7 @@ Procedure:
 
 6.8.  Mapping Messages to Scalars
 
-   In an application using BBS Signatures, there are 2 places where
+   In an application using BBS Signatures, there are two places where
    messages could be processed.  First, before the messages are passed
    to the BBS Interface operations, and second, after they are passed to
    the BBS Interface operations but before they are passed to the BBS
@@ -2432,7 +2433,7 @@ Procedure:
    Base-64 decoding [RFC4648] etc.,) should happen before messages are
    passed to the BBS Interface operations.  In those cases, the
    application should ensure that all protocol participants have a clear
-   and consistent understating for which method should be used to
+   and consistent understanding of which method should be used to
    process a message.  This can be achieved by associating specific
    Interfaces (with unique api_id values, see Section 3.8) or unique
    header values (see Section 3.5.1) with different pre-processing
@@ -2500,7 +2501,7 @@ Procedure:
    be able to use a BBS proof to extract information about the messages
    the Prover decided not to disclose during the proof generation
    process, or the signature that was used to generate that proof
-   (something that is refered to as the zero-knowledge proeprty of the
+   (something that is refered to as the zero-knowledge property of the
    BBS proof [BBDT16] [CDL16] [TZ23]).
 
    On the presence of a Cryptographically Relevant Quantum Computer
@@ -2588,7 +2589,7 @@ Procedure:
       commitment and proof of possession schemes (for example, like the
       one described in Section 3.3 of [I-D.irtf-cfrg-bls-signature]).
 
-   *  e: The pairing operation used.
+   *  h: The pairing operation used.
 
    *Serialization functions*:
 
@@ -2621,7 +2622,7 @@ Procedure:
    G1 and G2 are the points BP and BP' correspondingly, as defined in
    Section 4.2.1 of [I-D.irtf-cfrg-pairing-friendly-curves].  For
    completeness, BLS12-381 and the relevant functionality (base points
-   BP1 and BP2, the pairing e as well as the point encoding and decoding
+   BP1 and BP2, the pairing h as well as the point encoding and decoding
    operations) are defined in Appendix B.
 
    The first ciphersuite uses the hash-to-curve suite
@@ -2692,7 +2693,7 @@ Procedure:
     P1 = "8929dfbc7e6642c4ed9cba0856e493f8b9d7d5fcb0c31ef8fdcd34d50648a5
           6c795e106e9eada6e0bda386b414150755"
 
-   *  e: the optimal Ate pairing (Appendix A.2 of
+   *  h: the optimal Ate pairing (Appendix A.2 of
       [I-D.irtf-cfrg-pairing-friendly-curves]), defined in Appendix B.1.
 
    *Serialization functions*:
@@ -2741,7 +2742,7 @@ Procedure:
     P1 = "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd
           225e7c59698588e70d11406d161b4e28c9"
 
-   *  e: the optimal Ate pairing (Appendix A.2 of
+   *  h: the optimal Ate pairing (Appendix A.2 of
       [I-D.irtf-cfrg-pairing-friendly-curves]), defined in Appendix B.1.
 
    *Serialization functions*:
@@ -3967,8 +3968,8 @@ B.1.  Optimal Ate pairing
    in (-1, 0, 1) such that the sum of c_i * 2^i for i = 0, 1, ..., L
    equals c.
 
-   Given a point P of G1, and a point Q of G2, the output e(P, Q) where
-   e the Ate pairing for BLS12-381 is calculated as follows,
+   Given a point P of G1, and a point Q of G2, the output h(P, Q) where
+   h the Ate pairing for BLS12-381 is calculated as follows,
 
    1.  set f = 1 and T = Q
    2.  if c_L = -1, set T = -T
@@ -4145,7 +4146,7 @@ C.1.  Non-correlating Security Token
    HMACs.  These access tokens are then used by a relying party to prove
    authority to a resource server during a request.  However, because
    the access token is most commonly sent by value as it was issued by
-   the authorization server (e.g in a bearer style scheme), the access
+   the authorization server (e.g., in a bearer style scheme), the access
    token can act as a source of strong correlation for the relying
    party.  Relevant prior art can be found here
    (https://www.ietf.org/archive/id/draft-private-access-tokens-
@@ -4865,7 +4866,7 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
       to prove possession of a BBS signature, without revealing the
       signature itself.  Note that; if Abar and Bbar are constructed
       using a valid BBS signature as above, then Abar * SK = Bbar which
-      is equivalent to e(Abar, PK) = e(Bbar, BP2), where SK, PK the
+      is equivalent to h(Abar, PK) = h(Bbar, BP2), where SK, PK the
       Signer's secret and public key and BP2 the base generator of G2
       (used to create the Signer’s PK, see Section 3.4.2).  This last
       equation is something that the Verifier can check using the
@@ -4905,8 +4906,8 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
 
    All that remains is proving that this B value the Prover knows, is
    also "signed" by the Signer i.e., that the Prover also knows values A
-   and e, such that A = B * 1/(e + SK) or, equivalently, that e(A, PK +
-   BP2 * e) = e(B, BP2), which is what CoreVerify checks to validate a
+   and e, such that A = B * 1/(e + SK) or, equivalently, that h(A, PK +
+   BP2 * e) = h(B, BP2), which is what CoreVerify checks to validate a
    signature (see Section 3.6.2).
 
    Note that, the Prover will use a nizk to showcase (among other
@@ -4914,9 +4915,9 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
    Abar will be part of the proof and hence known to the Verifier).
    Setting r1' = (1 / r1) mod r (note that proving knowledge of r1
    indirectly proves knowledge of r1' as well), using [4] and the fact
-   that e(Abar, PK) = e(Bbar, BP2) we can get that,
+   that h(Abar, PK) = h(Bbar, BP2) we can get that,
 
-   e(Abar * r1' * r2', PK + BP2 * e) = e(D * r2', BP2) = e(B, BP2)
+   h(Abar * r1' * r2', PK + BP2 * e) = h(D * r2', BP2) = h(B, BP2)
 
    Note that the above is what CoreVerify checks, for A = Abar * r1' *
    r2'.  Since the Prover showcased knowledge of r1' and r2' and
@@ -4930,7 +4931,7 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
    on (among others) the disclosed messages.
 
    To sum up; in order to validate the proof, a Verifier checks that
-   e(Abar, PK) = e(Bbar, BP2) and verifies the nizk.  Validating the
+   h(Abar, PK) = h(Bbar, BP2) and verifies the nizk.  Validating the
    proof will guarantee the authenticity and integrity of the disclosed
    messages, as well as knowledge of the undisclosed messages and of the
    signature.
