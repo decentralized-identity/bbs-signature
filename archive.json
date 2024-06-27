@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-06-25T00:09:57.899210+00:00",
+  "timestamp": "2024-06-27T00:10:00.081266+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6924,15 +6924,15 @@
       "id": "I_kwDOF8lax85-SofS",
       "title": "Support Bounded-Memory Implementations with a single Message Pass",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/313",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "bellebaum",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "Hi all,\r\n\r\nI am trying to implement the IETF-draft in C using no dynamically allocated memory, thus suitable for e.g. embedded devices with no heap implementation.\r\n\r\nThere are only a few places in the specification which are troublesome to such an endeavour and I wanted to share these with you, and suggest improvements, should you wish to explicitly support this use case.\r\n\r\nFor efficiency, there are two critical points to consider:\r\n\r\nIdeally, it should be possible to only go over every message once per high level API call (Sign, Verify, ProofGen, ProofVerify). Among other things, this requires being able to generate message scalars individually, given a message's index and optionally the total number of messages (which the current draft supports).\r\n\r\nLikewise, it would be helpful if one could avoid generating the generators more than once during such API calls.\r\n\r\nLet us briefly go over every high-level API function dealing with messages to see how this would work. Below algorithm sketches rely on the ability to incrementally hash arbitrary octet strings, but this is typical with many hashing APIs.\r\n\r\n### Sign\r\n\r\n`Sign` can be implemented with a single message pass. While iterating over the messages, the algorithm would use `B` as an accumulator, and incrementally prepare the input to hash into `e` (as part of `hash_to_scalar`).\r\n\r\n`Sign` does not allow to only generate generators once when doing this: Before adding any messages to be hashed into `e`, the `domain` must be added, for which all generators must already be generated. Then while accumulating `B`, the generators need to be regenerated, as there is no way to store an arbitrary amount of generators in bounded memory.\r\n\r\nA simple fix would be to reorder the inputs to the generation of `e`:\r\n\r\n```\r\n2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)), signature_dst)\r\n```\r\n\r\nThis should not have an effect on security, as `e` is essentially only supposed to be \"random\" but unique for each message. But please double-check :)\r\n\r\n### Verify\r\n\r\n`Verify` can be implemented efficiently due to commutativity of field elements. Essentially, one iterates over the messages, generates generators on the fly, accumulates \"generator * message_scalar\" into `B` while adding the generators to the domain-Hash, and finally adds `Q_1 * domain` to `B`.\r\n\r\n### ProofGen\r\n\r\nOther than some ideas from above, this function runs into two issues, one of which is easily fixed.\r\n\r\n1. The `m_tilde` values need to be generated before the the challenge phase (accumulated into `T2` and hashed into the challenge) and after it (to generate `m_hat`s, which are part of the signature). Fortunately, the values are essentially pseudorandom, and can deterministically be regenerated from a PRG at little to no cost. An algorithm would store the undisclosed message scalars temporarily into the proof, and after the challenge phase multiply it with the challenge and add `m_tilde`.\r\n\r\n2. The challenge calculation hashes first `Bbar` and friends, then the messages. Because the messages are required for the calculation of `B`, an implementation has to iterate over them multiple times. The fix involves a reordering of the inputs to the random oracle, which again should not have an impact on security. The ideal ordering would look like this:\r\n\r\n```\r\n1. c_arr = (R, i1, msg_i1, ..., iR, msg_iR, Abar, Bbar, D, T1, T2, domain)\r\n```\r\n\r\n### ProofVerify\r\n\r\nBesides the problems already mentioned, this function seems fine. In particular, the modified challenge calculation should work here as well.\r\n\r\n## TL;DR\r\n\r\nBy reording a few inputs to hash functions in two places, low-resource implementations can become potentially a lot more efficient. Thanks for reading :)",
       "createdAt": "2024-02-05T15:19:57Z",
-      "updatedAt": "2024-06-03T18:17:16Z",
-      "closedAt": null,
+      "updatedAt": "2024-06-25T08:30:56Z",
+      "closedAt": "2024-06-25T08:30:56Z",
       "comments": [
         {
           "author": "bellebaum",
@@ -7096,15 +7096,15 @@
       "id": "I_kwDOF8lax86CDw7a",
       "title": "DST collisions",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/317",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "bellebaum",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "There is a collision in the domain separation tags in CoreSign (used in the calculation of `e`):\r\n\r\n```\r\n1. signature_dst, an octet string representing the domain separation\r\n                  tag: api_id || \"H2S_\" where \"H2S_\" is an ASCII string\r\n                  comprised of 4 bytes.\r\n```\r\n\r\nAnd in ProofChallengeCalculate:\r\n\r\n```\r\n1. challenge_dst, an octet string representing the domain separation\r\n                  tag: api_id || \"H2S_\" where \"H2S_\" is an ASCII string\r\n                  comprised of 4 bytes.\r\n```\r\n\r\nAnd in calculate_domain:\r\n\r\n```\r\n1. domain_dst, an octet string representing the domain separation tag:\r\n               api_id || \"H2S_\" where \"H2S_\" is an ASCII string\r\n               comprised of 4 bytes.\r\n```\r\n\r\nIs there any particular reason for these collisions?\r\n\r\nI believe the corresponding `hash_to_scalar` invocations represent independent random oracles. If one really wants collisions to save on DSTs, the only place where it seems rather harmless is to make domain_dst equal to map_dst used in messages_to_scalars, since the inputs to calculate_domain then become just another message. But even then, adding additional DSTs does not seem too expensive.\r\n\r\nOne could also argue that the octets representing input to these functions never collide, but this argument seems weaker than to have different DSTs for each of them.",
       "createdAt": "2024-03-12T15:56:31Z",
-      "updatedAt": "2024-03-12T16:13:07Z",
-      "closedAt": null,
+      "updatedAt": "2024-06-26T08:10:29Z",
+      "closedAt": "2024-06-26T08:10:29Z",
       "comments": [
         {
           "author": "OR13",
@@ -36458,24 +36458,26 @@
       "id": "PR_kwDOF8lax85xSqNz",
       "title": "Bound memory improvements",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/319",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Fixes #313\r\n\r\n\\+ new test vectors",
       "createdAt": "2024-06-03T12:15:10Z",
-      "updatedAt": "2024-06-17T18:15:35Z",
+      "updatedAt": "2024-06-25T08:30:55Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "6946837b55d93615d3176e57d8a2a660c9b893b1",
       "headRepository": "decentralized-identity/bbs-signature",
       "headRefName": "vasilis/bounded-memory",
       "headRefOid": "bf1d94bec67ba9723fdda90be2ecb48f5982d60b",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2024-06-25T08:30:55Z",
+      "mergedAt": "2024-06-25T08:30:55Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "cc0ee269ef673b2a3aa9471de4066f2e100d126d"
+      },
       "comments": [
         {
           "author": "Wind4Greg",
@@ -36483,6 +36485,13 @@
           "body": "Great! Can you brief us at today's meeting?",
           "createdAt": "2024-06-03T17:34:17Z",
           "updatedAt": "2024-06-03T17:34:17Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals. Merging! Thank you all!",
+          "createdAt": "2024-06-25T08:30:49Z",
+          "updatedAt": "2024-06-25T08:30:49Z"
         }
       ],
       "reviews": [
@@ -36583,6 +36592,69 @@
           "body": "",
           "createdAt": "2024-06-17T18:15:35Z",
           "updatedAt": "2024-06-17T18:15:35Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 320,
+      "id": "PR_kwDOF8lax85zhB9B",
+      "title": "Editorial updates for draft 06",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/320",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Also fixes #317",
+      "createdAt": "2024-06-25T15:38:48Z",
+      "updatedAt": "2024-06-26T08:10:28Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "cc0ee269ef673b2a3aa9471de4066f2e100d126d",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "vasilis/draft-06",
+      "headRefOid": "51e0f7552d5efe2ce14b9e3a0ce9c804452e3c07",
+      "closedAt": "2024-06-26T08:10:28Z",
+      "mergedAt": "2024-06-26T08:10:28Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "9e326b5fdd173e4d399d961e8de2a7ef559dc4f4"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Multiple approvals! Merging. Thank you all \ud83d\ude4f ",
+          "createdAt": "2024-06-26T08:10:25Z",
+          "updatedAt": "2024-06-26T08:10:25Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax85_gEkg",
+          "commit": {
+            "abbreviatedOid": "51e0f75"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "Looks good Vasilis!",
+          "createdAt": "2024-06-25T15:52:15Z",
+          "updatedAt": "2024-06-25T15:52:15Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax85_k9CD",
+          "commit": {
+            "abbreviatedOid": "51e0f75"
+          },
+          "author": "tplooker",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-06-26T03:49:46Z",
+          "updatedAt": "2024-06-26T03:49:46Z",
           "comments": []
         }
       ]
