@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-01T00:11:39.400076+00:00",
+  "timestamp": "2024-08-04T00:11:30.195294+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -7128,6 +7128,22 @@
       "body": "There is a possibility that one day a dedicated entity will find a nontrivial relationship in the generators used for a particular parameter set. This is about as hard as computing a discrete logarithm (about 128 bits of security), as has been proven before, thus we take this impossibility for granted. What worries me is this:\r\n\r\nOnce one or few of such nontrivial relationships are found, they might translate not into an attack on one particular key pair, but into an attack on all key pairs using the same `api_id`, which severely increases the reward for anyone attempting such an attack.\r\n\r\nOne simple fix would be to hash the public key into the initial value of `v` (maybe even into all of them), which would however make caching of generators more expensive and less useful. What do you think about this potential threat? Is it worth it to incorporate measures against it?",
       "createdAt": "2024-03-19T09:13:15Z",
       "updatedAt": "2024-03-19T09:13:15Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 321,
+      "id": "I_kwDOF8lax86Rl_Kt",
+      "title": "Test Vector for BBS Signatures over BN254 pairing curve",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/321",
+      "state": "OPEN",
+      "author": "man2706kum",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The current latest draft includes the test vectors for BBS signature over BLS12-381. Where can i find the test vectors for BBS over BN254?",
+      "createdAt": "2024-08-01T14:39:54Z",
+      "updatedAt": "2024-08-01T14:39:54Z",
       "closedAt": null,
       "comments": []
     }
