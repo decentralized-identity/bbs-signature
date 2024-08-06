@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-04T00:11:30.195294+00:00",
+  "timestamp": "2024-08-06T00:10:28.814859+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -7144,6 +7144,22 @@
       "body": "The current latest draft includes the test vectors for BBS signature over BLS12-381. Where can i find the test vectors for BBS over BN254?",
       "createdAt": "2024-08-01T14:39:54Z",
       "updatedAt": "2024-08-01T14:39:54Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 322,
+      "id": "I_kwDOF8lax86SAcXT",
+      "title": "Proof Length Floor Computation Inconsistency in Draft",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/322",
+      "state": "OPEN",
+      "author": "Wind4Greg",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Spec error in section on  [ProofVerify ](https://www.ietf.org/archive/id/draft-irtf-cfrg-bbs-signatures-06.html#name-proof-verification-proofver) we  have `proof_len_floor = 2 * octet_point_length + 4 * octet_scalar_length` while in section [octets to  proof ](https://www.ietf.org/archive/id/draft-irtf-cfrg-bbs-signatures-06.html#section-4.2.4.5) we  have the  correct computation: `proof_len_floor = 3 * octet_point_length + 4 * octet_scalar_length`. ",
+      "createdAt": "2024-08-05T22:36:40Z",
+      "updatedAt": "2024-08-05T22:36:40Z",
       "closedAt": null,
       "comments": []
     }
