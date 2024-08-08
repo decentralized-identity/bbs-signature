@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-06T00:10:28.814859+00:00",
+  "timestamp": "2024-08-08T00:10:19.024465+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6491,7 +6491,7 @@
       "labels": [],
       "body": "Hey all!\r\n\r\nPosting a first draft of bound BBS signatures, using BLS key pairs: https://basileioskal.github.io/bbs-bound-signatures/draft-bound-bbs-signatures.html\r\n\r\nYou can find the repo [here](https://github.com/BasileiosKal/bbs-bound-signatures)\r\n\r\n(for context see also #28 and #37)\r\n",
       "createdAt": "2023-04-30T20:17:12Z",
-      "updatedAt": "2023-05-21T18:16:29Z",
+      "updatedAt": "2024-08-06T05:51:42Z",
       "closedAt": null,
       "comments": [
         {
@@ -6549,6 +6549,13 @@
           "body": "> BbsVerify should be using this create_generators. Wouldn't this be enough??\n\nI missed that `create_generators` is redefined, I think that does simplify things.",
           "createdAt": "2023-05-21T18:16:28Z",
           "updatedAt": "2023-05-21T18:16:28Z"
+        },
+        {
+          "author": "matsutakk",
+          "authorAssociation": "NONE",
+          "body": "Hi, I'm interested in this, any updates??",
+          "createdAt": "2024-08-06T05:51:41Z",
+          "updatedAt": "2024-08-06T05:51:41Z"
         }
       ]
     },
