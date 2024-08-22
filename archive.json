@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-20T00:10:42.722133+00:00",
+  "timestamp": "2024-08-22T00:10:31.184879+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -7169,6 +7169,37 @@
       "updatedAt": "2024-08-05T22:36:40Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 323,
+      "id": "I_kwDOF8lax86Tju9Q",
+      "title": "Perfect anonymity of presentations",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/323",
+      "state": "CLOSED",
+      "author": "mmaker",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "A desirable property for blind schemes is unlinkability. Unlinkability, roughly speaking, says that it should not be possible to link issuance with redemption of a credential. \r\n\r\nConsider the (canonical) scenario where the user wants to sign a random message $m$ (a \"token\"), that is kept hidden at issuance time and revealed upon presentation. \r\nIn the current setup, the server will have at disposal (from issuance):\r\n- $C$, the first message at issuance time, and $(A, e, s'')$, the server response (5.3 blind spec)\r\n- the presentation material $(\\bar A, D, \\bar B , \\pi)$ and the message  (3.7.1 sig spec) satisfying \r\n```math\r\n\\begin{aligned}\r\n\\bar A &= r_1r_2 A  \\\\ \r\nD &= r_2 (G_0 + mG_1 + sG_2) \\\\ \r\n\\bar B &= -e \\bar A + r_1 D \\end{aligned}\r\n```\r\n\r\nA (very strong) attacker can check if the issuance message is linked to the presentation material via the following. Let $B = C + s''G_2 = G_0 + mG_1 + sG_2$ (The first equality can be computed without knowing the message, the second one requires to know $s'$ which seems to be the case in the current spec but can be removed) and compute\r\n\r\n```math\r\n\\begin{aligned}\r\n\\rho_1 = \\log_D(\\bar B - e \\bar A) \\\\\r\n\\rho_2 = \\log_B(D) \\\\\r\n\\textbf{check } \\rho_1\\rho_2 A = \\bar A\r\n\\end{aligned}\r\n```\r\n\r\n#### A legacy alternative\r\nIt is possible to avoid this problem extracting from the BBS+ paper the presentation/show proof, that I'm rewriting here with minor changes for clarity\r\n```math\r\nA' = A + rH \\qquad\r\nE' = eG + r'H\r\n```\r\nand letting \r\n```math\r\n\\pi = \\text{PoK}\\left\\{\r\n(m, e, s, r, r', u, u'): \\begin{array}{c}\r\n[xA]_T - [G_0]_T = m[G_1]_T + s[G_2]_T - e A' \\\\\r\n0G = uG  + u'H  - rE' \\\\\r\nE' = eG + r'H\r\n\\end{array}\r\n\\right\\}\r\n```\r\nwhere $u = er, u' = rr'$\r\nIntuitively, here one is sending two elements, each with its own blinding factor, and so for any presentation material $(A', E', \\pi)$ and any issuance message $(A, e, s'')$ there are uniformly distributed blinding factors $r, r'$ that can relate the two.\r\n\r\n\r\nThe proof is obviously larger, but not too much. For a full disclosure of attributes, while the first one has size $3g + 4s$ ($g$ is the size of a group element, $s$, a scalar), this one has $2g + 6s$ size, which for 256-bit curves is only 32 more bytes.",
+      "createdAt": "2024-08-20T13:12:48Z",
+      "updatedAt": "2024-08-21T12:29:08Z",
+      "closedAt": "2024-08-21T12:29:08Z",
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Hey Michele! Thank you very much for that issue!\r\n\r\n\r\n\r\n> $\\rho_1 = \\log_D(\\bar B - e \\bar A)$\r\n\r\nSorry! Just to make sure I don't miss something, I assume you mean $\\rho_1 = \\log_D(\\bar B + e \\bar A)$ here?\r\n\r\nLet me know if the following makes sense. Note that I'm focusing on the non blind case here. If I haven't missed anything, the same results could apply in the blind case as well.\r\n\r\nLets consider a BBS+ signature $\\sigma = (A, e)$ as a signature over the point $B$, so that $(x + e) \\cdot A= B$, where $x$ the Issuer's secret key (note that $B$ is the commitment to the messages).\r\n\r\nLets assume that we have a proof presentation $(\\bar{A}, D, \\bar{B}, \\pi)$ generated using the signature $(A, e)$. Note that $\\bar{B} = x \\cdot \\bar{A}$\r\n\r\nLets consider another signature $\\sigma' = (A', e')$ over the point $B'$, where $\\sigma \\neq \\sigma'$. If $\\sigma'$ is valid, it means that,\r\n\r\n```math\r\n(x + e') \\cdot A'= B' \\qquad \\text{(*)}\r\n```\r\n\r\nFollowing the steps outlined in the original post, using $(\\sigma', B')$ as the input, we will get $\\rho_1$ and $\\rho_2$ so that $D =  \\rho_2 \\cdot B'$ and\r\n\r\n```math\r\n\\bar{B} + e' \\cdot \\bar{A} = (x + e') \\cdot \\bar{A} = \\rho_1 \\cdot D = \\rho_1 \\rho_2 \\cdot B'\r\n```\r\n\r\nSubstituting $B'$ from (*) we get that\r\n\r\n```math\r\n(x + e') \\cdot \\bar{A}= (x + e') \\cdot \\rho_1 \\rho_2 \\cdot A'\r\n```\r\n\r\nMeaning that (assuming $x + e' \\neq 0$),\r\n\r\n```math\r\n\\bar{A} = \\rho_1 \\rho_2 \\cdot A'\r\n```\r\n\r\nThis seems to suggest that the equation the adversary checks always holds? assuming any valid signature as input?",
+          "createdAt": "2024-08-20T15:59:52Z",
+          "updatedAt": "2024-08-20T15:59:52Z"
+        },
+        {
+          "author": "mmaker",
+          "authorAssociation": "NONE",
+          "body": "Hey, thanks for the speedy answer here. \r\n\r\nfor the first question: you're right!\r\n\r\nFor the rest of the message, you're also right, thanks for clarifying this! Indeed it looks like all signatures appear the same but, differently from the original BBS+ protocol, it seems that a \"simulator\" for anonymity can't just present a message without having a valid signature to show. I don't think this is a problem at all, so I'm closing this issue for now. \r\n\r\n",
+          "createdAt": "2024-08-21T12:29:08Z",
+          "updatedAt": "2024-08-21T12:29:08Z"
+        }
+      ]
     }
   ],
   "pulls": [
