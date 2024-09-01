@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-29T00:11:03.806406+00:00",
+  "timestamp": "2024-09-01T00:13:20.364759+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6491,7 +6491,7 @@
       "labels": [],
       "body": "Hey all!\r\n\r\nPosting a first draft of bound BBS signatures, using BLS key pairs: https://basileioskal.github.io/bbs-bound-signatures/draft-bound-bbs-signatures.html\r\n\r\nYou can find the repo [here](https://github.com/BasileiosKal/bbs-bound-signatures)\r\n\r\n(for context see also #28 and #37)\r\n",
       "createdAt": "2023-04-30T20:17:12Z",
-      "updatedAt": "2024-08-06T05:51:42Z",
+      "updatedAt": "2024-08-30T15:34:11Z",
       "closedAt": null,
       "comments": [
         {
@@ -6556,6 +6556,27 @@
           "body": "Hi, I'm interested in this, any updates??",
           "createdAt": "2024-08-06T05:51:41Z",
           "updatedAt": "2024-08-06T05:51:41Z"
+        },
+        {
+          "author": "matthiasgeihs",
+          "authorAssociation": "NONE",
+          "body": "hey, does there exist a prototype implementation of this?",
+          "createdAt": "2024-08-29T09:18:05Z",
+          "updatedAt": "2024-08-29T09:18:05Z"
+        },
+        {
+          "author": "matthiasgeihs",
+          "authorAssociation": "NONE",
+          "body": "@Wind4Greg have you found the time to code up a prototype?",
+          "createdAt": "2024-08-29T09:19:34Z",
+          "updatedAt": "2024-08-29T09:19:34Z"
+        },
+        {
+          "author": "Wind4Greg",
+          "authorAssociation": "NONE",
+          "body": "Hi @matthiasgeihs we are using  [Blind BBS Signatures](https://www.ietf.org/archive/id/draft-kalos-bbs-blind-signatures-01.html#) to implement  a  form  of holder  binding  for verifiable credentials [VC-DI=BBS: anonymous holder  binding](https://w3c.github.io/vc-di-bbs/#anonymous-holder-binding).   My  implementation of Blind BBS can be  found at https://github.com/Wind4Greg/grotto-bbs-signatures. Cheers Greg",
+          "createdAt": "2024-08-30T15:34:10Z",
+          "updatedAt": "2024-08-30T15:34:10Z"
         }
       ]
     },
@@ -35228,7 +35249,7 @@
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "76936111f906325bc0518a48744b5d4ea62a1086",
-      "headRepository": "alessandropino/bbs-signature",
+      "headRepository": null,
       "headRefName": "main",
       "headRefOid": "d76bd48d237698a283099c3467c362a7194abb4a",
       "closedAt": "2023-11-27T16:26:20Z",
