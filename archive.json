@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-01T00:13:20.364759+00:00",
+  "timestamp": "2024-09-03T00:11:03.467587+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6491,7 +6491,7 @@
       "labels": [],
       "body": "Hey all!\r\n\r\nPosting a first draft of bound BBS signatures, using BLS key pairs: https://basileioskal.github.io/bbs-bound-signatures/draft-bound-bbs-signatures.html\r\n\r\nYou can find the repo [here](https://github.com/BasileiosKal/bbs-bound-signatures)\r\n\r\n(for context see also #28 and #37)\r\n",
       "createdAt": "2023-04-30T20:17:12Z",
-      "updatedAt": "2024-08-30T15:34:11Z",
+      "updatedAt": "2024-09-01T10:03:22Z",
       "closedAt": null,
       "comments": [
         {
@@ -6577,6 +6577,13 @@
           "body": "Hi @matthiasgeihs we are using  [Blind BBS Signatures](https://www.ietf.org/archive/id/draft-kalos-bbs-blind-signatures-01.html#) to implement  a  form  of holder  binding  for verifiable credentials [VC-DI=BBS: anonymous holder  binding](https://w3c.github.io/vc-di-bbs/#anonymous-holder-binding).   My  implementation of Blind BBS can be  found at https://github.com/Wind4Greg/grotto-bbs-signatures. Cheers Greg",
           "createdAt": "2024-08-30T15:34:10Z",
           "updatedAt": "2024-08-30T15:34:10Z"
+        },
+        {
+          "author": "matthiasgeihs",
+          "authorAssociation": "NONE",
+          "body": "Hi @Wind4Greg, thank you for your reply.\r\n\r\nCan the holder secret be used to create signatures on other documents as well?\r\n\r\nUse case: A credential holder wants to sign a different document using the holder secret. The holder also wants to prove that the signature was created by someone who fulfills certain properties certified in the holder credential. The holder doesn't want to reveal anything else about its identity (i.e., signature and proofs should be zero-knowledge).",
+          "createdAt": "2024-09-01T10:03:20Z",
+          "updatedAt": "2024-09-01T10:03:20Z"
         }
       ]
     },
