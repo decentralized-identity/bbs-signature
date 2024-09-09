@@ -3320,6 +3320,13 @@ To sum up; in order to validate the proof, a Verifier checks that `h(Abar, PK) =
 * Changed the reference to [@I-D.irtf-cfrg-pairing-friendly-curves] from Normative to Informative, by re-defining the relevant functionality to this document.
 * Various editorial updates.
 
+-06
+
+* To support bounded memory implementations, the order of the inputs to the digest operation for the calculation of the `e` value during `CoreSign` and the `challenge` value during `CoreProofGen` and `CoreProofVerify` was updated.
+* Updated the test vectores to match the above update.
+* Renamed the pairing function from `e` to `h`, to avoid naming collisions with the scalar component of the signature.
+* Renamed `signature_dst`, `challenge_dst` and `domain_dst` to `hash_to_scalar_dst`.
+
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
     <title>Faster subgroup checks for BLS12-381</title>
