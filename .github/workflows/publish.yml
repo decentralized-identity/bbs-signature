@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # See https://github.com/actions/checkout/issues/290
       - name: "Get Tag Annotations"
@@ -25,7 +25,7 @@ jobs:
       # - name: "Update the message generators in the fixtures folder"
       #   run: ./target/debug/bbs-signature-generator-demo -o file ../fixtures/generators.json
       #   working-directory: ./tooling/message-generators
-      
+
       - name: "Install yarn dependencies"
         run: yarn install --frozen-lockfile
         working-directory: ./tooling/fixtures
@@ -40,8 +40,9 @@ jobs:
           mkdir -p "$HOME"/.cache/xml2rfc
           echo "::set-output name=path::$HOME/.cache/xml2rfc"
           date -u "+::set-output name=date::%FT%T"
+
       - name: "Cache References"
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ${{ steps.cache-setup.outputs.path }}
@@ -55,7 +56,7 @@ jobs:
         with:
           token: ${{ github.token }}
 
-      # Build the draft with the test vectors included. 
+      # Build the draft with the test vectors included.
       #
       #   NOTE: this is a "hack" to go around uploaded draft not containing fixtures
       #
@@ -67,9 +68,9 @@ jobs:
         uses: martinthomson/i-d-template@v1
         with:
           make: next
-      
+
       - name: "Re-name File with Correct Version"
-        run:  |
+        run: |
           sudo mv -v $(basename draft-irtf-cfrg-*-[0-9][0-9].xml) ${{ github.ref_name }}.xml
           ls .
         working-directory: ./versioned
@@ -80,6 +81,7 @@ jobs:
           make: upload
 
       - name: "Archive Submitted Drafts"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
+          name: published-draft
           path: "draft-*-[0-9][0-9].xml"
