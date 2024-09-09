@@ -431,8 +431,8 @@ Procedure:
 1. message_scalars = messages_to_scalars(messages, api_id)
 2. generators = create_generators(length(messages)+1, api_id)
 
-3. signature = CoreSign(SK, PK, header, message_scalars,
-                                              generators, api_id)
+3. signature = CoreSign(SK, PK, generators, header, message_scalars,
+                                                                 api_id)
 4. if signature is INVALID, return INVALID
 5. return signature
 ```
@@ -567,7 +567,7 @@ Outputs:
 
 Deserialization:
 
-1. proof_len_floor = 2 * octet_point_length + 4 * octet_scalar_length
+1. proof_len_floor = 3 * octet_point_length + 4 * octet_scalar_length
 2. if length(proof) < proof_len_floor, return INVALID
 3. U = floor((length(proof) - proof_len_floor) / octet_scalar_length)
 4. R = length(disclosed_indexes)
@@ -645,7 +645,7 @@ Deserialization:
 
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 
 2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
                                                      hash_to_scalar_dst)
@@ -654,7 +654,7 @@ Procedure:
 5. return signature_to_octets((A, e))
 ```
 
-**Note** When computing step 4 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 9, and or `A != Identity_G1` after step 9 to prevent the production of invalid signatures.
+**Note** When computing step 4 of the above procedure there is an extremely small probability (around `2^(-r)`) that the condition `(SK + e) = 0 mod r` will be met. How implementations evaluate the inverse of the scalar value `0` may vary, with some returning an error and others returning `0` as a result. If the returned value from the inverse operation `1/(SK + e)` does evaluate to `0` the value of `A` will equal `Identity_G1` thus an invalid signature. Implementations MAY elect to check `(SK + e) = 0 mod r` prior to step 4, and or `A != Identity_G1` after step 4 to prevent the production of invalid signatures.
 
 ### CoreVerify
 
@@ -701,7 +701,7 @@ Deserialization:
 
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 3. if h(A, W + BP2 * e) * h(B, -BP2) != Identity_GT, return INVALID
 4. return VALID
@@ -1606,7 +1606,7 @@ Procedure:
 
 // Points (i.e., (Abar, Bbar, D) in ProofGen) de-serialization.
 3.  index = 0
-4.  for i in (0, 1):
+4.  for i in (0, 2):
 5.      end_index = index + octet_point_length - 1
 6.      A_i = octets_to_point_E1(proof_octets[index..end_index])
 7.      if A_i is INVALID or Identity_G1, return INVALID
