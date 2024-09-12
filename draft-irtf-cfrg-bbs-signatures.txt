@@ -5,11 +5,11 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 28 December 2024                                   A. Whitehead
+Expires: 16 March 2025                                      A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
-                                                            26 June 2024
+                                                       12 September 2024
 
 
                         The BBS Signature Scheme
@@ -51,7 +51,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 December 2024.
+   This Internet-Draft will expire on 16 March 2025.
 
 Copyright Notice
 
@@ -3753,9 +3753,9 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
    [I-D.ietf-jose-json-web-proof]
               Miller, J., Waite, D., and M. B. Jones, "JSON Web Proof",
               Work in Progress, Internet-Draft, draft-ietf-jose-json-
-              web-proof-03, 1 March 2024,
+              web-proof-05, 22 July 2024,
               <https://datatracker.ietf.org/doc/html/draft-ietf-jose-
-              json-web-proof-03>.
+              json-web-proof-05>.
 
    [I-D.ietf-lwig-curve-representations]
               Struik, R., "Alternative Elliptic Curve Representations",
@@ -3765,12 +3765,12 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
               curve-representations-23>.
 
    [I-D.ietf-pquip-pqc-engineers]
-              Banerjee, A., Reddy.K, T., Schoinianakis, D., and T.
-              Hollebeek, "Post-Quantum Cryptography for Engineers", Work
-              in Progress, Internet-Draft, draft-ietf-pquip-pqc-
-              engineers-04, 21 May 2024,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-pquip-
-              pqc-engineers-04>.
+              Banerjee, A., Reddy, T., Schoinianakis, D., Hollebeek, T.,
+              and M. Ounsworth, "Post-Quantum Cryptography for
+              Engineers", Work in Progress, Internet-Draft, draft-ietf-
+              pquip-pqc-engineers-05, 12 September 2024,
+              <https://datatracker.ietf.org/api/v1/doc/document/draft-
+              ietf-pquip-pqc-engineers/>.
 
    [I-D.ietf-privacypass-key-consistency]
               Davidson, A., Finkel, M., Thomson, M., and C. A. Wood,
@@ -5006,6 +5006,18 @@ Appendix F.  Document History
       from Normative to Informative, by re-defining the relevant
       functionality to this document.
    *  Various editorial updates.
+
+   -06
+
+   *  To support bounded memory implementations, the order of the inputs
+      to the digest operation for the calculation of the e value during
+      CoreSign and the challenge value during CoreProofGen and
+      CoreProofVerify was updated.
+   *  Updated the test vectores to match the above update.
+   *  Renamed the pairing function from e to h, to avoid naming
+      collisions with the scalar component of the signature.
+   *  Renamed signature_dst, challenge_dst and domain_dst to
+      hash_to_scalar_dst.
 
 Authors' Addresses
 

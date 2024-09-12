@@ -12,10 +12,10 @@
 <meta content="
        This document describes the BBS Signature scheme, a secure, multi-message digital signature protocol, supporting proving knowledge of a signature while selectively disclosing any subset of the signed messages. Concretely, the scheme allows for signing multiple messages whilst producing a single, constant size, digital signature. Additionally, the possessor of a BBS signatures is able to create zero-knowledge, proofs-of-knowledge of a signature, while selectively disclosing subsets of the signed messages. Being zero-knowledge, the BBS proofs do not reveal any information about the undisclosed messages or the signature it self, while at the same time, guarantying the authenticity and integrity of the disclosed messages. 
     " name="description">
-<meta content="xml2rfc 3.21.0" name="generator">
+<meta content="xml2rfc 3.23.0" name="generator">
 <meta content="draft-irtf-cfrg-bbs-signatures-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.21.0
+  xml2rfc 3.23.0
     Python 3.12.3
     ConfigArgParse 1.7
     google-i18n-address 3.1.0
@@ -25,9 +25,8 @@
     platformdirs 4.2.2
     pycountry 22.3.5
     PyYAML 6.0.1
-    requests 2.31.0
-    setuptools 69.5.1
-    six 1.16.0
+    requests 2.32.3
+    setuptools 70.3.0
     wcwidth 0.2.13
 -->
 <link href="draft-irtf-cfrg-bbs-signatures.xml" rel="alternate" type="application/rfc+xml">
@@ -1027,11 +1026,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">The BBS Signature Scheme</td>
-<td class="right">June 2024</td>
+<td class="right">September 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Looker, et al.</td>
-<td class="center">Expires 28 December 2024</td>
+<td class="center">Expires 16 March 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1044,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-irtf-cfrg-bbs-signatures-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-06-26" class="published">26 June 2024</time>
+<time datetime="2024-09-12" class="published">12 September 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-12-28">28 December 2024</time></dd>
+<dd class="expires"><time datetime="2025-03-16">16 March 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1103,7 +1102,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 28 December 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 16 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -4799,7 +4798,7 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 <dd class="break"></dd>
 <dt id="I-D.ietf-jose-json-web-proof">[I-D.ietf-jose-json-web-proof]</dt>
         <dd>
-<span class="refAuthor">Miller, J.</span>, <span class="refAuthor">Waite, D.</span>, and <span class="refAuthor">M. B. Jones</span>, <span class="refTitle">"JSON Web Proof"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-jose-json-web-proof-03</span>, <time datetime="2024-03-01" class="refDate">1 March 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-03">https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-03</a>&gt;</span>. </dd>
+<span class="refAuthor">Miller, J.</span>, <span class="refAuthor">Waite, D.</span>, and <span class="refAuthor">M. B. Jones</span>, <span class="refTitle">"JSON Web Proof"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-jose-json-web-proof-05</span>, <time datetime="2024-07-22" class="refDate">22 July 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-05">https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-05</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-lwig-curve-representations">[I-D.ietf-lwig-curve-representations]</dt>
         <dd>
@@ -4807,7 +4806,7 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 <dd class="break"></dd>
 <dt id="I-D.ietf-pquip-pqc-engineers">[I-D.ietf-pquip-pqc-engineers]</dt>
         <dd>
-<span class="refAuthor">Banerjee, A.</span>, <span class="refAuthor">Reddy.K, T.</span>, <span class="refAuthor">Schoinianakis, D.</span>, and <span class="refAuthor">T. Hollebeek</span>, <span class="refTitle">"Post-Quantum Cryptography for Engineers"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-pquip-pqc-engineers-04</span>, <time datetime="2024-05-21" class="refDate">21 May 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqc-engineers-04">https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqc-engineers-04</a>&gt;</span>. </dd>
+<span class="refAuthor">Banerjee, A.</span>, <span class="refAuthor">Reddy, T.</span>, <span class="refAuthor">Schoinianakis, D.</span>, <span class="refAuthor">Hollebeek, T.</span>, and <span class="refAuthor">M. Ounsworth</span>, <span class="refTitle">"Post-Quantum Cryptography for Engineers"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-pquip-pqc-engineers-05</span>, <time datetime="2024-09-12" class="refDate">12 September 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/api/v1/doc/document/draft-ietf-pquip-pqc-engineers/">https://datatracker.ietf.org/api/v1/doc/document/draft-ietf-pquip-pqc-engineers/</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-privacypass-key-consistency">[I-D.ietf-privacypass-key-consistency]</dt>
         <dd>
@@ -6098,6 +6097,17 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
         <li class="compact" id="appendix-F-12.4">Changed the reference to <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span> from Normative to Informative, by re-defining the relevant functionality to this document.<a href="#appendix-F-12.4" class="pilcrow">¶</a>
 </li>
         <li class="compact" id="appendix-F-12.5">Various editorial updates.<a href="#appendix-F-12.5" class="pilcrow">¶</a>
+</li>
+      </ul>
+<p id="appendix-F-13">-06<a href="#appendix-F-13" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F-14.1">To support bounded memory implementations, the order of the inputs to the digest operation for the calculation of the <code>e</code> value during <code>CoreSign</code> and the <code>challenge</code> value during <code>CoreProofGen</code> and <code>CoreProofVerify</code> was updated.<a href="#appendix-F-14.1" class="pilcrow">¶</a>
+</li>
+        <li class="compact" id="appendix-F-14.2">Updated the test vectores to match the above update.<a href="#appendix-F-14.2" class="pilcrow">¶</a>
+</li>
+        <li class="compact" id="appendix-F-14.3">Renamed the pairing function from <code>e</code> to <code>h</code>, to avoid naming collisions with the scalar component of the signature.<a href="#appendix-F-14.3" class="pilcrow">¶</a>
+</li>
+        <li class="compact" id="appendix-F-14.4">Renamed <code>signature_dst</code>, <code>challenge_dst</code> and <code>domain_dst</code> to <code>hash_to_scalar_dst</code>.<a href="#appendix-F-14.4" class="pilcrow">¶</a>
 </li>
       </ul>
 </section>
