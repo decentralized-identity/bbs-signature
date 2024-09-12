@@ -2742,8 +2742,6 @@ BBS signatures when applied to the problem space of identity credentials can hel
 
 # Additional Test Vectors
 
-**NOTE** These fixtures are a work in progress and subject to change
-
 ## BLS12-381-SHAKE-256 Ciphersuite
 
 ### Signature Test Vectors
