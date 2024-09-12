@@ -190,7 +190,7 @@ X\[i\]
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@I-D.irtf-cfrg-pairing-friendly-curves].
 
 E1, E2
-: elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication.
+: elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and P \* x denotes scalar multiplication, where x is a scalar.
 
 G1, G2
 : subgroups of E1 and E2 (respectively) having prime order r.
