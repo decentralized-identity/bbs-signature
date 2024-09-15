@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-08T00:12:02.592349+00:00",
+  "timestamp": "2024-09-15T00:12:41.579805+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -36756,6 +36756,114 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 324,
+      "id": "PR_kwDOF8lax8564EOA",
+      "title": "Various editorial and inconsistency fixes",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/324",
+      "state": "OPEN",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "- Addressed two comments made by @mmaker\r\n    - Proof de-serialization error\r\n    - Order of inputs in `CoreSign` call\r\n- Fixed #322\r\n- Fixed #309\r\n- Fixed wrong inputs in `calculate_domain` call in `CoreSign` and `CoreVerify`",
+      "createdAt": "2024-09-09T16:33:24Z",
+      "updatedAt": "2024-09-12T10:13:50Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "26c3949161303bce575b6503b18b95634367f775",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "vasilis/various-fixes",
+      "headRefOid": "d3fca5c0a8556ea2393ee72f21870a2ab778c3d1",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax86IiXc7",
+          "commit": {
+            "abbreviatedOid": "d3fca5c"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-09-09T18:56:42Z",
+          "updatedAt": "2024-09-12T10:13:49Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 325,
+      "id": "PR_kwDOF8lax8565DVk",
+      "title": "Update Github Actions versions",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/325",
+      "state": "MERGED",
+      "author": "andrewwhitehead",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-09-09T19:01:48Z",
+      "updatedAt": "2024-09-12T10:11:40Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "d69a231f2509ce45ed7b6277f6d6e018db06c22b",
+      "headRepository": "andrewwhitehead/bbs-signature",
+      "headRefName": "fix/actions-versions",
+      "headRefOid": "58053ea52fbef3f414bcfe5e2c86de8f984c7bd3",
+      "closedAt": "2024-09-12T10:11:40Z",
+      "mergedAt": "2024-09-12T10:11:40Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "26c3949161303bce575b6503b18b95634367f775"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax86JFK0A",
+          "commit": {
+            "abbreviatedOid": "58053ea"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "LGTM! Thanks Andrew \ud83d\ude4f ",
+          "createdAt": "2024-09-12T10:11:33Z",
+          "updatedAt": "2024-09-12T10:11:33Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 326,
+      "id": "PR_kwDOF8lax857V1BQ",
+      "title": "Editorial review",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/326",
+      "state": "OPEN",
+      "author": "Wind4Greg",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Some small edits for readability. Started from end of document.\r\n\r\n1. Should use `NIZK` for acronym rather than `nizk`\r\n2. Removed \"subject to change\" warning on additional test vectors.\r\n3. Clarified scalar multiplication in *Notation* section. Document is very consistent with always using P*x where P is group element and x is scalar, in that order. *Notation* section had this reversed.",
+      "createdAt": "2024-09-12T18:32:15Z",
+      "updatedAt": "2024-09-12T18:32:16Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "26c3949161303bce575b6503b18b95634367f775",
+      "headRepository": "Wind4Greg/bbs-signature",
+      "headRefName": "editorial-review",
+      "headRefOid": "66a2cb60035ca8643bfa18fbaa2f69fe0eb4eb89",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
