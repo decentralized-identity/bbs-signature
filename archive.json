@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-15T00:12:41.579805+00:00",
+  "timestamp": "2024-09-17T00:09:52.663597+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -36851,7 +36851,7 @@
       "labels": [],
       "body": "Some small edits for readability. Started from end of document.\r\n\r\n1. Should use `NIZK` for acronym rather than `nizk`\r\n2. Removed \"subject to change\" warning on additional test vectors.\r\n3. Clarified scalar multiplication in *Notation* section. Document is very consistent with always using P*x where P is group element and x is scalar, in that order. *Notation* section had this reversed.",
       "createdAt": "2024-09-12T18:32:15Z",
-      "updatedAt": "2024-09-12T18:32:16Z",
+      "updatedAt": "2024-09-16T18:09:36Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "26c3949161303bce575b6503b18b95634367f775",
@@ -36863,7 +36863,21 @@
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax86Jh9RG",
+          "commit": {
+            "abbreviatedOid": "66a2cb6"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-09-16T18:09:36Z",
+          "updatedAt": "2024-09-16T18:09:36Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
