@@ -5,11 +5,11 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 16 March 2025                                      A. Whitehead
+Expires: 23 March 2025                                      A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
-                                                       12 September 2024
+                                                       19 September 2024
 
 
                         The BBS Signature Scheme
@@ -51,7 +51,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 March 2025.
+   This Internet-Draft will expire on 23 March 2025.
 
 Copyright Notice
 
@@ -354,7 +354,7 @@ Table of Contents
       E2, i.e., because E1 is defined over a smaller field than E2.  For
       a pairing-friendly curve, this document denotes operations in E1
       and E2 in additive notation, i.e., P + Q denotes point addition
-      and x * P denotes scalar multiplication.
+      and P * x denotes scalar multiplication, where x is a scalar.
    G1, G2  subgroups of E1 and E2 (respectively) having prime order r.
    GT  a subgroup, of prime order r, of the multiplicative group of a
       field extension.
@@ -717,8 +717,8 @@ Procedure:
 1. message_scalars = messages_to_scalars(messages, api_id)
 2. generators = create_generators(length(messages)+1, api_id)
 
-3. signature = CoreSign(SK, PK, header, message_scalars,
-                                              generators, api_id)
+3. signature = CoreSign(SK, PK, generators, header, message_scalars,
+                                                                 api_id)
 4. if signature is INVALID, return INVALID
 5. return signature
 
@@ -861,7 +861,7 @@ Outputs:
 
 Deserialization:
 
-1. proof_len_floor = 2 * octet_point_length + 4 * octet_scalar_length
+1. proof_len_floor = 3 * octet_point_length + 4 * octet_scalar_length
 2. if length(proof) < proof_len_floor, return INVALID
 3. U = floor((length(proof) - proof_len_floor) / octet_scalar_length)
 4. R = length(disclosed_indexes)
@@ -956,7 +956,7 @@ Deserialization:
 
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 
 2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
                                                      hash_to_scalar_dst)
@@ -971,8 +971,8 @@ Procedure:
    others returning 0 as a result.  If the returned value from the
    inverse operation 1/(SK + e) does evaluate to 0 the value of A will
    equal Identity_G1 thus an invalid signature.  Implementations MAY
-   elect to check (SK + e) = 0 mod r prior to step 9, and or A !=
-   Identity_G1 after step 9 to prevent the production of invalid
+   elect to check (SK + e) = 0 mod r prior to step 4, and or A !=
+   Identity_G1 after step 4 to prevent the production of invalid
    signatures.
 
 3.6.2.  CoreVerify
@@ -1023,7 +1023,7 @@ Deserialization:
 
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 3. if h(A, W + BP2 * e) * h(B, -BP2) != Identity_GT, return INVALID
 4. return VALID
@@ -2150,7 +2150,7 @@ Procedure:
 
 // Points (i.e., (Abar, Bbar, D) in ProofGen) de-serialization.
 3.  index = 0
-4.  for i in (0, 1):
+4.  for i in (0, 2):
 5.      end_index = index + octet_point_length - 1
 6.      A_i = octets_to_point_E1(proof_octets[index..end_index])
 7.      if A_i is INVALID or Identity_G1, return INVALID
@@ -3753,9 +3753,9 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
    [I-D.ietf-jose-json-web-proof]
               Miller, J., Waite, D., and M. B. Jones, "JSON Web Proof",
               Work in Progress, Internet-Draft, draft-ietf-jose-json-
-              web-proof-05, 22 July 2024,
+              web-proof-06, 16 September 2024,
               <https://datatracker.ietf.org/doc/html/draft-ietf-jose-
-              json-web-proof-05>.
+              json-web-proof-06>.
 
    [I-D.ietf-lwig-curve-representations]
               Struik, R., "Alternative Elliptic Curve Representations",
@@ -3765,12 +3765,12 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
               curve-representations-23>.
 
    [I-D.ietf-pquip-pqc-engineers]
-              Banerjee, A., Reddy, T., Schoinianakis, D., Hollebeek, T.,
-              and M. Ounsworth, "Post-Quantum Cryptography for
+              Banerjee, A., Reddy.K, T., Schoinianakis, D., Hollebeek,
+              T., and M. Ounsworth, "Post-Quantum Cryptography for
               Engineers", Work in Progress, Internet-Draft, draft-ietf-
               pquip-pqc-engineers-05, 12 September 2024,
-              <https://datatracker.ietf.org/api/v1/doc/document/draft-
-              ietf-pquip-pqc-engineers/>.
+              <https://datatracker.ietf.org/doc/html/draft-ietf-pquip-
+              pqc-engineers-05>.
 
    [I-D.ietf-privacypass-key-consistency]
               Davidson, A., Finkel, M., Thomson, M., and C. A. Wood,
@@ -4219,8 +4219,6 @@ C.3.  Selectively Disclosure Enabled Identity Credentials
    multiple presentations.
 
 Appendix D.  Additional Test Vectors
-
-   *NOTE* These fixtures are a work in progress and subject to change
 
 D.1.  BLS12-381-SHAKE-256 Ciphersuite
 
@@ -4819,12 +4817,12 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
    CoreProofGen and CoreProofVerify operations work, as presented in
    Appendix B of [TZ23] and used by this document.  The CoreProofGen
    procedure uses a generic non-interactive zero-knowledge proof-of-
-   knowledge (nizk) protocol, executed between a Prover and a Verifier.
-   A nizk works as follows; Assume the group points J_0, J_1, ..., J_n
+   knowledge (NIZK) protocol, executed between a Prover and a Verifier.
+   A NIZK works as follows; Assume the group points J_0, J_1, ..., J_n
    and the exponents e_0, e_1, ..., e_n.  Assume also that all the group
    points are publicly known, while only the exponent e_0 is known to
-   the Verifier of the nizk and the exponents e_1, ..., e_n are known
-   only by the Prover of the protocol.  The nizk can be used to prove a
+   the Verifier of the NIZK and the exponents e_1, ..., e_n are known
+   only by the Prover of the protocol.  The NIZK can be used to prove a
    relationship of the form,
 
    J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
@@ -4894,7 +4892,7 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
    not the exponents (i.e., r1 and -e).
 
    To convince the Verifier that both [4] and [6] hold, the Prover can
-   use a nizk, to prove that they know the exponents that satisfy those
+   use a NIZK, to prove that they know the exponents that satisfy those
    equations, without disclosing them.
 
    Note that if the value D is constructed correctly (as in [3]), then B
@@ -4910,7 +4908,7 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
    BP2 * e) = h(B, BP2), which is what CoreVerify checks to validate a
    signature (see Section 3.6.2).
 
-   Note that, the Prover will use a nizk to showcase (among other
+   Note that, the Prover will use a NIZK to showcase (among other
    things), knowledge of values r1 and e so that [4] holds (Bbar, D and
    Abar will be part of the proof and hence known to the Verifier).
    Setting r1' = (1 / r1) mod r (note that proving knowledge of r1
@@ -4931,7 +4929,7 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
    on (among others) the disclosed messages.
 
    To sum up; in order to validate the proof, a Verifier checks that
-   h(Abar, PK) = h(Bbar, BP2) and verifies the nizk.  Validating the
+   h(Abar, PK) = h(Bbar, BP2) and verifies the NIZK.  Validating the
    proof will guarantee the authenticity and integrity of the disclosed
    messages, as well as knowledge of the undisclosed messages and of the
    signature.

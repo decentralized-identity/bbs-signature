@@ -12,17 +12,17 @@
 <meta content="
        This document describes the BBS Signature scheme, a secure, multi-message digital signature protocol, supporting proving knowledge of a signature while selectively disclosing any subset of the signed messages. Concretely, the scheme allows for signing multiple messages whilst producing a single, constant size, digital signature. Additionally, the possessor of a BBS signatures is able to create zero-knowledge, proofs-of-knowledge of a signature, while selectively disclosing subsets of the signed messages. Being zero-knowledge, the BBS proofs do not reveal any information about the undisclosed messages or the signature it self, while at the same time, guarantying the authenticity and integrity of the disclosed messages. 
     " name="description">
-<meta content="xml2rfc 3.23.0" name="generator">
+<meta content="xml2rfc 3.23.1" name="generator">
 <meta content="draft-irtf-cfrg-bbs-signatures-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.23.0
-    Python 3.12.3
+  xml2rfc 3.23.1
+    Python 3.12.6
     ConfigArgParse 1.7
-    google-i18n-address 3.1.0
+    google-i18n-address 3.1.1
     intervaltree 3.1.0
     Jinja2 3.1.4
     lxml 4.9.4
-    platformdirs 4.2.2
+    platformdirs 4.3.6
     pycountry 22.3.5
     PyYAML 6.0.1
     requests 2.32.3
@@ -1030,7 +1030,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Looker, et al.</td>
-<td class="center">Expires 16 March 2025</td>
+<td class="center">Expires 23 March 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1043,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-irtf-cfrg-bbs-signatures-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-09-12" class="published">12 September 2024</time>
+<time datetime="2024-09-19" class="published">19 September 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-03-16">16 March 2025</time></dd>
+<dd class="expires"><time datetime="2025-03-23">23 March 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1102,7 +1102,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 16 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 23 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1669,7 +1669,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <p id="section-1.2-3">Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>.<a href="#section-1.2-3" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlCompact dlParallel" id="section-1.2-4">
           <dt id="section-1.2-4.1">E1, E2</dt>
-          <dd style="margin-left: 1.5em" id="section-1.2-4.2">elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x * P denotes scalar multiplication.<a href="#section-1.2-4.2" class="pilcrow">¶</a>
+          <dd style="margin-left: 1.5em" id="section-1.2-4.2">elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and P * x denotes scalar multiplication, where x is a scalar.<a href="#section-1.2-4.2" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.2-4.3">G1, G2</dt>
@@ -2002,8 +2002,8 @@ Procedure:
 1. message_scalars = messages_to_scalars(messages, api_id)
 2. generators = create_generators(length(messages)+1, api_id)
 
-3. signature = CoreSign(SK, PK, header, message_scalars,
-                                              generators, api_id)
+3. signature = CoreSign(SK, PK, generators, header, message_scalars,
+                                                                 api_id)
 4. if signature is INVALID, return INVALID
 5. return signature
 
@@ -2152,7 +2152,7 @@ Outputs:
 
 Deserialization:
 
-1. proof_len_floor = 2 * octet_point_length + 4 * octet_scalar_length
+1. proof_len_floor = 3 * octet_point_length + 4 * octet_scalar_length
 2. if length(proof) &lt; proof_len_floor, return INVALID
 3. U = floor((length(proof) - proof_len_floor) / octet_scalar_length)
 4. R = length(disclosed_indexes)
@@ -2244,7 +2244,7 @@ Deserialization:
 
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 
 2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
                                                      hash_to_scalar_dst)
@@ -2254,7 +2254,7 @@ Procedure:
 
 </pre><a href="#section-3.6.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-3.6.1-3"><strong>Note</strong> When computing step 4 of the above procedure there is an extremely small probability (around <code>2^(-r)</code>) that the condition <code>(SK + e) = 0 mod r</code> will be met. How implementations evaluate the inverse of the scalar value <code>0</code> may vary, with some returning an error and others returning <code>0</code> as a result. If the returned value from the inverse operation <code>1/(SK + e)</code> does evaluate to <code>0</code> the value of <code>A</code> will equal <code>Identity_G1</code> thus an invalid signature. Implementations MAY elect to check <code>(SK + e) = 0 mod r</code> prior to step 9, and or <code>A != Identity_G1</code> after step 9 to prevent the production of invalid signatures.<a href="#section-3.6.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.6.1-3"><strong>Note</strong> When computing step 4 of the above procedure there is an extremely small probability (around <code>2^(-r)</code>) that the condition <code>(SK + e) = 0 mod r</code> will be met. How implementations evaluate the inverse of the scalar value <code>0</code> may vary, with some returning an error and others returning <code>0</code> as a result. If the returned value from the inverse operation <code>1/(SK + e)</code> does evaluate to <code>0</code> the value of <code>A</code> will equal <code>Identity_G1</code> thus an invalid signature. Implementations MAY elect to check <code>(SK + e) = 0 mod r</code> prior to step 4, and or <code>A != Identity_G1</code> after step 4 to prevent the production of invalid signatures.<a href="#section-3.6.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="coreverify">
@@ -2304,7 +2304,7 @@ Deserialization:
 
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 3. if h(A, W + BP2 * e) * h(B, -BP2) != Identity_GT, return INVALID
 4. return VALID
@@ -3312,7 +3312,7 @@ Procedure:
 
 // Points (i.e., (Abar, Bbar, D) in ProofGen) de-serialization.
 3.  index = 0
-4.  for i in (0, 1):
+4.  for i in (0, 2):
 5.      end_index = index + octet_point_length - 1
 6.      A_i = octets_to_point_E1(proof_octets[index..end_index])
 7.      if A_i is INVALID or Identity_G1, return INVALID
@@ -4798,7 +4798,7 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 <dd class="break"></dd>
 <dt id="I-D.ietf-jose-json-web-proof">[I-D.ietf-jose-json-web-proof]</dt>
         <dd>
-<span class="refAuthor">Miller, J.</span>, <span class="refAuthor">Waite, D.</span>, and <span class="refAuthor">M. B. Jones</span>, <span class="refTitle">"JSON Web Proof"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-jose-json-web-proof-05</span>, <time datetime="2024-07-22" class="refDate">22 July 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-05">https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-05</a>&gt;</span>. </dd>
+<span class="refAuthor">Miller, J.</span>, <span class="refAuthor">Waite, D.</span>, and <span class="refAuthor">M. B. Jones</span>, <span class="refTitle">"JSON Web Proof"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-jose-json-web-proof-06</span>, <time datetime="2024-09-16" class="refDate">16 September 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-06">https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-06</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-lwig-curve-representations">[I-D.ietf-lwig-curve-representations]</dt>
         <dd>
@@ -4806,7 +4806,7 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 <dd class="break"></dd>
 <dt id="I-D.ietf-pquip-pqc-engineers">[I-D.ietf-pquip-pqc-engineers]</dt>
         <dd>
-<span class="refAuthor">Banerjee, A.</span>, <span class="refAuthor">Reddy, T.</span>, <span class="refAuthor">Schoinianakis, D.</span>, <span class="refAuthor">Hollebeek, T.</span>, and <span class="refAuthor">M. Ounsworth</span>, <span class="refTitle">"Post-Quantum Cryptography for Engineers"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-pquip-pqc-engineers-05</span>, <time datetime="2024-09-12" class="refDate">12 September 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/api/v1/doc/document/draft-ietf-pquip-pqc-engineers/">https://datatracker.ietf.org/api/v1/doc/document/draft-ietf-pquip-pqc-engineers/</a>&gt;</span>. </dd>
+<span class="refAuthor">Banerjee, A.</span>, <span class="refAuthor">Reddy.K, T.</span>, <span class="refAuthor">Schoinianakis, D.</span>, <span class="refAuthor">Hollebeek, T.</span>, and <span class="refAuthor">M. Ounsworth</span>, <span class="refTitle">"Post-Quantum Cryptography for Engineers"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-pquip-pqc-engineers-05</span>, <time datetime="2024-09-12" class="refDate">12 September 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqc-engineers-05">https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqc-engineers-05</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-privacypass-key-consistency">[I-D.ietf-privacypass-key-consistency]</dt>
         <dd>
@@ -5193,7 +5193,6 @@ Procedure:
       <h2 id="name-additional-test-vectors">
 <a href="#appendix-D" class="section-number selfRef">Appendix D. </a><a href="#name-additional-test-vectors" class="section-name selfRef">Additional Test Vectors</a>
       </h2>
-<p id="appendix-D-1"><strong>NOTE</strong> These fixtures are a work in progress and subject to change<a href="#appendix-D-1" class="pilcrow">¶</a></p>
 <div id="bls12-381-shake-256-ciphersuite">
 <section id="appendix-D.1">
         <h3 id="name-bls12-381-shake-256-ciphers">
@@ -5956,7 +5955,7 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
       <h2 id="name-proof-generation-and-verifi">
 <a href="#appendix-E" class="section-number selfRef">Appendix E. </a><a href="#name-proof-generation-and-verifi" class="section-name selfRef">Proof Generation and Verification Algorithmic Explanation</a>
       </h2>
-<p id="appendix-E-1">The following section provides a high-level explanation of how the <code>CoreProofGen</code> and <code>CoreProofVerify</code> operations work, as presented in Appendix B of <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> and used by this document. The <code>CoreProofGen</code> procedure uses a generic non-interactive zero-knowledge proof-of-knowledge (<code>nizk</code>) protocol, executed between a Prover and a Verifier. A <code>nizk</code> works as follows; Assume the group points <code>J_0</code>, <code>J_1</code>, ..., <code>J_n</code> and the exponents <code>e_0</code>, <code>e_1</code>, ..., <code>e_n</code>. Assume also that all the group points are publicly known, while only the exponent <code>e_0</code> is known to the Verifier of the <code>nizk</code> and the exponents <code>e_1</code>, ..., <code>e_n</code> are known only by the Prover of the protocol. The <code>nizk</code> can be used to prove a relationship of the form,<a href="#appendix-E-1" class="pilcrow">¶</a></p>
+<p id="appendix-E-1">The following section provides a high-level explanation of how the <code>CoreProofGen</code> and <code>CoreProofVerify</code> operations work, as presented in Appendix B of <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> and used by this document. The <code>CoreProofGen</code> procedure uses a generic non-interactive zero-knowledge proof-of-knowledge (<code>NIZK</code>) protocol, executed between a Prover and a Verifier. A <code>NIZK</code> works as follows; Assume the group points <code>J_0</code>, <code>J_1</code>, ..., <code>J_n</code> and the exponents <code>e_0</code>, <code>e_1</code>, ..., <code>e_n</code>. Assume also that all the group points are publicly known, while only the exponent <code>e_0</code> is known to the Verifier of the <code>NIZK</code> and the exponents <code>e_1</code>, ..., <code>e_n</code> are known only by the Prover of the protocol. The <code>NIZK</code> can be used to prove a relationship of the form,<a href="#appendix-E-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-E-2">
 <pre>J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
 
@@ -5999,17 +5998,17 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 </li>
       </ul>
 <p id="appendix-E-8">Note that the Verifier will know the elements in the left side of [6] (i.e., <code>P1</code>, <code>Q_1</code>, <code>H_i1</code>, ..., <code>H_iR</code> and the disclosed messages: <code>msg_i1</code>, ..., <code>msg_iR</code>) as well as the base points of the right side (i.e., the points <code>D</code> and <code>H_j1, ..., H_jU</code>). They will not however know the exponents on the right side of [6] (i.e., <code>r2'</code> and the undisclosed messages: <code>msg_j1, ..., msg_jU</code>). The same holds for equation [4] where the Verifier will know the left side of the equation (i.e., <code>Bbar</code>) and the base points of the right side (i.e., <code>D</code> and <code>Abar</code>) but not the exponents (i.e., <code>r1</code> and <code>-e</code>).<a href="#appendix-E-8" class="pilcrow">¶</a></p>
-<p id="appendix-E-9">To convince the Verifier that both [4] and [6] hold, the Prover can use a <code>nizk</code>, to prove that they know the exponents that satisfy those equations, without disclosing them.<a href="#appendix-E-9" class="pilcrow">¶</a></p>
+<p id="appendix-E-9">To convince the Verifier that both [4] and [6] hold, the Prover can use a <code>NIZK</code>, to prove that they know the exponents that satisfy those equations, without disclosing them.<a href="#appendix-E-9" class="pilcrow">¶</a></p>
 <p id="appendix-E-10">Note that if the value <code>D</code> is constructed correctly (as in [3]), then <code>B = D * r2'</code>. Proving knowledge of [6] corresponds to proving knowledge of <code>r2'</code>, which means that the Prover does actually know a value <code>B = D * r2'</code>. If [6] holds, then that <code>B</code> value that the Prover knows (i.e., <code>D * r2'</code>) will also have the "correct form" for <code>B</code> (as in [1]), including all (the disclosed and "some" undisclosed) messages.<a href="#appendix-E-10" class="pilcrow">¶</a></p>
 <p id="appendix-E-11">All that remains is proving that this <code>B</code> value the Prover knows, is also "signed" by the Signer i.e., that the Prover also knows values <code>A</code> and <code>e</code>, such that <code>A = B * 1/(e + SK)</code> or, equivalently, that <code>h(A, PK + BP2 * e) = h(B, BP2)</code>, which is what <code>CoreVerify</code> checks to validate a signature (see <a href="#coreverify" class="auto internal xref">Section 3.6.2</a>).<a href="#appendix-E-11" class="pilcrow">¶</a></p>
-<p id="appendix-E-12">Note that, the Prover will use a <code>nizk</code> to showcase (among other things), knowledge of values <code>r1</code> and <code>e</code> so that [4] holds (<code>Bbar</code>, <code>D</code> and <code>Abar</code> will be part of the proof and hence known to the Verifier). Setting <code>r1' = (1 / r1) mod r</code> (note that proving knowledge of <code>r1</code> indirectly proves knowledge of <code>r1'</code> as well), using [4] and the fact that <code>h(Abar, PK) = h(Bbar, BP2)</code> we can get that,<a href="#appendix-E-12" class="pilcrow">¶</a></p>
+<p id="appendix-E-12">Note that, the Prover will use a <code>NIZK</code> to showcase (among other things), knowledge of values <code>r1</code> and <code>e</code> so that [4] holds (<code>Bbar</code>, <code>D</code> and <code>Abar</code> will be part of the proof and hence known to the Verifier). Setting <code>r1' = (1 / r1) mod r</code> (note that proving knowledge of <code>r1</code> indirectly proves knowledge of <code>r1'</code> as well), using [4] and the fact that <code>h(Abar, PK) = h(Bbar, BP2)</code> we can get that,<a href="#appendix-E-12" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-E-13">
 <pre>h(Abar * r1' * r2', PK + BP2 * e) = h(D * r2', BP2) = h(B, BP2)
 
 </pre><a href="#appendix-E-13" class="pilcrow">¶</a>
 </div>
 <p id="appendix-E-14">Note that the above is what <code>CoreVerify</code> checks, for <code>A = Abar * r1' * r2'</code>. Since the Prover showcased knowledge of <code>r1'</code> and <code>r2'</code> and revealed <code>Abar</code> as part of the proof, the Verifier can be assured that the Prover knows the value <code>A = Abar * r1' * r2'</code>. So setting <code>A = Abar * r1' * r2'</code>, the values <code>A</code>, <code>e</code>, <code>B</code> that the Prover showed knowledge of, will form a valid BBS signature. Note that the Verifier doesn't know <code>A</code> (since they don't know <code>r1'</code> and <code>r2'</code>), <code>e</code> or <code>B</code> (since they don't know <code>r2'</code> or the undisclosed messages). However, they know that the prover knows them and as we saw above, these values form a valid signature on (among others) the disclosed messages.<a href="#appendix-E-14" class="pilcrow">¶</a></p>
-<p id="appendix-E-15">To sum up; in order to validate the proof, a Verifier checks that <code>h(Abar, PK) = h(Bbar, BP2)</code> and verifies the <code>nizk</code>. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.<a href="#appendix-E-15" class="pilcrow">¶</a></p>
+<p id="appendix-E-15">To sum up; in order to validate the proof, a Verifier checks that <code>h(Abar, PK) = h(Bbar, BP2)</code> and verifies the <code>NIZK</code>. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.<a href="#appendix-E-15" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="document-history">
