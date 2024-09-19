@@ -190,7 +190,7 @@ X\[i\]
 Terms specific to pairing-friendly elliptic curves that are relevant to this document are restated below, originally defined in [@I-D.irtf-cfrg-pairing-friendly-curves].
 
 E1, E2
-: elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and x \* P denotes scalar multiplication.
+: elliptic curve groups defined over finite fields. This document assumes that E1 has a more compact representation than E2, i.e., because E1 is defined over a smaller field than E2. For a pairing-friendly curve, this document denotes operations in E1 and E2 in additive notation, i.e., P + Q denotes point addition and P \* x denotes scalar multiplication, where x is a scalar.
 
 G1, G2
 : subgroups of E1 and E2 (respectively) having prime order r.
@@ -2742,8 +2742,6 @@ BBS signatures when applied to the problem space of identity credentials can hel
 
 # Additional Test Vectors
 
-**NOTE** These fixtures are a work in progress and subject to change
-
 ## BLS12-381-SHAKE-256 Ciphersuite
 
 ### Signature Test Vectors
@@ -3212,7 +3210,7 @@ scalar = {{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}
 
 # Proof Generation and Verification Algorithmic Explanation
 
-The following section provides a high-level explanation of how the `CoreProofGen` and `CoreProofVerify` operations work, as presented in Appendix B of [@TZ23] and used by this document. The `CoreProofGen` procedure uses a generic non-interactive zero-knowledge proof-of-knowledge (`nizk`) protocol, executed between a Prover and a Verifier. A `nizk` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group points are publicly known, while only the exponent `e_0` is known to the Verifier of the `nizk` and the exponents `e_1`, ..., `e_n` are known only by the Prover of the protocol. The `nizk` can be used to prove a relationship of the form,
+The following section provides a high-level explanation of how the `CoreProofGen` and `CoreProofVerify` operations work, as presented in Appendix B of [@TZ23] and used by this document. The `CoreProofGen` procedure uses a generic non-interactive zero-knowledge proof-of-knowledge (`NIZK`) protocol, executed between a Prover and a Verifier. A `NIZK` works as follows; Assume the group points `J_0`, `J_1`, ..., `J_n` and the exponents `e_0`, `e_1`, ..., `e_n`. Assume also that all the group points are publicly known, while only the exponent `e_0` is known to the Verifier of the `NIZK` and the exponents `e_1`, ..., `e_n` are known only by the Prover of the protocol. The `NIZK` can be used to prove a relationship of the form,
 
 ```
 J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
@@ -3252,13 +3250,13 @@ Let `(i1, ..., iR)` be the indexes of the messages the Prover wants to disclose 
 
 Note that the Verifier will know the elements in the left side of \[6\] (i.e., `P1`, `Q_1`, `H_i1`, ..., `H_iR` and the disclosed messages: `msg_i1`, ..., `msg_iR`) as well as the base points of the right side (i.e., the points `D` and `H_j1, ..., H_jU`). They will not however know the exponents on the right side of \[6\] (i.e., `r2'` and the undisclosed messages: `msg_j1, ..., msg_jU`). The same holds for equation \[4\] where the Verifier will know the left side of the equation (i.e., `Bbar`) and the base points of the right side (i.e., `D` and `Abar`) but not the exponents (i.e., `r1` and `-e`).
 
-To convince the Verifier that both \[4\] and \[6\] hold, the Prover can use a `nizk`, to prove that they know the exponents that satisfy those equations, without disclosing them.
+To convince the Verifier that both \[4\] and \[6\] hold, the Prover can use a `NIZK`, to prove that they know the exponents that satisfy those equations, without disclosing them.
 
 Note that if the value `D` is constructed correctly (as in \[3\]), then `B = D * r2'`. Proving knowledge of \[6\] corresponds to proving knowledge of `r2'`, which means that the Prover does actually know a value `B = D * r2'`. If \[6\] holds, then that `B` value that the Prover knows (i.e., `D * r2'`) will also have the "correct form" for `B` (as in \[1\]), including all (the disclosed and "some" undisclosed) messages.
 
 All that remains is proving that this `B` value the Prover knows, is also "signed" by the Signer i.e., that the Prover also knows values `A` and `e`, such that `A = B * 1/(e + SK)` or, equivalently, that `h(A, PK + BP2 * e) = h(B, BP2)`, which is what `CoreVerify` checks to validate a signature (see (#coreverify)).
 
-Note that, the Prover will use a `nizk` to showcase (among other things), knowledge of values `r1` and `e` so that \[4\] holds (`Bbar`, `D` and `Abar` will be part of the proof and hence known to the Verifier). Setting `r1' = (1 / r1) mod r` (note that proving knowledge of `r1` indirectly proves knowledge of `r1'` as well), using \[4\] and the fact that `h(Abar, PK) = h(Bbar, BP2)` we can get that,
+Note that, the Prover will use a `NIZK` to showcase (among other things), knowledge of values `r1` and `e` so that \[4\] holds (`Bbar`, `D` and `Abar` will be part of the proof and hence known to the Verifier). Setting `r1' = (1 / r1) mod r` (note that proving knowledge of `r1` indirectly proves knowledge of `r1'` as well), using \[4\] and the fact that `h(Abar, PK) = h(Bbar, BP2)` we can get that,
 
 ```
 h(Abar * r1' * r2', PK + BP2 * e) = h(D * r2', BP2) = h(B, BP2)
@@ -3266,7 +3264,7 @@ h(Abar * r1' * r2', PK + BP2 * e) = h(D * r2', BP2) = h(B, BP2)
 
 Note that the above is what `CoreVerify` checks, for `A = Abar * r1' * r2'`. Since the Prover showcased knowledge of `r1'` and `r2'` and revealed `Abar` as part of the proof, the Verifier can be assured that the Prover knows the value `A = Abar * r1' * r2'`. So setting `A = Abar * r1' * r2'`, the values `A`, `e`, `B` that the Prover showed knowledge of, will form a valid BBS signature. Note that the Verifier doesn't know `A` (since they don't know `r1'` and `r2'`), `e` or `B` (since they don't know `r2'` or the undisclosed messages). However, they know that the prover knows them and as we saw above, these values form a valid signature on (among others) the disclosed messages.
 
-To sum up; in order to validate the proof, a Verifier checks that `h(Abar, PK) = h(Bbar, BP2)` and verifies the `nizk`. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
+To sum up; in order to validate the proof, a Verifier checks that `h(Abar, PK) = h(Bbar, BP2)` and verifies the `NIZK`. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.
 
 # Document History
 
