@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-10-08T00:11:25.749891+00:00",
+  "timestamp": "2024-10-10T00:11:29.801918+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -6761,9 +6761,17 @@
       "labels": [],
       "body": "As discussed on our WG call, here's a first draft on BBS Signatures with less or no pairing operations:\r\n\r\nhttps://basileioskal.github.io/pairing-free-bbs/draft-vasilis-pairing-free-bbs.html\r\n\r\nYou can find the repo [here](https://github.com/BasileiosKal/pairing-free-bbs). Note that after review, if consensus is achieved, the intention is for the document to become part of this repository.\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
       "createdAt": "2023-08-31T18:36:21Z",
-      "updatedAt": "2023-08-31T18:36:21Z",
+      "updatedAt": "2024-10-09T03:21:21Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "NikZak",
+          "authorAssociation": "NONE",
+          "body": "Interesting. Can you describe the use case for verification with knowledge of secret key?",
+          "createdAt": "2024-10-09T03:21:20Z",
+          "updatedAt": "2024-10-09T03:21:20Z"
+        }
+      ]
     },
     {
       "number": 285,
@@ -7228,6 +7236,22 @@
           "updatedAt": "2024-08-21T12:29:08Z"
         }
       ]
+    },
+    {
+      "number": 327,
+      "id": "I_kwDOF8lax86ZSrFH",
+      "title": "test vectors: inconsistency in random scalars",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/327",
+      "state": "OPEN",
+      "author": "NikZak",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Hi. When I look at [section 8.4.5.2](https://identity.foundation/bbs-signature/draft-irtf-cfrg-bbs-signatures.html#section-8.4.5.2)\r\nor [section 8.4.5.1](https://identity.foundation/bbs-signature/draft-irtf-cfrg-bbs-signatures.html#section-8.4.5.1)\r\nrandom scalars go as \r\n```\r\nrandom scalars:\r\n    r1 = \"60ca409f6b0563f687fc471c63d2819f446f39c23bb540925d9d4254ac58f3\r\n          37\"\r\n    r2 = \"2ceff4982de0c913090f75f081df5ec594c310bb48c17cfdaab5332a682ef8\r\n          11\"\r\n    e_tilde = \"6101c4404895f3dff87ab39c34cb995af07e7139e6b3847180ffdd1bc\r\n               8c313cd\"\r\n    r1_tilde = \"0dfcffd97a6ecdebef3c9c114b99d7a030c998d938905f357df62822\r\n                dee072e8\"\r\n    r3_tilde = \"639e3417007d38e5d34ba8c511e836768ddc2669fdd3faff5c14ad27\r\n                ac2b2da1\"\r\n```\r\n\r\nWhen I look at [section 8.4.5.3](https://identity.foundation/bbs-signature/draft-irtf-cfrg-bbs-signatures.html#section-8.4.5.3) random scalars are:\r\n```\r\nrandom scalars:\r\n    r1 = \"44679831fe60eca50938ef0e812e2a9284ad7971b6932a38c7303538b712e4\r\n          57\"\r\n    r2 = \"6481692f89086cce11779e847ff884db8eebb85a13e81b2d0c79d6c1062069\r\n          d8\"\r\n    e_tilde = \"721ce4c4c148a1d5826f326af6fd6ac2844f29533ba4127c3a43d222d\r\n               51b7081\"\r\n    r1_tilde = \"1ecfaf5a079b0504b00a1f0d6fe8857291dd798291d7ad7454b39811\r\n                4393f37f\"\r\n    r3_tilde = \"0a4b3d59b34707bb9999bc6e2a6d382a2d2e214bff36ecd88639a141\r\n                24b1622e\"\r\n    m_tilde_scalars:\r\n        m~_1 = \"7217411a9e329c7a5705e8db552274646e2949d62c288d7537dd62bc\r\n                284715e4\"\r\n        m~_3 = \"67d4d43660746759f598caac106a2b5f58ccd1c3eefaec31841a4f77\r\n                d2548870\"\r\n        m~_5 = \"715d965b1c3912d20505b381470ff1a528700b673e50ba89fd287e13\r\n                171cc137\"\r\n        m~_7 = \"4d3281a149674e58c9040fc7a10dd92cb9c7f76f6f0815a1afc3b09d\r\n                74b92fe4\"\r\n        m~_8 = \"438feebaa5894ca0da49992df2c97d872bf153eab07e08ff73b28131\r\n                c46ff415\"\r\n        m~_9 = \"602b723c8bbaec1b057d70f18269ae5e6de6197a5884967b03b933fa\r\n                80006121\"\r\n```\r\n\r\nThere are few issues with it. \r\nFirst:\r\nHow were the first random scalars derived? This is not defined in the standard. I've figured that you can get them by using seeded_random_scalars(SEED, DST, count) where SEED = \"332e313431353932363533353839373933323338343632363433333833323739\" and DST =\r\n\"BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_MOCK_RANDOM_SCALARS_DST_\" but I had to make a few guesses to find that. I think this better be defined in the standard.\r\n\r\nSecond:\r\nHow second random scalars are derived, I don't know\r\n\r\nI mean you may argue that how the random scalars are derived is not necessary to run the tests. But then why defining `seeded_random_scalars` function and saying that it is used to get random scalars. This function can not be used so the whole section about `seeded_random_scalars` is redundant",
+      "createdAt": "2024-10-08T00:55:53Z",
+      "updatedAt": "2024-10-08T03:59:41Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
