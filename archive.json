@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-11-17T00:13:27.477685+00:00",
+  "timestamp": "2024-11-19T00:12:33.080944+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -7266,6 +7266,22 @@
       "body": "Hi,\r\n\r\nIt looks like there's a typo in [Appendix E of the `07` draft](https://www.ietf.org/archive/id/draft-irtf-cfrg-bbs-signatures-07.html#appendix-E). Equation `[6]` reads:\r\n\r\n```\r\n[6]     P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR =\r\n                        D * r2' - H_ji * msg_j1 - ... - H_jU * msg_jU\r\n```\r\n\r\nwhere I think the `H_ji` on the second line is meant to be `H_j1`?",
       "createdAt": "2024-11-04T14:13:35Z",
       "updatedAt": "2024-11-04T14:13:35Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 329,
+      "id": "I_kwDOF8lax86fDzSs",
+      "title": " Add TPM supported curves (BN638 and BN256I)",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/329",
+      "state": "OPEN",
+      "author": "akakou",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Hello, \r\n\r\nMy name is Kosei Akama, and I am a master's student at Keio University. \r\nI am writing to inquire about plans to adopt TPM-supported elliptic curves in the BBS draft.\r\n\r\nThe [BN638 and BN256I curves](https://www.ietf.org/archive/id/draft-irtf-cfrg-pairing-friendly-curves-11.html) are utilized for remote attestation mechanisms, \r\nsuch as Direct Anonymous Attestation (DAA) and Enhanced Privacy ID (EPID), both of which are based on the BBS.\r\n\r\nGiven this context, it seems necessary to specify the BN638 and BN256I as supported curves. \r\nIs there a plan to include these curves in the draft?",
+      "createdAt": "2024-11-18T13:33:48Z",
+      "updatedAt": "2024-11-18T13:33:48Z",
       "closedAt": null,
       "comments": []
     }
