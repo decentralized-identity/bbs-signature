@@ -3325,6 +3325,14 @@ To sum up; in order to validate the proof, a Verifier checks that `h(Abar, PK) =
 * Renamed the pairing function from `e` to `h`, to avoid naming collisions with the scalar component of the signature.
 * Renamed `signature_dst`, `challenge_dst` and `domain_dst` to `hash_to_scalar_dst`.
 
+-07
+
+* Editorial fixes (nizk -> NIZK, clarified scalar multiplication in Notation Section).
+* Removed "subject to change" warning on additional test vectors.
+* Fixed proof deserialization error.
+* Fixed order of inputs in `CoreSign` call.
+* Fixed wrong inputs in `calculate_domain` call in `CoreSign` and `CoreVerify`.
+
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
     <title>Faster subgroup checks for BLS12-381</title>
