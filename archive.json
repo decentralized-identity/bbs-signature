@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-08T00:14:04.924286+00:00",
+  "timestamp": "2024-12-10T00:13:18.961032+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -7179,16 +7179,24 @@
       "id": "I_kwDOF8lax86Rl_Kt",
       "title": "Test Vector for BBS Signatures over BN254 pairing curve",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/321",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "man2706kum",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "The current latest draft includes the test vectors for BBS signature over BLS12-381. Where can i find the test vectors for BBS over BN254?",
       "createdAt": "2024-08-01T14:39:54Z",
-      "updatedAt": "2024-08-01T14:39:54Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2024-12-09T06:49:33Z",
+      "closedAt": "2024-12-09T06:49:33Z",
+      "comments": [
+        {
+          "author": "man2706kum",
+          "authorAssociation": "NONE",
+          "body": "Implemented a generic implmentation of BBS+ supported over both bls12-381 and bn254 which can be found [here](https://github.com/hashcloak/bbs_sign). It passes the test vectors mentioned in the draft. Since this is a generic implementation, the same code works for both bn254 and bls12381 arkworks curve. One only need to implement the `Constants` and `HashToG1` traits which is generic over arkworks `Pairing`. **This implementation gives the flexibility to fit any arkworks pairing friendly curve just by implementing  the `Constants` and `HashToG1` traits.**",
+          "createdAt": "2024-12-09T06:49:22Z",
+          "updatedAt": "2024-12-09T06:49:22Z"
+        }
+      ]
     },
     {
       "number": 322,
