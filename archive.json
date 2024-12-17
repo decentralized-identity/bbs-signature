@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-15T00:14:33.059441+00:00",
+  "timestamp": "2024-12-17T00:12:55.927219+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -36986,6 +36986,213 @@
           "createdAt": "2024-09-19T19:05:06Z",
           "updatedAt": "2024-09-19T19:05:06Z",
           "comments": []
+        }
+      ]
+    },
+    {
+      "number": 330,
+      "id": "PR_kwDOF8lax86FX8j2",
+      "title": "Address Crypto Panel review comments",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/330",
+      "state": "OPEN",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Editorial updates to address the CFRG Crypto Panel review: https://mailarchive.ietf.org/arch/msg/crypto-panel/Vk5O4h_U3-QcWrm22KWwRFmSl7E/",
+      "createdAt": "2024-12-16T15:32:54Z",
+      "updatedAt": "2024-12-16T19:55:43Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "4aad363595c847d066611f8a789ec5afeed8659d",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "vasilis/crypto-panel-review",
+      "headRefOid": "9f1efa12fa1b378cf9661133b06f87f6a8869e85",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax86VcDAm",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T19:40:23Z",
+          "updatedAt": "2024-12-16T19:40:24Z",
+          "comments": [
+            {
+              "originalPosition": 320,
+              "body": "```suggestion\r\nOn the other hand, the misuse of a `presentation_header`, chosen by the Prover and only bound to a BBS proof, does not incur as many privacy risks as the `header` value. For example, since a new `presentation_header` can be chosen each time a BBS proof is generated, random values are a viable choice. Still, to not break the unlinkability property, care must be taken that the `presentation_header` does not identify a single or small group of Provers. Acceptable values include random octet strings (possibly received from the Verifier, prior to the generation of the BBS proof), or more generally, any message the Prover may want to protect its integrity when presenting a BBS proof (note that the `presentation_header` value, when used, can be considered as \"signed\" by the Prover). Unacceptable values include the Prover's phone number, their complete physical address, their date of their birth etc..\r\n```",
+              "createdAt": "2024-12-16T19:40:23Z",
+              "updatedAt": "2024-12-16T19:40:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VcFzm",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T19:42:23Z",
+          "updatedAt": "2024-12-16T19:42:23Z",
+          "comments": [
+            {
+              "originalPosition": 329,
+              "body": "```suggestion\r\nNote that all core operations as defined in (#core-operations) expect the Signer's public key as input. It is RECOMMENDED for all those operations, that they deserialize the public key first using the `octets_to_pubkey` procedure defined in (#octets-to-public-key), even if they only require the octet string representation of the public key. If the `octets_to_pubkey` procedure returns INVALID, the calling operation should also return INVALID and abort. This recommendation applies is the `CoreSign` ((#coresign)) and `CoreProofGen` ((#coreproofgen)) operations. An explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required in the `CoreVerify` ((#coreverify)) and `CoreProofVerify` ((#coreproofverify)) operations. If the required checks for the validity of the Signer's public key are not performed, the results are unpredictable, leading to unexpected vulnerabilities (for example, the output of the pairing operation on input of an invalid elliptic curve point can be highly irregular and implementation-dependent, with some returning the identity point of the elliptic curve and others returning errors).\r\n```",
+              "createdAt": "2024-12-16T19:42:23Z",
+              "updatedAt": "2024-12-16T19:42:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VcIpx",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T19:44:19Z",
+          "updatedAt": "2024-12-16T19:44:19Z",
+          "comments": [
+            {
+              "originalPosition": 366,
+              "body": "```suggestion\r\nOn the other hand, data confidentiality cannot be broken, even by adversaries with unbounded computational resources and in possession of the Signer's secret key. This means that even by utilizing a CRQC, adversaries will not be able to compromise the data confidentiality property of BBS proofs. As a result, an adversary with access to such a quantum computer, will not be able to reveal neither the messages undisclosed by a BBS proof, nor the hidden signature value (which the Prover showcases possession of). This guarantees that the privacy and hiding properties of BBS proofs that are currently used, will not be compromised by future quantum-attacks (a property that is often referred to as everlasting privacy). Note that this only considers BBS proofs, not BBS signatures, which do not possess the same hiding properties as the BBS proofs.\r\n```",
+              "createdAt": "2024-12-16T19:44:19Z",
+              "updatedAt": "2024-12-16T19:44:19Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VcKCu",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T19:45:12Z",
+          "updatedAt": "2024-12-16T19:45:12Z",
+          "comments": [
+            {
+              "originalPosition": 222,
+              "body": "```suggestion\r\nThis operation computes a deterministic signature from a secret key (`SK`), a set of `generators` (points of G1) and optionally a `header` and a vector of `messages`. Note that signature generation is deterministic, in contrast to the academic literature, where signature generation, and more specifically the calculation of the `e` value (Procedure step 2 below), is randomized (i.e., the `e` value is drawn at random, instead of been deterministically calculated by hashing the Signer's secret key and the list of messages). This alteration not only protects the scheme (at least the signature generation part) from vulnerabilities related to bad entropy sources, it also makes testing of the `CoreSign` operation easier.\r\n```",
+              "createdAt": "2024-12-16T19:45:12Z",
+              "updatedAt": "2024-12-16T19:45:12Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VcO3J",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T19:49:01Z",
+          "updatedAt": "2024-12-16T19:49:02Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "```suggestion\r\nThis document describes the BBS Signature scheme, a secure, multi-message digital signature protocol, supporting proving knowledge of a signature while selectively disclosing any subset of the signed messages. Concretely, the scheme allows for signing multiple messages whilst producing a single, constant size, digital signature. Additionally, the possessor of a BBS signatures is able to create zero-knowledge, proofs of knowledge of a signature, while selectively disclosing subsets of the signed messages. Being zero-knowledge, the BBS proofs do not reveal any information about the undisclosed messages or the signature it self, while at the same time, guaranteeing the authenticity and integrity of the disclosed messages.\r\n```",
+              "createdAt": "2024-12-16T19:49:01Z",
+              "updatedAt": "2024-12-16T19:49:02Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VcPwn",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T19:49:41Z",
+          "updatedAt": "2024-12-16T19:49:41Z",
+          "comments": [
+            {
+              "originalPosition": 165,
+              "body": "```suggestion\r\nThe `ProofGen` operation creates a BBS proof, which is a zero-knowledge, proof-of-knowledge of a BBS signature, while optionally disclosing any subset of the signed messages. Validating the proof (see `ProofVerify` defined in (#proof-verification-proofverify)) guarantees authenticity and integrity of the `header` and disclosed messages, as well as knowledge of a valid BBS signature.\r\n```",
+              "createdAt": "2024-12-16T19:49:41Z",
+              "updatedAt": "2024-12-16T19:49:41Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VcQvz",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T19:50:23Z",
+          "updatedAt": "2024-12-16T19:50:23Z",
+          "comments": [
+            {
+              "originalPosition": 195,
+              "body": "```suggestion\r\nThe `ProofVerify` operation validates a BBS proof, given the Signer's public key (`PK`), a `header` and `presentation_header` values, the disclosed messages and the indexes those messages had in the original vector of signed messages.\r\n```",
+              "createdAt": "2024-12-16T19:50:23Z",
+              "updatedAt": "2024-12-16T19:50:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VcS5r",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T19:51:59Z",
+          "updatedAt": "2024-12-16T19:52:00Z",
+          "comments": [
+            {
+              "originalPosition": 317,
+              "body": "```suggestion\r\nAs mentioned in Section (#header-and-presentation-header), the `header` value is chosen by the Signer and bound to a BBS Signature and proof. Consequently, it must be revealed to the Verifier, together with a BBS proof. If that `header` value is chosen to have high entropy (i.e., unique per credential, Prover or small group of Provers), it can be used as a correlation vector to trace and link together all BBS proofs made by a signature bound to that `header` value. This will result to significantly worst privacy guarantees, by allowing adversaries to trace and link together all generated proofs bound to that `header` value (for example, if a random `header` is used during each BBS signature generation, adversaries will be able to link and trace the BBS proofs generated from that signature). The Issuer MUST choose a low entropy `header` value and it MUST be the same for a large number of users (Provers). Acceptable values include an application identifier, a country identifier etc.. Unacceptable values include random values, high cardinality expiration dates, the Prover's email address etc..\r\n```",
+              "createdAt": "2024-12-16T19:51:59Z",
+              "updatedAt": "2024-12-16T19:52:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VcWSf",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T19:55:43Z",
+          "updatedAt": "2024-12-16T19:55:43Z",
+          "comments": [
+            {
+              "originalPosition": 313,
+              "body": "```suggestion\r\nThe following sections will describe possible privacy threats, resulting from such values and side channels, that could compromise the unlinkability property of the BBS proof. Note that, the following sections describe ways to minimize possible identifying information revealed during a BBS proof presentation, related to the BBS Signatures scheme. To minimize the privacy threats of an entire system, other protections may also need to be employed, for example, using an IP hiding proxy network like TOR ([@DMS04]).\r\n```",
+              "createdAt": "2024-12-16T19:55:43Z",
+              "updatedAt": "2024-12-16T19:55:43Z"
+            }
+          ]
         }
       ]
     }
