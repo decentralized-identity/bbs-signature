@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-17T00:12:55.927219+00:00",
+  "timestamp": "2024-12-19T00:12:40.423888+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -7290,6 +7290,22 @@
       "body": "Hello, \r\n\r\nMy name is Kosei Akama, and I am a master's student at Keio University. \r\nI am writing to inquire about plans to adopt TPM-supported elliptic curves in the BBS draft.\r\n\r\nThe [BN638 and BN256I curves](https://www.ietf.org/archive/id/draft-irtf-cfrg-pairing-friendly-curves-11.html) are utilized for remote attestation mechanisms, \r\nsuch as Direct Anonymous Attestation (DAA) and Enhanced Privacy ID (EPID), both of which are based on the BBS.\r\n\r\nGiven this context, it seems necessary to specify the BN638 and BN256I as supported curves. \r\nIs there a plan to include these curves in the draft?",
       "createdAt": "2024-11-18T13:33:48Z",
       "updatedAt": "2024-11-18T13:33:48Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 331,
+      "id": "I_kwDOF8lax86jyiS7",
+      "title": "Implementation Feedback",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/331",
+      "state": "OPEN",
+      "author": "bellebaum",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "We have implemented the current spec in C: https://github.com/Fraunhofer-AISEC/libbbs\r\n\r\nOur implementation tries to simplify certain constructions. For instance, it avoids to create long arrays and can generally be adapted to provide an incremental API (which is useful if `2^64` messages, or even `2^16`, shall be supported in any application). While the README lists the current performance characteristics for the main interface, we might eventually provide optimized interfaces for e.g. signers.\r\n\r\nSome random feedback from working with the current draft:\r\n\r\n1. The draft layout makes it quite hard to implement the spec in a straight forward way, because what ends up being only a few lines of code is separated into a lot of subroutines, each with (sometimes redundant) deserialization and validation steps. My guess that this was done in preparation for extensions (e.g. blind BBS signatures), but it does slow down development and makes it more likely to overlook crucial validation steps (this happened to me). Where validation steps in subroutines are not meaningful to a standalone implementation, it seems more straightforward to document the assumptions enforced by the validation, and perform necessary validation in the calling functions, e.g. in extensions.\r\n2. This modularity sometimes creates additional work. For instance, during our simplifications I decided to simply not implement the special rules for serializing/deserializing the identity element (instead returning an error). This simplified the code not just in the deserialization, but also made several validation steps obsolete. Unless there are good reasons against it, I would recommend considering this for the draft as well.\r\n3. The deterministic generation of random scalars for the test vectors was a pain, as expected. I ended up implementing a callback for these values, which is a hash-to-scalar-powered PRF from a random 32-byte salt during normal signing, and replaced by the mockup in the draft for the tests. If anything, the random function gives slightly less power to an adversary influencing the OS randomness.\r\n\r\nAs a concrete example of possible \"simplifications\", consider the following procedure for Sign:\r\n\r\n```\r\n1. (msg_1, ..., msg_L) = messages_to_scalars(messages, api_id)\r\n2. (Q_1, H_1, ..., H_L) = create_generators(length(messages)+1, api_id)\r\n\r\n3. domain = calculate_domain(PK, (Q_1,H_1, ..., H_L), header, api_id)\r\n4. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),\r\n                                                     hash_to_scalar_dst)\r\n\r\n5. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L\r\n6. A = B * (1 / (SK + e))\r\n\r\n7. return serialize((A, e))\r\n```\r\n\r\nThis is seven steps instead of ten, not counting the superfluous length checks in CoreSign (thus also rendering the INVALID check redundant). Furthermore, the text about a possible identity `A` becomes superfluous if serialization of `A` returns INVALID for the identity, so for an implementer, not much additional text is needed. For good measure, I also removed the `signature_to_octets` wrapper on `serialize`. The same would theoretically be possible for `calculate_domain`. Extensions to the signature scheme can always just restate the missing 3-4 lines of the signing procedure above. \r\nEven greater improvements in readability and conciseness are achievable with other methods, especially `ProofGen`.\r\n\r\nI believe the fastest implementation would have been possible having a draft with code structured roughly as follows:\r\n\r\n1. serialization/deserialization operations for curve points, scalars etc. (opt. excluding the identity element)\r\n2. message scalars (hashed and random) and generators\r\n3. (optional) domain calculation\r\n4. `KeyGen`, `Sign`, `Verify`, `ProofGen`, `ProofVerify`, with everything inlined as much as possible\r\n\r\nThanks for reading :)",
+      "createdAt": "2024-12-18T14:11:46Z",
+      "updatedAt": "2024-12-18T14:11:46Z",
       "closedAt": null,
       "comments": []
     }
@@ -37001,7 +37017,7 @@
       "labels": [],
       "body": "Editorial updates to address the CFRG Crypto Panel review: https://mailarchive.ietf.org/arch/msg/crypto-panel/Vk5O4h_U3-QcWrm22KWwRFmSl7E/",
       "createdAt": "2024-12-16T15:32:54Z",
-      "updatedAt": "2024-12-16T19:55:43Z",
+      "updatedAt": "2024-12-18T00:49:19Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "4aad363595c847d066611f8a789ec5afeed8659d",
@@ -37193,6 +37209,259 @@
               "updatedAt": "2024-12-16T19:55:43Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86Voa8u",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-17T23:33:37Z",
+          "updatedAt": "2024-12-17T23:33:37Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "\"signature it self,\" should be \"signature itself,\"",
+              "createdAt": "2024-12-17T23:33:37Z",
+              "updatedAt": "2024-12-17T23:33:37Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VobfJ",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-17T23:35:43Z",
+          "updatedAt": "2024-12-17T23:35:43Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "\"the value of BBS proof\" should be \"the value of a BBS proof\"",
+              "createdAt": "2024-12-17T23:35:43Z",
+              "updatedAt": "2024-12-17T23:35:43Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86Vod1O",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-17T23:43:34Z",
+          "updatedAt": "2024-12-17T23:43:35Z",
+          "comments": [
+            {
+              "originalPosition": 105,
+              "body": "\"their interaction with a prover Verifier,\" should be \"their interaction with a Verifier,\" right?",
+              "createdAt": "2024-12-17T23:43:35Z",
+              "updatedAt": "2024-12-17T23:43:35Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VoeQA",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-17T23:45:13Z",
+          "updatedAt": "2024-12-17T23:45:14Z",
+          "comments": [
+            {
+              "originalPosition": 115,
+              "body": "\"inputted message is an octet\" should be \"input message is an octet\"",
+              "createdAt": "2024-12-17T23:45:13Z",
+              "updatedAt": "2024-12-17T23:45:14Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VofsX",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-17T23:48:27Z",
+          "updatedAt": "2024-12-17T23:48:27Z",
+          "comments": [
+            {
+              "originalPosition": 165,
+              "body": "ProofGen also uses the `presentation_header` and ProofVerify uses that and `header` and disclosed messages...",
+              "createdAt": "2024-12-17T23:48:27Z",
+              "updatedAt": "2024-12-17T23:48:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VosKX",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-18T00:29:17Z",
+          "updatedAt": "2024-12-18T00:29:17Z",
+          "comments": [
+            {
+              "originalPosition": 275,
+              "body": "\"The inputted `presentation_header` (`ph`) values.\" should be \"The input `presentation_header` (`ph`) values.\"",
+              "createdAt": "2024-12-18T00:29:17Z",
+              "updatedAt": "2024-12-18T00:29:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VotDz",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-18T00:32:46Z",
+          "updatedAt": "2024-12-18T00:32:46Z",
+          "comments": [
+            {
+              "originalPosition": 311,
+              "body": "\"gurantees consearn only the proof\" should be \"guarantees concern only the proof\"\r\n\" and ofcourse\" should be \"  and of course\"",
+              "createdAt": "2024-12-18T00:32:46Z",
+              "updatedAt": "2024-12-18T00:32:47Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86Vot9E",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-18T00:33:52Z",
+          "updatedAt": "2024-12-18T00:33:52Z",
+          "comments": [
+            {
+              "originalPosition": 313,
+              "body": "\"side chanells,\" should be \"side channels,\"",
+              "createdAt": "2024-12-18T00:33:52Z",
+              "updatedAt": "2024-12-18T00:33:52Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86Vou3P",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-18T00:36:43Z",
+          "updatedAt": "2024-12-18T00:36:44Z",
+          "comments": [
+            {
+              "originalPosition": 317,
+              "body": "\"corelation vector\" should be \"correlation vector\"\r\n\"gurantees, by allowing\" should be \"guarantees, by allowing\"\r\n\"Anacceptable values\" should be \"Unacceptable values\"",
+              "createdAt": "2024-12-18T00:36:44Z",
+              "updatedAt": "2024-12-18T00:36:44Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VowHU",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-18T00:40:29Z",
+          "updatedAt": "2024-12-18T00:40:29Z",
+          "comments": [
+            {
+              "originalPosition": 320,
+              "body": "\"the missuss of a\" should be \"the misuse of a\"\r\n\"viable choise.\" should be \"viable choice.\"\r\n\"Anacceptable values\" should be \"Unacceptable values\"",
+              "createdAt": "2024-12-18T00:40:29Z",
+              "updatedAt": "2024-12-18T00:40:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VoxKA",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-18T00:44:27Z",
+          "updatedAt": "2024-12-18T00:44:27Z",
+          "comments": [
+            {
+              "originalPosition": 329,
+              "body": "\"recommendation applies is the\" should be \"recommendation applies to the\"\r\n\"be highly iregural\" should be \"be highly irregular\"\r\n\"and implementation dependant,\" should be \"and implementation dependent,\"\r\n\"and others returnong errors)\" should be \"and others returning errors)\"",
+              "createdAt": "2024-12-18T00:44:27Z",
+              "updatedAt": "2024-12-18T00:44:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86VoyB3",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-18T00:48:09Z",
+          "updatedAt": "2024-12-18T00:48:09Z",
+          "comments": [
+            {
+              "originalPosition": 366,
+              "body": "\"reveal neither the messages undisclosed by a BBS proof, nor the hidden signature value\" should be \"reveal either the messages undisclosed by a BBS proof, or the hidden signature value\"",
+              "createdAt": "2024-12-18T00:48:09Z",
+              "updatedAt": "2024-12-18T00:48:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86Voyls",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Looks good Vasilis. See separate comments for nits.",
+          "createdAt": "2024-12-18T00:49:19Z",
+          "updatedAt": "2024-12-18T00:49:19Z",
+          "comments": []
         }
       ]
     }
