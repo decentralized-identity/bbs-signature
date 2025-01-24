@@ -534,7 +534,7 @@ Procedure:
 
 ### Proof Verification (ProofVerify)
 
-The ProofVerify operation validates a BBS proof, given the Signer's public key (`PK`), a `header` and `presentation_header` values, the disclosed messages and the indexes those messages had in the original vector of signed messages.
+The `ProofVerify` operation validates a BBS proof, given the Signer's public key (`PK`), a `header` and `presentation_header` values, the disclosed messages and the indexes those messages had in the original vector of signed messages.
 
 ```
 result = ProofVerify(PK, proof, header, ph,
