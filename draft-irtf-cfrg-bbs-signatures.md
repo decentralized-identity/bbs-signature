@@ -608,7 +608,7 @@ Furthermore, all core operations accept the Signer's public key (`PK`) as well a
 
 ### CoreSign
 
-This operation computes a deterministic signature from a secret key (`SK`), a set of `generators` (points of G1) and optionally a `header` and a vector of `messages`. Note that signature generation is deterministic, in contrast to the academic literature, where signature generation, and more specifically the calculation of the e value (Procedure step 2 bellow), is randomized (i.e., the `e` value is drawn at random, instead of been deterministically calculated by hashing the Signer's secret key and the list of messages). This alteration not only protects the scheme (at least the signature generation part) from vulnerabilities related to bad entropy sources, it also makes testing of the `CoreSign` operation easier.
+This operation computes a deterministic signature from a secret key (`SK`), a set of `generators` (points of G1) and optionally a `header` and a vector of `messages`. Note that signature generation is deterministic, in contrast to the academic literature, where signature generation, and more specifically the calculation of the `e` value (Procedure step 2 below), is randomized (i.e., the `e` value is drawn at random, instead of been deterministically calculated by hashing the Signer's secret key and the list of messages). This alteration not only protects the scheme (at least the signature generation part) from vulnerabilities related to bad entropy sources, it also makes testing of the `CoreSign` operation easier.
 
 ```
 signature = CoreSign(SK, PK, generators, header, messages, api_id)
