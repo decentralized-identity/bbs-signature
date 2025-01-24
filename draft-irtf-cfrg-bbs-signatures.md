@@ -485,7 +485,7 @@ Procedure:
 
 ### Proof Generation (ProofGen)
 
-The ProofGen operation creates a BBS proof, which is a zero-knowledge, proof-of-knowledge of a BBS signature, while optionally disclosing any subset of the signed messages. Validating the proof (see ProofVerify defined in (#proof-verification-proofverify)) guarantees authenticity and integrity of the `header` and disclosed messages, as well as knowledge of a valid BBS signature.
+The `ProofGen` operation creates a BBS proof, which is a zero-knowledge, proof-of-knowledge of a BBS signature, while optionally disclosing any subset of the signed messages. Validating the proof (see `ProofVerify` defined in (#proof-verification-proofverify)) guarantees authenticity and integrity of the `header` and disclosed messages, as well as knowledge of a valid BBS signature.
 
 Other than the Signer's public key (PK), the BBS signature and the signed `header` and messages, the operation also accepts a `presentation_header` value, that will be bound the the resulting proof (see (#header-and-presentation-header-usage)). To indicate which of the messages should be disclosed, the operation accepts a list of integers in ascending order, representing the indexes of those messages.
 
