@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-01-23T00:11:43.858446+00:00",
+  "timestamp": "2025-01-26T00:12:17.773814+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -37017,13 +37017,13 @@
       "labels": [],
       "body": "Editorial updates to address the CFRG Crypto Panel review: https://mailarchive.ietf.org/arch/msg/crypto-panel/Vk5O4h_U3-QcWrm22KWwRFmSl7E/",
       "createdAt": "2024-12-16T15:32:54Z",
-      "updatedAt": "2024-12-18T00:49:19Z",
+      "updatedAt": "2025-01-24T15:37:39Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "4aad363595c847d066611f8a789ec5afeed8659d",
       "headRepository": "decentralized-identity/bbs-signature",
       "headRefName": "vasilis/crypto-panel-review",
-      "headRefOid": "9f1efa12fa1b378cf9661133b06f87f6a8869e85",
+      "headRefOid": "8f15d45f9209948335e607be12d63e9e5ec1285d",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
