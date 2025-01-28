@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-01-26T00:12:17.773814+00:00",
+  "timestamp": "2025-01-28T00:11:47.688113+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -37017,18 +37017,26 @@
       "labels": [],
       "body": "Editorial updates to address the CFRG Crypto Panel review: https://mailarchive.ietf.org/arch/msg/crypto-panel/Vk5O4h_U3-QcWrm22KWwRFmSl7E/",
       "createdAt": "2024-12-16T15:32:54Z",
-      "updatedAt": "2025-01-24T15:37:39Z",
+      "updatedAt": "2025-01-27T10:39:30Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "4aad363595c847d066611f8a789ec5afeed8659d",
       "headRepository": "decentralized-identity/bbs-signature",
       "headRefName": "vasilis/crypto-panel-review",
-      "headRefOid": "8f15d45f9209948335e607be12d63e9e5ec1285d",
+      "headRefOid": "bea6a3d01166834dfdf5d77c01417895ffc94b70",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> Looks good Vasilis. See separate comments for nits.\r\n\r\nAddressed the comments! Thank you \ud83d\ude4f \r\n",
+          "createdAt": "2025-01-27T09:18:11Z",
+          "updatedAt": "2025-01-27T09:18:11Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOF8lax86VcDAm",
@@ -37462,6 +37470,26 @@
           "createdAt": "2024-12-18T00:49:19Z",
           "updatedAt": "2024-12-18T00:49:19Z",
           "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax86ZebJY",
+          "commit": {
+            "abbreviatedOid": "9f1efa1"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-01-27T09:17:24Z",
+          "updatedAt": "2025-01-27T09:17:24Z",
+          "comments": [
+            {
+              "originalPosition": 317,
+              "body": "Addressed! Thank you \ud83d\ude4f",
+              "createdAt": "2025-01-27T09:17:24Z",
+              "updatedAt": "2025-01-27T09:17:25Z"
+            }
+          ]
         }
       ]
     }
