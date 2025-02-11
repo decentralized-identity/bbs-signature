@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-02-09T00:13:10.894099+00:00",
+  "timestamp": "2025-02-11T00:11:47.711166+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -37017,13 +37017,13 @@
       "labels": [],
       "body": "Editorial updates to address the CFRG Crypto Panel review: https://mailarchive.ietf.org/arch/msg/crypto-panel/Vk5O4h_U3-QcWrm22KWwRFmSl7E/",
       "createdAt": "2024-12-16T15:32:54Z",
-      "updatedAt": "2025-01-27T10:39:30Z",
+      "updatedAt": "2025-02-10T20:13:28Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "4aad363595c847d066611f8a789ec5afeed8659d",
       "headRepository": "decentralized-identity/bbs-signature",
       "headRefName": "vasilis/crypto-panel-review",
-      "headRefOid": "bea6a3d01166834dfdf5d77c01417895ffc94b70",
+      "headRefOid": "76c4cf44143542d79a5e4cbce7f99e00b4bacfbf",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -37488,6 +37488,146 @@
               "body": "Addressed! Thank you \ud83d\ude4f",
               "createdAt": "2025-01-27T09:17:24Z",
               "updatedAt": "2025-01-27T09:17:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86bYkJn",
+          "commit": {
+            "abbreviatedOid": "76c4cf4"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-10T19:13:07Z",
+          "updatedAt": "2025-02-10T19:13:08Z",
+          "comments": [
+            {
+              "originalPosition": 90,
+              "body": "```suggestion\r\nFor defining BBS signatures there are two possible variations regarding the subgroup selection, namely where public keys are defined in G2 and signatures in G1 OR the opposite where public keys are defined in G1 and signatures in G2. Some pairing-based digital signature schemes such as [@I-D.irtf-cfrg-bls-signature] elect to allow for both variations, because they optimize for different use cases. However, in case of BBS Signatures, due to the operations involved in both signature and proof generation being computationally inefficient when performed in G2 and in the pursuit of simplicity, the BBS Signatures scheme as defined in this document is limited to a construction where public keys are in G2 and signatures in G1.\r\n```",
+              "createdAt": "2025-02-10T19:13:07Z",
+              "updatedAt": "2025-02-10T19:13:08Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86bYlIu",
+          "commit": {
+            "abbreviatedOid": "76c4cf4"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-10T19:13:57Z",
+          "updatedAt": "2025-02-10T19:13:57Z",
+          "comments": [
+            {
+              "originalPosition": 111,
+              "body": "```suggestion\r\nThere are two special values defined by the BBS Scheme; the `header` and the `presentation_header`. The `header` value is chosen by the Signer and is bound to both a BBS signature and to any BBS proofs generated using that signature. Specifically, the Prover is required to reveal the `header` to the proof Verifier during every BBS proof presentation. As a result, the Signer SHOULD NOT include in the `header` any identifying information that may have the potential of compromising the Prover's privacy (see (#privacy-considerations)). Suitable use cases taking advantage of the `header` value include binding a BBS signature (and subsequent BBS proofs) to a specific application, deployment or domain, (in general, binding the signature to specific sets of metadata).\r\n```",
+              "createdAt": "2025-02-10T19:13:57Z",
+              "updatedAt": "2025-02-10T19:13:57Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86bYman",
+          "commit": {
+            "abbreviatedOid": "76c4cf4"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-10T19:15:08Z",
+          "updatedAt": "2025-02-10T19:15:08Z",
+          "comments": [
+            {
+              "originalPosition": 117,
+              "body": "```suggestion\r\nAs mentioned in the Introduction, a BBS proof is unlinkable. In this section we will define the term in more detail. Formally, we use unlinkability to refer to the fact that a BBS proof is zero-knowledge (TODO: ADD REFERENCE). In practice, this guarantees that an adversary (a Verifier, the Issuer or coalitions between one or more Verifiers and the Issuer) will not be able to infer any information from the BBS proof value, other than what the Prover decided to provide, even with access to multiple proof values. Consequently, the Verifier will not be able to correlate multiple proofs generated by the same signature or Prover. Note however, that this holds only for the value of the BBS proof. In other words, other values revealed by the Prover during their interaction with a Verifier, may still be used to correlate their activity and compromise their privacy. Examples of such values include the disclosed messages (if the same message of high enough entropy is revealed between multiple proofs), the `header` and `presentation_header` values (see Section (#header-and-presentation-header-usage)), or the total number of signed messages. See Section (#privacy-considerations) for privacy considerations and recommendations on minimizing these sources of correlation.\r\n```",
+              "createdAt": "2025-02-10T19:15:08Z",
+              "updatedAt": "2025-02-10T19:15:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86bYoAd",
+          "commit": {
+            "abbreviatedOid": "76c4cf4"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-10T19:17:57Z",
+          "updatedAt": "2025-02-10T19:17:58Z",
+          "comments": [
+            {
+              "originalPosition": 234,
+              "body": "> Note that signature generation is deterministic, in contrast to the academic literature\r\n\r\nMaybe we should reference Revisiting BBS Signatures here where they suggest it may have better security properties?",
+              "createdAt": "2025-02-10T19:17:57Z",
+              "updatedAt": "2025-02-10T19:17:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86bZGUF",
+          "commit": {
+            "abbreviatedOid": "76c4cf4"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-10T20:11:47Z",
+          "updatedAt": "2025-02-10T20:11:47Z",
+          "comments": [
+            {
+              "originalPosition": 330,
+              "body": "```suggestion\r\nThis section will go through threats to the Prover's privacy. Note that a BBS proof is unlinkable against both the Verifiers and the Signer, as well as multiple Verifiers colluding with each other and Verifiers colluding with the Signer. Bear in mind that those guarantees concern only the proof value, as outputed by the `CoreProofGen` (Section (#coreproofgen)) and of course the `ProofGen` (Section (#proof-generation-proofgen)) operations. Correspondingly, the unlinkability property does not include other values that a Prover could either knowingly or unknowingly provide to a Verifier. Those values can include disclosed messages of high entropy, the `header` and `presentation_header` values, their network address, or generally any information disclosed during an interaction with the Verifier having the potential to identify the user. Such threats, if exploited, could lead to correlation of the Prover's interactions with different Verifiers, resulting to fingerprinting attacks against the Prover's activity.\r\n```",
+              "createdAt": "2025-02-10T20:11:47Z",
+              "updatedAt": "2025-02-10T20:11:48Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86bZGun",
+          "commit": {
+            "abbreviatedOid": "76c4cf4"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-10T20:12:46Z",
+          "updatedAt": "2025-02-10T20:12:46Z",
+          "comments": [
+            {
+              "originalPosition": 336,
+              "body": "```suggestion\r\nAs mentioned in Section (#header-and-presentation-header), the `header` value is chosen by the Signer and bound to a BBS Signature and proof. Consequently, it must be revealed to the Verifier, together with a BBS proof. If that `header` value is chosen to have high entropy (i.e., unique per credential, Prover or small group of Provers), it can be used as a correlation vector to trace and link together all BBS proofs made by a signature bound to that `header` value. This will result in significantly worse privacy guarantees, by allowing adversaries to trace and link together all generated proofs bound to that `header` value (for example, if a random `header` is used during each BBS signature generation, adversaries will be able to link and trace the BBS proofs generated from that signature). The Issuer MUST choose a low entropy `header` value and it MUST be the same for a large number of users (Provers). Examples of acceptable values include, an application identifier, a country identifier or a low cardinality version number. Examples of unacceptable values include, random values, high cardinality expiration dates, the Prover's email address or any other identifying information.\r\n```",
+              "createdAt": "2025-02-10T20:12:46Z",
+              "updatedAt": "2025-02-10T20:12:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86bZHCC",
+          "commit": {
+            "abbreviatedOid": "76c4cf4"
+          },
+          "author": "andrewwhitehead",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-10T20:13:27Z",
+          "updatedAt": "2025-02-10T20:13:28Z",
+          "comments": [
+            {
+              "originalPosition": 339,
+              "body": "```suggestion\r\nOn the other hand, the misuse of a `presentation_header`, chosen by the Prover and only bound to a BBS proof, does not incur as many privacy risks as the `header` value. For example, since a new `presentation_header` can be chosen each time a BBS proof is generated, random values are a viable choice. Still, to not break the unlinkability property, care must be taken that the `presentation_header` does not identify a single or small group of Provers. If the `presentation_header` is chosen to have high entropy (for example, to be a random value, a high accuracy locality identifier or a specific software build number), then the same value must not be used for more than one Proof generations. Note however, that even though the `presentation_header` can include high entropy values (as long as they are used only once), its a good practice for the Prover to avoid revealing personally identifying information (like their name, email address or phone number), to minimize the danger of correlating that information with other data sources, potentially unrelated to the specific application.\r\n```",
+              "createdAt": "2025-02-10T20:13:27Z",
+              "updatedAt": "2025-02-10T20:13:28Z"
             }
           ]
         }
