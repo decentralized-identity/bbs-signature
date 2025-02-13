@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-02-11T00:11:47.711166+00:00",
+  "timestamp": "2025-02-13T00:11:48.505475+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -37017,7 +37017,7 @@
       "labels": [],
       "body": "Editorial updates to address the CFRG Crypto Panel review: https://mailarchive.ietf.org/arch/msg/crypto-panel/Vk5O4h_U3-QcWrm22KWwRFmSl7E/",
       "createdAt": "2024-12-16T15:32:54Z",
-      "updatedAt": "2025-02-10T20:13:28Z",
+      "updatedAt": "2025-02-11T01:17:01Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "4aad363595c847d066611f8a789ec5afeed8659d",
@@ -37630,6 +37630,19 @@
               "updatedAt": "2025-02-10T20:13:28Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86bays4",
+          "commit": {
+            "abbreviatedOid": "76c4cf4"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "Looks good with Andrew's fixes too.",
+          "createdAt": "2025-02-11T01:17:01Z",
+          "updatedAt": "2025-02-11T01:17:01Z",
+          "comments": []
         }
       ]
     }
