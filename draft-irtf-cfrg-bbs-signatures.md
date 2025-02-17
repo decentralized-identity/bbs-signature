@@ -278,7 +278,7 @@ This allows for extensibility of the core scheme without exposing the resulting 
 
 ### Subgroup Selection
 
-For defining BBS signatures there are two possible variations regarding the subgroup selection, namely where public keys are defined in G2 and signatures in G1 OR the opposite where public keys are defined in G1 and signatures in G2. Some pairing-based digital signature schemes such as [@I-D.irtf-cfrg-bls-signature] elect to allow for both variations, because they optimize for different use cases. However, in case of BBS Signatures, due to the operations involved in both signature and proof generation being computational inefficient when performed in G2 and in the pursuit of simplicity, the BBS Signatures scheme as defined in this document is limited to a construction where public keys are in G2 and signatures in G1.
+For defining BBS signatures there are two possible variations regarding the subgroup selection, namely where public keys are defined in G2 and signatures in G1 OR the opposite where public keys are defined in G1 and signatures in G2. Some pairing-based digital signature schemes such as [@I-D.irtf-cfrg-bls-signature] elect to allow for both variations, because they optimize for different use cases. However, in case of BBS Signatures, due to the operations involved in both signature and proof generation being computationally inefficient when performed in G2 and in the pursuit of simplicity, the BBS Signatures scheme as defined in this document is limited to a construction where public keys are in G2 and signatures in G1.
 
 ### Generators
 
