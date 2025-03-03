@@ -11,19 +11,19 @@
 <meta content="
        This document defines an extension to the BBS Signature scheme, a form of short group digital signature scheme that supports multi-message signing that produces a single output digital signature. To enable blind signing capabilities which in the most general sense provide the ability for a signer to blindly sign a set of messages. 
     " name="description">
-<meta content="xml2rfc 3.25.0" name="generator">
+<meta content="xml2rfc 3.28.0" name="generator">
 <meta content="draft-blind-bbs-signatures-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.25.0
-    Python 3.12.7
+  xml2rfc 3.28.0
+    Python 3.12.9
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
-    Jinja2 3.1.4
+    Jinja2 3.1.5
     lxml 5.3.0
     platformdirs 4.3.6
-    pycountry 22.3.5
-    PyYAML 6.0.1
+    pycountry 24.6.1
+    PyYAML 6.0.2
     requests 2.32.3
     setuptools 70.3.0
     wcwidth 0.2.13
@@ -436,7 +436,7 @@ dl {
     margin-bottom: 0;
   }
 }
-dl > dt {
+dl:not(.dlNewline) > dt {
   float: left;
   margin-right: 2ch;
   min-width: 8ch;
@@ -535,7 +535,11 @@ figcaption, caption {
   }
   pre, svg {
     display: inline-block;
-    overflow-x: auto;
+    /* In the horizontal direction, sometimes people make over-sized figures.
+       Scrollbars for those is therefore necessary: auto adds them as necessary..
+       In the vertical direction, the line-height can combine with the font
+       asender/descender height to produce scrollbars: hidden avoids that. */
+    overflow: auto hidden;
   }
   pre {
     max-width: 100%;
@@ -1041,7 +1045,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left"></td>
 <td class="center">Blind Signatures extension of the BBS Si</td>
-<td class="right">December 2024</td>
+<td class="right">March 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Lodder, et al.</td>
@@ -1056,7 +1060,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="workgroup">none</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-12-09" class="published">9 December 2024</time>
+<time datetime="2025-03-03" class="published">3 March 2025</time>
     </dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
