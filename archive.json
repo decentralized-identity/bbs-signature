@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-03-02T00:13:12.653642+00:00",
+  "timestamp": "2025-03-04T00:12:28.809776+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -37010,24 +37010,26 @@
       "id": "PR_kwDOF8lax86FX8j2",
       "title": "Address Crypto Panel review comments",
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/330",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "Editorial updates to address the CFRG Crypto Panel review: https://mailarchive.ietf.org/arch/msg/crypto-panel/Vk5O4h_U3-QcWrm22KWwRFmSl7E/",
       "createdAt": "2024-12-16T15:32:54Z",
-      "updatedAt": "2025-02-24T18:56:32Z",
+      "updatedAt": "2025-03-03T18:02:55Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "4aad363595c847d066611f8a789ec5afeed8659d",
       "headRepository": "decentralized-identity/bbs-signature",
       "headRefName": "vasilis/crypto-panel-review",
       "headRefOid": "7c0594d67ca28db05d85f9f28716309f83a53cd7",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2025-03-03T18:02:54Z",
+      "mergedAt": "2025-03-03T18:02:54Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "bbc09290c2b4034672ac887bd809028b2c33067b"
+      },
       "comments": [
         {
           "author": "BasileiosKal",
