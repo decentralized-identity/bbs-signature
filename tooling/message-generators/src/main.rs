@@ -1,6 +1,5 @@
-use bls12_381_plus::{ExpandMsg, G1Projective, G2Projective, Scalar};
+use bls12_381_plus::{ExpandMsg, G1Affine, G1Projective, G2Affine, G2Projective, Scalar};
 use ff::Field;
-use group::{Curve};
 use structopt::StructOpt;
 use std::env;
 use std::fs::File;
@@ -13,7 +12,6 @@ use ciphersuites::{BbsCiphersuite, Bls12381Shake256, Bls12381Sha256};
 struct Generators {
     g1_base_point: G1Projective,
     q1: G1Projective,
-    q2: G1Projective,
     message_generators: Vec<G1Projective>
 }
 
@@ -23,16 +21,14 @@ impl Serialize for Generators {
         S: Serializer
     {
         let result: Vec<String> = self.message_generators.iter()
-            .map(|item| hex::encode(item.to_affine().to_compressed())).collect();
+            .map(|item| hex::encode(G1Affine::from(item).to_compressed())).collect();
 
         let mut state = serializer.serialize_struct("Generators", 4)?;
         state.serialize_field("BP",
-            &hex::encode(self.g1_base_point.to_affine().to_compressed()))?;
+            &hex::encode(G1Affine::from(self.g1_base_point).to_compressed()))?;
 
         state.serialize_field("Q1",
-            &hex::encode(self.q1.to_affine().to_compressed()))?;
-        state.serialize_field("Q2", 
-            &hex::encode(self.q2.to_affine().to_compressed()))?;
+            &hex::encode(G1Affine::from(self.q1).to_compressed()))?;
 
         state.serialize_field("MsgGenerators", &result)?;
         state.end()
@@ -43,7 +39,7 @@ impl Serialize for Generators {
 struct Opt {
     #[structopt(short, long, default_value = "Shake")]
     suite: Ciphersuite,
-    #[structopt(short, long, default_value = "10")]
+    #[structopt(short, long, default_value = "11")]
     length: usize,
     #[structopt(short, long, default_value = "Global")]
     generator_type: GenType,
@@ -140,28 +136,24 @@ where
     F: for<'r> Fn(Option<&'r [u8]>, usize) -> Generators
 {
     let sk = Scalar::random(rand::thread_rng());
-    let pk = G2Projective::generator() * sk;
-    make_generators_fn(Some(&pk.to_affine().to_compressed()), len)
+    let pk = G2Projective::GENERATOR * sk;
+    make_generators_fn(Some(&G2Affine::from(pk).to_compressed()), len)
 }
 
 fn print_generators(generators: &Generators) {
     println!("G1 BP = {}", hex::encode(
-        generators.g1_base_point.to_affine().to_compressed()
+        G1Affine::from(generators.g1_base_point).to_compressed()
     ));
 
     println!("Q_1 = {}", hex::encode(
-        generators.q1.to_affine().to_compressed()
+        G1Affine::from(generators.q1).to_compressed()
     ));
 
-    println!("Q_2 = {}", hex::encode(
-        generators.q2.to_affine().to_compressed()
-    ));
-    
     generators.message_generators.iter().enumerate().for_each(|(i, g)| {
         println!(
             "G_{} = {}",
             i + 1,
-            hex::encode(g.to_affine().to_compressed())
+            hex::encode(G1Affine::from(g).to_compressed())
         );
     });
 }
@@ -195,7 +187,7 @@ where
     let mut buffer = vec!(0u8; EXPAND_LEN);
     X::Expander::expand_message(seed, &X::generator_seed_dst(), &mut v);
 
-    let mut n = 1u32;
+    let mut n = 1u64;
     while generators.len() < len {
         v.append(n.to_be_bytes().to_vec().as_mut());
         X::Expander::expand_message(&v, &X::generator_seed_dst(), &mut buffer);
@@ -210,8 +202,7 @@ where
     Generators {
         g1_base_point: base_point,
         q1: generators[0],
-        q2: generators[1],
-        message_generators: generators[2..].to_vec()
+        message_generators: generators[1..].to_vec()
     }
 }
 
@@ -223,7 +214,7 @@ where
     X::Expander::expand_message(&X::bp_generator_seed(), &X::generator_seed_dst(), &mut v);
 
     // TODO: implement a proper I2OSP
-    let extra = 1u32.to_be_bytes().to_vec();
+    let extra = 1u64.to_be_bytes().to_vec();
     let buffer = [v.as_ref(), &extra].concat();
 
     X::Expander::expand_message(&buffer, &X::generator_seed_dst(), &mut v);
