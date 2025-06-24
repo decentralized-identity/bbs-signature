@@ -5,25 +5,25 @@ use bls12_381_plus::{ExpandMsg, ExpandMsgXof, ExpandMsgXmd};
 
 pub trait BbsCiphersuite<'a> {
     const ID: &'a [u8];
-    const API_ID: &'a [u8] = b"H2G_HM2S_";
+    const API_ID_SUFFIX: &'a [u8] = b"H2G_HM2S_";
 
     type Expander: ExpandMsg;
 
     fn generator_seed() -> Vec<u8> {
-        [Self::ID, Self::API_ID, b"MESSAGE_GENERATOR_SEED"].concat()
+        [Self::ID, Self::API_ID_SUFFIX, b"MESSAGE_GENERATOR_SEED"].concat()
     }
 
     // The G1 base point generator seed
     fn bp_generator_seed() -> Vec<u8> {
-        [Self::ID, Self::API_ID, b"BP_MESSAGE_GENERATOR_SEED"].concat()
+        [Self::ID, Self::API_ID_SUFFIX, b"BP_MESSAGE_GENERATOR_SEED"].concat()
     }
 
     fn generator_seed_dst() -> Vec<u8> {
-        [Self::ID, Self::API_ID, b"SIG_GENERATOR_SEED_"].concat()
+        [Self::ID, Self::API_ID_SUFFIX, b"SIG_GENERATOR_SEED_"].concat()
     }
 
     fn generator_dst() -> Vec<u8> {
-        [Self::ID, Self::API_ID, b"SIG_GENERATOR_DST_"].concat()
+        [Self::ID, Self::API_ID_SUFFIX, b"SIG_GENERATOR_DST_"].concat()
     }
 }
 
