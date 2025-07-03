@@ -710,7 +710,7 @@ Procedure:
 
 1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
-3. if h(A, W + BP2 * e) * h(B, -BP2) != Identity_GT, return INVALID
+3. if h(A, W) * h(A * e - B, BP2) != Identity_GT, return INVALID
 4. return VALID
 ```
 
