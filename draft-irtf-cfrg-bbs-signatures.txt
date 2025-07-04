@@ -5,11 +5,11 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 4 September 2025                                   A. Whitehead
+Expires: 5 January 2026                                     A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
-                                                            3 March 2025
+                                                             4 July 2025
 
 
                         The BBS Signature Scheme
@@ -52,7 +52,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 September 2025.
+   This Internet-Draft will expire on 5 January 2026.
 
 Copyright Notice
 
@@ -512,8 +512,8 @@ Table of Contents
    cryptographically protects any potential application-specific
    information (for example, messages that must always be disclosed,
    ciphersuite parameters or an application identifier).  This document
-   uses the procedures defined in [I-D.irtf-cfrg-hash-to-curve] to
-   create the generators.  See Section 4.1.1 on more details.
+   uses the procedures defined in [RFC9380] to create the generators.
+   See Section 4.1.1 on more details.
 
 3.3.3.  Messages
 
@@ -957,7 +957,7 @@ Procedure:
    hashing the Signer's secret key and the list of messages).  This
    alteration protects the scheme (at least the signature generation
    part) from vulnerabilities related to bad entropy sources, as well as
-   some of the the best currently known attacKs, as suggested in [TZ23].
+   some of the the best currently known attacks, as suggested in [TZ23].
    Additionally, it makes testing of the CoreSign operation easier, as
    it avoids the need for a mocked random scalar.
 
@@ -1249,10 +1249,10 @@ Deserialization:
 Procedure:
 
 1. init_res = ProofVerifyInit(PK, proof_result, generators, header,
-                                    messages, disclosed_indexes, api_id)
+                              disclosed_messages, disclosed_indexes, api_id)
 2. if init_res is INVALID, return INVALID
-3. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
-                                                   messages, ph, api_id)
+3. challenge = ProofChallengeCalculate(init_res, disclosed_messages,
+                                       disclosed_indexes, ph, api_id)
 4. if challenge is INVALID, return INVALID
 5. if cp != challenge, return INVALID
 6. if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID
@@ -1738,7 +1738,7 @@ Procedure:
    assumptions and cryptographic primitives.  More specifically, the
    required properties are
 
-   *  The generators should be indistinguishable from uniformly radom
+   *  The generators should be indistinguishable from uniformly random
       points of G1 (even given the knowledge of the system's public
       parameters, like the generator_seed value in Section 4.1.1).  This
       means that given only the points H_1, ..., H_i it should be
@@ -2261,7 +2261,7 @@ Procedure:
    that a BBS proof is unlinkable against both the Verifiers and the
    Signer, as well as multiple Verifiers colluding with each other and
    Verifiers colluding with the Signer.  Bear in mind that those
-   guarantees concern only the proof value, as outputed by the
+   guarantees concern only the proof value, as outputted by the
    CoreProofGen (Section Section 3.6.3) and of course the ProofGen
    (Section Section 3.5.3) operations.  Correspondingly, the
    unlinkability property does not include other values that a Prover
@@ -2592,19 +2592,19 @@ Procedure:
 
    Data authenticity refers to the inability of anyone other that the
    Signer being able to generate BBS signatures that are valid under the
-   Signer's public key (this property is often refered to as
+   Signer's public key (this property is often referred to as
    unforgeability, or in the case of BBS Signatures, strong
    unforgeability, e.g., by [TZ23]).  It also means that no one should
    be able to generate valid BBS proofs disclosing sets of messages,
-   without first optaining a valid BBS signature on those messages (in
-   academic works, this is refered to as the BBS proof being a proof-of-
-   knowledge of a BBS signature [CDL16] [TZ23]).
+   without first obtaining a valid BBS signature on those messages (in
+   academic works, this is referred to as the BBS proof being a proof-
+   of-knowledge of a BBS signature [CDL16] [TZ23]).
 
    Data confidentiality means that no one (not even the Signer) should
    be able to use a BBS proof to extract information about the messages
    the Prover decided not to disclose during the proof generation
    process, or the signature that was used to generate that proof
-   (something that is refered to as the zero-knowledge property of the
+   (something that is referred to as the zero-knowledge property of the
    BBS proof [BBDT16] [CDL16] [TZ23]).
 
    On the presence of a Cryptographically Relevant Quantum Computer
@@ -2665,7 +2665,7 @@ Procedure:
    function, a pairing operation, the octet length of points and
    scalars, the hash to curve [RFC9380] related operations and
    parameters as well as the base point of the G1 subgroup), the
-   serialization operations (maping points from each elliptic curve to
+   serialization operations (mapping points from each elliptic curve to
    an octet string and vice versa) and the generator parameters.  See
    below for more details.
 
@@ -2725,7 +2725,7 @@ Procedure:
    The following two ciphersuites are based on the BLS12-381 elliptic
    curves defined in Section 4.2.1 of
    [I-D.irtf-cfrg-pairing-friendly-curves].  The targeted security level
-   of both suites in bits is k = 128 (the actual security leven is
+   of both suites in bits is k = 128 (the actual security level is
    closer to 126 bits).  The number of bits of the order r, of the G1
    and G2 subgroups, is log2(r) = 255.  The base points BP1 and BP2 of
    G1 and G2 are the points BP and BP' correspondingly, as defined in
@@ -3734,7 +3734,7 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 10.  Acknowledgements
 
    The authors would like to acknowledge the significant amount of
-   academic work that preceeded the development of this document.  In
+   academic work that preceded the development of this document.  In
    particular the original work of [BBS04] which was subsequently
    developed in [ASM06] [CL04] [BBDT16] [CDL16] and in [TZ23].  This
    last academic work is the one mostly used by this document.
@@ -3748,8 +3748,9 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
    Orie Steele, Christian Paquin, Alessandro Guggino, Tomislav Markovski
    and Greg Bernstein.
 
-   Additionally, the authors would like to acknoledge Jacques Traore and
-   Antoine Dumanois, for their crucial contributions to this document.
+   Additionally, the authors would like to acknowledge Jacques Traore
+   and Antoine Dumanois, for their crucial contributions to this
+   document.
 
 11.  References
 
@@ -3759,13 +3760,6 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
               Deterministic Random Bit Generators",
               <https://nvlpubs.nist.gov/nistpubs/SpecialPublications/
               NIST.SP.800-90Ar1.pdf>.
-
-   [I-D.irtf-cfrg-hash-to-curve]
-              Faz-Hernandez, A., Scott, S., Sullivan, N., Wahby, R. S.,
-              and C. A. Wood, "Hashing to Elliptic Curves", Work in
-              Progress, Internet-Draft, draft-irtf-cfrg-hash-to-curve-
-              16, 15 June 2022, <https://datatracker.ietf.org/doc/html/
-              draft-irtf-cfrg-hash-to-curve-16>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -3862,9 +3856,9 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
    [I-D.ietf-jose-json-web-proof]
               Waite, D., Jones, M. B., and J. Miller, "JSON Web Proof",
               Work in Progress, Internet-Draft, draft-ietf-jose-json-
-              web-proof-07, 21 October 2024,
+              web-proof-09, 8 April 2025,
               <https://datatracker.ietf.org/doc/html/draft-ietf-jose-
-              json-web-proof-07>.
+              json-web-proof-09>.
 
    [I-D.ietf-lwig-curve-representations]
               Struik, R., "Alternative Elliptic Curve Representations",
@@ -3877,9 +3871,9 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
               Banerjee, A., Reddy.K, T., Schoinianakis, D., Hollebeek,
               T., and M. Ounsworth, "Post-Quantum Cryptography for
               Engineers", Work in Progress, Internet-Draft, draft-ietf-
-              pquip-pqc-engineers-09, 13 February 2025,
+              pquip-pqc-engineers-13, 1 July 2025,
               <https://datatracker.ietf.org/doc/html/draft-ietf-pquip-
-              pqc-engineers-09>.
+              pqc-engineers-13>.
 
    [I-D.ietf-privacypass-key-consistency]
               Davidson, A., Finkel, M., Thomson, M., and C. A. Wood,
@@ -4302,7 +4296,7 @@ C.2.  Improved Bearer Security Token
    material.  The authorization server must also be-able to accommodate
    receiving this information and validating it.
 
-   BBS Signatures ofter an alternative model that solves the same
+   BBS Signatures offer an alternative model that solves the same
    problems that proof of cryptographic key possession schemes do for
    bearer based schemes, but in a way that doesn't introduce new up-
    front protocol complexity.  In the context of a protocol like

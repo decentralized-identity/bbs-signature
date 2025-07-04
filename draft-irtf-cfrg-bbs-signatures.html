@@ -12,21 +12,21 @@
 <meta content="
        This document describes the BBS Signature scheme, a secure, multi-message digital signature protocol, supporting proving knowledge of a signature while selectively disclosing any subset of the signed messages. Concretely, the scheme allows for signing multiple messages whilst producing a single, constant size, digital signature. Additionally, the possessor of a BBS signatures is able to create zero-knowledge, proofs of knowledge of a signature, while selectively disclosing subsets of the signed messages. Being zero-knowledge, the BBS proofs do not reveal any information about the undisclosed messages or the signature itself, while at the same time, guaranteeing the authenticity and integrity of the disclosed messages. 
     " name="description">
-<meta content="xml2rfc 3.28.0" name="generator">
+<meta content="xml2rfc 3.29.0" name="generator">
 <meta content="draft-irtf-cfrg-bbs-signatures-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.28.0
-    Python 3.12.9
+  xml2rfc 3.29.0
+    Python 3.12.11
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
-    Jinja2 3.1.5
-    lxml 5.3.0
-    platformdirs 4.3.6
+    Jinja2 3.1.6
+    lxml 5.3.1
+    platformdirs 4.3.8
     pycountry 24.6.1
     PyYAML 6.0.2
-    requests 2.32.3
-    setuptools 70.3.0
+    requests 2.32.4
+    setuptools 80.9.0
     wcwidth 0.2.13
 -->
 <link href="draft-irtf-cfrg-bbs-signatures.xml" rel="alternate" type="application/rfc+xml">
@@ -1046,11 +1046,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">The BBS Signature Scheme</td>
-<td class="right">March 2025</td>
+<td class="right">July 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Looker, et al.</td>
-<td class="center">Expires 4 September 2025</td>
+<td class="center">Expires 5 January 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1063,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-irtf-cfrg-bbs-signatures-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-03-03" class="published">3 March 2025</time>
+<time datetime="2025-07-04" class="published">4 July 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-09-04">4 September 2025</time></dd>
+<dd class="expires"><time datetime="2026-01-05">5 January 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1122,7 +1122,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 4 September 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 5 January 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1846,7 +1846,7 @@ document, are to be interpreted as described in <span>[<a href="#RFC2119" class=
 <a href="#section-3.3.2" class="section-number selfRef">3.3.2. </a><a href="#name-generators" class="section-name selfRef">Generators</a>
           </h4>
 <p id="section-3.3.2-1">Throughout the operations of this signature scheme, each message that is signed is paired with a specific point of G1, called a generator. Specifically, if a generator <code>H_1</code> is multiplied with <code>msg_1</code> during signing, then <code>H_1</code> MUST be multiplied with <code>msg_1</code> in all other operations (signature verification, proof generation and proof verification). As a result, the messages must be passed to the operations of the BBS scheme in the same order.<a href="#section-3.3.2-1" class="pilcrow">¶</a></p>
-<p id="section-3.3.2-2">Aside from the message generators, the scheme uses one additional generator <code>Q_1</code> to sign the signature's domain, which binds both the signature and generated proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed, ciphersuite parameters or an application identifier). This document uses the procedures defined in <span>[<a href="#I-D.irtf-cfrg-hash-to-curve" class="cite xref">I-D.irtf-cfrg-hash-to-curve</a>]</span> to create the generators. See <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a> on more details.<a href="#section-3.3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.3.2-2">Aside from the message generators, the scheme uses one additional generator <code>Q_1</code> to sign the signature's domain, which binds both the signature and generated proofs to a specific context and cryptographically protects any potential application-specific information (for example, messages that must always be disclosed, ciphersuite parameters or an application identifier). This document uses the procedures defined in <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> to create the generators. See <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a> on more details.<a href="#section-3.3.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="messages">
@@ -1927,7 +1927,7 @@ X[n-1] = a_n
           <h4 id="name-secret-key">
 <a href="#section-3.4.1" class="section-number selfRef">3.4.1. </a><a href="#name-secret-key" class="section-name selfRef">Secret Key</a>
           </h4>
-<p id="section-3.4.1-1">This operation generates a secret key (SK) deterministically from a secret octet string (key_material). This operation is the RECOMMENDED way of generating a secret key, but its use is not required for compatibility, and implementations MAY use a different key generation procedure. For security, such an alternative MUST output a secret key that is statistically close to uniformly random in the range from 1 to r - 1. An example of an HKDF-based alternative is the KeyGen operation defined in Section 2.3 of <span>[<a href="#I-D.irtf-cfrg-bls-signature" class="cite xref">I-D.irtf-cfrg-bls-signature</a>]</span> (with an appropriate, BBS specific, salt value, like "BBS_SIG_KEYGEN<em>SALT</em>").<a href="#section-3.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.4.1-1">This operation generates a secret key (SK) deterministically from a secret octet string (key_material). This operation is the RECOMMENDED way of generating a secret key, but its use is not required for compatibility, and implementations MAY use a different key generation procedure. For security, such an alternative MUST output a secret key that is statistically close to uniformly random in the range from 1 to r - 1. An example of an HKDF-based alternative is the KeyGen operation defined in Section 2.3 of <span>[<a href="#I-D.irtf-cfrg-bls-signature" class="cite xref">I-D.irtf-cfrg-bls-signature</a>]</span> (with an appropriate, BBS specific, salt value, like "BBS_SIG_KEYGEN_SALT_").<a href="#section-3.4.1-1" class="pilcrow">¶</a></p>
 <p id="section-3.4.1-2">For security, key_material MUST be random and infeasible to guess, e.g. generated by a trusted source of randomness and with enough entropy. See <span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span> for suggestions on generating randomness. key_material MUST be at least 32 bytes long, but it MAY be longer.<a href="#section-3.4.1-2" class="pilcrow">¶</a></p>
 <p id="section-3.4.1-3">KeyGen takes an optional input, key_info. This parameter MAY be used to derive distinct keys from the same key material.<a href="#section-3.4.1-3" class="pilcrow">¶</a></p>
 <p id="section-3.4.1-4">Because KeyGen is deterministic, implementations MAY choose either to store the resulting SK or to store key_material and key_info and call KeyGen to derive SK when necessary.<a href="#section-3.4.1-4" class="pilcrow">¶</a></p>
@@ -2001,7 +2001,7 @@ Procedure:
 
 </pre><a href="#section-3.5-3" class="pilcrow">¶</a>
 </div>
-<p id="section-3.5-4">where <code>ciphersuite_id</code> is defined by the ciphersuite and "H2G<em>HM2S</em>" is an ASCII string comprised of 9 bytes, wherein "H2G<em>" refers to the identifier of the <code>create_generators</code> operation used (see <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a>) and "HM2S</em>" is the identifier of the used <code>messages_to_scalars</code> mapping (see <a href="#messages-to-scalars" class="auto internal xref">Section 4.1.2</a>).<a href="#section-3.5-4" class="pilcrow">¶</a></p>
+<p id="section-3.5-4">where <code>ciphersuite_id</code> is defined by the ciphersuite and "H2G_HM2S_" is an ASCII string comprised of 9 bytes, wherein "H2G_" refers to the identifier of the <code>create_generators</code> operation used (see <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a>) and "HM2S_" is the identifier of the used <code>messages_to_scalars</code> mapping (see <a href="#messages-to-scalars" class="auto internal xref">Section 4.1.2</a>).<a href="#section-3.5-4" class="pilcrow">¶</a></p>
 <div id="signature-generation-sign">
 <section id="section-3.5.1">
           <h4 id="name-signature-generation-sign">
@@ -2237,7 +2237,7 @@ Procedure:
           <h4 id="name-coresign">
 <a href="#section-3.6.1" class="section-number selfRef">3.6.1. </a><a href="#name-coresign" class="section-name selfRef">CoreSign</a>
           </h4>
-<p id="section-3.6.1-1">This operation computes a deterministic signature from a secret key (<code>SK</code>), a set of <code>generators</code> (points of G1) and optionally a <code>header</code> and a vector of <code>messages</code>. Note that signature generation is deterministic, in contrast to the academic literature, where signature generation, and more specifically the calculation of the <code>e</code> value (Procedure step 2 below), is randomized (i.e., the <code>e</code> value is drawn at random, instead of been deterministically calculated by hashing the Signer's secret key and the list of messages). This alteration protects the scheme (at least the signature generation part) from vulnerabilities related to bad entropy sources, as well as some of the the best currently known attacKs, as suggested in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>. Additionally, it makes testing of the <code>CoreSign</code> operation easier, as it avoids the need for a mocked random scalar.<a href="#section-3.6.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.6.1-1">This operation computes a deterministic signature from a secret key (<code>SK</code>), a set of <code>generators</code> (points of G1) and optionally a <code>header</code> and a vector of <code>messages</code>. Note that signature generation is deterministic, in contrast to the academic literature, where signature generation, and more specifically the calculation of the <code>e</code> value (Procedure step 2 below), is randomized (i.e., the <code>e</code> value is drawn at random, instead of been deterministically calculated by hashing the Signer's secret key and the list of messages). This alteration protects the scheme (at least the signature generation part) from vulnerabilities related to bad entropy sources, as well as some of the the best currently known attacks, as suggested in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>. Additionally, it makes testing of the <code>CoreSign</code> operation easier, as it avoids the need for a mocked random scalar.<a href="#section-3.6.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.6.1-2">
 <pre>signature = CoreSign(SK, PK, generators, header, messages, api_id)
 
@@ -2484,10 +2484,10 @@ Deserialization:
 Procedure:
 
 1. init_res = ProofVerifyInit(PK, proof_result, generators, header,
-                                    messages, disclosed_indexes, api_id)
+                              disclosed_messages, disclosed_indexes, api_id)
 2. if init_res is INVALID, return INVALID
-3. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
-                                                   messages, ph, api_id)
+3. challenge = ProofChallengeCalculate(init_res, disclosed_messages,
+                                       disclosed_indexes, ph, api_id)
 4. if challenge is INVALID, return INVALID
 5. if cp != challenge, return INVALID
 6. if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID
@@ -2895,7 +2895,7 @@ Procedure:
             </h5>
 <p id="section-4.1.1.1-1">When defining a new <code>create_generators</code> procedure, the most important property is that the points are pseudo-randomly chosen from the G1 group, with no known relationship to each other, given reasonable assumptions and cryptographic primitives. More specifically, the required properties are<a href="#section-4.1.1.1-1" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="section-4.1.1.1-2.1">The generators should be indistinguishable from uniformly radom points of G1 (even given the knowledge of the system's public parameters, like the <code>generator_seed</code> value in <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a>). This means that given only the points <code>H_1, ..., H_i</code> it should be infeasible to guess <code>H_(i+1)</code> (or any <code>H_j</code> with <code>j &gt; i</code>), for any <code>i</code>. This also means that it should be infeasible to represent any of the generators as multi-exponentiation product (i.e., of the form <code>H_i1 * a_1 + H_i2 * a_2 + ... + H_in * a_n</code>) of any of the other generators.<a href="#section-4.1.1.1-2.1" class="pilcrow">¶</a>
+<li class="compact" id="section-4.1.1.1-2.1">The generators should be indistinguishable from uniformly random points of G1 (even given the knowledge of the system's public parameters, like the <code>generator_seed</code> value in <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a>). This means that given only the points <code>H_1, ..., H_i</code> it should be infeasible to guess <code>H_(i+1)</code> (or any <code>H_j</code> with <code>j &gt; i</code>), for any <code>i</code>. This also means that it should be infeasible to represent any of the generators as multi-exponentiation product (i.e., of the form <code>H_i1 * a_1 + H_i2 * a_2 + ... + H_in * a_n</code>) of any of the other generators.<a href="#section-4.1.1.1-2.1" class="pilcrow">¶</a>
 </li>
               <li class="compact" id="section-4.1.1.1-2.2">The returned points must be unique with very high probability, that would not lessen the targeted security level of the ciphersuite. Specifically, for a security level <code>k</code>, the probability of a collision should be at most <code>1/2^k</code>.<a href="#section-4.1.1.1-2.2" class="pilcrow">¶</a>
 </li>
@@ -3421,7 +3421,7 @@ Procedure:
       <h2 id="name-privacy-considerations">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
       </h2>
-<p id="section-5-1">This section will go through threats to the Prover's privacy. Note that a BBS proof is unlinkable against both the Verifiers and the Signer, as well as multiple Verifiers colluding with each other and Verifiers colluding with the Signer. Bear in mind that those guarantees concern only the proof value, as outputed by the <code>CoreProofGen</code> (Section <a href="#coreproofgen" class="auto internal xref">Section 3.6.3</a>) and of course the <code>ProofGen</code> (Section <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>) operations. Correspondingly, the unlinkability property does not include other values that a Prover could either knowingly or unknowingly provide to a Verifier. Those values can include disclosed messages of high entropy, the <code>header</code> and <code>presentation_header</code> values, their network address, or generally any information disclosed during an interaction with the Verifier having the potential to identify the user. Such threats, if exploited, could lead to correlation of the Prover's interactions with different Verifiers, resulting to fingerprinting attacks against the Prover's activity.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-1">This section will go through threats to the Prover's privacy. Note that a BBS proof is unlinkable against both the Verifiers and the Signer, as well as multiple Verifiers colluding with each other and Verifiers colluding with the Signer. Bear in mind that those guarantees concern only the proof value, as outputted by the <code>CoreProofGen</code> (Section <a href="#coreproofgen" class="auto internal xref">Section 3.6.3</a>) and of course the <code>ProofGen</code> (Section <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>) operations. Correspondingly, the unlinkability property does not include other values that a Prover could either knowingly or unknowingly provide to a Verifier. Those values can include disclosed messages of high entropy, the <code>header</code> and <code>presentation_header</code> values, their network address, or generally any information disclosed during an interaction with the Verifier having the potential to identify the user. Such threats, if exploited, could lead to correlation of the Prover's interactions with different Verifiers, resulting to fingerprinting attacks against the Prover's activity.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <p id="section-5-2">The following sections will describe possible privacy threats, resulting from such values and side channels, that could compromise the unlinkability property of the BBS proof. Note that, the following sections describe ways to minimize possible identifying information revealed during a BBS proof presentation, related to the BBS Signatures scheme. To minimize the privacy threats of an entire system, other protections may also need to be employed, for example, using an IP hiding proxy network like TOR (<span>[<a href="#DMS04" class="cite xref">DMS04</a>]</span>).<a href="#section-5-2" class="pilcrow">¶</a></p>
 <div id="header-and-presentation-header">
 <section id="section-5.1">
@@ -3544,8 +3544,8 @@ Procedure:
 <a href="#section-6.9" class="section-number selfRef">6.9. </a><a href="#name-post-quantum-security" class="section-name selfRef">Post-quantum Security</a>
         </h3>
 <p id="section-6.9-1">BBS Signatures combine two security properties; data authenticity and data confidentiality.<a href="#section-6.9-1" class="pilcrow">¶</a></p>
-<p id="section-6.9-2">Data authenticity refers to the inability of anyone other that the Signer being able to generate BBS signatures that are valid under the Signer's public key (this property is often refered to as unforgeability, or in the case of BBS Signatures, strong unforgeability, e.g., by <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>). It also means that no one should be able to generate valid BBS proofs disclosing sets of messages, without first optaining a valid BBS signature on those messages (in academic works, this is refered to as the BBS proof being a proof-of-knowledge of a BBS signature <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.9-2" class="pilcrow">¶</a></p>
-<p id="section-6.9-3">Data confidentiality means that no one (not even the Signer) should be able to use a BBS proof to extract information about the messages the Prover decided not to disclose during the proof generation process, or the signature that was used to generate that proof (something that is refered to as the zero-knowledge property of the BBS proof <span>[<a href="#BBDT16" class="cite xref">BBDT16</a>]</span> <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.9-3" class="pilcrow">¶</a></p>
+<p id="section-6.9-2">Data authenticity refers to the inability of anyone other that the Signer being able to generate BBS signatures that are valid under the Signer's public key (this property is often referred to as unforgeability, or in the case of BBS Signatures, strong unforgeability, e.g., by <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>). It also means that no one should be able to generate valid BBS proofs disclosing sets of messages, without first obtaining a valid BBS signature on those messages (in academic works, this is referred to as the BBS proof being a proof-of-knowledge of a BBS signature <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.9-2" class="pilcrow">¶</a></p>
+<p id="section-6.9-3">Data confidentiality means that no one (not even the Signer) should be able to use a BBS proof to extract information about the messages the Prover decided not to disclose during the proof generation process, or the signature that was used to generate that proof (something that is referred to as the zero-knowledge property of the BBS proof <span>[<a href="#BBDT16" class="cite xref">BBDT16</a>]</span> <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.9-3" class="pilcrow">¶</a></p>
 <p id="section-6.9-4">On the presence of a Cryptographically Relevant Quantum Computer (CRQC), meaning a computer that will be able to break the discrete logarithm problem in the groups used by BBS Signatures (see <span>[<a href="#I-D.ietf-pquip-pqc-engineers" class="cite xref">I-D.ietf-pquip-pqc-engineers</a>]</span>), the data authenticity property will not hold. Specifically, an adversary could use a CRQC to reveal the Signer's secret key from their public key, hence giving them the ability to generate BBS signatures on behalf of that Signer, for messages of their choosing, as well as BBS proofs using those signatures.<a href="#section-6.9-4" class="pilcrow">¶</a></p>
 <p id="section-6.9-5">On the other hand, data confidentiality cannot be broken, even by adversaries with unbounded computational resources and in possession of the Signer's secret key. This means that even by utilizing a CRQC, adversaries will not be able to compromise the data confidentiality property of BBS proofs. As a result, an adversary with access to such a quantum computer, will not be able to reveal either the messages undisclosed by a BBS proof, or the hidden signature value (which the Prover showcases possession of). This guarantees that the privacy and hiding properties of BBS proofs that are currently used, will not be compromised by future quantum-attacks (a property that is often referred to as everlasting privacy). Note that this only considers BBS proofs, not BBS signatures, which do not possess the same hiding properties as the BBS proofs.<a href="#section-6.9-5" class="pilcrow">¶</a></p>
 </section>
@@ -3589,7 +3589,7 @@ Procedure:
           <h4 id="name-additional-parameters">
 <a href="#section-7.1.2" class="section-number selfRef">7.1.2. </a><a href="#name-additional-parameters" class="section-name selfRef">Additional Parameters</a>
           </h4>
-<p id="section-7.1.2-1">The parameters that each ciphersuite needs to define are generally divided into three main categories; the basic parameters (a hash function, a pairing operation, the octet length of points and scalars, the hash to curve <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> related operations and parameters as well as the base point of the G1 subgroup), the serialization operations (maping points from each elliptic curve to an octet string and vice versa) and the generator parameters. See below for more details.<a href="#section-7.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.1.2-1">The parameters that each ciphersuite needs to define are generally divided into three main categories; the basic parameters (a hash function, a pairing operation, the octet length of points and scalars, the hash to curve <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> related operations and parameters as well as the base point of the G1 subgroup), the serialization operations (mapping points from each elliptic curve to an octet string and vice versa) and the generator parameters. See below for more details.<a href="#section-7.1.2-1" class="pilcrow">¶</a></p>
 <p id="section-7.1.2-2"><strong>Basic parameters</strong>:<a href="#section-7.1.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-7.1.2-3.1">
@@ -3642,7 +3642,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
         <h3 id="name-bls12-381-ciphersuites">
 <a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-bls12-381-ciphersuites" class="section-name selfRef">BLS12-381 Ciphersuites</a>
         </h3>
-<p id="section-7.2-1">The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. The targeted security level of both suites in bits is <code>k = 128</code> (the actual security leven is closer to 126 bits). The number of bits of the order <code>r</code>, of the G1 and G2 subgroups, is <code>log2(r) = 255</code>. The base points <code>BP1</code> and <code>BP2</code> of G1 and G2 are the points <code>BP</code> and <code>BP'</code> correspondingly, as defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. For completeness, BLS12-381 and the relevant functionality (base points <code>BP1</code> and <code>BP2</code>, the pairing <code>h</code> as well as the point encoding and decoding operations) are defined in <a href="#the-bls12-381-curve" class="auto internal xref">Appendix B</a>.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-1">The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. The targeted security level of both suites in bits is <code>k = 128</code> (the actual security level is closer to 126 bits). The number of bits of the order <code>r</code>, of the G1 and G2 subgroups, is <code>log2(r) = 255</code>. The base points <code>BP1</code> and <code>BP2</code> of G1 and G2 are the points <code>BP</code> and <code>BP'</code> correspondingly, as defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. For completeness, BLS12-381 and the relevant functionality (base points <code>BP1</code> and <code>BP2</code>, the pairing <code>h</code> as well as the point encoding and decoding operations) are defined in <a href="#the-bls12-381-curve" class="auto internal xref">Appendix B</a>.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
 <p id="section-7.2-2">The first ciphersuite uses the hash-to-curve suite <code>BLS12381G1_XOF:SHAKE-256_SSWU_RO_</code>, defined by this document in <a href="#bls12-381-hash_to_curve-def">Appendix A.1</a>, which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of <span>[<a href="#SHA3" class="cite xref">SHA3</a>]</span>.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
 <p id="section-7.2-3">The second ciphersuite uses the hash-to-curve suite <code>BLS12381G1_XMD:SHA-256_SSWU_RO_</code>, defined in Section 8.8.1 of the <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> document, which is based on the SHA-256, as defined in Section 6.2 of <span>[<a href="#SHA2" class="cite xref">SHA2</a>]</span> .<a href="#section-7.2-3" class="pilcrow">¶</a></p>
 <p id="section-7.2-4">For both ciphersuites defined in this section, the fixed point <code>P1</code> of G1 is defined as the output of the <code>create_generators</code> procedure defined in <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a> instantiated with the parameters defined by each ciphersuite, with the inputs <code>count = 1</code>, not supplying an <code>api_id</code> value and making use of the following "Definitions" for the <code>seed_dst</code>, <code>generator_dst</code> and <code>generator_seed</code> variables;<a href="#section-7.2-4" class="pilcrow">¶</a></p>
@@ -4743,10 +4743,10 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
       <h2 id="name-acknowledgements">
 <a href="#section-10" class="section-number selfRef">10. </a><a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
       </h2>
-<p id="section-10-1">The authors would like to acknowledge the significant amount of academic work that preceeded the development of this document. In particular the original work of <span>[<a href="#BBS04" class="cite xref">BBS04</a>]</span> which was subsequently developed in <span>[<a href="#ASM06" class="cite xref">ASM06</a>]</span> <span>[<a href="#CL04" class="cite xref">CL04</a>]</span> <span>[<a href="#BBDT16" class="cite xref">BBDT16</a>]</span> <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> and in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>. This last academic work is the one mostly used by this document.<a href="#section-10-1" class="pilcrow">¶</a></p>
+<p id="section-10-1">The authors would like to acknowledge the significant amount of academic work that preceded the development of this document. In particular the original work of <span>[<a href="#BBS04" class="cite xref">BBS04</a>]</span> which was subsequently developed in <span>[<a href="#ASM06" class="cite xref">ASM06</a>]</span> <span>[<a href="#CL04" class="cite xref">CL04</a>]</span> <span>[<a href="#BBDT16" class="cite xref">BBDT16</a>]</span> <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> and in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>. This last academic work is the one mostly used by this document.<a href="#section-10-1" class="pilcrow">¶</a></p>
 <p id="section-10-2">The current state of this document is the product of the work of the Decentralized Identity Foundation Applied Cryptography Working group, which includes numerous active participants. In particular, the following individuals contributed ideas, feedback and wording that influenced this specification:<a href="#section-10-2" class="pilcrow">¶</a></p>
 <p id="section-10-3">Orie Steele, Christian Paquin, Alessandro Guggino, Tomislav Markovski and Greg Bernstein.<a href="#section-10-3" class="pilcrow">¶</a></p>
-<p id="section-10-4">Additionally, the authors would like to acknoledge Jacques Traore and Antoine Dumanois, for their crucial contributions to this document.<a href="#section-10-4" class="pilcrow">¶</a></p>
+<p id="section-10-4">Additionally, the authors would like to acknowledge Jacques Traore and Antoine Dumanois, for their crucial contributions to this document.<a href="#section-10-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <section id="section-11">
@@ -4761,10 +4761,6 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 <dt id="DRBG">[DRBG]</dt>
         <dd>
 <span class="refAuthor">NIST</span>, <span class="refTitle">"Recommendation for Random Number Generation Using Deterministic Random Bit Generators"</span>, <span>&lt;<a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="I-D.irtf-cfrg-hash-to-curve">[I-D.irtf-cfrg-hash-to-curve]</dt>
-        <dd>
-<span class="refAuthor">Faz-Hernandez, A.</span>, <span class="refAuthor">Scott, S.</span>, <span class="refAuthor">Sullivan, N.</span>, <span class="refAuthor">Wahby, R. S.</span>, and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Hashing to Elliptic Curves"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-irtf-cfrg-hash-to-curve-16</span>, <time datetime="2022-06-15" class="refDate">15 June 2022</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16">https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
@@ -4843,7 +4839,7 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 <dd class="break"></dd>
 <dt id="I-D.ietf-jose-json-web-proof">[I-D.ietf-jose-json-web-proof]</dt>
         <dd>
-<span class="refAuthor">Waite, D.</span>, <span class="refAuthor">Jones, M. B.</span>, and <span class="refAuthor">J. Miller</span>, <span class="refTitle">"JSON Web Proof"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-jose-json-web-proof-07</span>, <time datetime="2024-10-21" class="refDate">21 October 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-07">https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-07</a>&gt;</span>. </dd>
+<span class="refAuthor">Waite, D.</span>, <span class="refAuthor">Jones, M. B.</span>, and <span class="refAuthor">J. Miller</span>, <span class="refTitle">"JSON Web Proof"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-jose-json-web-proof-09</span>, <time datetime="2025-04-08" class="refDate">8 April 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-09">https://datatracker.ietf.org/doc/html/draft-ietf-jose-json-web-proof-09</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-lwig-curve-representations">[I-D.ietf-lwig-curve-representations]</dt>
         <dd>
@@ -4851,7 +4847,7 @@ proof = "a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db2
 <dd class="break"></dd>
 <dt id="I-D.ietf-pquip-pqc-engineers">[I-D.ietf-pquip-pqc-engineers]</dt>
         <dd>
-<span class="refAuthor">Banerjee, A.</span>, <span class="refAuthor">Reddy.K, T.</span>, <span class="refAuthor">Schoinianakis, D.</span>, <span class="refAuthor">Hollebeek, T.</span>, and <span class="refAuthor">M. Ounsworth</span>, <span class="refTitle">"Post-Quantum Cryptography for Engineers"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-pquip-pqc-engineers-09</span>, <time datetime="2025-02-13" class="refDate">13 February 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqc-engineers-09">https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqc-engineers-09</a>&gt;</span>. </dd>
+<span class="refAuthor">Banerjee, A.</span>, <span class="refAuthor">Reddy.K, T.</span>, <span class="refAuthor">Schoinianakis, D.</span>, <span class="refAuthor">Hollebeek, T.</span>, and <span class="refAuthor">M. Ounsworth</span>, <span class="refTitle">"Post-Quantum Cryptography for Engineers"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-pquip-pqc-engineers-13</span>, <time datetime="2025-07-01" class="refDate">1 July 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqc-engineers-13">https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqc-engineers-13</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-privacypass-key-consistency">[I-D.ietf-privacypass-key-consistency]</dt>
         <dd>
@@ -5220,7 +5216,7 @@ Procedure:
         </h3>
 <p id="appendix-C.2-1">Bearer based security tokens such as JWT based access tokens used in the OAuth2.0 protocol are a highly popular format for expressing authorization grants. However their usage has several security limitations. Notably a bearer based authorization scheme often has to rely on a secure transport between the authorized party (client) and the resource server to mitigate the potential for a MITM attack or a malicious interception of the access token. The scheme also has to assume a degree of trust in the resource server it is presenting an access token to, particularly when the access token grants more than just access to the target resource server, because in a bearer based authorization scheme, anyone who possesses the access token has authority to what it grants. Bearer based access tokens also suffer from the threat of replay attacks.<a href="#appendix-C.2-1" class="pilcrow">¶</a></p>
 <p id="appendix-C.2-2">Improved schemes around authorization protocols often involve adding a layer of proof of cryptographic key possession to the presentation of an access token, which mitigates the deficiencies highlighted above as well as providing a way to detect a replay attack. However, approaches that involve proof of cryptographic key possession such as DPoP (<span>[<a href="#RFC9449" class="cite xref">RFC9449</a>]</span>), suffer from an increase in protocol complexity. A party requesting authorization must pre-generate appropriate key material, share the public portion of this with the authorization server alongside proving possession of the private portion of the key material. The authorization server must also be-able to accommodate receiving this information and validating it.<a href="#appendix-C.2-2" class="pilcrow">¶</a></p>
-<p id="appendix-C.2-3">BBS Signatures ofter an alternative model that solves the same problems that proof of cryptographic key possession schemes do for bearer based schemes, but in a way that doesn't introduce new up-front protocol complexity. In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the client providing this access token as issued, in their request to a resource server, they generate a unique proof from the original access token and include that in the request instead. Because the access token is not shared in a request to a resource server, attacks such as MITM are mitigated. A resource server also obtains the ability to detect a replay attack by ensuring the proof presented is unique.<a href="#appendix-C.2-3" class="pilcrow">¶</a></p>
+<p id="appendix-C.2-3">BBS Signatures offer an alternative model that solves the same problems that proof of cryptographic key possession schemes do for bearer based schemes, but in a way that doesn't introduce new up-front protocol complexity. In the context of a protocol like OAuth2.0 the access token issued by the authorization server would feature a BBS Signature, however instead of the client providing this access token as issued, in their request to a resource server, they generate a unique proof from the original access token and include that in the request instead. Because the access token is not shared in a request to a resource server, attacks such as MITM are mitigated. A resource server also obtains the ability to detect a replay attack by ensuring the proof presented is unique.<a href="#appendix-C.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="selectively-disclosure-enabled-identity-credentials">
