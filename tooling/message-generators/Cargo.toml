@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 bls12_381_plus = "0.5"
-ff = "0.10"
+ff = "0.12"
 group = "0.10"
 hex = "0.4"
 rand = { version = "0.8", features = ["std_rng"] }
