@@ -5,9 +5,11 @@ import get from "lodash.get";
 
 // matching lines of the form "name = {{ $<fixture_path> }}" (for
 // example "m_1 = {{ $messages[1] }}" etc).
-const VARIABLE_REGEX = /(([^\S\n\t]*[a-zA-Z0-9_~]+\d*)\s=\s)?({{ \$)([a-zA-Z_|.|\-|\d|\[|\]]*)( }},?)$/gm
+const VARIABLE_REGEX = /(([^\S\n\t]*[a-zA-Z0-9_~]+\d*)\s=\s.*)?(.?{{ \$)([a-zA-Z_|.|\-|\d|\[|\]]*)( }}.?,?)$/gm
 
 const DRAFT_NAME = "../../draft-irtf-cfrg-bbs-signatures.md";
+
+// const DRAFT_NAME = "../../bbs_sigma_protocol.md";
 
 const main = async () => {
   // Read the text of the draft out
@@ -33,7 +35,7 @@ const main = async () => {
       value = array_value;
     }
 
-    value = "\x22" + value + "\x22";
+    value = value ?? '';
 
     let intent_len = result.intent ? result.intent.length : 0;
     let max_len = 71 - intent_len;
@@ -49,7 +51,7 @@ const main = async () => {
     }
 
     // remove trailing whitespace from the value to be added in the draft
-    value = value.trim();
+    value = value.toString().trim();
 
     if (value || value === '') {
       fileContents = fileContents.replace(result.match, value);

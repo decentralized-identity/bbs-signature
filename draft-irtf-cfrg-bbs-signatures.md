@@ -785,8 +785,10 @@ Procedure:
                         undisclosed_indexes,
                         api_id)
 3. if init_res is INVALID, return INVALID
-4. challenge = ProofChallengeCalculate(init_res, disclosed_indexes,
-                                                 disclosed_messages, ph)
+4. challenge = ProofChallengeCalculate(init_res, disclosed_messages,
+                                                 disclosed_indexes,
+                                                 ph,
+                                                 api_id)
 5. if challenge is INVALID, return INVALID
 6. proof = ProofFinalize(init_res, challenge, e, random_scalars,
                                                    undisclosed_messages)
@@ -847,7 +849,9 @@ Deserialization:
 Procedure:
 
 1. init_res = ProofVerifyInit(PK, proof_result, generators, header,
-                              disclosed_messages, disclosed_indexes, api_id)
+                                                disclosed_messages,
+                                                disclosed_indexes,
+                                                api_id)
 2. if init_res is INVALID, return INVALID
 3. challenge = ProofChallengeCalculate(init_res, disclosed_messages,
                                        disclosed_indexes, ph, api_id)
@@ -1031,7 +1035,7 @@ Parameters:
 
 Outputs:
 
-- init_res, vector consisting of 3 points of G1 and a scalar, in that
+- init_res, vector consisting of 5 points of G1 and a scalar, in that
             order.
 
 Deserialization:
@@ -1091,7 +1095,7 @@ Inputs:
 - disclosed_messages (OPTIONAL), vector of scalar values. If not
                                  supplied, it defaults to the empty
                                  array ("()").
-- disclosed_indexes (REQUIRED), vector of non-negative integers in
+- disclosed_indexes (OPTIONAL), vector of non-negative integers in
                                 ascending order. If not supplied, it
                                 defaults to the empty array ("()").
 - ph (OPTIONAL), an octet string. If not supplied, it must default to
@@ -1854,7 +1858,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 - P1: the following point of G1, serialized using the point\_to\_octets\_E1 procedure defined by this ciphersuite and hex encoded
     ```
-    P1 = {{ $generatorFixtures.bls12-381-shake-256.generators.P1 }}
+    P1 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.P1 }}'
     ```
 
 - h: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
@@ -1885,7 +1889,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 - P1: the following point of G1, serialized using the point\_to\_octets\_E1 procedure defined by this ciphersuite and hex encoded
     ```
-    P1 = {{ $generatorFixtures.bls12-381-sha-256.generators.P1 }}
+    P1 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.P1 }}'
     ```
 
 - h: the optimal Ate pairing (Appendix A.2 of [@I-D.irtf-cfrg-pairing-friendly-curves]), defined in (#optimal-ate-pairing).
@@ -1951,7 +1955,7 @@ ABORT if:
 Procedure:
 
 1. out_len = expand_len * count
-2. v = expand_message(SEED, dst, out_len)
+2. v = expand_message(SEED, DST, out_len)
 3. if v is INVALID, return INVALID
 
 4. for i in (1, ..., count):
@@ -1966,16 +1970,16 @@ Procedure:
 The following messages are used by the test vectors of both ciphersuites (unless otherwise stated). All the listed messages represent hex-encoded octet strings.
 
 ```
-m_1 = {{ $messages[0] }}
-m_2 = {{ $messages[1] }}
-m_3 = {{ $messages[2] }}
-m_4 = {{ $messages[3] }}
-m_5 = {{ $messages[4] }}
-m_6 = {{ $messages[5] }}
-m_7 = {{ $messages[6] }}
-m_8 = {{ $messages[7] }}
-m_9 = {{ $messages[8] }}
-m_10 = {{ $messages[9] }}
+m_1 = h'{{ $messages[0] }}'
+m_2 = h'{{ $messages[1] }}'
+m_3 = h'{{ $messages[2] }}'
+m_4 = h'{{ $messages[3] }}'
+m_5 = h'{{ $messages[4] }}'
+m_6 = h'{{ $messages[5] }}'
+m_7 = h'{{ $messages[6] }}'
+m_8 = h'{{ $messages[7] }}'
+m_9 = h'{{ $messages[8] }}'
+m_10 = h'{{ $messages[9] }}'
 ```
 
 ## BLS12-381-SHAKE-256 Test Vectors
@@ -1987,62 +1991,63 @@ Test vectors of the `BLS12-381-SHAKE-256` ciphersuite defined in (#bls12-381-sha
 Following the procedure defined in (#secret-key) with an input `key_material` value as follows
 
 ```
-key_material = {{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyMaterial }}
+key_material = h'{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyMaterial }}'
 ```
 the following `key_info` value
 ```
-key_info = {{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyInfo }}
+key_info = h'{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyInfo }}'
 ```
-and the following `key_dst` value, defined by `api_id || KEYGEN_DST_`, where `api_id` the identifier of the BBS Interface defined in (#bbs-signatures-interface), using the `BLS12-381-SHAKE-256` ciphersuite defined in (#bls12-381-shake-256),
+and the following `key_dst` value, defined by `api_id || KEYGEN_DST_`, where `api_id` the identifier of the BBS Interface defined in (#bbs-signatures-interface), using the `BLS12-381-SHAKE-256` ciphersuite defined in (#bls12-381-shake-256), meaning that `api_id = BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_H2G_HM2S_`,
+
 ```
-key_dst = {{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyDst }}
+key_dst = h'{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyDst }}'
 ```
 
 Outputs the following SK value
 
 ```
-SK = {{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyPair.secretKey }}
+SK = 0x'{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyPair.secretKey }}'
 ```
 
 Following the procedure defined in (#public-key) with an input SK value as above produces the following PK value
 
 ```
-PK = {{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyPair.publicKey }}
+PK = h'{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyPair.publicKey }}'
 ```
 
 ### Map Messages to Scalars
 
-The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages). Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
+The messages in (#messages-1) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages-1) and the `api_id` defined in (#bbs-signatures-interface), using the `BLS12-381-SHAKE-256` ciphersuite defined in (#bls12-381-shake-256), meaning that `api_id = BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_H2G_HM2S_`. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
 
 ```
-msg_scalar_1 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[0].scalar }}
-msg_scalar_2 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[1].scalar }}
-msg_scalar_3 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[2].scalar }}
-msg_scalar_4 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[3].scalar }}
-msg_scalar_5 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[4].scalar }}
-msg_scalar_6 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[5].scalar }}
-msg_scalar_7 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[6].scalar }}
-msg_scalar_8 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[7].scalar }}
-msg_scalar_9 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[8].scalar }}
-msg_scalar_10 = {{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[9].scalar }}
+msg_scalar_1 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[0].scalar }}'
+msg_scalar_2 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[1].scalar }}'
+msg_scalar_3 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[2].scalar }}'
+msg_scalar_4 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[3].scalar }}'
+msg_scalar_5 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[4].scalar }}'
+msg_scalar_6 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[5].scalar }}'
+msg_scalar_7 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[6].scalar }}'
+msg_scalar_8 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[7].scalar }}'
+msg_scalar_9 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[8].scalar }}'
+msg_scalar_10 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[9].scalar }}'
 ```
 
 ### Message Generators
 
-Following the procedure defined in (#generators-calculation) with an input count value of 11, for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
+Following the procedure defined in (#generators-calculation) for the [BLS12-381-SHAKE-256](#bls12-381-shake-256) suite, with an input count value of 11 and an `api_id` value of `api_id = BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_H2G_HM2S_` (as defined in (#bbs-signatures-interface) for the `BLS12-381-SHAKE-256` ciphersuite), outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 ```
-Q_1 = {{ $generatorFixtures.bls12-381-shake-256.generators.Q1 }}
-H_1 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[0] }}
-H_2 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[1] }}
-H_3 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[2] }}
-H_4 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[3] }}
-H_5 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[4] }}
-H_6 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[5] }}
-H_7 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[6] }}
-H_8 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[7] }}
-H_9 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[8] }}
-H_10 = {{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[9] }}
+Q_1 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.Q1 }}'
+H_1 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[0] }}'
+H_2 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[1] }}'
+H_3 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[2] }}'
+H_4 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[3] }}'
+H_5 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[4] }}'
+H_6 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[5] }}'
+H_7 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[6] }}'
+H_8 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[7] }}'
+H_9 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[8] }}'
+H_10 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[9] }}'
 ```
 ### Signature Fixtures
 
@@ -2051,40 +2056,40 @@ This section presents test vectors for the `Sign` operation, as defined in (#sig
 #### Valid Single Message Signature
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature001.messages[0] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.messages[0] }}'
 
-SK = {{ $signatureFixtures.bls12-381-shake-256.signature001.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-shake-256.signature001.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-shake-256.signature001.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature001.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.header }}'
 
-B = {{ $signatureFixtures.bls12-381-shake-256.signature001.trace.B }}
-domain = {{ $signatureFixtures.bls12-381-shake-256.signature001.trace.domain }}
+B = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.trace.B }}'
+domain = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature001.trace.domain }}'
 
-signature = {{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}'
 ```
 
 #### Valid Multi-Message Signature
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-shake-256.signature004.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[9] }}'
 
-SK = {{ $signatureFixtures.bls12-381-shake-256.signature004.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-shake-256.signature004.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-shake-256.signature004.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature004.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.header }}'
 
-B = {{ $signatureFixtures.bls12-381-shake-256.signature004.trace.B }}
-domain = {{ $signatureFixtures.bls12-381-shake-256.signature004.trace.domain }}
+B = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.trace.B }}'
+domain = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature004.trace.domain }}'
 
-signature = {{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}'
 ```
 
 ### Proof Fixtures
@@ -2095,7 +2100,7 @@ For the generation of the following test vectors, the `mocked_calculate_random_s
 
 ```
 SEED =
-      "332e313431353932363533353839373933323338343632363433333833323739"
+     h'332e313431353932363533353839373933323338343632363433333833323739'
 ```
 
 and the domain separation tag `DST = api_id || "MOCK_RANDOM_SCALARS_DST_"`, where `api_id` is the identifier of the BBS Interface defined in (#bbs-signatures-interface), i.e., `api_id = ciphersuite_id || H2G_HM2S_`, where `ciphersuite_id` is the unique identifier of the `BLS12-381-SHAKE-256` ciphersuite as defined in (#bls12-381-shake-256) and `"MOCK_RANDOM_SCALARS_DST_"` is an ASCII string composed of 24 bytes. More specifically,
@@ -2108,118 +2113,118 @@ DST =
 Given the above `SEED` and `DST` values, the first 10 scalars (i.e., with `count = 10`) returned by the `mocked_calculate_random_scalars` operation will be,
 
 ```
-random_scalar_1 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[0] }}
-random_scalar_2 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[1] }}
-random_scalar_3 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[2] }}
-random_scalar_4 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[3] }}
-random_scalar_5 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[4] }}
-random_scalar_6 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[5] }}
-random_scalar_7 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[6] }}
-random_scalar_8 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[7] }}
-random_scalar_9 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[8] }}
-random_scalar_10 = {{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[9] }}
+random_scalar_1 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[0] }}'
+random_scalar_2 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[1] }}'
+random_scalar_3 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[2] }}'
+random_scalar_4 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[3] }}'
+random_scalar_5 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[4] }}'
+random_scalar_6 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[5] }}'
+random_scalar_7 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[6] }}'
+random_scalar_8 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[7] }}'
+random_scalar_9 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[8] }}'
+random_scalar_10 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[9] }}'
 ```
 
 #### Valid Single Message Proof
 
 ```
-m_0 = {{ $proofFixtures.bls12-381-shake-256.proof001.messages[0] }}
+m_0 = h'{{ $proofFixtures.bls12-381-shake-256.proof001.messages[0] }}'
 
-public_key = {{ $proofFixtures.bls12-381-shake-256.proof001.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-shake-256.proof001.signature }}
-header = {{ $proofFixtures.bls12-381-shake-256.proof001.header }}
-presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof001.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-shake-256.proof001.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-shake-256.proof001.signature }}'
+header = h'{{ $proofFixtures.bls12-381-shake-256.proof001.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-shake-256.proof001.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof001.disclosedIndexes }}
 
 random scalars:
-    r1 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1 }}
-    r2 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r2 }}
-    e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.e_tilde }}
-    r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1_tilde }}
-    r3_tilde = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r3_tilde }}
+    r1 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1 }}'
+    r2 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r2 }}'
+    e_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.e_tilde }}'
+    r1_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1_tilde }}'
+    r3_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r3_tilde }}'
     m_tilde_scalars: {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.m_tilde_scalars }}
 
-T1 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.T1 }}
-T2 = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.T2 }}
-domain = {{ $proofFixtures.bls12-381-shake-256.proof001.trace.domain }}
+T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.T1 }}'
+T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.T2 }}'
+domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.domain }}'
 
-proof = {{ $proofFixtures.bls12-381-shake-256.proof001.proof }}
+proof = h'{{ $proofFixtures.bls12-381-shake-256.proof001.proof }}'
 ```
 
 #### Valid Multi-Message, All Messages Disclosed Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-shake-256.proof002.messages[9] }}
+m_1 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[0] }}'
+m_2 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[1] }}'
+m_3 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[2] }}'
+m_4 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[3] }}'
+m_5 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[4] }}'
+m_6 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[5] }}'
+m_7 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[6] }}'
+m_8 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[7] }}'
+m_9 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[8] }}'
+m_10 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.messages[9] }}'
 
-public_key = {{ $proofFixtures.bls12-381-shake-256.proof002.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-shake-256.proof002.signature }}
-header = {{ $proofFixtures.bls12-381-shake-256.proof002.header }}
-presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-shake-256.proof002.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-shake-256.proof002.signature }}'
+header = h'{{ $proofFixtures.bls12-381-shake-256.proof002.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-shake-256.proof002.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof002.disclosedIndexes }}
 
 random scalars:
-    r1 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1 }}
-    r2 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r2 }}
-    e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.e_tilde }}
-    r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1_tilde }}
-    r3_tilde = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r3_tilde }}
+    r1 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1 }}'
+    r2 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r2 }}'
+    e_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.e_tilde }}'
+    r1_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1_tilde }}'
+    r3_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r3_tilde }}'
     m_tilde_scalars: {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.m_tilde_scalars }}
 
-T1 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.T1 }}
-T2 = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.T2 }}
-domain = {{ $proofFixtures.bls12-381-shake-256.proof002.trace.domain }}
+T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.T1 }}'
+T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.T2 }}'
+domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.domain }}'
 
-proof = {{ $proofFixtures.bls12-381-shake-256.proof002.proof }}
+proof = h'{{ $proofFixtures.bls12-381-shake-256.proof002.proof }}'
 ```
 
 #### Valid Multi-Message, Some Messages Disclosed Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-shake-256.proof003.messages[9] }}
+m_1 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[0] }}'
+m_2 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[1] }}'
+m_3 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[2] }}'
+m_4 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[3] }}'
+m_5 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[4] }}'
+m_6 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[5] }}'
+m_7 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[6] }}'
+m_8 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[7] }}'
+m_9 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[8] }}'
+m_10 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.messages[9] }}'
 
-public_key = {{ $proofFixtures.bls12-381-shake-256.proof003.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-shake-256.proof003.signature }}
-header = {{ $proofFixtures.bls12-381-shake-256.proof003.header }}
-presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof003.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-shake-256.proof003.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-shake-256.proof003.signature }}'
+header = h'{{ $proofFixtures.bls12-381-shake-256.proof003.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-shake-256.proof003.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof003.disclosedIndexes }}
 
 random scalars:
-    r1 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1 }}
-    r2 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r2 }}
-    e_tilde = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.e_tilde }}
-    r1_tilde = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1_tilde }}
-    r3_tilde = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r3_tilde }}
+    r1 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1 }}'
+    r2 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r2 }}'
+    e_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.e_tilde }}'
+    r1_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1_tilde }}'
+    r3_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r3_tilde }}'
     m_tilde_scalars:
-        m~_1 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}
-        m~_3 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}
-        m~_5 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}
-        m~_7 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}
-        m~_8 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}
-        m~_9 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}
+        m~_1 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}'
+        m~_3 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}'
+        m~_5 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}'
+        m~_7 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}'
+        m~_8 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}'
+        m~_9 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}'
 
-T1 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.T1 }}
-T2 = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.T2 }}
-domain = {{ $proofFixtures.bls12-381-shake-256.proof003.trace.domain }}
+T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.T1 }}'
+T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.T2 }}'
+domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.domain }}'
 
-proof = {{ $proofFixtures.bls12-381-shake-256.proof003.proof }}
+proof = h'{{ $proofFixtures.bls12-381-shake-256.proof003.proof }}'
 ```
 
 ## BLS12381-SHA-256 Test Vectors
@@ -2231,68 +2236,68 @@ Test vectors of the [BLS12-381-SHA-256](#bls12-381-sha-256-ciphersuite) ciphersu
 Following the procedure defined in (#secret-key) with an input `key_material` value as follows
 
 ```
-key_material = {{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyMaterial }}
+key_material = h'{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyMaterial }}'
 ```
 the following `key_info` value
 ```
-key_info = {{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyInfo }}
+key_info = h'{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyInfo }}'
 ```
-and the following `key_dst` value, defined by `api_id || KEYGEN_DST_`, where `api_id` the identifier of the BBS Interface defined in (#bbs-signatures-interface), using the `BLS12-381-SHA-256` ciphersuite defined in (#bls12-381-sha-256),
+and the following `key_dst` value, defined by `api_id || KEYGEN_DST_`, where `api_id` the identifier of the BBS Interface defined in (#bbs-signatures-interface), using the `BLS12-381-SHA-256` ciphersuite defined in (#bls12-381-sha-256), meaning that `api_id = BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_`,
 ```
-key_dst = {{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyDst }}
+key_dst = h'{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyDst }}'
 ```
 
 Outputs the following SK value
 
 ```
-SK = {{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyPair.secretKey }}
+SK = 0x'{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyPair.secretKey }}'
 ```
 
 Following the procedure defined in (#public-key) with an input SK value as above produces the following PK value
 
 ```
-PK = {{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyPair.publicKey }}
+PK = h'{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyPair.publicKey }}'
 ```
 
 ### Map Messages to Scalars
 
-The messages in (#messages) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)). Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
+The messages in (#messages-1) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages-1) and the `api_id` defined in (#bbs-signatures-interface), using the `BLS12-381-SHA-256` ciphersuite defined in (#bls12-381-sha-256), meaning that `api_id = BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_`. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
 
 ```
-dst = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.dst }}
+dst = h'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.dst }}'
 ```
 
 The output scalars, encoded to octets using I2OSP and represented in big endian order, are the following,
 
 ```
-msg_scalar_1 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[0].scalar }}
-msg_scalar_2 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[1].scalar }}
-msg_scalar_3 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[2].scalar }}
-msg_scalar_4 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[3].scalar }}
-msg_scalar_5 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[4].scalar }}
-msg_scalar_6 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[5].scalar }}
-msg_scalar_7 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[6].scalar }}
-msg_scalar_8 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[7].scalar }}
-msg_scalar_9 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[8].scalar }}
-msg_scalar_10 = {{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[9].scalar }}
+msg_scalar_1 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[0].scalar }}'
+msg_scalar_2 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[1].scalar }}'
+msg_scalar_3 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[2].scalar }}'
+msg_scalar_4 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[3].scalar }}'
+msg_scalar_5 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[4].scalar }}'
+msg_scalar_6 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[5].scalar }}'
+msg_scalar_7 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[6].scalar }}'
+msg_scalar_8 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[7].scalar }}'
+msg_scalar_9 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[8].scalar }}'
+msg_scalar_10 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[9].scalar }}'
 ```
 
 ### Message Generators
 
-Following the procedure defined in (#generators-calculation) with an input count value of 11, for the [BLS12-381-SHA-256](#bls12-381-sha-256) suite, outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
+Following the procedure defined in (#generators-calculation) for the [BLS12-381-SHA-256](#bls12-381-sha-256) suite, with an input count value of 11 and an `api_id` value of `api_id = BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_` (as defined in (#bbs-signatures-interface) for the `BLS12-381-SHA-256` ciphersuite), outputs the following values (note that the first one corresponds to `Q_1`, while the next 10, to the message generators `H_1, ..., H_10`).
 
 ```
-Q_1 = {{ $generatorFixtures.bls12-381-sha-256.generators.Q1 }}
-H_1 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[0] }}
-H_2 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[1] }}
-H_3 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[2] }}
-H_4 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[3] }}
-H_5 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[4] }}
-H_6 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[5] }}
-H_7 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[6] }}
-H_8 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[7] }}
-H_9 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[8] }}
-H_10 = {{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[9] }}
+Q_1 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.Q1 }}'
+H_1 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[0] }}'
+H_2 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[1] }}'
+H_3 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[2] }}'
+H_4 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[3] }}'
+H_5 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[4] }}'
+H_6 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[5] }}'
+H_7 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[6] }}'
+H_8 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[7] }}'
+H_9 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[8] }}'
+H_10 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[9] }}'
 ```
 
 ### Signature Fixtures
@@ -2302,40 +2307,40 @@ This section presents test vectors for the `Sign` operation, as defined in (#sig
 #### Valid Single Message Signature
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}'
 
-SK = {{ $signatureFixtures.bls12-381-sha-256.signature001.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-sha-256.signature001.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-sha-256.signature001.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature001.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.header }}'
 
-B = {{ $signatureFixtures.bls12-381-sha-256.signature001.trace.B }}
-domain = {{ $signatureFixtures.bls12-381-sha-256.signature001.trace.domain }}
+B = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.trace.B }}'
+domain = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature001.trace.domain }}'
 
-signature = {{ $signatureFixtures.bls12-381-sha-256.signature001.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.signature }}'
 ```
 
 #### Valid Multi-Message Signature
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-sha-256.signature004.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[9] }}'
 
-SK = {{ $signatureFixtures.bls12-381-sha-256.signature004.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-sha-256.signature004.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-sha-256.signature004.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature004.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.header }}'
 
-B = {{ $signatureFixtures.bls12-381-sha-256.signature004.trace.B }}
-domain = {{ $signatureFixtures.bls12-381-sha-256.signature004.trace.domain }}
+B = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.trace.B }}'
+domain = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature004.trace.domain }}'
 
-signature = {{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}'
 ```
 
 ### Proof Fixtures
@@ -2346,7 +2351,7 @@ For the generation of the following test vectors, the `mocked_calculate_random_s
 
 ```
 SEED =
-      "332e313431353932363533353839373933323338343632363433333833323739"
+     h'332e313431353932363533353839373933323338343632363433333833323739'
 ```
 
 and the domain separation tag `DST = api_id || "MOCK_RANDOM_SCALARS_DST_"`, where `api_id` is the identifier of the BBS Interface defined in (#bbs-signatures-interface), i.e., `api_id = ciphersuite_id || H2G_HM2S_`, where `ciphersuite_id` is the unique identifier of the `BLS12-381-SHA-256` ciphersuite as defined in (#bls12-381-sha-256) and `"MOCK_RANDOM_SCALARS_DST_"` is an ASCII string composed of 24 bytes. More specifically,
@@ -2359,16 +2364,16 @@ DST =
 Given the above `SEED` and `DST` values, the first 10 scalars (i.e., with `count = 10`) returned by the `mocked_calculate_random_scalars` operation will be,
 
 ```
-random_scalar_1 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[0] }}
-random_scalar_2 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[1] }}
-random_scalar_3 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[2] }}
-random_scalar_4 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[3] }}
-random_scalar_5 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[4] }}
-random_scalar_6 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[5] }}
-random_scalar_7 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[6] }}
-random_scalar_8 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[7] }}
-random_scalar_9 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[8] }}
-random_scalar_10 = {{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[9] }}
+random_scalar_1 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[0] }}'
+random_scalar_2 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[1] }}'
+random_scalar_3 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[2] }}'
+random_scalar_4 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[3] }}'
+random_scalar_5 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[4] }}'
+random_scalar_6 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[5] }}'
+random_scalar_7 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[6] }}'
+random_scalar_8 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[7] }}'
+random_scalar_9 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[8] }}'
+random_scalar_10 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[9] }}'
 ```
 
 Note that the returned scalars will be unique for different `count` values, i.e., for different output lengths.
@@ -2376,103 +2381,103 @@ Note that the returned scalars will be unique for different `count` values, i.e.
 #### Valid Single Message Proof
 
 ```
-m_0 = {{ $proofFixtures.bls12-381-sha-256.proof001.messages[0] }}
+m_0 = h'{{ $proofFixtures.bls12-381-sha-256.proof001.messages[0] }}'
 
-public_key = {{ $proofFixtures.bls12-381-sha-256.proof001.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-sha-256.proof001.signature }}
-header = {{ $proofFixtures.bls12-381-sha-256.proof001.header }}
-presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof001.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-sha-256.proof001.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-sha-256.proof001.signature }}'
+header = h'{{ $proofFixtures.bls12-381-sha-256.proof001.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-sha-256.proof001.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof001.disclosedIndexes }}
 
 random scalars:
-    r1 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1 }}
-    r2 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r2 }}
-    e_tilde = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.e_tilde }}
-    r1_tilde = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1_tilde }}
-    r3_tilde = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r3_tilde }}
+    r1 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1 }}'
+    r2 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r2 }}'
+    e_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.e_tilde }}'
+    r1_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1_tilde }}'
+    r3_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r3_tilde }}'
     m_tilde_scalars: {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.m_tilde_scalars }}
 
-T1 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.T1 }}
-T2 = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.T2 }}
-domain = {{ $proofFixtures.bls12-381-sha-256.proof001.trace.domain }}
+T1 = h'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.T1 }}'
+T2 = h'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.T2 }}'
+domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.domain }}'
 
-proof = {{ $proofFixtures.bls12-381-sha-256.proof001.proof }}
+proof = h'{{ $proofFixtures.bls12-381-sha-256.proof001.proof }}'
 ```
 
 #### Valid Multi-Message, All Messages Disclosed Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-sha-256.proof002.messages[9] }}
+m_1 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[0] }}'
+m_2 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[1] }}'
+m_3 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[2] }}'
+m_4 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[3] }}'
+m_5 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[4] }}'
+m_6 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[5] }}'
+m_7 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[6] }}'
+m_8 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[7] }}'
+m_9 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[8] }}'
+m_10 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.messages[9] }}'
 
-public_key = {{ $proofFixtures.bls12-381-sha-256.proof002.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-sha-256.proof002.signature }}
-header = {{ $proofFixtures.bls12-381-sha-256.proof002.header }}
-presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof002.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-sha-256.proof002.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-sha-256.proof002.signature }}'
+header = h'{{ $proofFixtures.bls12-381-sha-256.proof002.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-sha-256.proof002.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof002.disclosedIndexes }}
 
 random scalars:
-    r1 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1 }}
-    r2 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r2 }}
-    e_tilde = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.e_tilde }}
-    r1_tilde = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1_tilde }}
-    r3_tilde = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r3_tilde }}
+    r1 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1 }}'
+    r2 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r2 }}'
+    e_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.e_tilde }}'
+    r1_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1_tilde }}'
+    r3_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r3_tilde }}'
     m_tilde_scalars: {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.m_tilde_scalars }}
 
-T1 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.T1 }}
-T2 = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.T2 }}
-domain = {{ $proofFixtures.bls12-381-sha-256.proof002.trace.domain }}
+T1 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.T1 }}'
+T2 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.T2 }}'
+domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.domain }}'
 
-proof = {{ $proofFixtures.bls12-381-sha-256.proof002.proof }}
+proof = h'{{ $proofFixtures.bls12-381-sha-256.proof002.proof }}'
 ```
 
 #### Valid Multi-Message, Some Messages Disclosed Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-sha-256.proof003.messages[9] }}
+m_1 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[0] }}'
+m_2 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[1] }}'
+m_3 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[2] }}'
+m_4 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[3] }}'
+m_5 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[4] }}'
+m_6 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[5] }}'
+m_7 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[6] }}'
+m_8 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[7] }}'
+m_9 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[8] }}'
+m_10 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.messages[9] }}'
 
-public_key = {{ $proofFixtures.bls12-381-sha-256.proof003.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-sha-256.proof003.signature }}
-header = {{ $proofFixtures.bls12-381-sha-256.proof003.header }}
-presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof003.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-sha-256.proof003.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-sha-256.proof003.signature }}'
+header = h'{{ $proofFixtures.bls12-381-sha-256.proof003.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-sha-256.proof003.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof003.disclosedIndexes }}
 
 random scalars:
-    r1 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1 }}
-    r2 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r2 }}
-    e_tilde = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.e_tilde }}
-    r1_tilde = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1_tilde }}
-    r3_tilde = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r3_tilde }}
+    r1 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1 }}'
+    r2 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r2 }}'
+    e_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.e_tilde }}'
+    r1_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1_tilde }}'
+    r3_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r3_tilde }}'
     m_tilde_scalars:
-        m~_1 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}
-        m~_3 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}
-        m~_5 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}
-        m~_7 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}
-        m~_8 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}
-        m~_9 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}
+        m~_1 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}'
+        m~_3 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}'
+        m~_5 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}'
+        m~_7 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}'
+        m~_8 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}'
+        m~_9 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}'
 
-T1 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.T1 }}
-T2 = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.T2 }}
-domain = {{ $proofFixtures.bls12-381-sha-256.proof003.trace.domain }}
+T1 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.T1 }}'
+T2 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.T2 }}'
+domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.domain }}'
 
-proof = {{ $proofFixtures.bls12-381-sha-256.proof003.proof }}
+proof = h'{{ $proofFixtures.bls12-381-sha-256.proof003.proof }}'
 ```
 
 # IANA Considerations
@@ -2580,11 +2585,11 @@ Note that `r` is a prime factor of `p`. The target group `G_T` is defined as the
 The base points of BLS12-381, encoded to octets using the procedure defined in (#point-serialization) and then represented in hexadecimal format, are defined as,
 
 ```
-BP1 = "97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586
-       c55e83ff97a1aeffb3af00adb22c6bb"
-BP2 = "93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f50493
-       34cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6
-       e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"
+BP1 = h'97f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac58
+        6c55e83ff97a1aeffb3af00adb22c6bb'
+BP2 = h'93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049
+       334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051
+       c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8'
 ```
 
 ## Optimal Ate pairing
@@ -2762,25 +2767,25 @@ BBS signatures when applied to the problem space of identity credentials can hel
 #### No Header Valid Signature
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-shake-256.signature010.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[9] }}'
 
-SK = {{ $signatureFixtures.bls12-381-shake-256.signature010.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-shake-256.signature010.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-shake-256.signature010.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature010.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.header }}'
 
-B = {{ $signatureFixtures.bls12-381-shake-256.signature010.trace.B }}
-domain = {{ $signatureFixtures.bls12-381-shake-256.signature010.trace.domain }}
+B = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.trace.B }}'
+domain = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature010.trace.domain }}'
 
-signature = {{ $signatureFixtures.bls12-381-shake-256.signature010.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.signature }}'
 ```
 
 #### Modified Message Signature
@@ -2788,12 +2793,12 @@ signature = {{ $signatureFixtures.bls12-381-shake-256.signature010.signature }}
 The following fixture should fail signature validation due to the message value being different from what was signed.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature002.messages[0] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature002.messages[0] }}'
 
-PK = {{ $signatureFixtures.bls12-381-shake-256.signature002.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-shake-256.signature002.header }}
+PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature002.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-shake-256.signature002.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-shake-256.signature002.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature002.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-shake-256.signature002.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-shake-256.signature002.result.reason }}
@@ -2804,13 +2809,13 @@ reason: {{ $signatureFixtures.bls12-381-shake-256.signature002.result.reason }}
 The following fixture should fail signature validation due to an additional message being supplied that was not signed.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature003.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-shake-256.signature003.messages[1] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature003.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-shake-256.signature003.messages[1] }}'
 
-PK = {{ $signatureFixtures.bls12-381-shake-256.signature003.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-shake-256.signature003.header }}
+PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature003.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-shake-256.signature003.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-shake-256.signature003.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature003.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-shake-256.signature003.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-shake-256.signature003.result.reason }}
@@ -2818,16 +2823,16 @@ reason: {{ $signatureFixtures.bls12-381-shake-256.signature003.result.reason }}
 
 #### Missing Message Signature
 
-The following fixture should fail signature validation due to missing messages that were originally present during the signing (the presented signature was generated with all the messages in (#messages) as input).
+The following fixture should fail signature validation due to missing messages that were originally present during the signing (the presented signature was generated with all the messages in (#messages-1) as input).
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature005.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-shake-256.signature005.messages[1] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature005.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-shake-256.signature005.messages[1] }}'
 
-PK = {{ $signatureFixtures.bls12-381-shake-256.signature005.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-shake-256.signature005.header }}
+PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature005.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-shake-256.signature005.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-shake-256.signature005.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature005.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-shake-256.signature005.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-shake-256.signature005.result.reason }}
@@ -2838,21 +2843,21 @@ reason: {{ $signatureFixtures.bls12-381-shake-256.signature005.result.reason }}
 The following fixture should fail signature validation due to messages being re-ordered from the order in which they were signed.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-shake-256.signature006.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.messages[9] }}'
 
-PK = {{ $signatureFixtures.bls12-381-shake-256.signature006.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-shake-256.signature006.header }}
+PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-shake-256.signature006.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature006.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-shake-256.signature006.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-shake-256.signature006.result.reason }}
@@ -2863,21 +2868,21 @@ reason: {{ $signatureFixtures.bls12-381-shake-256.signature006.result.reason }}
 The following fixture should fail signature validation due to public key used to verify is in-correct.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-shake-256.signature007.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.messages[9] }}'
 
-PK = {{ $signatureFixtures.bls12-381-shake-256.signature007.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-shake-256.signature007.header }}
+PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-shake-256.signature007.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature007.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-shake-256.signature007.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-shake-256.signature007.result.reason }}
@@ -2888,21 +2893,21 @@ reason: {{ $signatureFixtures.bls12-381-shake-256.signature007.result.reason }}
 The following fixture should fail signature validation due to header value being modified from what was originally signed.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-shake-256.signature008.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.messages[9] }}'
 
-PK = {{ $signatureFixtures.bls12-381-shake-256.signature008.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-shake-256.signature008.header }}
+PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-shake-256.signature008.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature008.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-shake-256.signature008.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-shake-256.signature008.result.reason }}
@@ -2913,55 +2918,55 @@ reason: {{ $signatureFixtures.bls12-381-shake-256.signature008.result.reason }}
 #### No Header Valid Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-shake-256.proof014.messages[9] }}
+m_1 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[0] }}'
+m_2 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[1] }}'
+m_3 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[2] }}'
+m_4 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[3] }}'
+m_5 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[4] }}'
+m_6 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[5] }}'
+m_7 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[6] }}'
+m_8 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[7] }}'
+m_9 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[8] }}'
+m_10 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.messages[9] }}'
 
-public_key = {{ $proofFixtures.bls12-381-shake-256.proof014.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-shake-256.proof014.signature }}
-header = {{ $proofFixtures.bls12-381-shake-256.proof014.header }}
-presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof014.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-shake-256.proof014.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-shake-256.proof014.signature }}'
+header = h'{{ $proofFixtures.bls12-381-shake-256.proof014.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-shake-256.proof014.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof014.disclosedIndexes }}
 
-T1 = {{ $proofFixtures.bls12-381-shake-256.proof014.trace.T1 }}
-T2 = {{ $proofFixtures.bls12-381-shake-256.proof014.trace.T2 }}
-domain = {{ $proofFixtures.bls12-381-shake-256.proof014.trace.domain }}
+T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.trace.T1 }}'
+T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.trace.T2 }}'
+domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof014.trace.domain }}'
 
-proof = {{ $proofFixtures.bls12-381-shake-256.proof014.proof }}
+proof = h'{{ $proofFixtures.bls12-381-shake-256.proof014.proof }}'
 ```
 
 #### No Presentation Header Valid Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-shake-256.proof015.messages[9] }}
+m_1 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[0] }}'
+m_2 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[1] }}'
+m_3 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[2] }}'
+m_4 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[3] }}'
+m_5 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[4] }}'
+m_6 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[5] }}'
+m_7 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[6] }}'
+m_8 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[7] }}'
+m_9 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[8] }}'
+m_10 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.messages[9] }}'
 
-public_key = {{ $proofFixtures.bls12-381-shake-256.proof015.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-shake-256.proof015.signature }}
-header = {{ $proofFixtures.bls12-381-shake-256.proof015.header }}
-presentation_header = {{ $proofFixtures.bls12-381-shake-256.proof015.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-shake-256.proof015.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-shake-256.proof015.signature }}'
+header = h'{{ $proofFixtures.bls12-381-shake-256.proof015.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-shake-256.proof015.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof015.disclosedIndexes }}
 
-T1 = {{ $proofFixtures.bls12-381-shake-256.proof015.trace.T1 }}
-T2 = {{ $proofFixtures.bls12-381-shake-256.proof015.trace.T2 }}
-domain = {{ $proofFixtures.bls12-381-shake-256.proof015.trace.domain }}
+T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.trace.T1 }}'
+T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.trace.T2 }}'
+domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof015.trace.domain }}'
 
-proof = {{ $proofFixtures.bls12-381-shake-256.proof015.proof }}
+proof = h'{{ $proofFixtures.bls12-381-shake-256.proof015.proof }}'
 ```
 
 
@@ -2970,19 +2975,19 @@ proof = {{ $proofFixtures.bls12-381-shake-256.proof015.proof }}
 Using the following input message,
 
 ```
-msg = {{ $H2sFixture.bls12-381-shake-256.h2s.message }}
+msg = h'{{ $H2sFixture.bls12-381-shake-256.h2s.message }}'
 ```
 
 And following dst value,
 
 ```
-dst = {{ $H2sFixture.bls12-381-shake-256.h2s.dst }}
+dst = h'{{ $H2sFixture.bls12-381-shake-256.h2s.dst }}'
 ```
 
 We get the following scalar output from `hash_to_scalar` ((#hash-to-scalar)), encoded with I2OSP and represented in big endian order,
 
 ```
-scalar = {{ $H2sFixture.bls12-381-shake-256.h2s.scalar }}
+scalar = 0x'{{ $H2sFixture.bls12-381-shake-256.h2s.scalar }}
 ```
 
 ## BLS12-381-SHA-256 Ciphersuite
@@ -2992,25 +2997,25 @@ scalar = {{ $H2sFixture.bls12-381-shake-256.h2s.scalar }}
 #### No Header Valid Signature
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-sha-256.signature010.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[9] }}'
 
-SK = {{ $signatureFixtures.bls12-381-sha-256.signature010.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-sha-256.signature010.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-sha-256.signature010.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature010.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.header }}'
 
-B = {{ $signatureFixtures.bls12-381-sha-256.signature010.trace.B }}
-domain = {{ $signatureFixtures.bls12-381-sha-256.signature010.trace.domain }}
+B = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.trace.B }}'
+domain = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature010.trace.domain }}'
 
-signature = {{ $signatureFixtures.bls12-381-sha-256.signature010.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.signature }}'
 ```
 
 #### Modified Message Signature
@@ -3018,13 +3023,13 @@ signature = {{ $signatureFixtures.bls12-381-sha-256.signature010.signature }}
 The following fixture should fail signature validation due to the message value being different from what was signed.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-sha-256.signature002.messages[0] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature002.messages[0] }}'
 
-SK = {{ $signatureFixtures.bls12-381-sha-256.signature002.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-sha-256.signature002.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-sha-256.signature002.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature002.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature002.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-sha-256.signature002.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-sha-256.signature002.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature002.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-sha-256.signature002.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-sha-256.signature002.result.reason }}
@@ -3036,14 +3041,14 @@ reason: {{ $signatureFixtures.bls12-381-sha-256.signature002.result.reason }}
 The following fixture should fail signature validation due to an additional message being supplied that was not signed.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-sha-256.signature003.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-sha-256.signature003.messages[1] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature003.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-sha-256.signature003.messages[1] }}'
 
-SK = {{ $signatureFixtures.bls12-381-sha-256.signature003.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-sha-256.signature003.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-sha-256.signature003.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature003.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature003.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-sha-256.signature003.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-sha-256.signature003.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature003.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-sha-256.signature003.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-sha-256.signature003.result.reason }}
@@ -3051,17 +3056,17 @@ reason: {{ $signatureFixtures.bls12-381-sha-256.signature003.result.reason }}
 
 #### Missing Message Signature
 
-The following fixture should fail signature validation due to missing messages that were originally present during the signing (the presented signature was generated with all the messages in (#messages) as input).
+The following fixture should fail signature validation due to missing messages that were originally present during the signing (the presented signature was generated with all the messages in (#messages-1) as input).
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-sha-256.signature005.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-sha-256.signature005.messages[1] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature005.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-sha-256.signature005.messages[1] }}'
 
-SK = {{ $signatureFixtures.bls12-381-sha-256.signature005.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-sha-256.signature005.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-sha-256.signature005.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature005.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature005.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-sha-256.signature005.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-sha-256.signature005.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature005.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-sha-256.signature005.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-sha-256.signature005.result.reason }}
@@ -3072,22 +3077,22 @@ reason: {{ $signatureFixtures.bls12-381-sha-256.signature005.result.reason }}
 The following fixture should fail signature validation due to messages being re-ordered from the order in which they were signed.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-sha-256.signature006.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[9] }}'
 
-SK = {{ $signatureFixtures.bls12-381-sha-256.signature006.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-sha-256.signature006.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-sha-256.signature006.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature006.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-sha-256.signature006.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-sha-256.signature006.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-sha-256.signature006.result.reason }}
@@ -3098,22 +3103,22 @@ reason: {{ $signatureFixtures.bls12-381-sha-256.signature006.result.reason }}
 The following fixture should fail signature validation due to public key used to verify is in-correct.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-sha-256.signature007.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[9] }}'
 
-SK = {{ $signatureFixtures.bls12-381-sha-256.signature007.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-sha-256.signature007.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-sha-256.signature007.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature007.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-sha-256.signature007.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-sha-256.signature007.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-sha-256.signature007.result.reason }}
@@ -3124,22 +3129,22 @@ reason: {{ $signatureFixtures.bls12-381-sha-256.signature007.result.reason }}
 The following fixture should fail signature validation due to header value being modified from what was originally signed.
 
 ```
-m_1 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[0] }}
-m_2 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[1] }}
-m_3 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[2] }}
-m_4 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[3] }}
-m_5 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[4] }}
-m_6 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[5] }}
-m_7 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[6] }}
-m_8 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[7] }}
-m_9 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[8] }}
-m_10 = {{ $signatureFixtures.bls12-381-sha-256.signature008.messages[9] }}
+m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[0] }}'
+m_2 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[1] }}'
+m_3 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[2] }}'
+m_4 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[3] }}'
+m_5 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[4] }}'
+m_6 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[5] }}'
+m_7 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[6] }}'
+m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[7] }}'
+m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[8] }}'
+m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[9] }}'
 
-SK = {{ $signatureFixtures.bls12-381-sha-256.signature008.signerKeyPair.secretKey }}
-PK = {{ $signatureFixtures.bls12-381-sha-256.signature008.signerKeyPair.publicKey }}
-header = {{ $signatureFixtures.bls12-381-sha-256.signature008.header }}
+SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature008.signerKeyPair.secretKey }}'
+PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.signerKeyPair.publicKey }}'
+header = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.header }}'
 
-signature = {{ $signatureFixtures.bls12-381-sha-256.signature008.signature }}
+signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.signature }}'
 
 valid: {{ $signatureFixtures.bls12-381-sha-256.signature008.result.valid }}
 reason: {{ $signatureFixtures.bls12-381-sha-256.signature008.result.reason }}
@@ -3150,55 +3155,55 @@ reason: {{ $signatureFixtures.bls12-381-sha-256.signature008.result.reason }}
 #### No Header Valid Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-sha-256.proof014.messages[9] }}
+m_1 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[0] }}'
+m_2 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[1] }}'
+m_3 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[2] }}'
+m_4 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[3] }}'
+m_5 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[4] }}'
+m_6 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[5] }}'
+m_7 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[6] }}'
+m_8 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[7] }}'
+m_9 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[8] }}'
+m_10 = h'{{ $proofFixtures.bls12-381-sha-256.proof014.messages[9] }}'
 
-public_key = {{ $proofFixtures.bls12-381-sha-256.proof014.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-sha-256.proof014.signature }}
-header = {{ $proofFixtures.bls12-381-sha-256.proof014.header }}
-presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof014.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-sha-256.proof014.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-sha-256.proof014.signature }}'
+header = h'{{ $proofFixtures.bls12-381-sha-256.proof014.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-sha-256.proof014.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof014.disclosedIndexes }}
 
-T = {{ $proofFixtures.bls12-381-sha-256.proof014.trace.T }}
-domain = {{ $proofFixtures.bls12-381-sha-256.proof014.trace.domain }}
-challenge = {{ $proofFixtures.bls12-381-sha-256.proof014.trace.challenge }}
+T = h'{{ $proofFixtures.bls12-381-sha-256.proof014.trace.T }}'
+domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof014.trace.domain }}'
+challenge = 0x'{{ $proofFixtures.bls12-381-sha-256.proof014.trace.challenge }}'
 
-proof = {{ $proofFixtures.bls12-381-sha-256.proof014.proof }}
+proof = h'{{ $proofFixtures.bls12-381-sha-256.proof014.proof }}'
 ```
 
 #### No Presentation Header Valid Proof
 
 ```
-m_1 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[0] }}
-m_2 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[1] }}
-m_3 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[2] }}
-m_4 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[3] }}
-m_5 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[4] }}
-m_6 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[5] }}
-m_7 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[6] }}
-m_8 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[7] }}
-m_9 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[8] }}
-m_10 = {{ $proofFixtures.bls12-381-sha-256.proof015.messages[9] }}
+m_1 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[0] }}'
+m_2 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[1] }}'
+m_3 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[2] }}'
+m_4 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[3] }}'
+m_5 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[4] }}'
+m_6 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[5] }}'
+m_7 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[6] }}'
+m_8 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[7] }}'
+m_9 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[8] }}'
+m_10 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.messages[9] }}'
 
-public_key = {{ $proofFixtures.bls12-381-sha-256.proof015.signerPublicKey }}
-signature = {{ $proofFixtures.bls12-381-sha-256.proof015.signature }}
-header = {{ $proofFixtures.bls12-381-sha-256.proof015.header }}
-presentation_header = {{ $proofFixtures.bls12-381-sha-256.proof015.presentationHeader }}
+public_key = h'{{ $proofFixtures.bls12-381-sha-256.proof015.signerPublicKey }}'
+signature = h'{{ $proofFixtures.bls12-381-sha-256.proof015.signature }}'
+header = h'{{ $proofFixtures.bls12-381-sha-256.proof015.header }}'
+presentation_header = h'{{ $proofFixtures.bls12-381-sha-256.proof015.presentationHeader }}'
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof015.disclosedIndexes }}
 
-T1 = {{ $proofFixtures.bls12-381-sha-256.proof015.trace.T1 }}
-T2 = {{ $proofFixtures.bls12-381-sha-256.proof015.trace.T2 }}
-domain = {{ $proofFixtures.bls12-381-sha-256.proof015.trace.domain }}
+T1 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.trace.T1 }}'
+T2 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.trace.T2 }}'
+domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof015.trace.domain }}'
 
-proof = {{ $proofFixtures.bls12-381-sha-256.proof015.proof }}
+proof = h'{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}'
 ```
 
 ### Hash to Scalar Test Vectors
@@ -3206,19 +3211,19 @@ proof = {{ $proofFixtures.bls12-381-sha-256.proof015.proof }}
 Using the following input message,
 
 ```
-msg = {{ $H2sFixture.bls12-381-sha-256.h2s.message }}
+msg = h'{{ $H2sFixture.bls12-381-sha-256.h2s.message }}'
 ```
 
 And following dst value,
 
 ```
-dst = {{ $H2sFixture.bls12-381-sha-256.h2s.dst }}
+dst = h'{{ $H2sFixture.bls12-381-sha-256.h2s.dst }}'
 ```
 
 We get the following scalar output from `hash_to_scalar` ((#hash-to-scalar)), encoded with I2OSP and represented in big endian order,
 
 ```
-scalar = {{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}
+scalar = 0x'{{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}'
 ```
 
 # Proof Generation and Verification Algorithmic Explanation
