@@ -426,8 +426,8 @@ Inputs:
 Parameters:
 
 - api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
-          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_" is
-          an ASCII string comprised of 9 bytes.
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"
+          is an ASCII string comprised of 9 bytes.
 
 Outputs:
 
@@ -466,8 +466,8 @@ Inputs:
 Parameters:
 
 - api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
-          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_" is
-          an ASCII string comprised of 9 bytes.
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"
+          is an ASCII string comprised of 9 bytes.
 
 Outputs:
 
@@ -514,8 +514,8 @@ Inputs:
 Parameters:
 
 - api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
-          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_" is
-          an ASCII string comprised of 9 bytes.
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"
+          is an ASCII string comprised of 9 bytes.
 
 Outputs:
 
@@ -564,8 +564,8 @@ Inputs:
 Parameters:
 
 - api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
-          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_" is
-          an ASCII string comprised of 9 bytes.
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"
+          is an ASCII string comprised of 9 bytes.
 - (octet_point_length, octet_scalar_length), defined by the ciphersuite.
 
 Outputs:
@@ -2006,7 +2006,7 @@ key_dst = h'{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyDst }}'
 Outputs the following SK value
 
 ```
-SK = 0x'{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyPair.secretKey }}'
+SK = 0x{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyPair.secretKey }}
 ```
 
 Following the procedure defined in (#public-key) with an input SK value as above produces the following PK value
@@ -2020,16 +2020,16 @@ PK = h'{{ $KeyPairFixtures.bls12-381-shake-256.keypair.keyPair.publicKey }}'
 The messages in (#messages-1) are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages\_to\_scalars operation ((#messages-to-scalars)), on input the messages defined in (#messages-1) and the `api_id` defined in (#bbs-signatures-interface), using the `BLS12-381-SHAKE-256` ciphersuite defined in (#bls12-381-shake-256), meaning that `api_id = BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_H2G_HM2S_`. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,
 
 ```
-msg_scalar_1 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[0].scalar }}'
-msg_scalar_2 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[1].scalar }}'
-msg_scalar_3 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[2].scalar }}'
-msg_scalar_4 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[3].scalar }}'
-msg_scalar_5 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[4].scalar }}'
-msg_scalar_6 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[5].scalar }}'
-msg_scalar_7 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[6].scalar }}'
-msg_scalar_8 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[7].scalar }}'
-msg_scalar_9 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[8].scalar }}'
-msg_scalar_10 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[9].scalar }}'
+msg_scalar_1 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[0].scalar }}
+msg_scalar_2 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[1].scalar }}
+msg_scalar_3 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[2].scalar }}
+msg_scalar_4 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[3].scalar }}
+msg_scalar_5 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[4].scalar }}
+msg_scalar_6 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[5].scalar }}
+msg_scalar_7 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[6].scalar }}
+msg_scalar_8 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[7].scalar }}
+msg_scalar_9 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[8].scalar }}
+msg_scalar_10 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageToScalarAsHash.cases[9].scalar }}
 ```
 
 ### Message Generators
@@ -2058,12 +2058,12 @@ This section presents test vectors for the `Sign` operation, as defined in (#sig
 ```
 m_1 = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.messages[0] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature001.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-shake-256.signature001.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.header }}'
 
 B = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.trace.B }}'
-domain = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature001.trace.domain }}'
+domain = 0x{{ $signatureFixtures.bls12-381-shake-256.signature001.trace.domain }}
 
 signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature001.signature }}'
 ```
@@ -2082,12 +2082,12 @@ m_8 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[7] }}'
 m_9 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[8] }}'
 m_10 = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.messages[9] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature004.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-shake-256.signature004.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.header }}'
 
 B = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.trace.B }}'
-domain = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature004.trace.domain }}'
+domain = 0x{{ $signatureFixtures.bls12-381-shake-256.signature004.trace.domain }}
 
 signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature004.signature }}'
 ```
@@ -2113,16 +2113,16 @@ DST =
 Given the above `SEED` and `DST` values, the first 10 scalars (i.e., with `count = 10`) returned by the `mocked_calculate_random_scalars` operation will be,
 
 ```
-random_scalar_1 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[0] }}'
-random_scalar_2 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[1] }}'
-random_scalar_3 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[2] }}'
-random_scalar_4 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[3] }}'
-random_scalar_5 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[4] }}'
-random_scalar_6 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[5] }}'
-random_scalar_7 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[6] }}'
-random_scalar_8 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[7] }}'
-random_scalar_9 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[8] }}'
-random_scalar_10 = 0x'{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[9] }}'
+random_scalar_1 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[0] }}
+random_scalar_2 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[1] }}
+random_scalar_3 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[2] }}
+random_scalar_4 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[3] }}
+random_scalar_5 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[4] }}
+random_scalar_6 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[5] }}
+random_scalar_7 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[6] }}
+random_scalar_8 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[7] }}
+random_scalar_9 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[8] }}
+random_scalar_10 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedScalars[9] }}
 ```
 
 #### Valid Single Message Proof
@@ -2137,16 +2137,16 @@ presentation_header = h'{{ $proofFixtures.bls12-381-shake-256.proof001.presentat
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof001.disclosedIndexes }}
 
 random scalars:
-    r1 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1 }}'
-    r2 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r2 }}'
-    e_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.e_tilde }}'
-    r1_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1_tilde }}'
-    r3_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r3_tilde }}'
+    r1 = 0x{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1 }}
+    r2 = 0x{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r2 }}
+    e_tilde = 0x{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.e_tilde }}
+    r1_tilde = 0x{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r1_tilde }}
+    r3_tilde = 0x{{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.r3_tilde }}
     m_tilde_scalars: {{ $proofFixtures.bls12-381-shake-256.proof001.trace.random_scalars.m_tilde_scalars }}
 
 T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.T1 }}'
 T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.T2 }}'
-domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof001.trace.domain }}'
+domain = 0x{{ $proofFixtures.bls12-381-shake-256.proof001.trace.domain }}
 
 proof = h'{{ $proofFixtures.bls12-381-shake-256.proof001.proof }}'
 ```
@@ -2172,16 +2172,16 @@ presentation_header = h'{{ $proofFixtures.bls12-381-shake-256.proof002.presentat
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof002.disclosedIndexes }}
 
 random scalars:
-    r1 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1 }}'
-    r2 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r2 }}'
-    e_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.e_tilde }}'
-    r1_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1_tilde }}'
-    r3_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r3_tilde }}'
+    r1 = 0x{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1 }}
+    r2 = 0x{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r2 }}
+    e_tilde = 0x{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.e_tilde }}
+    r1_tilde = 0x{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r1_tilde }}
+    r3_tilde = 0x{{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.r3_tilde }}
     m_tilde_scalars: {{ $proofFixtures.bls12-381-shake-256.proof002.trace.random_scalars.m_tilde_scalars }}
 
 T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.T1 }}'
 T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.T2 }}'
-domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof002.trace.domain }}'
+domain = 0x{{ $proofFixtures.bls12-381-shake-256.proof002.trace.domain }}
 
 proof = h'{{ $proofFixtures.bls12-381-shake-256.proof002.proof }}'
 ```
@@ -2207,22 +2207,22 @@ presentation_header = h'{{ $proofFixtures.bls12-381-shake-256.proof003.presentat
 revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof003.disclosedIndexes }}
 
 random scalars:
-    r1 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1 }}'
-    r2 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r2 }}'
-    e_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.e_tilde }}'
-    r1_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1_tilde }}'
-    r3_tilde = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r3_tilde }}'
+    r1 = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1 }}
+    r2 = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r2 }}
+    e_tilde = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.e_tilde }}
+    r1_tilde = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r1_tilde }}
+    r3_tilde = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.r3_tilde }}
     m_tilde_scalars:
-        m~_1 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}'
-        m~_3 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}'
-        m~_5 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}'
-        m~_7 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}'
-        m~_8 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}'
-        m~_9 = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}'
+        m~_1 = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}
+        m~_3 = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}
+        m~_5 = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}
+        m~_7 = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}
+        m~_8 = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}
+        m~_9 = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}
 
 T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.T1 }}'
 T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.T2 }}'
-domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof003.trace.domain }}'
+domain = 0x{{ $proofFixtures.bls12-381-shake-256.proof003.trace.domain }}
 
 proof = h'{{ $proofFixtures.bls12-381-shake-256.proof003.proof }}'
 ```
@@ -2250,7 +2250,7 @@ key_dst = h'{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyDst }}'
 Outputs the following SK value
 
 ```
-SK = 0x'{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyPair.secretKey }}'
+SK = 0x{{ $KeyPairFixtures.bls12-381-sha-256.keypair.keyPair.secretKey }}
 ```
 
 Following the procedure defined in (#public-key) with an input SK value as above produces the following PK value
@@ -2270,16 +2270,16 @@ dst = h'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHas
 The output scalars, encoded to octets using I2OSP and represented in big endian order, are the following,
 
 ```
-msg_scalar_1 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[0].scalar }}'
-msg_scalar_2 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[1].scalar }}'
-msg_scalar_3 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[2].scalar }}'
-msg_scalar_4 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[3].scalar }}'
-msg_scalar_5 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[4].scalar }}'
-msg_scalar_6 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[5].scalar }}'
-msg_scalar_7 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[6].scalar }}'
-msg_scalar_8 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[7].scalar }}'
-msg_scalar_9 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[8].scalar }}'
-msg_scalar_10 = 0x'{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[9].scalar }}'
+msg_scalar_1 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[0].scalar }}
+msg_scalar_2 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[1].scalar }}
+msg_scalar_3 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[2].scalar }}
+msg_scalar_4 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[3].scalar }}
+msg_scalar_5 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[4].scalar }}
+msg_scalar_6 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[5].scalar }}
+msg_scalar_7 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[6].scalar }}
+msg_scalar_8 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[7].scalar }}
+msg_scalar_9 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[8].scalar }}
+msg_scalar_10 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToScalarAsHash.cases[9].scalar }}
 ```
 
 ### Message Generators
@@ -2309,12 +2309,12 @@ This section presents test vectors for the `Sign` operation, as defined in (#sig
 ```
 m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.messages[0] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature001.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-sha-256.signature001.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.header }}'
 
 B = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.trace.B }}'
-domain = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature001.trace.domain }}'
+domain = 0x{{ $signatureFixtures.bls12-381-sha-256.signature001.trace.domain }}
 
 signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature001.signature }}'
 ```
@@ -2333,12 +2333,12 @@ m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[7] }}'
 m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[8] }}'
 m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.messages[9] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature004.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-sha-256.signature004.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.header }}'
 
 B = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.trace.B }}'
-domain = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature004.trace.domain }}'
+domain = 0x{{ $signatureFixtures.bls12-381-sha-256.signature004.trace.domain }}
 
 signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}'
 ```
@@ -2364,16 +2364,16 @@ DST =
 Given the above `SEED` and `DST` values, the first 10 scalars (i.e., with `count = 10`) returned by the `mocked_calculate_random_scalars` operation will be,
 
 ```
-random_scalar_1 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[0] }}'
-random_scalar_2 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[1] }}'
-random_scalar_3 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[2] }}'
-random_scalar_4 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[3] }}'
-random_scalar_5 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[4] }}'
-random_scalar_6 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[5] }}'
-random_scalar_7 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[6] }}'
-random_scalar_8 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[7] }}'
-random_scalar_9 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[8] }}'
-random_scalar_10 = 0x'{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[9] }}'
+random_scalar_1 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[0] }}
+random_scalar_2 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[1] }}
+random_scalar_3 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[2] }}
+random_scalar_4 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[3] }}
+random_scalar_5 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[4] }}
+random_scalar_6 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[5] }}
+random_scalar_7 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[6] }}
+random_scalar_8 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[7] }}
+random_scalar_9 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[8] }}
+random_scalar_10 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScalars[9] }}
 ```
 
 Note that the returned scalars will be unique for different `count` values, i.e., for different output lengths.
@@ -2390,16 +2390,16 @@ presentation_header = h'{{ $proofFixtures.bls12-381-sha-256.proof001.presentatio
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof001.disclosedIndexes }}
 
 random scalars:
-    r1 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1 }}'
-    r2 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r2 }}'
-    e_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.e_tilde }}'
-    r1_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1_tilde }}'
-    r3_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r3_tilde }}'
+    r1 = 0x{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1 }}
+    r2 = 0x{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r2 }}
+    e_tilde = 0x{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.e_tilde }}
+    r1_tilde = 0x{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r1_tilde }}
+    r3_tilde = 0x{{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.r3_tilde }}
     m_tilde_scalars: {{ $proofFixtures.bls12-381-sha-256.proof001.trace.random_scalars.m_tilde_scalars }}
 
 T1 = h'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.T1 }}'
 T2 = h'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.T2 }}'
-domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof001.trace.domain }}'
+domain = 0x{{ $proofFixtures.bls12-381-sha-256.proof001.trace.domain }}
 
 proof = h'{{ $proofFixtures.bls12-381-sha-256.proof001.proof }}'
 ```
@@ -2425,16 +2425,16 @@ presentation_header = h'{{ $proofFixtures.bls12-381-sha-256.proof002.presentatio
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof002.disclosedIndexes }}
 
 random scalars:
-    r1 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1 }}'
-    r2 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r2 }}'
-    e_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.e_tilde }}'
-    r1_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1_tilde }}'
-    r3_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r3_tilde }}'
+    r1 = 0x{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1 }}
+    r2 = 0x{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r2 }}
+    e_tilde = 0x{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.e_tilde }}
+    r1_tilde = 0x{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r1_tilde }}
+    r3_tilde = 0x{{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.r3_tilde }}
     m_tilde_scalars: {{ $proofFixtures.bls12-381-sha-256.proof002.trace.random_scalars.m_tilde_scalars }}
 
 T1 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.T1 }}'
 T2 = h'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.T2 }}'
-domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof002.trace.domain }}'
+domain = 0x{{ $proofFixtures.bls12-381-sha-256.proof002.trace.domain }}
 
 proof = h'{{ $proofFixtures.bls12-381-sha-256.proof002.proof }}'
 ```
@@ -2460,22 +2460,22 @@ presentation_header = h'{{ $proofFixtures.bls12-381-sha-256.proof003.presentatio
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof003.disclosedIndexes }}
 
 random scalars:
-    r1 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1 }}'
-    r2 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r2 }}'
-    e_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.e_tilde }}'
-    r1_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1_tilde }}'
-    r3_tilde = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r3_tilde }}'
+    r1 = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1 }}
+    r2 = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r2 }}
+    e_tilde = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.e_tilde }}
+    r1_tilde = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r1_tilde }}
+    r3_tilde = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.r3_tilde }}
     m_tilde_scalars:
-        m~_1 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}'
-        m~_3 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}'
-        m~_5 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}'
-        m~_7 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}'
-        m~_8 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}'
-        m~_9 = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}'
+        m~_1 = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[0] }}
+        m~_3 = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[1] }}
+        m~_5 = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[2] }}
+        m~_7 = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[3] }}
+        m~_8 = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[4] }}
+        m~_9 = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.random_scalars.m_tilde_scalars[5] }}
 
 T1 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.T1 }}'
 T2 = h'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.T2 }}'
-domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof003.trace.domain }}'
+domain = 0x{{ $proofFixtures.bls12-381-sha-256.proof003.trace.domain }}
 
 proof = h'{{ $proofFixtures.bls12-381-sha-256.proof003.proof }}'
 ```
@@ -2778,12 +2778,12 @@ m_8 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[7] }}'
 m_9 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[8] }}'
 m_10 = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.messages[9] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature010.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-shake-256.signature010.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.header }}'
 
 B = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.trace.B }}'
-domain = 0x'{{ $signatureFixtures.bls12-381-shake-256.signature010.trace.domain }}'
+domain = 0x{{ $signatureFixtures.bls12-381-shake-256.signature010.trace.domain }}
 
 signature = h'{{ $signatureFixtures.bls12-381-shake-256.signature010.signature }}'
 ```
@@ -2937,7 +2937,7 @@ revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof014.disclosedIndex
 
 T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.trace.T1 }}'
 T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof014.trace.T2 }}'
-domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof014.trace.domain }}'
+domain = 0x{{ $proofFixtures.bls12-381-shake-256.proof014.trace.domain }}
 
 proof = h'{{ $proofFixtures.bls12-381-shake-256.proof014.proof }}'
 ```
@@ -2964,7 +2964,7 @@ revealed_indexes = {{ $proofFixtures.bls12-381-shake-256.proof015.disclosedIndex
 
 T1 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.trace.T1 }}'
 T2 = h'{{ $proofFixtures.bls12-381-shake-256.proof015.trace.T2 }}'
-domain = 0x'{{ $proofFixtures.bls12-381-shake-256.proof015.trace.domain }}'
+domain = 0x{{ $proofFixtures.bls12-381-shake-256.proof015.trace.domain }}
 
 proof = h'{{ $proofFixtures.bls12-381-shake-256.proof015.proof }}'
 ```
@@ -2987,7 +2987,7 @@ dst = h'{{ $H2sFixture.bls12-381-shake-256.h2s.dst }}'
 We get the following scalar output from `hash_to_scalar` ((#hash-to-scalar)), encoded with I2OSP and represented in big endian order,
 
 ```
-scalar = 0x'{{ $H2sFixture.bls12-381-shake-256.h2s.scalar }}
+scalar = 0x{{ $H2sFixture.bls12-381-shake-256.h2s.scalar }}
 ```
 
 ## BLS12-381-SHA-256 Ciphersuite
@@ -3008,12 +3008,12 @@ m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[7] }}'
 m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[8] }}'
 m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.messages[9] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature010.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-sha-256.signature010.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.header }}'
 
 B = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.trace.B }}'
-domain = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature010.trace.domain }}'
+domain = 0x{{ $signatureFixtures.bls12-381-sha-256.signature010.trace.domain }}
 
 signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature010.signature }}'
 ```
@@ -3025,7 +3025,7 @@ The following fixture should fail signature validation due to the message value 
 ```
 m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature002.messages[0] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature002.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-sha-256.signature002.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature002.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-sha-256.signature002.header }}'
 
@@ -3044,7 +3044,7 @@ The following fixture should fail signature validation due to an additional mess
 m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature003.messages[0] }}'
 m_2 = h'{{ $signatureFixtures.bls12-381-sha-256.signature003.messages[1] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature003.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-sha-256.signature003.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature003.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-sha-256.signature003.header }}'
 
@@ -3062,7 +3062,7 @@ The following fixture should fail signature validation due to missing messages t
 m_1 = h'{{ $signatureFixtures.bls12-381-sha-256.signature005.messages[0] }}'
 m_2 = h'{{ $signatureFixtures.bls12-381-sha-256.signature005.messages[1] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature005.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-sha-256.signature005.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature005.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-sha-256.signature005.header }}'
 
@@ -3088,7 +3088,7 @@ m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[7] }}'
 m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[8] }}'
 m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.messages[9] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature006.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-sha-256.signature006.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-sha-256.signature006.header }}'
 
@@ -3114,7 +3114,7 @@ m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[7] }}'
 m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[8] }}'
 m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.messages[9] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature007.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-sha-256.signature007.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-sha-256.signature007.header }}'
 
@@ -3140,7 +3140,7 @@ m_8 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[7] }}'
 m_9 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[8] }}'
 m_10 = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.messages[9] }}'
 
-SK = 0x'{{ $signatureFixtures.bls12-381-sha-256.signature008.signerKeyPair.secretKey }}'
+SK = 0x{{ $signatureFixtures.bls12-381-sha-256.signature008.signerKeyPair.secretKey }}
 PK = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.signerKeyPair.publicKey }}'
 header = h'{{ $signatureFixtures.bls12-381-sha-256.signature008.header }}'
 
@@ -3173,8 +3173,8 @@ presentation_header = h'{{ $proofFixtures.bls12-381-sha-256.proof014.presentatio
 revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof014.disclosedIndexes }}
 
 T = h'{{ $proofFixtures.bls12-381-sha-256.proof014.trace.T }}'
-domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof014.trace.domain }}'
-challenge = 0x'{{ $proofFixtures.bls12-381-sha-256.proof014.trace.challenge }}'
+domain = 0x{{ $proofFixtures.bls12-381-sha-256.proof014.trace.domain }}
+challenge = 0x{{ $proofFixtures.bls12-381-sha-256.proof014.trace.challenge }}
 
 proof = h'{{ $proofFixtures.bls12-381-sha-256.proof014.proof }}'
 ```
@@ -3201,7 +3201,7 @@ revealed_indexes = {{ $proofFixtures.bls12-381-sha-256.proof015.disclosedIndexes
 
 T1 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.trace.T1 }}'
 T2 = h'{{ $proofFixtures.bls12-381-sha-256.proof015.trace.T2 }}'
-domain = 0x'{{ $proofFixtures.bls12-381-sha-256.proof015.trace.domain }}'
+domain = 0x{{ $proofFixtures.bls12-381-sha-256.proof015.trace.domain }}
 
 proof = h'{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}'
 ```
@@ -3223,7 +3223,7 @@ dst = h'{{ $H2sFixture.bls12-381-sha-256.h2s.dst }}'
 We get the following scalar output from `hash_to_scalar` ((#hash-to-scalar)), encoded with I2OSP and represented in big endian order,
 
 ```
-scalar = 0x'{{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}'
+scalar = 0x{{ $H2sFixture.bls12-381-sha-256.h2s.scalar }}
 ```
 
 # Proof Generation and Verification Algorithmic Explanation
@@ -3251,7 +3251,7 @@ Let `(i1, ..., iR)` be the indexes of the messages the Prover wants to disclose 
 	[4]	Bbar = D * r1 + Abar * (-e)
 	```
 
-    The values `(Abar, D, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signature as above, then `Abar * SK = Bbar` which is equivalent to `h(Abar, PK) = h(Bbar, BP2)`, where `SK`, `PK` the Signer's secret and public key and `BP2` the base generator of `G2` (used to create the Signer’s `PK`, see (#public-key)). This last equation is something that the Verifier can check using the Signer's `PK`.
+    The values `(Abar, D, Bbar)` will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if `Abar` and `Bbar` are constructed using a valid BBS signature as above, then `Abar * SK = Bbar` which is equivalent to `h(Abar, PK) = h(Bbar, BP2)`, where `SK`, `PK` the Signer's secret and public key and `BP2` the base generator of `G2` (used to create the Signer's `PK`, see (#public-key)). This last equation is something that the Verifier can check using the Signer's `PK`.
 
 - Prove that the disclosed messages are signed as part of that signature. The Prover will start by setting the following,
 
@@ -3350,6 +3350,15 @@ To sum up; in order to validate the proof, a Verifier checks that `h(Abar, PK) =
 * Fixed proof deserialization error.
 * Fixed order of inputs in `CoreSign` call.
 * Fixed wrong inputs in `calculate_domain` call in `CoreSign` and `CoreVerify`.
+
+-08
+
+* Editorial clarifications and fixes.
+
+-09
+
+* Editorial clarifications and fixing mistakes in api calls.
+* Using CDDL style representation of test vector values.
 
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
