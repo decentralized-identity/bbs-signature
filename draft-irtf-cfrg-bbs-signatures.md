@@ -1908,7 +1908,7 @@ Note that these two ciphersuites differ only in the hash-to-curve suites used. T
 
 The following section details a basic set of test vectors that can be used to confirm an implementation's correctness.
 
-**NOTE** All binary data below is represented as octet strings in big endian order, encoded in hexadecimal format.
+**NOTE** All binary data below is represented as octet strings in big endian order, encoded in hexadecimal (base 16) format. Strings prefixed with `h` and enclosed by single quotes `'` represent base 16 encoded byte strings. On the other hand, strings prefixed with `0x` (not enclosed by single quotes), represent base 16 encoded decimal numbers (scalars).
 
 **NOTE** These fixtures are a work in progress and subject to change.
 
