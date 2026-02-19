@@ -3263,7 +3263,7 @@ Let `(i1, ..., iR)` be the indexes of the messages the Prover wants to disclose 
 
 	```
 	[6]	P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR =
-                       	D * r2' - H_ji * msg_j1 - ... - H_jU * msg_jU
+                       	D * r2' - H_j1 * msg_j1 - ... - H_jU * msg_jU
 	```
 
 Note that the Verifier will know the elements in the left side of \[6\] (i.e., `P1`, `Q_1`, `H_i1`, ..., `H_iR` and the disclosed messages: `msg_i1`, ..., `msg_iR`) as well as the base points of the right side (i.e., the points `D` and `H_j1, ..., H_jU`). They will not however know the exponents on the right side of \[6\] (i.e., `r2'` and the undisclosed messages: `msg_j1, ..., msg_jU`). The same holds for equation \[4\] where the Verifier will know the left side of the equation (i.e., `Bbar`) and the base points of the right side (i.e., `D` and `Abar`) but not the exponents (i.e., `r1` and `-e`).
