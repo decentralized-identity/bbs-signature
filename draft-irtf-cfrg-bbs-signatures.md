@@ -181,6 +181,9 @@ I \\ J
 X\[a..b\]
 : Denotes a slice of the array `X` containing all elements from and including the value at index `a` until and including the value at index `b`. Note when this syntax is applied to an octet string, each element in the array `X` is assumed to be a single byte.
 
+\[a, ...X, b\]
+: Denotes a new array containing an element `a`, all the elements of the array `X` in the same order and then the element `b`. Using the same notation, more elements can be added before `a` or after `b`.
+
 length(input)
 : Takes as input either an array or an octet string. If the input is an array, returns the number of elements of the array. If the input is an octet string, returns the number of bytes of the inputted octet string.
 
