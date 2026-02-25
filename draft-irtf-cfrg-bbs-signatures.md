@@ -597,6 +597,7 @@ The operations of this section make use of functions and sub-routines defined in
 
 - `hash_to_scalar` is defined in (#hash-to-scalar)
 - `calculate_domain` is defined in (#domain-calculation).
+- `multi_exponentiation_g1` is defined in (#multi-exponentiation).
 - `serialize`, `signature_to_octets`, `octets_to_signature`, `proof_to_octets`, `octets_to_proof` and `octets_to_pubkey` are defined in (#serialization).
 - `h` is the pairing operation used (see (#notation)), defined as part of the ciphersuite.
 
@@ -643,20 +644,14 @@ Definitions:
                        separation tag: api_id || "H2S_" where "H2S_" is
                        an ASCII string comprised of 4 bytes.
 
-Deserialization:
-
-1. L = length(messages)
-2. if length(generators) != L + 1, return INVALID
-3. (msg_1, ..., msg_L) = messages
-4. (Q_1, H_1, ..., H_L) = generators
-
 Procedure:
 
-1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
+1. domain = calculate_domain(PK, generators, header, api_id)
 
-2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
+2. e = hash_to_scalar(serialize((SK, ...messages, domain)),
                                                      hash_to_scalar_dst)
-3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+3. B = multi_exponentiation_g1((P1, ...generators),
+                                               (1, domain, ...messages))
 4. A = B * (1 / (SK + e))
 5. return signature_to_octets((A, e))
 ```
@@ -699,17 +694,15 @@ Deserialization:
 1. signature_result = octets_to_signature(signature)
 2. if signature_result is INVALID, return INVALID
 3. (A, e) = signature_result
+
 4. W = octets_to_pubkey(PK)
 5. if W is INVALID, return INVALID
-6. L = length(messages)
-7. if length(generators) != L + 1, return INVALID
-8. (msg_1, ..., msg_L) = messages
-9. (Q_1, H_1, ..., H_L) = generators
 
 Procedure:
 
-1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
-2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+1. domain = calculate_domain(PK, generators, header, api_id)
+2. B = multi_exponentiation_g1((P1, ...generators),
+                                               (1, domain, ...messages))
 3. if h(A, W) * h(A * e - B, BP2) != Identity_GT, return INVALID
 4. return VALID
 ```
@@ -874,7 +867,7 @@ The inputted `messages` MUST be supplied to this operation in the same order the
 The defined procedure needs the messages the Prover decided to not disclose. For this purpose, along the list of signed messages, the operation also accepts a set of integers in the range from `0` to `length(messages) - 1` (inclusive) in ascending order, representing the indexes of the undisclosed messages (`undisclosed_indexes`). To blind the inputted `signature` and the undisclosed messages, the operation will also accept a set of uniformly random scalars (`random_scalars`). This set must have exactly 5 more items than the list of undisclosed indexes (i.e., it must hold that `length(random_scalars) = length(undisclosed_indexes) + 5`).
 
 
-This operation makes use of the `calculate_domain` function defined in (#domain-calculation).
+This operation makes use of the `calculate_domain` function defined in (#domain-calculation) and of the `multi_exponentiation_g1` function defined in (#multi-exponentiation).
 
 ```
 init_res = ProofInit(PK, signature, generators, random_scalars,
@@ -909,35 +902,35 @@ Outputs:
 
 Deserialization:
 
-1.  (A, e) = signature
-2.  L = length(messages)
-3.  U = length(undisclosed_indexes)
-4.  (j1, ..., jU) = undisclosed_indexes
-5.  if length(random_scalars) != U + 5, return INVALID
-6.  (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
-7.  (msg_1, ..., msg_L) = messages
+1. (A, e) = signature
+2. L = length(messages)
+3. U = length(undisclosed_indexes)
+4. (j1, ..., jU) = undisclosed_indexes
+5. if length(random_scalars) != U + 5, return INVALID
+6. (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
 
-8.  if length(generators) != L + 1, return INVALID
-9.  (Q_1, MsgGenerators) = generators
-10. (H_1, ..., H_L) = MsgGenerators
-11. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
+7. if length(generators) != L + 1, return INVALID
+8. for i in undisclosed_indexes, if i < 0 or i > L - 1, return INVALID
+9. undisclosed_generators = (generators[j1 + 1], ...,
+                                                   generators[jU + 1])
 
 ABORT if:
 
-1. for i in undisclosed_indexes, i < 0 or i > L - 1
-2. U > L
+1. U > L
 
 Procedure:
 
-1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
+1. domain = calculate_domain(PK, generators, header, api_id)
 
-2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+2. B = multi_exponentiation_g1((P1, ...generators),
+                                          (1, domain, ...messages))
 3. D = B * r2
 4. Abar = A * (r1 * r2)
-5. Bbar = D * r1 - Abar * e
 
-6. T1 = Abar * e~ + D * r1~
-7. T2 = D * r3~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
+5. Bbar = multi_exponentiation_g1((D, Abar), (r1, -e))
+6. T1 = multi_exponentiation_g1((Abar, D), (e~, r1!))
+7. T2 = multi_exponentiation_g1((D, ...undisclosed_generators),
+                                          (r3~, m~_j1, ..., m~_jU))
 
 8. return (Abar, Bbar, D, T1, T2, domain)
 ```
@@ -998,7 +991,7 @@ This operation initializes the proof verification operation and returns part of 
 
 Note that, the scalars representing the disclosed messages (`disclosed_messages`) MUST be supplied to this operation in the same order as they had as part of the `messages` input of the `CoreSign` operation defined in (#coresign) (otherwise, proof verification will fail). Similarly, the indexes of the disclosed messages in the set of signed messages MUST be supplied to this operation as a set of integers in accenting order (`disclosed_indexes`).
 
-This operation makes use of the `calculate_domain` function defined in (#domain-calculation).
+This operation makes use of the `calculate_domain` function defined in (#domain-calculation) and of the `multi_exponentiation_g1` function defined in (#multi-exponentiation).
 
 ```
 init_res = ProofVerifyInit(PK,
@@ -1046,24 +1039,24 @@ Deserialization:
 4.  L = R + U
 5.  (i1, ..., iR) = disclosed_indexes
 6.  for i in disclosed_indexes, if i < 0 or i > L - 1, return INVALID
-7.  (j1, ..., jU) = (0, 1, ..., L - 1) \ disclosed_indexes
-8.  if length(disclosed_messages) != R, return INVALID
-9.  (msg_i1, ..., msg_iR) = disclosed_messages
-10. (m^_j1, ...., m^_jU) = commitments
 
-11. if length(generators) != L + 1, return INVALID
-12. (Q_1, MsgGenerators) = generators
-13. (H_1, ..., H_L) = MsgGenerators
-14. (H_i1, ..., H_iR) = (MsgGenerators[i1], ..., MsgGenerators[iR])
-15. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
+7.  (j1, ..., jU) = (0, 1, ..., L - 1) \ disclosed_indexes
+
+8.  if length(generators) != L + 1, return INVALID
+9.  (Q_1, H_i1, ..., H_iR) = (generators[0], generators[i1 + 1], ...,
+                                                     generators[iR + 1])
+10. (H_j1, ..., H_jU) = (generators[j1 + 1], ..., generators[jU + 1])
 
 Procedure:
 
-1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
+1. domain = calculate_domain(PK, generators, header, api_id)
 
-2. T1 = Bbar * c + Abar * e^ + D * r1^
-3. Bv = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
-4. T2 = Bv * c + D * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
+2. T1 = multi_exponentiation_g1((Bbar, Abar, D), (c, e^, r1^))
+3. Bv = multi_exponentiation_g1((P1, Q_1, H_i1, ..., H_iR).
+                                   (1, domain, ...disclosed_messages))
+
+4. T2 = multi_exponentiation_g1((Bv, D, H_j1, ..., H_jU),
+                                             (c, r3^, ...commitments))
 
 5. return (Abar, Bbar, D, T1, T2, domain)
 ```
@@ -1391,15 +1384,13 @@ When a signature is calculated, the domain value is combined with a specific gen
 This operation makes use of the `serialize` function, defined in (#serialize).
 
 ```
-domain = calculate_domain(PK, Q_1, H_Points, header, api_id)
+domain = calculate_domain(PK, generators, header, api_id)
 
 Inputs:
 
 - PK (REQUIRED), an octet string, representing the public key of the
                  Signer of the form outputted by the SkToPk operation.
-- Q_1 (REQUIRED), point of G1 (the first point returned from
-                  create_generators).
-- H_Points (REQUIRED), array of points of G1.
+- generators (REQUIRED), non empty array of points of G1.
 - header (OPTIONAL), an octet string. If not supplied, it must default
                      to the empty octet string ("").
 - api_id (OPTIONAL), octet string. If not supplied it defaults to the
@@ -1418,21 +1409,49 @@ Definitions:
 Deserialization:
 
 1. L = length(H_Points)
-2. (H_1, ..., H_L) = H_Points
 
 ABORT if:
 
-1. length(header) > 2^64 - 1 or L > 2^64 - 1
+1. length(header) > 2^64 - 1
+2. L > 2^64 - 1 or L == 0
 
 Procedure:
 
-1. dom_array = (L, Q_1, H_1, ..., H_L)
+1. dom_array = (L, ...generators)
 2. dom_octs = serialize(dom_array) || api_id
 3. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
 4. return hash_to_scalar(dom_input, hash_to_scalar_dst)
 ```
 
 **Note**: If the `header` is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 3), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
+
+### Multi Exponentiation
+
+The following operation, given a vector of points in G1 `points = (P_1, P_2, ..., P_n)` and a vector of scalars `scalars = (s_1, s_2, ..., s_n)` calculates the multi exponentiation of the inputs, i.e., a point in G1 `p = P_1 * s_1 + P_2 * s_2 + ... + P_n * s_n`.
+
+```
+P = multi_exponentiation_g1(points, scalars)
+
+Inputs:
+
+- points (REQUIRED), a non empty vector of points in G1
+- scalars (REQUIRED), a non empty vector of scalars
+
+ABORT if:
+
+1. length(points) != length(scalars)
+
+Outputs:
+
+- P, a point in G1
+
+Procedure:
+
+1. P = Identity_G1
+2. For i in (0, ..., length(scalars)):
+3.     P = P + points[i] * scalars(i)
+4. return P
+```
 
 ### Serialization
 
