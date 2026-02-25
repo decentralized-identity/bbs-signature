@@ -643,14 +643,20 @@ Definitions:
                        separation tag: api_id || "H2S_" where "H2S_" is
                        an ASCII string comprised of 4 bytes.
 
+Deserialization:
+
+1. L = length(messages)
+2. if length(generators) != L + 1, return INVALID
+3. (msg_1, ..., msg_L) = messages
+4. (Q_1, H_1, ..., H_L) = generators
+
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 
-2. e = hash_to_scalar(serialize((SK, ...messages, domain)),
+2. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),
                                                      hash_to_scalar_dst)
-
-3. B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))
+3. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 4. A = B * (1 / (SK + e))
 5. return signature_to_octets((A, e))
 ```
@@ -693,15 +699,17 @@ Deserialization:
 1. signature_result = octets_to_signature(signature)
 2. if signature_result is INVALID, return INVALID
 3. (A, e) = signature_result
-
 4. W = octets_to_pubkey(PK)
 5. if W is INVALID, return INVALID
+6. L = length(messages)
+7. if length(generators) != L + 1, return INVALID
+8. (msg_1, ..., msg_L) = messages
+9. (Q_1, H_1, ..., H_L) = generators
 
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
-2. B = multi_exponentiation_g1((P1, ...generators),
-                                               (1, domain, ...messages))
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
+2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
 3. if h(A, W) * h(A * e - B, BP2) != Identity_GT, return INVALID
 4. return VALID
 ```
@@ -764,25 +772,27 @@ Deserialization:
 
 12. disclosed_messages = (messages[i1], ..., messages[iR])
 13. undisclosed_messages = (messages[j1], ..., messages[jU])
-14. undisclosed_generators = (generators[j1+1], ..., generators[jU+1])
 
 Procedure:
 
-
-1. init_res = ProofInit(PK,
+1. random_scalars = calculate_random_scalars(5+U)
+2. init_res = ProofInit(PK,
                         signature_result,
                         generators,
+                        random_scalars,
                         header,
                         messages,
-                        disclosed_indexes,
+                        undisclosed_indexes,
                         api_id)
-2. if init_res is INVALID, return INVALID
-
-3. challenge = ProofChallengeCalculate(init_res, api_id)
-4. if challenge is INVALID, return INVALID
-
-5. proof = ProofFinalize(init_res, challenge)
-6. return proof
+3. if init_res is INVALID, return INVALID
+4. challenge = ProofChallengeCalculate(init_res, disclosed_messages,
+                                                 disclosed_indexes,
+                                                 ph,
+                                                 api_id)
+5. if challenge is INVALID, return INVALID
+6. proof = ProofFinalize(init_res, challenge, e, random_scalars,
+                                                   undisclosed_messages)
+7. return proof
 ```
 
 ### CoreProofVerify
@@ -843,10 +853,9 @@ Procedure:
                                                 disclosed_indexes,
                                                 api_id)
 2. if init_res is INVALID, return INVALID
-
-3. challenge = ProofChallengeCalculate(init_res ph, api_id)
+3. challenge = ProofChallengeCalculate(init_res, disclosed_messages,
+                                       disclosed_indexes, ph, api_id)
 4. if challenge is INVALID, return INVALID
-
 5. if cp != challenge, return INVALID
 6. if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID
 7. return VALID
@@ -855,64 +864,6 @@ Procedure:
 ## Proof Protocol Subroutines
 
 This section describes the subroutines used by the `CoreProofGen` ((#coreproofgen)) and `CoreProofVerify` ((#coreproofverify)) operations. See (#proof-generation-and-verification-algorithmic-explanation), for a high-level intuitive overview of the procedure used to generate and verify a BBS proof.
-
-### Proof Initialization Result
-
-For the following section, we will use an object notation to represent the result of the Proof Initialization operation defined in (#proof-initialization).
-
-
-```
-ProofInitRes = {
-  Abar: (REQUIRED) Point of G1  // Element of the BBS proof.
-  Bbar: (REQUIRED) Point of G1  // Element of the BBS proof.
-  D:  (REQUIRED) Point of G1    // Element of the BBS proof.
-  T1: (REQUIRED) Point of G1    // Element of the BBS proof.
-  T2: (REQUIRED) Point of G1    // Element of the BBS proof.
-  domain: (REQUIRED) Scalar       // The signature domain value.
-  L: (REQUIRED) non negative integer // The total number of signed
-                                     // messages
-  disclosed_indexes: (REQUIRED) Array of numbers  // Indexes of the
-                                                  // disclosed messages.
-  // disclosed_messages: (REQUIRED) Array of scalars // The disclosed
-                                                  // messages.
-  undisclosed_messages: (OPTIONAL) Array of scalars // The undisclosed
-                                                    // messages.
-  e: (OPTIONAL) Scalar  // The e scalar of the BBS signature.
-  random_scalars: (OPTIONAL) Array of scalars  // The random scalars
-                                               // used for the proof.
-}
-```
-
-We will use the dot `.` notation to represent different attributes of the objects defined above. For example, if `init_res` object follows the `ProofInitRes` object definition, `init_res.Abar`, `init_res.Bbar` and `init_res.T2` to represent the `Abar`, `Bbar` and `T2` attributes of the `init_res` object.
-
-Bellow, we define an operation to validate the `ProofInitRes` object correcectness, meaning that the `random_scalars` attribute has a length 5 more than the length of the `disclosed_messages` and that the `disclosed_indexes` and the `disclosed_messages` arrays have the same length.
-
-```
-res = validate_init_res(init_res)
-
-Inputs:
-
-- init_res (REQUIRED): an object following the ProofInitRes object
-                       definition of this section
-
-Outputs:
-
-- Either VALID or INVALID.
-
-Procedure:
-
-1. if length(init_res.disclosed_messages) !=
-                 length(init_res.disclosed_indexes) return INVALID
-
-2. for i in init_res.disclosed_indexes, if i > init_res.L,
-                                                          return INVALID
-
-3. if init_res includes random_scalars and undisclosed_messages:
-4.     U = length(init_res.undisclosed_messages)
-5.     if length(init_res.random_scalars) != U + 5, return INVALID
-
-6. return VALID
-```
 
 ### Proof Initialization
 
@@ -953,53 +904,42 @@ Parameters:
 
 Outputs:
 
-- init_res, a ProofInitRes object; or INVALID.
+- init_res, vector consisting of 5 points of G1 and a scalar, in that
+            order; or INVALID.
 
 Deserialization:
 
 1.  (A, e) = signature
 2.  L = length(messages)
-3.  R = length(disclosed_indexes)
-4.  if R > L, return INVALID
-5.  U = L - R
-6.  for i in disclosed_indexes, if i < 0 or i > L - 1, return INVALID
-7.  undisclosed_indexes = (0, 1, ..., L - 1) \ disclosed_indexes
-8.  (i1, ..., iR) = disclosed_indexes
-9.  (j1, ..., jU) = undisclosed_indexes
+3.  U = length(undisclosed_indexes)
+4.  (j1, ..., jU) = undisclosed_indexes
+5.  if length(random_scalars) != U + 5, return INVALID
+6.  (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
+7.  (msg_1, ..., msg_L) = messages
 
-10. disclosed_messages = (messages[i1], ..., messages[iR])
-11. undisclosed_messages = (messages[j1], ..., messages[jU])
-12. undisclosed_generators = (generators[j1+1], ..., generators[jU+1])
+8.  if length(generators) != L + 1, return INVALID
+9.  (Q_1, MsgGenerators) = generators
+10. (H_1, ..., H_L) = MsgGenerators
+11. (H_j1, ..., H_jU) = (MsgGenerators[j1], ..., MsgGenerators[jU])
+
+ABORT if:
+
+1. for i in undisclosed_indexes, i < 0 or i > L - 1
+2. U > L
 
 Procedure:
 
-1.  random_scalars = calculate_random_scalars(5+U)
-2.  (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 
-3. domain =  calculate_domain(PK, generators, header, api_id)
+2. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L
+3. D = B * r2
+4. Abar = A * (r1 * r2)
+5. Bbar = D * r1 - Abar * e
 
-4.  Β = multi_exponentiation_g1((P1, ...generators),
-                                (1, domain, ...messages))
-5.  D = B * r2
-6.  Abar = A * (r1 * r2)
-7.  Bbar = D * r1 - Abar * e
+6. T1 = Abar * e~ + D * r1~
+7. T2 = D * r3~ + H_j1 * m~_j1 + ... + H_jU * m~_jU
 
-8.  T1 = Abar * e~ + D * r1~
-9.  T2 = multi_exponentiation_g1((D, ...undisclosed_generators),
-                                 (r3~, m~_j1, ..., m~_jU))
-
-10. return ProofInitRes { Abar,
-                          Bbar,
-                          D,
-                          T1,
-                          T2,
-                          domain,
-                          L,
-                          e,
-                          disclosed_indexes,
-                          disclosed_messages,
-                          undisclosed_messages,
-                          random_scalars }
+8. return (Abar, Bbar, D, T1, T2, domain)
 ```
 
 ### Proof Finalization
@@ -1011,14 +951,21 @@ As inputs, this operation accepts the proof initialization result as returned by
 This operation makes use of the `proof_to_octets` function defined in (#proof-to-octets).
 
 ```
-proof = ProofFinalize(init_res, challenge)
+proof = ProofFinalize(init_res, challenge, e_value, random_scalars,
+                                                   undisclosed_messages)
 
 Inputs:
 
-- init_res (REQUIRED), a ProofInitRes object representing the value
-                       returned after initializing the proof generation
-                       or verification operations.
+- init_res (REQUIRED), vector representing the value returned after
+                       initializing the proof generation or verification
+                       operations, consisting of 5 points of G1 and a
+                       scalar value, in that order.
 - challenge (REQUIRED), scalar value.
+- e_value (REQUIRED), scalar value.
+- random_scalars (REQUIRED), vector of scalar values.
+- undisclosed_messages (OPTIONAL), vector of scalar values. If not
+                                   supplied, it defaults to the empty
+                                   array ("()").
 
 Outputs:
 
@@ -1026,18 +973,11 @@ Outputs:
 
 Deserialization:
 
-
-1. if validate_init_res(init_res) returns INVALID, return INVALID
-2. (Abar, Bbar, D, e_value, undisclosed_messages, random_scalars) =
-                                        (init_res.Abar,
-                                         init_res.Bbar,
-                                         init_res.D,
-                                         init_res.e,
-                                         init_res.undisclosed_messages,
-                                         init_res.random_scalars)
-3. U = length(undisclosed_messages)
+1. U = length(undisclosed_messages)
+2. if length(random_scalars) != U + 5, return INVALID
+3. (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
 4. (undisclosed_1, ..., undisclosed_U) = undisclosed_messages
-5. (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
+5. (Abar, Bbar, D) = (init_res[0], init_res[1], init_res[2])
 
 Procedure:
 
@@ -1095,7 +1035,8 @@ Parameters:
 
 Outputs:
 
-- init_res, a ProofInitRes object; or INVALID.
+- init_res, vector consisting of 5 points of G1 and a scalar, in that
+            order.
 
 Deserialization:
 
@@ -1118,16 +1059,13 @@ Deserialization:
 
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
+1. domain = calculate_domain(PK, Q_1, (H_1, ..., H_L), header, api_id)
 
 2. T1 = Bbar * c + Abar * e^ + D * r1^
-3. Bv = multi_exponentiation_g1((P1, Q_1, H_i1, ..., H_iR).
-                                (1, domain, msg_i1, ..., msg_iR))
-4. T2 = multi_exponentiation_g1((Bv, D, H_j1, ..., H_jU),
-                                (c, r3^, m^_j1, ...., m^_jU))
+3. Bv = P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR
+4. T2 = Bv * c + D * r3^ + H_j1 * m^_j1 + ... +  H_jU * m^_jU
 
-5. return ProofInitRes { Abar, Bbar, D, T1, T2, domain, L,
-                                 disclosed_indexes, disclosed_messages }
+5. return (Abar, Bbar, D, T1, T2, domain)
 ```
 
 ### Challenge Calculation
@@ -1150,9 +1088,10 @@ challenge = ProofChallengeCalculate(init_res, disclosed_messages,
                                           disclosed_indexes, ph, api_id)
 
 Inputs:
-- init_res (REQUIRED), a ProofInitRes object representing the value
-                       returned after initializing the proof generation
-                       or verification operations.
+- init_res (REQUIRED), vector representing the value returned after
+                       initializing the proof generation or verification
+                       operations, consisting of 5 points of G1 and a
+                       scalar value, in that order.
 - disclosed_messages (OPTIONAL), vector of scalar values. If not
                                  supplied, it defaults to the empty
                                  array ("()").
@@ -1176,17 +1115,11 @@ Definitions:
 
 Deserialization:
 
-1. if validate_init_res(init_res) returns INVALID, return INVALID
-1. (Abar, Bbar, D, T1, T2, domain) = (init_res.Abar,
-                                      init_res.Bbar,
-                                      init_res.D,
-                                      init_res.T1,
-                                      init_res.T2,
-                                      init_res.domain)
-
-1. R = length(init_res.disclosed_indexes)
-2. (i1, ..., iR) = init_res.disclosed_indexes
-3. (msg_i1, ..., msg_iR) = init_res.disclosed_messages
+1. R = length(disclosed_indexes)
+2. (i1, ..., iR) = disclosed_indexes
+3. if length(disclosed_messages) != R, return INVALID
+3. (msg_i1, ..., msg_iR) = disclosed_messages
+4. (Abar, Bbar, D, T1, T2, domain) = init_res
 
 ABORT if:
 
@@ -1458,13 +1391,15 @@ When a signature is calculated, the domain value is combined with a specific gen
 This operation makes use of the `serialize` function, defined in (#serialize).
 
 ```
-domain = calculate_domain(PK, generators, header, api_id)
+domain = calculate_domain(PK, Q_1, H_Points, header, api_id)
 
 Inputs:
 
 - PK (REQUIRED), an octet string, representing the public key of the
                  Signer of the form outputted by the SkToPk operation.
-- generators (REQUIRED), non empty array of points of G1.
+- Q_1 (REQUIRED), point of G1 (the first point returned from
+                  create_generators).
+- H_Points (REQUIRED), array of points of G1.
 - header (OPTIONAL), an octet string. If not supplied, it must default
                      to the empty octet string ("").
 - api_id (OPTIONAL), octet string. If not supplied it defaults to the
@@ -1482,50 +1417,22 @@ Definitions:
 
 Deserialization:
 
-1. L = length(generators)
+1. L = length(H_Points)
+2. (H_1, ..., H_L) = H_Points
 
 ABORT if:
 
-1. length(header) > 2^64 - 1
-2. L > 2^64 - 1 or L == 0
+1. length(header) > 2^64 - 1 or L > 2^64 - 1
 
 Procedure:
 
-1. dom_array = (L, ...generators)
+1. dom_array = (L, Q_1, H_1, ..., H_L)
 2. dom_octs = serialize(dom_array) || api_id
 3. dom_input = PK || dom_octs || I2OSP(length(header), 8) || header
 4. return hash_to_scalar(dom_input, hash_to_scalar_dst)
 ```
 
 **Note**: If the `header` is not supplied in `calculate_domain`, it defaults to the empty octet string (""). This means that in the concatenation step of the above procedure (step 3), 8 bytes representing a length of 0 (i.e., `0x0000000000000000`), will still need to be appended at the end, even though a header value is not provided.
-
-### Multi Exponentiation
-
-The following operation, given a vector of points in G1 `points = (P_1, P_2, ..., P_n)` and a vector of scalars `scalars = (s_1, s_2, ..., s_n)` calculates the multi exponentiation of the inputs, i.e., a point in G1 `p = P_1 * s_1 + P_2 * s_2 + ... + P_n * s_n`.
-
-```
-P = multi_exponentiation_g1(points, scalars)
-
-Inputs:
-
-- points (REQUIRED), a non empty vector of points in G1
-- scalars (REQUIRED), a non empty vector of scalars
-
-ABORT if:
-
-1. length(points) != length(scalars)
-
-Outputs:
-
-- P, a point in G1
-
-Procedure:
-
-1. P = Identity_G1
-2. For i in (0, ..., length(scalars)):
-3.     P = points[i] * scalars(i)
-4. return P
-```
 
 ### Serialization
 
