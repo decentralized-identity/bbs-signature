@@ -755,40 +755,23 @@ Deserialization:
 
 1.  signature_result = octets_to_signature(signature)
 2.  if signature_result is INVALID, return INVALID
-3.  (A, e) = signature_result
-
-4.  L = length(messages)
-5.  R = length(disclosed_indexes)
-6.  if R > L, return INVALID
-7.  U = L - R
-8.  for i in disclosed_indexes, if i < 0 or i > L - 1, return INVALID
-9.  undisclosed_indexes = (0, 1, ..., L - 1) \ disclosed_indexes
-10. (i1, ..., iR) = disclosed_indexes
-11. (j1, ..., jU) = undisclosed_indexes
-
-12. disclosed_messages = (messages[i1], ..., messages[iR])
-13. undisclosed_messages = (messages[j1], ..., messages[jU])
 
 Procedure:
 
-1. random_scalars = calculate_random_scalars(5+U)
-2. init_res = ProofInit(PK,
+1. init_res = ProofInit(PK,
                         signature_result,
                         generators,
-                        random_scalars,
                         header,
                         messages,
-                        undisclosed_indexes,
+                        disclosed_indexes,
                         api_id)
-3. if init_res is INVALID, return INVALID
-4. challenge = ProofChallengeCalculate(init_res, disclosed_messages,
-                                                 disclosed_indexes,
-                                                 ph,
-                                                 api_id)
-5. if challenge is INVALID, return INVALID
-6. proof = ProofFinalize(init_res, challenge, e, random_scalars,
-                                                   undisclosed_messages)
-7. return proof
+2. if init_res is INVALID, return INVALID
+
+3. challenge = ProofChallengeCalculate(init_res, ph, api_id)
+4. if challenge is INVALID, return INVALID
+
+5. proof = ProofFinalize(init_res, challenge)
+6. return proof
 ```
 
 ### CoreProofVerify
@@ -845,13 +828,14 @@ Deserialization:
 Procedure:
 
 1. init_res = ProofVerifyInit(PK, proof_result, generators, header,
-                                                disclosed_messages,
-                                                disclosed_indexes,
-                                                api_id)
+                                                   disclosed_messages,
+                                                   disclosed_indexes,
+                                                   api_id)
 2. if init_res is INVALID, return INVALID
-3. challenge = ProofChallengeCalculate(init_res, disclosed_messages,
-                                       disclosed_indexes, ph, api_id)
+
+3. challenge = ProofChallengeCalculate(init_res, ph, api_id)
 4. if challenge is INVALID, return INVALID
+
 5. if cp != challenge, return INVALID
 6. if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID
 7. return VALID
