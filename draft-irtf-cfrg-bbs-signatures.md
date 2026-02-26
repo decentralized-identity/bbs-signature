@@ -861,6 +861,64 @@ Procedure:
 
 This section describes the subroutines used by the `CoreProofGen` ((#coreproofgen)) and `CoreProofVerify` ((#coreproofverify)) operations. See (#proof-generation-and-verification-algorithmic-explanation), for a high-level intuitive overview of the procedure used to generate and verify a BBS proof.
 
+### Proof Initialization Result
+
+For the following section, we will use an object notation to represent the result of the Proof Initialization operation defined in (#proof-initialization).
+
+
+```
+ProofInitRes = {
+  Abar: (REQUIRED) Point of G1  // Element of the BBS proof.
+  Bbar: (REQUIRED) Point of G1  // Element of the BBS proof.
+  D:  (REQUIRED) Point of G1    // Element of the BBS proof.
+  T1: (REQUIRED) Point of G1    // Element of the BBS proof.
+  T2: (REQUIRED) Point of G1    // Element of the BBS proof.
+  domain: (REQUIRED) Scalar       // The signature domain value.
+  L: (REQUIRED) non negative integer // The total number of signed
+                                     // messages
+  disclosed_indexes: (REQUIRED) Array of numbers  // Indexes of the
+                                                  // disclosed messages.
+  // disclosed_messages: (REQUIRED) Array of scalars // The disclosed
+                                                  // messages.
+  undisclosed_messages: (OPTIONAL) Array of scalars // The undisclosed
+                                                    // messages.
+  e: (OPTIONAL) Scalar  // The e scalar of the BBS signature.
+  random_scalars: (OPTIONAL) Array of scalars  // The random scalars
+                                               // used for the proof.
+}
+```
+
+We will use the dot `.` notation to represent different attributes of the objects defined above. For example, if `init_res` object follows the `ProofInitRes` object definition, `init_res.Abar`, `init_res.Bbar` and `init_res.T2` to represent the `Abar`, `Bbar` and `T2` attributes of the `init_res` object.
+
+Bellow, we define an operation to validate the `ProofInitRes` object correcectness, meaning that the `random_scalars` attribute has a length 5 more than the length of the `disclosed_messages` and that the `disclosed_indexes` and the `disclosed_messages` arrays have the same length.
+
+```
+res = validate_init_res(init_res)
+
+Inputs:
+
+- init_res (REQUIRED): an object following the ProofInitRes object
+                       definition of this section
+
+Outputs:
+
+- Either VALID or INVALID.
+
+Procedure:
+
+1. if length(init_res.disclosed_messages) !=
+                 length(init_res.disclosed_indexes) return INVALID
+
+2. for i in init_res.disclosed_indexes, if i > init_res.L,
+                                                          return INVALID
+
+3. if init_res includes random_scalars and undisclosed_messages:
+4.     U = length(init_res.undisclosed_messages)
+5.     if length(init_res.random_scalars) != U + 5, return INVALID
+
+6. return VALID
+```
+
 ### Proof Initialization
 
 This operation initializes the proof and returns one of the inputs passed to the challenge calculation operation (i.e., `ProofChallengeCalculate`, (#challenge-calculation)), during the `CoreProofGen` operation defined in (#coreproofgen).
@@ -873,8 +931,8 @@ The defined procedure needs the messages the Prover decided to not disclose. For
 This operation makes use of the `calculate_domain` function defined in (#domain-calculation) and of the `multi_exponentiation_g1` function defined in (#multi-exponentiation).
 
 ```
-init_res = ProofInit(PK, signature, generators, random_scalars,
-                          header, messages, undisclosed_indexes, api_id)
+init_res = ProofInit(PK, signature, generators, header, messages,
+                                              disclosed_indexes, api_id)
 
 Inputs:
 
@@ -883,14 +941,13 @@ Inputs:
 - signature (REQUIRED), vector representing a BBS signature, consisting
                         of a point of G1 and a scalar, in that order.
 - generators (REQUIRED), vector of points in G1.
-- random_scalars (REQUIRED), vector of scalar values.
 - header (OPTIONAL), octet string. If not supplied it defaults to the
                      empty octet string ("").
 - messages (OPTIONAL), vector of scalar values. If not supplied, it
                        defaults to the empty array ("()").
-- undisclosed_indexes (OPTIONAL), vector of non-negative integers in
-                                  ascending order. If not supplied, it
-                                  defaults to the empty array ("()").
+- disclosed_indexes (OPTIONAL), vector of non-negative integers in
+                                ascending order. If not supplied, it
+                                defaults to the empty array ("()").
 - api_id (OPTIONAL), an octet string. If not supplied it defaults to the
                      empty octet string ("").
 
@@ -900,42 +957,53 @@ Parameters:
 
 Outputs:
 
-- init_res, vector consisting of 5 points of G1 and a scalar, in that
-            order; or INVALID.
+- init_res, a ProofInitRes object; or INVALID.
 
 Deserialization:
 
-1. (A, e) = signature
-2. L = length(messages)
-3. U = length(undisclosed_indexes)
-4. (j1, ..., jU) = undisclosed_indexes
-5. if length(random_scalars) != U + 5, return INVALID
-6. (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
+1.  (A, e) = signature
+2.  L = length(messages)
+3.  R = length(disclosed_indexes)
+4.  if R > L, return INVALID
+5.  U = L - R
+6.  for i in disclosed_indexes, if i < 0 or i > L - 1, return INVALID
+7.  undisclosed_indexes = (0, 1, ..., L - 1) \ disclosed_indexes
+8.  (i1, ..., iR) = disclosed_indexes
+9.  (j1, ..., jU) = undisclosed_indexes
 
-7. if length(generators) != L + 1, return INVALID
-8. for i in undisclosed_indexes, if i < 0 or i > L - 1, return INVALID
-9. undisclosed_generators = (generators[j1 + 1], ...,
-                                                   generators[jU + 1])
-
-ABORT if:
-
-1. U > L
+10. disclosed_messages = (messages[i1], ..., messages[iR])
+11. undisclosed_messages = (messages[j1], ..., messages[jU])
+12. undisclosed_generators = (generators[j1+1], ..., generators[jU+1])
 
 Procedure:
 
-1. domain = calculate_domain(PK, generators, header, api_id)
+1.  random_scalars = calculate_random_scalars(5+U)
+2.  (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
 
-2. B = multi_exponentiation_g1((P1, ...generators),
+3.  domain = calculate_domain(PK, generators, header, api_id)
+
+4.  B = multi_exponentiation_g1((P1, ...generators),
                                           (1, domain, ...messages))
-3. D = B * r2
-4. Abar = A * (r1 * r2)
+5.  D = B * r2
+6.  Abar = A * (r1 * r2)
 
-5. Bbar = multi_exponentiation_g1((D, Abar), (r1, -e))
-6. T1 = multi_exponentiation_g1((Abar, D), (e~, r1!))
-7. T2 = multi_exponentiation_g1((D, ...undisclosed_generators),
+7.  Bbar = multi_exponentiation_g1((D, Abar), (r1, -e))
+8.  T1 = multi_exponentiation_g1((Abar, D), (e~, r1!))
+9.  T2 = multi_exponentiation_g1((D, ...undisclosed_generators),
                                           (r3~, m~_j1, ..., m~_jU))
 
-8. return (Abar, Bbar, D, T1, T2, domain)
+10. return ProofInitRes { Abar,
+                          Bbar,
+                          D,
+                          T1,
+                          T2,
+                          domain,
+                          L,
+                          e,
+                          disclosed_indexes,
+                          disclosed_messages,
+                          undisclosed_messages,
+                          random_scalars }
 ```
 
 ### Proof Finalization
@@ -947,21 +1015,14 @@ As inputs, this operation accepts the proof initialization result as returned by
 This operation makes use of the `proof_to_octets` function defined in (#proof-to-octets).
 
 ```
-proof = ProofFinalize(init_res, challenge, e_value, random_scalars,
-                                                   undisclosed_messages)
+proof = ProofFinalize(init_res, challenge)
 
 Inputs:
 
-- init_res (REQUIRED), vector representing the value returned after
-                       initializing the proof generation or verification
-                       operations, consisting of 5 points of G1 and a
-                       scalar value, in that order.
+- init_res (REQUIRED), a ProofInitRes object representing the value
+                       returned after initializing the proof generation
+                       or verification operations.
 - challenge (REQUIRED), scalar value.
-- e_value (REQUIRED), scalar value.
-- random_scalars (REQUIRED), vector of scalar values.
-- undisclosed_messages (OPTIONAL), vector of scalar values. If not
-                                   supplied, it defaults to the empty
-                                   array ("()").
 
 Outputs:
 
@@ -969,11 +1030,17 @@ Outputs:
 
 Deserialization:
 
-1. U = length(undisclosed_messages)
-2. if length(random_scalars) != U + 5, return INVALID
-3. (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
+1. if validate_init_res(init_res) returns INVALID, return INVALID
+2. (Abar, Bbar, D, e_value, undisclosed_messages, random_scalars) =
+                                        (init_res.Abar,
+                                         init_res.Bbar,
+                                         init_res.D,
+                                         init_res.e,
+                                         init_res.undisclosed_messages,
+                                         init_res.random_scalars)
+3. U = length(undisclosed_messages)
 4. (undisclosed_1, ..., undisclosed_U) = undisclosed_messages
-5. (Abar, Bbar, D) = (init_res[0], init_res[1], init_res[2])
+5. (r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars
 
 Procedure:
 
@@ -1031,8 +1098,7 @@ Parameters:
 
 Outputs:
 
-- init_res, vector consisting of 5 points of G1 and a scalar, in that
-            order.
+- init_res, a ProofInitRes object; or INVALID.
 
 Deserialization:
 
@@ -1061,7 +1127,8 @@ Procedure:
 4. T2 = multi_exponentiation_g1((Bv, D, H_j1, ..., H_jU),
                                              (c, r3^, ...commitments))
 
-5. return (Abar, Bbar, D, T1, T2, domain)
+5. return ProofInitRes { Abar, Bbar, D, T1, T2, domain, L,
+                                 disclosed_indexes, disclosed_messages }
 ```
 
 ### Challenge Calculation
@@ -1080,20 +1147,12 @@ At a high level, the challenge will be calculated as the digest (using `hash_to_
 This operation makes use of the `serialize` function, defined in (#serialize).
 
 ```
-challenge = ProofChallengeCalculate(init_res, disclosed_messages,
-                                          disclosed_indexes, ph, api_id)
+challenge = ProofChallengeCalculate(init_res, ph, api_id)
 
 Inputs:
-- init_res (REQUIRED), vector representing the value returned after
-                       initializing the proof generation or verification
-                       operations, consisting of 5 points of G1 and a
-                       scalar value, in that order.
-- disclosed_messages (OPTIONAL), vector of scalar values. If not
-                                 supplied, it defaults to the empty
-                                 array ("()").
-- disclosed_indexes (OPTIONAL), vector of non-negative integers in
-                                ascending order. If not supplied, it
-                                defaults to the empty array ("()").
+- init_res (REQUIRED), a ProofInitRes object representing the value
+                       returned after initializing the proof generation
+                       or verification operations.
 - ph (OPTIONAL), an octet string. If not supplied, it must default to
                  the empty octet string ("").
 - api_id (OPTIONAL), an octet string. If not supplied it defaults to the
@@ -1111,11 +1170,17 @@ Definitions:
 
 Deserialization:
 
-1. R = length(disclosed_indexes)
-2. (i1, ..., iR) = disclosed_indexes
-3. if length(disclosed_messages) != R, return INVALID
-3. (msg_i1, ..., msg_iR) = disclosed_messages
-4. (Abar, Bbar, D, T1, T2, domain) = init_res
+1. if validate_init_res(init_res) returns INVALID, return INVALID
+2. (Abar, Bbar, D, T1, T2, domain) = (init_res.Abar,
+                                      init_res.Bbar,
+                                      init_res.D,
+                                      init_res.T1,
+                                      init_res.T2,
+                                      init_res.domain)
+
+3. R = length(init_res.disclosed_indexes)
+4. (i1, ..., iR) = init_res.disclosed_indexes
+5. (msg_i1, ..., msg_iR) = init_res.disclosed_messages
 
 ABORT if:
 
