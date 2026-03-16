@@ -874,7 +874,7 @@ ProofInitRes = {
 
 We will use the dot `.` notation to represent different attributes of the objects defined above. For example, if `init_res` object follows the `ProofInitRes` object definition, `init_res.Abar`, `init_res.Bbar` and `init_res.T2` to represent the `Abar`, `Bbar` and `T2` attributes of the `init_res` object.
 
-Bellow, we define an operation to validate the `ProofInitRes` object correcectness, meaning that the `random_scalars` attribute has a length 5 more than the length of the `disclosed_messages` and that the `disclosed_indexes` and the `disclosed_messages` arrays have the same length.
+Below, we define an operation to validate the `ProofInitRes` object correcectness, meaning that the `random_scalars` attribute has a length 5 more than the length of the `disclosed_messages` and that the `disclosed_indexes` and the `disclosed_messages` arrays have the same length.
 
 ```
 res = validate_init_res(init_res)
