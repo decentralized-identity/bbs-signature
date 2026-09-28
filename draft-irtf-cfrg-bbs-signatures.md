@@ -46,6 +46,15 @@ organization = "CryptID"
   [author.address]
   email = "redmike7@gmail.com"
 
+[[author]]
+initials = "G."
+surname = "Bernstein"
+fullname = "Greg M. Bernstein"
+#role = "editor"
+organization = "Grotto Networking"
+  [author.address]
+  email = "gregb@grotto-networking.com"
+
 %%%
 
 .# Abstract
@@ -3350,6 +3359,20 @@ To sum up; in order to validate the proof, a Verifier checks that `h(Abar, PK) =
 * Fixed proof deserialization error.
 * Fixed order of inputs in `CoreSign` call.
 * Fixed wrong inputs in `calculate_domain` call in `CoreSign` and `CoreVerify`.
+
+-08	
+ 		
+* Editorial clarifications and fixes.	
+ 		
+-09	
+ 		
+*  Editorial clarifications and fixing mistakes in api calls.	
+*  Using CDDL style representation of test vector values.	
+ 		
+-10	
+ 		
+*  Editorial and formatting fixes	
+*  Clarifying the use of the h and 0x prefixes to represent test vectors
 
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
