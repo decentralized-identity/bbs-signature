@@ -5,11 +5,13 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 8 January 2026                                     A. Whitehead
+Expires: 1 April 2027                                       A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
-                                                             7 July 2025
+                                                            G. Bernstein
+                                                       Grotto Networking
+                                                       28 September 2026
 
 
                         The BBS Signature Scheme
@@ -52,11 +54,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 January 2026.
+   This Internet-Draft will expire on 1 April 2027.
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -3876,9 +3878,9 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
    [I-D.ietf-jose-json-web-proof]
               Waite, D., Jones, M. B., and J. Miller, "JSON Web Proof",
               Work in Progress, Internet-Draft, draft-ietf-jose-json-
-              web-proof-09, 8 April 2025,
+              web-proof-14, 20 July 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-jose-
-              json-web-proof-09>.
+              json-web-proof-14>.
 
    [I-D.ietf-lwig-curve-representations]
               Struik, R., "Alternative Elliptic Curve Representations",
@@ -3891,9 +3893,9 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
               Banerjee, A., Reddy.K, T., Schoinianakis, D., Hollebeek,
               T., and M. Ounsworth, "Post-Quantum Cryptography for
               Engineers", Work in Progress, Internet-Draft, draft-ietf-
-              pquip-pqc-engineers-13, 1 July 2025,
+              pquip-pqc-engineers-14, 25 August 2025,
               <https://datatracker.ietf.org/doc/html/draft-ietf-pquip-
-              pqc-engineers-13>.
+              pqc-engineers-14>.
 
    [I-D.ietf-privacypass-key-consistency]
               Davidson, A., Finkel, M., Thomson, M., and C. A. Wood,
@@ -3903,18 +3905,18 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
               draft-ietf-privacypass-key-consistency-01>.
 
    [I-D.irtf-cfrg-bls-signature]
-              Boneh, D., Gorbunov, S., Wahby, R. S., Wee, H., Wood, C.
-              A., and Z. Zhang, "BLS Signatures", Work in Progress,
-              Internet-Draft, draft-irtf-cfrg-bls-signature-05, 16 June
-              2022, <https://datatracker.ietf.org/doc/html/draft-irtf-
-              cfrg-bls-signature-05>.
+              Boneh, D., Bradley, J., Gorbunov, S., Wahby, R. S., Wee,
+              H., Wood, C. A., and Z. Zhang, "BLS Signatures", Work in
+              Progress, Internet-Draft, draft-irtf-cfrg-bls-signature-
+              07, 6 July 2026, <https://datatracker.ietf.org/doc/html/
+              draft-irtf-cfrg-bls-signature-07>.
 
    [I-D.irtf-cfrg-pairing-friendly-curves]
-              Sakemi, Y., Kobayashi, T., Saito, T., and R. S. Wahby,
-              "Pairing-Friendly Curves", Work in Progress, Internet-
-              Draft, draft-irtf-cfrg-pairing-friendly-curves-11, 6
-              November 2022, <https://datatracker.ietf.org/doc/html/
-              draft-irtf-cfrg-pairing-friendly-curves-11>.
+              Sakemi, Y., Kanno, S., and R. S. Wahby, "Pairing-Friendly
+              Curves", Work in Progress, Internet-Draft, draft-irtf-
+              cfrg-pairing-friendly-curves-14, 7 September 2026,
+              <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
+              pairing-friendly-curves-14>.
 
    [ISO8601]  ISO, "Date and time - Representations for information
               interchange - Part 1: Basic rules",
@@ -3939,9 +3941,8 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
 
    [UPROVE]   Microsoft Research, "U-Prove Cryptographic Specification
               V1.1 Revision 5", <https://github.com/microsoft/uprove-
-              node-reference/blob/main/doc/U-
-              Prove%20Cryptographic%20Specification%20V1.1%20Revision%20
-              5.pdf>.
+              node-reference/blob/main/doc/
+              U-Prove%20Cryptographic%20Specification%20V1.1%20Revision%205.pdf>.
 
    [VB22]     Giuseppe, V. and A. Biryukov, "Dynamic universal
               accumulator with batch update over bilinear groups", 2022,
@@ -5154,6 +5155,21 @@ Appendix F.  Document History
    *  Fixed wrong inputs in calculate_domain call in CoreSign and
       CoreVerify.
 
+   -08
+
+   *  Editorial clarifications and fixes.
+
+   -09
+
+   *  Editorial clarifications and fixing mistakes in api calls.
+   *  Using CDDL style representation of test vector values.
+
+   -10
+
+   *  Editorial and formatting fixes
+   *  Clarifying the use of the h and 0x prefixes to represent test
+      vectors
+
 Authors' Addresses
 
    Tobias Looker
@@ -5174,3 +5190,8 @@ Authors' Addresses
    Mike Lodder
    CryptID
    Email: redmike7@gmail.com
+
+
+   Greg M. Bernstein
+   Grotto Networking
+   Email: gregb@grotto-networking.com
