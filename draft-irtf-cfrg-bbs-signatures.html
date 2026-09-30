@@ -1048,7 +1048,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Looker, et al.</td>
-<td class="center">Expires 1 April 2027</td>
+<td class="center">Expires 3 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1061,12 +1061,12 @@ svg {
 <dd class="internet-draft">draft-irtf-cfrg-bbs-signatures-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-09-28" class="published">28 September 2026</time>
+<time datetime="2026-09-30" class="published">30 September 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-04-01">1 April 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-03">3 April 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1124,7 +1124,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 1 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 3 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2028,8 +2028,8 @@ Inputs:
 Parameters:
 
 - api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
-          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_" is
-          an ASCII string comprised of 9 bytes.
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"
+          is an ASCII string comprised of 9 bytes.
 
 Outputs:
 
@@ -2073,8 +2073,8 @@ Inputs:
 Parameters:
 
 - api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
-          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_" is
-          an ASCII string comprised of 9 bytes.
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"
+          is an ASCII string comprised of 9 bytes.
 
 Outputs:
 
@@ -2125,8 +2125,8 @@ Inputs:
 Parameters:
 
 - api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
-          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_" is
-          an ASCII string comprised of 9 bytes.
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"
+          is an ASCII string comprised of 9 bytes.
 
 Outputs:
 
@@ -2180,8 +2180,8 @@ Inputs:
 Parameters:
 
 - api_id, the octet string ciphersuite_id || "H2G_HM2S_", where
-          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_" is
-          an ASCII string comprised of 9 bytes.
+          ciphersuite_id is defined by the ciphersuite and "H2G_HM2S_"
+          is an ASCII string comprised of 9 bytes.
 - (octet_point_length, octet_scalar_length), defined by the ciphersuite.
 
 Outputs:
@@ -3781,7 +3781,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 <a href="#section-8" class="section-number selfRef">8. </a><a href="#name-test-vectors" class="section-name selfRef">Test Vectors</a>
       </h2>
 <p id="section-8-1">The following section details a basic set of test vectors that can be used to confirm an implementation's correctness.<a href="#section-8-1" class="pilcrow">¶</a></p>
-<p id="section-8-2"><strong>NOTE</strong> All binary data below is represented as octet strings in big endian order, encoded in hexadecimal format.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-2"><strong>NOTE</strong> All binary data below is represented as octet strings in big endian order, encoded in hexadecimal (base 16) format. Strings prefixed with <code>h</code> and enclosed by single quotes <code>'</code> represent base 16 encoded byte strings. On the other hand, strings prefixed with <code>0x</code> (not enclosed by single quotes), represent base 16 encoded decimal numbers (scalars).<a href="#section-8-2" class="pilcrow">¶</a></p>
 <p id="section-8-3"><strong>NOTE</strong> These fixtures are a work in progress and subject to change.<a href="#section-8-3" class="pilcrow">¶</a></p>
 <div id="mocked-random-scalars">
 <section id="section-8.1">
@@ -3846,8 +3846,10 @@ Procedure:
         </h3>
 <p id="section-8.2-1">The following messages are used by the test vectors of both ciphersuites (unless otherwise stated). All the listed messages represent hex-encoded octet strings.<a href="#section-8.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.2-2">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -3895,7 +3897,7 @@ m_10 = h''
 </div>
 <p id="section-8.3.1-7">Outputs the following SK value<a href="#section-8.3.1-7" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.3.1-8">
-<pre>SK = 0x'2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09a079'
+<pre>SK = 0x2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09a079
 
 </pre><a href="#section-8.3.1-8" class="pilcrow">¶</a>
 </div>
@@ -3916,26 +3918,26 @@ m_10 = h''
           </h4>
 <p id="section-8.3.2-1">The messages in <a href="#messages-1" class="auto internal xref">Section 8.2</a> are mapped to scalars during the Sign, Verify, ProofGen and ProofVerify operations. Presented below, are the output scalar values of the messages_to_scalars operation (<a href="#messages-to-scalars" class="auto internal xref">Section 4.1.2</a>), on input the messages defined in <a href="#messages-1" class="auto internal xref">Section 8.2</a> and the <code>api_id</code> defined in <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a>, using the <code>BLS12-381-SHAKE-256</code> ciphersuite defined in <a href="#bls12-381-shake-256" class="auto internal xref">Section 7.2.1</a>, meaning that <code>api_id = BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_H2G_HM2S_</code>. Each output scalar value is encoded to octets using I2OSP and represented in big endian order,<a href="#section-8.3.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.3.2-2">
-<pre>msg_scalar_1 = 0x'1e0dea6c9ea8543731d331a0ab5f64954c188542b33c5bbc8ae5b3
-                   a830f2d99f'
-msg_scalar_2 = 0x'3918a40fb277b4c796805d1371931e08a314a8bf8200a92463c060
-                   54d2c56a9f'
-msg_scalar_3 = 0x'6642b981edf862adf34214d933c5d042bfa8f7ef343165c325131e
-                   2ffa32fa94'
-msg_scalar_4 = 0x'33c021236956a2006f547e22ff8790c9d2d40c11770c18cce60377
-                   86c6f23512'
-msg_scalar_5 = 0x'52b249313abbe323e7d84230550f448d99edfb6529dec8c4e783db
-                   d6dd2a8471'
-msg_scalar_6 = 0x'2a50bdcbe7299e47e1046100aadffe35b4247bf3f059d525f92153
-                   7484dd54fc'
-msg_scalar_7 = 0x'0e92550915e275f8cfd6da5e08e334d8ef46797ee28fa29de40a1e
-                   bccd9d95d3'
-msg_scalar_8 = 0x'4c28f612e6c6f82f51f95e1e4faaf597547f93f6689827a6dcda3c
-                   b94971d356'
-msg_scalar_9 = 0x'1db51bedc825b85efe1dab3e3ab0274fa82bbd39732be3459525fa
-                   f70f197650'
-msg_scalar_10 = 0x'27878da72f7775e709bb693d81b819dc4e9fa60711f4ea927740e
-                    40073489e78'
+<pre>msg_scalar_1 = 0x1e0dea6c9ea8543731d331a0ab5f64954c188542b33c5bbc8ae5b3a
+                  830f2d99f
+msg_scalar_2 = 0x3918a40fb277b4c796805d1371931e08a314a8bf8200a92463c0605
+                  4d2c56a9f
+msg_scalar_3 = 0x6642b981edf862adf34214d933c5d042bfa8f7ef343165c325131e2
+                  ffa32fa94
+msg_scalar_4 = 0x33c021236956a2006f547e22ff8790c9d2d40c11770c18cce603778
+                  6c6f23512
+msg_scalar_5 = 0x52b249313abbe323e7d84230550f448d99edfb6529dec8c4e783dbd
+                  6dd2a8471
+msg_scalar_6 = 0x2a50bdcbe7299e47e1046100aadffe35b4247bf3f059d525f921537
+                  484dd54fc
+msg_scalar_7 = 0x0e92550915e275f8cfd6da5e08e334d8ef46797ee28fa29de40a1eb
+                  ccd9d95d3
+msg_scalar_8 = 0x4c28f612e6c6f82f51f95e1e4faaf597547f93f6689827a6dcda3cb
+                  94971d356
+msg_scalar_9 = 0x1db51bedc825b85efe1dab3e3ab0274fa82bbd39732be3459525faf
+                  70f197650
+msg_scalar_10 = 0x27878da72f7775e709bb693d81b819dc4e9fa60711f4ea927740e4
+                   0073489e78
 
 </pre><a href="#section-8.3.2-2" class="pilcrow">¶</a>
 </div>
@@ -3987,9 +3989,10 @@ H_10 = h'965a6c62451d4be6cb175dec39727dc665762673ee42bf0ac13a37a74784fbd
 <a href="#section-8.3.4.1" class="section-number selfRef">8.3.4.1. </a><a href="#name-valid-single-message-signat" class="section-name selfRef">Valid Single Message Signature</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.3.4.1-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
 
-SK = 0x'2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09a079'
+SK = 0x2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09a079
 PK = h'92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18
         fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b99c2c41b38179e
         b001963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5'
@@ -3997,8 +4000,8 @@ header = h'11223344556677889900aabbccddeeff'
 
 B = h'8bbc8c123d3f128f206dd0d2dae490e82af08b84e8d70af3dc291d32a6e98f635b
        eefcc4533b2599804a164aabe68d7c'
-domain = 0x'2f18dd269c11c512256a9d1d57e61a7d2de6ebcf41cac3053f37afedc4e6
-             50a9'
+domain = 0x2f18dd269c11c512256a9d1d57e61a7d2de6ebcf41cac3053f37afedc4e65
+            0a9
 
 signature = h'b9a622a4b404e6ca4c85c15739d2124a1deb16df750be202e2430e169b
                c27fb71c44d98e6d40792033e1c452145ada95030832c5dc778334f2f
@@ -4014,8 +4017,10 @@ signature = h'b9a622a4b404e6ca4c85c15739d2124a1deb16df750be202e2430e169b
 <a href="#section-8.3.4.2" class="section-number selfRef">8.3.4.2. </a><a href="#name-valid-multi-message-signatu" class="section-name selfRef">Valid Multi-Message Signature</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.3.4.2-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -4025,7 +4030,7 @@ m_8 = h'ac55fb33a75909ed'
 m_9 = h'96012096'
 m_10 = h''
 
-SK = 0x'2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09a079'
+SK = 0x2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09a079
 PK = h'92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18
         fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b99c2c41b38179e
         b001963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5'
@@ -4033,8 +4038,8 @@ header = h'11223344556677889900aabbccddeeff'
 
 B = h'ae8d4ebe248b9ad9c933d5661bfb46c56721fba2a1182ddda7e8fb443bda3c0a57
        1ad018ad31d0b6d1f4e8b985e6c58d'
-domain = 0x'6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd40
-             0f7b'
+domain = 0x6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400
+            f7b
 
 signature = h'956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c
                20cf08faabb913ac94d18e1e92832e924cb6e202912b624261fc6c59b
@@ -4068,26 +4073,26 @@ signature = h'956a3427b1b8e3642e60e6a7990b67626811adeec7a0a6cb4f770cdd7c
 </div>
 <p id="section-8.3.5-6">Given the above <code>SEED</code> and <code>DST</code> values, the first 10 scalars (i.e., with <code>count = 10</code>) returned by the <code>mocked_calculate_random_scalars</code> operation will be,<a href="#section-8.3.5-6" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.3.5-7">
-<pre>random_scalar_1 = 0x'1004262112c3eaa95941b2b0d1311c09c845db0099a50e67eda
-                      628ad26b43083'
-random_scalar_2 = 0x'6da7f145a94c1fa7f116b2482d59e4d466fe49c955ae8726e79
-                      453065156a9a4'
-random_scalar_3 = 0x'05017919b3607e78c51e8ec34329955d49c8c90e4488079c43e
-                      74824e98f1306'
-random_scalar_4 = 0x'4d451dad519b6a226bba79e11b44c441f1a74800eecfec6a2e2
-                      d79ea65b9d32d'
-random_scalar_5 = 0x'5e7e4894e6dbe68023bc92ef15c410b01f3828109fc72b3b5ab
-                      159fc427b3f51'
-random_scalar_6 = 0x'646e3014f49accb375253d268eb6c7f3289a1510f1e9452b612
-                      dd73a06ec5dd4'
-random_scalar_7 = 0x'363ecc4c1f9d6d9144374de8f1f7991405e3345a3ec49dd485a
-                      39982753c11a4'
-random_scalar_8 = 0x'12e592fe28d91d7b92a198c29afaa9d5329a4dcfdaf8b085578
-                      07412faeb4ac6'
-random_scalar_9 = 0x'513325acdcdec7ea572360587b350a8b095ca19bdd8258c5c69
-                      d375e8706141a'
-random_scalar_10 = 0x'6474fceba35e7e17365dde1a0284170180e446ae96c8294329
-                       0d7baa3a6ed429'
+<pre>random_scalar_1 = 0x1004262112c3eaa95941b2b0d1311c09c845db0099a50e67eda6
+                     28ad26b43083
+random_scalar_2 = 0x6da7f145a94c1fa7f116b2482d59e4d466fe49c955ae8726e794
+                     53065156a9a4
+random_scalar_3 = 0x05017919b3607e78c51e8ec34329955d49c8c90e4488079c43e7
+                     4824e98f1306
+random_scalar_4 = 0x4d451dad519b6a226bba79e11b44c441f1a74800eecfec6a2e2d
+                     79ea65b9d32d
+random_scalar_5 = 0x5e7e4894e6dbe68023bc92ef15c410b01f3828109fc72b3b5ab1
+                     59fc427b3f51
+random_scalar_6 = 0x646e3014f49accb375253d268eb6c7f3289a1510f1e9452b612d
+                     d73a06ec5dd4
+random_scalar_7 = 0x363ecc4c1f9d6d9144374de8f1f7991405e3345a3ec49dd485a3
+                     9982753c11a4
+random_scalar_8 = 0x12e592fe28d91d7b92a198c29afaa9d5329a4dcfdaf8b0855780
+                     7412faeb4ac6
+random_scalar_9 = 0x513325acdcdec7ea572360587b350a8b095ca19bdd8258c5c69d
+                     375e8706141a
+random_scalar_10 = 0x6474fceba35e7e17365dde1a0284170180e446ae96c82943290
+                      d7baa3a6ed429
 
 </pre><a href="#section-8.3.5-7" class="pilcrow">¶</a>
 </div>
@@ -4097,7 +4102,8 @@ random_scalar_10 = 0x'6474fceba35e7e17365dde1a0284170180e446ae96c8294329
 <a href="#section-8.3.5.1" class="section-number selfRef">8.3.5.1. </a><a href="#name-valid-single-message-proof" class="section-name selfRef">Valid Single Message Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.3.5.1-1">
-<pre>m_0 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
+<pre>m_0 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
 
 public_key = h'92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd459
                 49cdeb18fb0490edcd4429adff56e65cbce42cf188b31bddbd619e41
@@ -4112,24 +4118,24 @@ presentation_header = h'bed231d880675ed101ead304512e043ade9958dd0241ea70
 revealed_indexes = [ 0 ]
 
 random scalars:
-    r1 = 0x'1308e6f945f663b96de1c76461cf7d7f88b92eb99a9034685150db443d73
-             3881'
-    r2 = 0x'25f81cb69a8fac6fb55d44a084557258575d1003be2bd94f1922dad2c3e4
-             47fd'
-    e_tilde = 0x'5e8041a7ab02976ee50226c4b062b47d38829bbf42ee7eb899b2972
-                  0377a584c'
-    r1_tilde = 0x'3bbf1d5dc2904dbb7b2ba75c5dce8a5ad2d56a359c13ff0fa5fcb1
-                   339cd2fe58'
-    r3_tilde = 0x'016b1460eee7707c524a86a4aedeb826ce9597b42906dccaa96c6b
-                   49a8ea7da2'
+    r1 = 0x1308e6f945f663b96de1c76461cf7d7f88b92eb99a9034685150db443d733
+            881
+    r2 = 0x25f81cb69a8fac6fb55d44a084557258575d1003be2bd94f1922dad2c3e44
+            7fd
+    e_tilde = 0x5e8041a7ab02976ee50226c4b062b47d38829bbf42ee7eb899b29720
+                 377a584c
+    r1_tilde = 0x3bbf1d5dc2904dbb7b2ba75c5dce8a5ad2d56a359c13ff0fa5fcb13
+                  39cd2fe58
+    r3_tilde = 0x016b1460eee7707c524a86a4aedeb826ce9597b42906dccaa96c6b4
+                  9a8ea7da2
     m_tilde_scalars: [  ]
 
 T1 = h'91a10e73cf4090812e8ea25f31aaa61be53fcb42ce86e9f0e5df6f6dac4c3eee6
         2ac846b0b83a5cfcbe78315175a4961'
 T2 = h'988f3d473186634e41478dc4527cf240e64de23a763037454d39a876862ebc617
         738ba6c458142e3746b01eab58ca8d7'
-domain = 0x'2f18dd269c11c512256a9d1d57e61a7d2de6ebcf41cac3053f37afedc4e6
-             50a9'
+domain = 0x2f18dd269c11c512256a9d1d57e61a7d2de6ebcf41cac3053f37afedc4e65
+            0a9
 
 proof = h'89e4ab0c160880e0c2f12a754b9c051ed7f5fccfee3d5cbbb62e1239709196
            c737fff4303054660f8fcd08267a5de668a2e395ebe8866bdcb0dff9786d7
@@ -4151,8 +4157,10 @@ proof = h'89e4ab0c160880e0c2f12a754b9c051ed7f5fccfee3d5cbbb62e1239709196
 <a href="#section-8.3.5.2" class="section-number selfRef">8.3.5.2. </a><a href="#name-valid-multi-message-all-mes" class="section-name selfRef">Valid Multi-Message, All Messages Disclosed Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.3.5.2-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -4175,24 +4183,24 @@ presentation_header = h'bed231d880675ed101ead304512e043ade9958dd0241ea70
 revealed_indexes = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
 
 random scalars:
-    r1 = 0x'1308e6f945f663b96de1c76461cf7d7f88b92eb99a9034685150db443d73
-             3881'
-    r2 = 0x'25f81cb69a8fac6fb55d44a084557258575d1003be2bd94f1922dad2c3e4
-             47fd'
-    e_tilde = 0x'5e8041a7ab02976ee50226c4b062b47d38829bbf42ee7eb899b2972
-                  0377a584c'
-    r1_tilde = 0x'3bbf1d5dc2904dbb7b2ba75c5dce8a5ad2d56a359c13ff0fa5fcb1
-                   339cd2fe58'
-    r3_tilde = 0x'016b1460eee7707c524a86a4aedeb826ce9597b42906dccaa96c6b
-                   49a8ea7da2'
+    r1 = 0x1308e6f945f663b96de1c76461cf7d7f88b92eb99a9034685150db443d733
+            881
+    r2 = 0x25f81cb69a8fac6fb55d44a084557258575d1003be2bd94f1922dad2c3e44
+            7fd
+    e_tilde = 0x5e8041a7ab02976ee50226c4b062b47d38829bbf42ee7eb899b29720
+                 377a584c
+    r1_tilde = 0x3bbf1d5dc2904dbb7b2ba75c5dce8a5ad2d56a359c13ff0fa5fcb13
+                  39cd2fe58
+    r3_tilde = 0x016b1460eee7707c524a86a4aedeb826ce9597b42906dccaa96c6b4
+                  9a8ea7da2
     m_tilde_scalars: [  ]
 
 T1 = h'8890adfc78da24768d59dbfdb3f380e2793e9018b20c23e9ba05baa60f1b21456
         bc047a5d27049dab5dc6a94696ce711'
 T2 = h'a49f953636d3651a3ae6fe45a99a2e4fec079eef3be8b8a6a4ba70885d7e02864
         2f7224e9f451529915c88a7edc59fbe'
-domain = 0x'6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd40
-             0f7b'
+domain = 0x6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400
+            f7b
 
 proof = h'91b0f598268c57b67bc9e55327c3c2b9b1654be89a0cf963ab392fa9e1637c
            565241d71fd6d7bbd7dfe243de85a9bac8b7461575c1e13b5055fed0b51fd
@@ -4214,8 +4222,10 @@ proof = h'91b0f598268c57b67bc9e55327c3c2b9b1654be89a0cf963ab392fa9e1637c
 <a href="#section-8.3.5.3" class="section-number selfRef">8.3.5.3. </a><a href="#name-valid-multi-message-some-me" class="section-name selfRef">Valid Multi-Message, Some Messages Disclosed Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.3.5.3-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -4238,36 +4248,36 @@ presentation_header = h'bed231d880675ed101ead304512e043ade9958dd0241ea70
 revealed_indexes = [ 0, 2, 4, 6 ]
 
 random scalars:
-    r1 = 0x'5ee9426ae206e3a127eb53c79044bc9ed1b71354f8354b01bf410a02220b
-             e7d0'
-    r2 = 0x'280d4fcc38376193ffc777b68459ed7ba897e2857f938581acf95ae5a689
-             88f3'
-    e_tilde = 0x'39966b00042fc43906297d692ebb41de08e36aada8d9504d4e0ae02
-                  ad59e9230'
-    r1_tilde = 0x'61f5c273999b0b50be8f84d2380eb9220fc5a88afe144efc400754
-                   5f0ab9c089'
-    r3_tilde = 0x'63af117e0c8b7d2f1f3e375fcf5d9430e136ff0f7e879423e49dad
-                   c401a50089'
+    r1 = 0x5ee9426ae206e3a127eb53c79044bc9ed1b71354f8354b01bf410a02220be
+            7d0
+    r2 = 0x280d4fcc38376193ffc777b68459ed7ba897e2857f938581acf95ae5a6898
+            8f3
+    e_tilde = 0x39966b00042fc43906297d692ebb41de08e36aada8d9504d4e0ae02a
+                 d59e9230
+    r1_tilde = 0x61f5c273999b0b50be8f84d2380eb9220fc5a88afe144efc4007545
+                  f0ab9c089
+    r3_tilde = 0x63af117e0c8b7d2f1f3e375fcf5d9430e136ff0f7e879423e49dadc
+                  401a50089
     m_tilde_scalars:
-        m~_1 = 0x'020b83ca2ab319cba0744d6d58da75ac3dfb6ba682bfce2587c5a6
-                   d86a4e4e7b'
-        m~_3 = 0x'5bf565343611c08f83e4420e8b1577ace8cc4df5d5303aeb3c4e42
-                   5f1080f836'
-        m~_5 = 0x'049d77949af1192534da28975f76d4f211315dce1e36f93ffcf2a5
-                   55de516b28'
-        m~_7 = 0x'407e5a952f145de7da53533de8366bbd2e0c854721a204f03906dc
-                   82fde10f48'
-        m~_8 = 0x'1c925d9052849edddcf04d5f1f0d4ff183a66b66eb820f59b675ae
-                   e121cfc63c'
-        m~_9 = 0x'07d7c41b02158a9c5eac212ed6d7c2cddeb8e38baea6e93e1a00b2
-                   e83e2a0995'
+        m~_1 = 0x020b83ca2ab319cba0744d6d58da75ac3dfb6ba682bfce2587c5a6d
+                  86a4e4e7b
+        m~_3 = 0x5bf565343611c08f83e4420e8b1577ace8cc4df5d5303aeb3c4e425
+                  f1080f836
+        m~_5 = 0x049d77949af1192534da28975f76d4f211315dce1e36f93ffcf2a55
+                  5de516b28
+        m~_7 = 0x407e5a952f145de7da53533de8366bbd2e0c854721a204f03906dc8
+                  2fde10f48
+        m~_8 = 0x1c925d9052849edddcf04d5f1f0d4ff183a66b66eb820f59b675aee
+                  121cfc63c
+        m~_9 = 0x07d7c41b02158a9c5eac212ed6d7c2cddeb8e38baea6e93e1a00b2e
+                  83e2a0995
 
 T1 = h'8b497dd4dcdcf7eb58c9b43e57e06bcea3468a223ae2fc015d7a86506a952d680
         55e73f5a5847e58f133ea154256d0da'
 T2 = h'8655584d3da1313f881f48c239384a5623d2d292f08dae7ac1d8129c19a02a89b
         82fa45de3f6c2c439510fce5919656f'
-domain = 0x'6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd40
-             0f7b'
+domain = 0x6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400
+            f7b
 
 proof = h'b1f8bf99a11c39f04e2a032183c1ead12956ad322dd06799c50f20fb8cf6b0
            ac279210ef5a2920a7be3ec2aa0911ace7b96811a98f3c1cceba4a2147ae7
@@ -4328,7 +4338,7 @@ proof = h'b1f8bf99a11c39f04e2a032183c1ead12956ad322dd06799c50f20fb8cf6b0
 </div>
 <p id="section-8.4.1-7">Outputs the following SK value<a href="#section-8.4.1-7" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.4.1-8">
-<pre>SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+<pre>SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 
 </pre><a href="#section-8.4.1-8" class="pilcrow">¶</a>
 </div>
@@ -4357,26 +4367,26 @@ proof = h'b1f8bf99a11c39f04e2a032183c1ead12956ad322dd06799c50f20fb8cf6b0
 </div>
 <p id="section-8.4.2-3">The output scalars, encoded to octets using I2OSP and represented in big endian order, are the following,<a href="#section-8.4.2-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.4.2-4">
-<pre>msg_scalar_1 = 0x'1cb5bb86114b34dc438a911617655a1db595abafac92f47c500179
-                   9cf624b430'
-msg_scalar_2 = 0x'154249d503c093ac2df516d4bb88b510d54fd97e8d7121aede420a
-                   25d9521952'
-msg_scalar_3 = 0x'0c7c4c85cdab32e6fdb0de267b16fa3212733d4e3a3f0d0f751657
-                   578b26fe22'
-msg_scalar_4 = 0x'4a196deafee5c23f630156ae13be3e46e53b7e39094d22877b8cba
-                   7f14640888'
-msg_scalar_5 = 0x'34c5ea4f2ba49117015a02c711bb173c11b06b3f1571b88a2952b9
-                   3d0ed4cf7e'
-msg_scalar_6 = 0x'4045b39b83055cd57a4d0203e1660800fabe434004dbdc8730c21c
-                   e3f0048b08'
-msg_scalar_7 = 0x'064621da4377b6b1d05ecc37cf3b9dfc94b9498d7013dc5c4a82bf
-                   3bb1750743'
-msg_scalar_8 = 0x'34ac9196ace0a37e147e32319ea9b3d8cc7d21870d3c3ba0712468
-                   59cca49b02'
-msg_scalar_9 = 0x'57eb93f417c43200e9784fa5ea5a59168d3dbc38df707a13bb597c
-                   871b2a5f74'
-msg_scalar_10 = 0x'08e3afeb2b4f2b5f907924ef42856616e6f2d5f1fb373736db1cc
-                    a32707a7d16'
+<pre>msg_scalar_1 = 0x1cb5bb86114b34dc438a911617655a1db595abafac92f47c5001799
+                  cf624b430
+msg_scalar_2 = 0x154249d503c093ac2df516d4bb88b510d54fd97e8d7121aede420a2
+                  5d9521952
+msg_scalar_3 = 0x0c7c4c85cdab32e6fdb0de267b16fa3212733d4e3a3f0d0f7516575
+                  78b26fe22
+msg_scalar_4 = 0x4a196deafee5c23f630156ae13be3e46e53b7e39094d22877b8cba7
+                  f14640888
+msg_scalar_5 = 0x34c5ea4f2ba49117015a02c711bb173c11b06b3f1571b88a2952b93
+                  d0ed4cf7e
+msg_scalar_6 = 0x4045b39b83055cd57a4d0203e1660800fabe434004dbdc8730c21ce
+                  3f0048b08
+msg_scalar_7 = 0x064621da4377b6b1d05ecc37cf3b9dfc94b9498d7013dc5c4a82bf3
+                  bb1750743
+msg_scalar_8 = 0x34ac9196ace0a37e147e32319ea9b3d8cc7d21870d3c3ba07124685
+                  9cca49b02
+msg_scalar_9 = 0x57eb93f417c43200e9784fa5ea5a59168d3dbc38df707a13bb597c8
+                  71b2a5f74
+msg_scalar_10 = 0x08e3afeb2b4f2b5f907924ef42856616e6f2d5f1fb373736db1cca
+                   32707a7d16
 
 </pre><a href="#section-8.4.2-4" class="pilcrow">¶</a>
 </div>
@@ -4428,9 +4438,10 @@ H_10 = h'a1f229540474f4d6f1134761b92b788128c7ac8dc9b0c52d594931326796730
 <a href="#section-8.4.4.1" class="section-number selfRef">8.4.4.1. </a><a href="#name-valid-single-message-signatu" class="section-name selfRef">Valid Single Message Signature</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.4.4.1-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
 
-SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 PK = h'a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f285
         1bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d460acee0e96f1
         e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c'
@@ -4438,8 +4449,8 @@ header = h'11223344556677889900aabbccddeeff'
 
 B = h'92d264aed02bf23de022ebe778c4f929fddf829f504e451d011ed89a313b8167ac
        947332e1648157ceffc6e6e41ab255'
-domain = 0x'25d57fab92a8274c68fde5c3f16d4b275e4a156f211ae34b3ab32fbaf506
-             ed5c'
+domain = 0x25d57fab92a8274c68fde5c3f16d4b275e4a156f211ae34b3ab32fbaf506e
+            d5c
 
 signature = h'84773160b824e194073a57493dac1a20b667af70cd2352d8af241c7765
                8da5253aa8458317cca0eae615690d55b1f27164657dcafee1d5c1973
@@ -4455,8 +4466,10 @@ signature = h'84773160b824e194073a57493dac1a20b667af70cd2352d8af241c7765
 <a href="#section-8.4.4.2" class="section-number selfRef">8.4.4.2. </a><a href="#name-valid-multi-message-signatur" class="section-name selfRef">Valid Multi-Message Signature</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.4.4.2-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -4466,7 +4479,7 @@ m_8 = h'ac55fb33a75909ed'
 m_9 = h'96012096'
 m_10 = h''
 
-SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 PK = h'a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f285
         1bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d460acee0e96f1
         e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c'
@@ -4474,8 +4487,8 @@ header = h'11223344556677889900aabbccddeeff'
 
 B = h'84f48376f7df6af40bc329cf484cdbfd0b19d0b326fccab4e9d8f00d1dbcf48139
        d498b19667f203cf8a1d1f8340c522'
-domain = 0x'6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce
-             5b47'
+domain = 0x6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce5
+            b47
 
 signature = h'8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c
                96e1463e28f8c5f4fd0641d19cec5920d3a8ff4bedb6c9691454597bb
@@ -4509,26 +4522,26 @@ signature = h'8339b285a4acd89dec7777c09543a43e3cc60684b0a6f8ab335da4825c
 </div>
 <p id="section-8.4.5-6">Given the above <code>SEED</code> and <code>DST</code> values, the first 10 scalars (i.e., with <code>count = 10</code>) returned by the <code>mocked_calculate_random_scalars</code> operation will be,<a href="#section-8.4.5-6" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.4.5-7">
-<pre>random_scalar_1 = 0x'04f8e2518993c4383957ad14eb13a023c4ad0c67d01ec86eeb9
-                      02e732ed6df3f'
-random_scalar_2 = 0x'5d87c1ba64c320ad601d227a1b74188a41a100325cecf002237
-                      29863966392b1'
-random_scalar_3 = 0x'0444607600ac70482e9c983b4b063214080b9e808300aa4cc02
-                      a91b3a92858fe'
-random_scalar_4 = 0x'548cd11eae4318e88cda10b4cd31ae29d41c3a0b057196ee9cf
-                      3a69d471e4e94'
-random_scalar_5 = 0x'2264b06a08638b69b4627756a62f08e0dc4d8240c1b974c9c7d
-                      b779a769892f4'
-random_scalar_6 = 0x'4d99352986a9f8978b93485d21525244b21b396cf61f1d71f7c
-                      48e3fbc970a42'
-random_scalar_7 = 0x'5ed8be91662386243a6771fbdd2c627de31a44220e8d6f745ba
-                      d5d99821a4880'
-random_scalar_8 = 0x'62ff1734b939ddd87beeb37a7bbcafa0a274cbc1b07384198f0
-                      e88398272208d'
-random_scalar_9 = 0x'05c2a0af016df58e844db8944082dcaf434de1b1e2e7136ec8a
-                      99b939b716223'
-random_scalar_10 = 0x'485e2adab17b76f5334c95bf36c03ccf91cef77dcfcdc6b8a6
-                       9e2090b3156663'
+<pre>random_scalar_1 = 0x04f8e2518993c4383957ad14eb13a023c4ad0c67d01ec86eeb90
+                     2e732ed6df3f
+random_scalar_2 = 0x5d87c1ba64c320ad601d227a1b74188a41a100325cecf0022372
+                     9863966392b1
+random_scalar_3 = 0x0444607600ac70482e9c983b4b063214080b9e808300aa4cc02a
+                     91b3a92858fe
+random_scalar_4 = 0x548cd11eae4318e88cda10b4cd31ae29d41c3a0b057196ee9cf3
+                     a69d471e4e94
+random_scalar_5 = 0x2264b06a08638b69b4627756a62f08e0dc4d8240c1b974c9c7db
+                     779a769892f4
+random_scalar_6 = 0x4d99352986a9f8978b93485d21525244b21b396cf61f1d71f7c4
+                     8e3fbc970a42
+random_scalar_7 = 0x5ed8be91662386243a6771fbdd2c627de31a44220e8d6f745bad
+                     5d99821a4880
+random_scalar_8 = 0x62ff1734b939ddd87beeb37a7bbcafa0a274cbc1b07384198f0e
+                     88398272208d
+random_scalar_9 = 0x05c2a0af016df58e844db8944082dcaf434de1b1e2e7136ec8a9
+                     9b939b716223
+random_scalar_10 = 0x485e2adab17b76f5334c95bf36c03ccf91cef77dcfcdc6b8a69
+                      e2090b3156663
 
 </pre><a href="#section-8.4.5-7" class="pilcrow">¶</a>
 </div>
@@ -4539,7 +4552,8 @@ random_scalar_10 = 0x'485e2adab17b76f5334c95bf36c03ccf91cef77dcfcdc6b8a6
 <a href="#section-8.4.5.1" class="section-number selfRef">8.4.5.1. </a><a href="#name-valid-single-message-proof-2" class="section-name selfRef">Valid Single Message Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.4.5.1-1">
-<pre>m_0 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
+<pre>m_0 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
 
 public_key = h'a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8f
                 a136f2851bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91a
@@ -4554,24 +4568,24 @@ presentation_header = h'bed231d880675ed101ead304512e043ade9958dd0241ea70
 revealed_indexes = [ 0 ]
 
 random scalars:
-    r1 = 0x'60ca409f6b0563f687fc471c63d2819f446f39c23bb540925d9d4254ac58
-             f337'
-    r2 = 0x'2ceff4982de0c913090f75f081df5ec594c310bb48c17cfdaab5332a682e
-             f811'
-    e_tilde = 0x'6101c4404895f3dff87ab39c34cb995af07e7139e6b3847180ffdd1
-                  bc8c313cd'
-    r1_tilde = 0x'0dfcffd97a6ecdebef3c9c114b99d7a030c998d938905f357df628
-                   22dee072e8'
-    r3_tilde = 0x'639e3417007d38e5d34ba8c511e836768ddc2669fdd3faff5c14ad
-                   27ac2b2da1'
+    r1 = 0x60ca409f6b0563f687fc471c63d2819f446f39c23bb540925d9d4254ac58f
+            337
+    r2 = 0x2ceff4982de0c913090f75f081df5ec594c310bb48c17cfdaab5332a682ef
+            811
+    e_tilde = 0x6101c4404895f3dff87ab39c34cb995af07e7139e6b3847180ffdd1b
+                 c8c313cd
+    r1_tilde = 0x0dfcffd97a6ecdebef3c9c114b99d7a030c998d938905f357df6282
+                  2dee072e8
+    r3_tilde = 0x639e3417007d38e5d34ba8c511e836768ddc2669fdd3faff5c14ad2
+                  7ac2b2da1
     m_tilde_scalars: [  ]
 
 T1 = h'a862fa5d3ab4c264c22b8a02636fd4030e8b14ac20dee14e08fdb6cfc445432c0
         8abb49ec111c1eb9d90abef50134a60'
 T2 = h'ab9543a6b04303e997621d3d5cbd85924e7e69da498a2a9e9d3a8b01f39259c9c
         5920bd530de1d3b0afb99eb0c549d5a'
-domain = 0x'25d57fab92a8274c68fde5c3f16d4b275e4a156f211ae34b3ab32fbaf506
-             ed5c'
+domain = 0x25d57fab92a8274c68fde5c3f16d4b275e4a156f211ae34b3ab32fbaf506e
+            d5c
 
 proof = h'94916292a7a6bade28456c601d3af33fcf39278d6594b467e128a3f83686a1
            04ef2b2fcf72df0215eeaf69262ffe8194a19fab31a82ddbe06908985abc4
@@ -4593,8 +4607,10 @@ proof = h'94916292a7a6bade28456c601d3af33fcf39278d6594b467e128a3f83686a1
 <a href="#section-8.4.5.2" class="section-number selfRef">8.4.5.2. </a><a href="#name-valid-multi-message-all-mess" class="section-name selfRef">Valid Multi-Message, All Messages Disclosed Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.4.5.2-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -4617,24 +4633,24 @@ presentation_header = h'bed231d880675ed101ead304512e043ade9958dd0241ea70
 revealed_indexes = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
 
 random scalars:
-    r1 = 0x'60ca409f6b0563f687fc471c63d2819f446f39c23bb540925d9d4254ac58
-             f337'
-    r2 = 0x'2ceff4982de0c913090f75f081df5ec594c310bb48c17cfdaab5332a682e
-             f811'
-    e_tilde = 0x'6101c4404895f3dff87ab39c34cb995af07e7139e6b3847180ffdd1
-                  bc8c313cd'
-    r1_tilde = 0x'0dfcffd97a6ecdebef3c9c114b99d7a030c998d938905f357df628
-                   22dee072e8'
-    r3_tilde = 0x'639e3417007d38e5d34ba8c511e836768ddc2669fdd3faff5c14ad
-                   27ac2b2da1'
+    r1 = 0x60ca409f6b0563f687fc471c63d2819f446f39c23bb540925d9d4254ac58f
+            337
+    r2 = 0x2ceff4982de0c913090f75f081df5ec594c310bb48c17cfdaab5332a682ef
+            811
+    e_tilde = 0x6101c4404895f3dff87ab39c34cb995af07e7139e6b3847180ffdd1b
+                 c8c313cd
+    r1_tilde = 0x0dfcffd97a6ecdebef3c9c114b99d7a030c998d938905f357df6282
+                  2dee072e8
+    r3_tilde = 0x639e3417007d38e5d34ba8c511e836768ddc2669fdd3faff5c14ad2
+                  7ac2b2da1
     m_tilde_scalars: [  ]
 
 T1 = h'9881efa96b2411626d490e399eb1c06badf23c2c0760bd403f50f45a6b470c5a9
         dbeef53a27916f2f165085a3878f1f4'
 T2 = h'b9f8cf9271d10a04ae7116ad021f4b69c435d20a5af10ddd8f5b1ec6b9b8b9160
         5aca76a140241784b7f161e21dfc3e7'
-domain = 0x'6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce
-             5b47'
+domain = 0x6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce5
+            b47
 
 proof = h'b1f468aec2001c4f54cb56f707c6222a43e5803a25b2253e67b2210ab2ef9e
            ab52db2d4b379935c4823281eaf767fd37b08ce80dc65de8f9769d27099ae
@@ -4656,8 +4672,10 @@ proof = h'b1f468aec2001c4f54cb56f707c6222a43e5803a25b2253e67b2210ab2ef9e
 <a href="#section-8.4.5.3" class="section-number selfRef">8.4.5.3. </a><a href="#name-valid-multi-message-some-mes" class="section-name selfRef">Valid Multi-Message, Some Messages Disclosed Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.4.5.3-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -4680,36 +4698,36 @@ presentation_header = h'bed231d880675ed101ead304512e043ade9958dd0241ea70
 revealed_indexes = [ 0, 2, 4, 6 ]
 
 random scalars:
-    r1 = 0x'44679831fe60eca50938ef0e812e2a9284ad7971b6932a38c7303538b712
-             e457'
-    r2 = 0x'6481692f89086cce11779e847ff884db8eebb85a13e81b2d0c79d6c10620
-             69d8'
-    e_tilde = 0x'721ce4c4c148a1d5826f326af6fd6ac2844f29533ba4127c3a43d22
-                  2d51b7081'
-    r1_tilde = 0x'1ecfaf5a079b0504b00a1f0d6fe8857291dd798291d7ad7454b398
-                   114393f37f'
-    r3_tilde = 0x'0a4b3d59b34707bb9999bc6e2a6d382a2d2e214bff36ecd88639a1
-                   4124b1622e'
+    r1 = 0x44679831fe60eca50938ef0e812e2a9284ad7971b6932a38c7303538b712e
+            457
+    r2 = 0x6481692f89086cce11779e847ff884db8eebb85a13e81b2d0c79d6c106206
+            9d8
+    e_tilde = 0x721ce4c4c148a1d5826f326af6fd6ac2844f29533ba4127c3a43d222
+                 d51b7081
+    r1_tilde = 0x1ecfaf5a079b0504b00a1f0d6fe8857291dd798291d7ad7454b3981
+                  14393f37f
+    r3_tilde = 0x0a4b3d59b34707bb9999bc6e2a6d382a2d2e214bff36ecd88639a14
+                  124b1622e
     m_tilde_scalars:
-        m~_1 = 0x'7217411a9e329c7a5705e8db552274646e2949d62c288d7537dd62
-                   bc284715e4'
-        m~_3 = 0x'67d4d43660746759f598caac106a2b5f58ccd1c3eefaec31841a4f
-                   77d2548870'
-        m~_5 = 0x'715d965b1c3912d20505b381470ff1a528700b673e50ba89fd287e
-                   13171cc137'
-        m~_7 = 0x'4d3281a149674e58c9040fc7a10dd92cb9c7f76f6f0815a1afc3b0
-                   9d74b92fe4'
-        m~_8 = 0x'438feebaa5894ca0da49992df2c97d872bf153eab07e08ff73b281
-                   31c46ff415'
-        m~_9 = 0x'602b723c8bbaec1b057d70f18269ae5e6de6197a5884967b03b933
-                   fa80006121'
+        m~_1 = 0x7217411a9e329c7a5705e8db552274646e2949d62c288d7537dd62b
+                  c284715e4
+        m~_3 = 0x67d4d43660746759f598caac106a2b5f58ccd1c3eefaec31841a4f7
+                  7d2548870
+        m~_5 = 0x715d965b1c3912d20505b381470ff1a528700b673e50ba89fd287e1
+                  3171cc137
+        m~_7 = 0x4d3281a149674e58c9040fc7a10dd92cb9c7f76f6f0815a1afc3b09
+                  d74b92fe4
+        m~_8 = 0x438feebaa5894ca0da49992df2c97d872bf153eab07e08ff73b2813
+                  1c46ff415
+        m~_9 = 0x602b723c8bbaec1b057d70f18269ae5e6de6197a5884967b03b933f
+                  a80006121
 
 T1 = h'84719c2b5bb275ee74913dbf95fb9054f690c8e4035f1259e184e9024544bc4bb
         ea9c244e7897f9db7c82b7b14b27d28'
 T2 = h'8f5f191c956aefd5c960e57d2dfbab6761eb0ebc5efdba1aca1403dcc19e05296
         b16c9feb7636cb4ef2a360c5a148483'
-domain = 0x'6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce
-             5b47'
+domain = 0x6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce5
+            b47
 
 proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
            2d340394223a5397a3011b1c340ebc415199462ba6f31106d8a6da8b513b3
@@ -5258,8 +5276,10 @@ Procedure:
 <a href="#appendix-D.1.1.1" class="section-number selfRef">D.1.1.1. </a><a href="#name-no-header-valid-signature" class="section-name selfRef">No Header Valid Signature</a>
             </h5>
 <div class="alignLeft art-text artwork" id="appendix-D.1.1.1-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5269,7 +5289,7 @@ m_8 = h'ac55fb33a75909ed'
 m_9 = h'96012096'
 m_10 = h''
 
-SK = 0x'2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09a079'
+SK = 0x2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09a079
 PK = h'92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18
         fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b99c2c41b38179e
         b001963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5'
@@ -5277,8 +5297,8 @@ header = h''
 
 B = h'8607ebc413b397c1e27ce591d1daa39f73da329018bda0f90bf996355cc28c3cdb
        a19feeb81e35be9e1503a018e4086e'
-domain = 0x'333d8686761cff65a3a2ef20bfa217d37bdf19105e87c210e9ce64ea1210
-             a157'
+domain = 0x333d8686761cff65a3a2ef20bfa217d37bdf19105e87c210e9ce64ea1210a
+            157
 
 signature = h'88beeb970f803160d3058eacde505207c576a8c9e4e5dc7c5249cbcf2a
                046c15f8df047031eef3436e04b779d92a9cdb1fe4c6cc035ba1634f1
@@ -5320,8 +5340,10 @@ reason: modified message
             </h5>
 <p id="appendix-D.1.1.3-1">The following fixture should fail signature validation due to an additional message being supplied that was not signed.<a href="#appendix-D.1.1.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.1.1.3-2">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 
 PK = h'92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18
         fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b99c2c41b38179e
@@ -5346,8 +5368,10 @@ reason: extra unsigned message
             </h5>
 <p id="appendix-D.1.1.4-1">The following fixture should fail signature validation due to missing messages that were originally present during the signing (the presented signature was generated with all the messages in <a href="#messages-1" class="auto internal xref">Section 8.2</a> as input).<a href="#appendix-D.1.1.4-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.1.1.4-2">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 
 PK = h'92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18
         fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b99c2c41b38179e
@@ -5380,7 +5404,8 @@ m_5 = h'515ae153e22aae04ad16f759e07237b4'
 m_6 = h'496694774c5604ab1b2544eababcf0f53278ff50'
 m_7 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_8 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
-m_9 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+m_9 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_10 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f0
           2'
 
@@ -5407,8 +5432,10 @@ reason: re-ordered messages
             </h5>
 <p id="appendix-D.1.1.6-1">The following fixture should fail signature validation due to public key used to verify is in-correct.<a href="#appendix-D.1.1.6-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.1.1.6-2">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5441,8 +5468,10 @@ reason: wrong public key
             </h5>
 <p id="appendix-D.1.1.7-1">The following fixture should fail signature validation due to header value being modified from what was originally signed.<a href="#appendix-D.1.1.7-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.1.1.7-2">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5481,8 +5510,10 @@ reason: different header
 <a href="#appendix-D.1.2.1" class="section-number selfRef">D.1.2.1. </a><a href="#name-no-header-valid-proof" class="section-name selfRef">No Header Valid Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="appendix-D.1.2.1-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5508,8 +5539,8 @@ T1 = h'a5405cc2c5965dda18714ab35f4d4a7ae4024f388fa7a5ba71202d4455b50b316
         ec37b360659e3012234562fa8989980'
 T2 = h'9827a40454cdc90a70e9c927f097019dbdd84768babb10ebcb460c2d918e1ce1c
         0512bf2cc49ed7ec476dfcde7a6a10c'
-domain = 0x'333d8686761cff65a3a2ef20bfa217d37bdf19105e87c210e9ce64ea1210
-             a157'
+domain = 0x333d8686761cff65a3a2ef20bfa217d37bdf19105e87c210e9ce64ea1210a
+            157
 
 proof = h'8ac336eea1d278656372d9914483c3d3b3069dfa4a7862293ac021dfeeebca
            93cadd7eb2b818f7b89719cdeffa5aa85989a7d691be11b1929a2bf089bfe
@@ -5538,8 +5569,10 @@ proof = h'8ac336eea1d278656372d9914483c3d3b3069dfa4a7862293ac021dfeeebca
 <a href="#appendix-D.1.2.2" class="section-number selfRef">D.1.2.2. </a><a href="#name-no-presentation-header-vali" class="section-name selfRef">No Presentation Header Valid Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="appendix-D.1.2.2-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5564,8 +5597,8 @@ T1 = h'8b497dd4dcdcf7eb58c9b43e57e06bcea3468a223ae2fc015d7a86506a952d680
         55e73f5a5847e58f133ea154256d0da'
 T2 = h'8655584d3da1313f881f48c239384a5623d2d292f08dae7ac1d8129c19a02a89b
         82fa45de3f6c2c439510fce5919656f'
-domain = 0x'6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd40
-             0f7b'
+domain = 0x6f7ee8de30835599bb540d2cb4dd02fd0c6cf8246f14c9ee9a8463f7fd400
+            f7b
 
 proof = h'b1f8bf99a11c39f04e2a032183c1ead12956ad322dd06799c50f20fb8cf6b0
            ac279210ef5a2920a7be3ec2aa0911ace7b96811a98f3c1cceba4a2147ae7
@@ -5597,7 +5630,8 @@ proof = h'b1f8bf99a11c39f04e2a032183c1ead12956ad322dd06799c50f20fb8cf6b0
           </h4>
 <p id="appendix-D.1.3-1">Using the following input message,<a href="#appendix-D.1.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.1.3-2">
-<pre>msg = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
+<pre>msg = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
 
 </pre><a href="#appendix-D.1.3-2" class="pilcrow">¶</a>
 </div>
@@ -5610,8 +5644,8 @@ proof = h'b1f8bf99a11c39f04e2a032183c1ead12956ad322dd06799c50f20fb8cf6b0
 </div>
 <p id="appendix-D.1.3-5">We get the following scalar output from <code>hash_to_scalar</code> (<a href="#hash-to-scalar" class="auto internal xref">Section 4.2.2</a>), encoded with I2OSP and represented in big endian order,<a href="#appendix-D.1.3-5" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.1.3-6">
-<pre>scalar = 0x'0500031f786fde5326aa9370dd7ffe9535ec7a52cf2b8f432cad5d9acfb7
-             3cd3
+<pre>scalar = 0x0500031f786fde5326aa9370dd7ffe9535ec7a52cf2b8f432cad5d9acfb73
+            cd3
 
 </pre><a href="#appendix-D.1.3-6" class="pilcrow">¶</a>
 </div>
@@ -5635,8 +5669,10 @@ proof = h'b1f8bf99a11c39f04e2a032183c1ead12956ad322dd06799c50f20fb8cf6b0
 <a href="#appendix-D.2.1.1" class="section-number selfRef">D.2.1.1. </a><a href="#name-no-header-valid-signature-2" class="section-name selfRef">No Header Valid Signature</a>
             </h5>
 <div class="alignLeft art-text artwork" id="appendix-D.2.1.1-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5646,7 +5682,7 @@ m_8 = h'ac55fb33a75909ed'
 m_9 = h'96012096'
 m_10 = h''
 
-SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 PK = h'a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f285
         1bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d460acee0e96f1
         e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c'
@@ -5654,8 +5690,8 @@ header = h''
 
 B = h'98e38eadb6a2232cf91f41861089cda14d7e3ddef0c6eaba4d11a2732f66408f39
        4d58301ffcc8fcfb3c89bb75136f61'
-domain = 0x'41c5fe0290d0da734ce9bba57bfe0dfc14f3f9cfef18a0d7438cf2075fd7
-             1cc7'
+domain = 0x41c5fe0290d0da734ce9bba57bfe0dfc14f3f9cfef18a0d7438cf2075fd71
+            cc7
 
 signature = h'8c87e2080859a97299c148427cd2fcf390d24bea850103a97488790392
                62ecf4f42206f6ef767f298b6a96b424c1e86c26f8fba62212d0e05b9
@@ -5674,7 +5710,7 @@ signature = h'8c87e2080859a97299c148427cd2fcf390d24bea850103a97488790392
 <div class="alignLeft art-text artwork" id="appendix-D.2.1.2-2">
 <pre>m_1 = h''
 
-SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 PK = h'a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f285
         1bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d460acee0e96f1
         e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c'
@@ -5698,10 +5734,12 @@ reason: modified message
             </h5>
 <p id="appendix-D.2.1.3-1">The following fixture should fail signature validation due to an additional message being supplied that was not signed.<a href="#appendix-D.2.1.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.2.1.3-2">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 
-SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 PK = h'a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f285
         1bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d460acee0e96f1
         e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c'
@@ -5725,10 +5763,12 @@ reason: extra unsigned message
             </h5>
 <p id="appendix-D.2.1.4-1">The following fixture should fail signature validation due to missing messages that were originally present during the signing (the presented signature was generated with all the messages in <a href="#messages-1" class="auto internal xref">Section 8.2</a> as input).<a href="#appendix-D.2.1.4-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.2.1.4-2">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 
-SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 PK = h'a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f285
         1bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d460acee0e96f1
         e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c'
@@ -5760,11 +5800,12 @@ m_5 = h'515ae153e22aae04ad16f759e07237b4'
 m_6 = h'496694774c5604ab1b2544eababcf0f53278ff50'
 m_7 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_8 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
-m_9 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+m_9 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_10 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f0
           2'
 
-SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 PK = h'a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f285
         1bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d460acee0e96f1
         e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c'
@@ -5788,8 +5829,10 @@ reason: re-ordered messages
             </h5>
 <p id="appendix-D.2.1.6-1">The following fixture should fail signature validation due to public key used to verify is in-correct.<a href="#appendix-D.2.1.6-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.2.1.6-2">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5799,7 +5842,7 @@ m_8 = h'ac55fb33a75909ed'
 m_9 = h'96012096'
 m_10 = h''
 
-SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 PK = h'b064bd8d1ba99503cbb7f9d7ea00bce877206a85b1750e5583dd9399828a4d206
         10cb937ea928d90404c239b2835ffb104220a9c66a4c9ed3b54c0cac9ea465d0
         429556b438ceefb59650ddf67e7a8f103677561b7ef7fe3c3357ec6b94d41c6'
@@ -5823,8 +5866,10 @@ reason: wrong public key
             </h5>
 <p id="appendix-D.2.1.7-1">The following fixture should fail signature validation due to header value being modified from what was originally signed.<a href="#appendix-D.2.1.7-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.2.1.7-2">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5834,7 +5879,7 @@ m_8 = h'ac55fb33a75909ed'
 m_9 = h'96012096'
 m_10 = h''
 
-SK = 0x'60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc'
+SK = 0x60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc
 PK = h'a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f285
         1bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d460acee0e96f1
         e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c'
@@ -5864,8 +5909,10 @@ reason: different header
 <a href="#appendix-D.2.2.1" class="section-number selfRef">D.2.2.1. </a><a href="#name-no-header-valid-proof-2" class="section-name selfRef">No Header Valid Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="appendix-D.2.2.1-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5888,10 +5935,10 @@ presentation_header = h'bed231d880675ed101ead304512e043ade9958dd0241ea70
 revealed_indexes = [ 0, 2, 4, 6 ]
 
 T = h''
-domain = 0x'41c5fe0290d0da734ce9bba57bfe0dfc14f3f9cfef18a0d7438cf2075fd7
-             1cc7'
-challenge = 0x'4a70506add5b2eb0be9ff66e3ea8deae666f198edfbb1391c6834e6df
-                4f1026d'
+domain = 0x41c5fe0290d0da734ce9bba57bfe0dfc14f3f9cfef18a0d7438cf2075fd71
+            cc7
+challenge = 0x4a70506add5b2eb0be9ff66e3ea8deae666f198edfbb1391c6834e6df4
+               f1026d
 
 proof = h'81925c2e525d9fbb0ba95b438b5a13fff5874c7c0515c193628d7d143ddc3b
            b487771ad73658895997a88dd5b254ed29abc019bfca62c09b8dafb37e5f0
@@ -5920,8 +5967,10 @@ proof = h'81925c2e525d9fbb0ba95b438b5a13fff5874c7c0515c193628d7d143ddc3b
 <a href="#appendix-D.2.2.2" class="section-number selfRef">D.2.2.2. </a><a href="#name-no-presentation-header-valid" class="section-name selfRef">No Presentation Header Valid Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="appendix-D.2.2.2-1">
-<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
-m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80'
+<pre>m_1 = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
+m_2 = h'c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f
+         9b80'
 m_3 = h'7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73'
 m_4 = h'77fe97eb97a1ebe2e81e4e3597a3ee740a66e9ef2412472c'
 m_5 = h'496694774c5604ab1b2544eababcf0f53278ff50'
@@ -5946,8 +5995,8 @@ T1 = h'84719c2b5bb275ee74913dbf95fb9054f690c8e4035f1259e184e9024544bc4bb
         ea9c244e7897f9db7c82b7b14b27d28'
 T2 = h'8f5f191c956aefd5c960e57d2dfbab6761eb0ebc5efdba1aca1403dcc19e05296
         b16c9feb7636cb4ef2a360c5a148483'
-domain = 0x'6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce
-             5b47'
+domain = 0x6272832582a0ac96e6fe53e879422f24c51680b25fbf17bad22a35ea93ce5
+            b47
 
 proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
            2d340394223a5397a3011b1c340ebc415199462ba6f31106d8a6da8b513b3
@@ -5979,7 +6028,8 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
           </h4>
 <p id="appendix-D.2.3-1">Using the following input message,<a href="#appendix-D.2.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.2.3-2">
-<pre>msg = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02'
+<pre>msg = h'9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a4
+         5f02'
 
 </pre><a href="#appendix-D.2.3-2" class="pilcrow">¶</a>
 </div>
@@ -5992,8 +6042,8 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
 </div>
 <p id="appendix-D.2.3-5">We get the following scalar output from <code>hash_to_scalar</code> (<a href="#hash-to-scalar" class="auto internal xref">Section 4.2.2</a>), encoded with I2OSP and represented in big endian order,<a href="#appendix-D.2.3-5" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-D.2.3-6">
-<pre>scalar = 0x'0f90cbee27beb214e6545becb8404640d3612da5d6758dffeccd77ed7169
-             807c'
+<pre>scalar = 0x0f90cbee27beb214e6545becb8404640d3612da5d6758dffeccd77ed71698
+            07c
 
 </pre><a href="#appendix-D.2.3-6" class="pilcrow">¶</a>
 </div>
@@ -6032,7 +6082,7 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
 
 </pre><a href="#appendix-E-7.1.2" class="pilcrow">¶</a>
 </div>
-<p id="appendix-E-7.1.3">The values <code>(Abar, D, Bbar)</code> will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if <code>Abar</code> and <code>Bbar</code> are constructed using a valid BBS signature as above, then <code>Abar * SK = Bbar</code> which is equivalent to <code>h(Abar, PK) = h(Bbar, BP2)</code>, where <code>SK</code>, <code>PK</code> the Signer's secret and public key and <code>BP2</code> the base generator of <code>G2</code> (used to create the Signer’s <code>PK</code>, see <a href="#public-key" class="auto internal xref">Section 3.4.2</a>). This last equation is something that the Verifier can check using the Signer's <code>PK</code>.<a href="#appendix-E-7.1.3" class="pilcrow">¶</a></p>
+<p id="appendix-E-7.1.3">The values <code>(Abar, D, Bbar)</code> will be part of the proof and are used to prove possession of a BBS signature, without revealing the signature itself. Note that; if <code>Abar</code> and <code>Bbar</code> are constructed using a valid BBS signature as above, then <code>Abar * SK = Bbar</code> which is equivalent to <code>h(Abar, PK) = h(Bbar, BP2)</code>, where <code>SK</code>, <code>PK</code> the Signer's secret and public key and <code>BP2</code> the base generator of <code>G2</code> (used to create the Signer's <code>PK</code>, see <a href="#public-key" class="auto internal xref">Section 3.4.2</a>). This last equation is something that the Verifier can check using the Signer's <code>PK</code>.<a href="#appendix-E-7.1.3" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-E-7.2">
           <p id="appendix-E-7.2.1">Prove that the disclosed messages are signed as part of that signature. The Prover will start by setting the following,<a href="#appendix-E-7.2.1" class="pilcrow">¶</a></p>
