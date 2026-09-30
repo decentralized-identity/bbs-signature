@@ -9,8 +9,6 @@ const VARIABLE_REGEX = /(([^\S\n\t]*[a-zA-Z0-9_~]+\d*)\s=\s.*)?(.?{{ \$)([a-zA-Z
 
 const DRAFT_NAME = "../../draft-irtf-cfrg-bbs-signatures.md";
 
-// const DRAFT_NAME = "../../bbs_sigma_protocol.md";
-
 const main = async () => {
   // Read the text of the draft out
   const filePath = path.join(process.env.PWD as string, DRAFT_NAME);
@@ -42,7 +40,10 @@ const main = async () => {
     if (max_len <= 0) {throw Error("Not enough space in the line to add the fixture")}
 
     // make everything 72 chars long
-    if (value.length + intent_len > 72) {
+    if (value.length + intent_len == 72) {
+      value = value.slice(0, max_len - 3) + "\n" + " ".repeat(intent_len + 1) + value.slice(max_len - 3);
+    }
+    else if (value.length + intent_len> 72) {
       value = value.slice(0, max_len + 1) + "\n" + " ".repeat(intent_len + 1) + value.slice(max_len + 1);
     }
                                                                         
