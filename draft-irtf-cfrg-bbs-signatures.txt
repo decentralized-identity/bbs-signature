@@ -5061,7 +5061,7 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
       signature as in [2], [3] and [4], then the following will hold,
 
    [6]     P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR =
-                           D * r2' - H_ji * msg_j1 - ... - H_jU * msg_jU
+                           D * r2' - H_j1 * msg_j1 - ... - H_jU * msg_jU
 
    Note that the Verifier will know the elements in the left side of [6]
    (i.e., P1, Q_1, H_i1, ..., H_iR and the disclosed messages: msg_i1,
