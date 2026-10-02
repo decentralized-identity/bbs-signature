@@ -5,13 +5,13 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 4 April 2027                                       A. Whitehead
+Expires: 5 April 2027                                       A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
                                                             G. Bernstein
                                                        Grotto Networking
-                                                          1 October 2026
+                                                          2 October 2026
 
 
                         The BBS Signature Scheme
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 April 2027.
+   This Internet-Draft will expire on 5 April 2027.
 
 Copyright Notice
 
@@ -5293,18 +5293,37 @@ Appendix F.  Document History
 
    -08
 
+   *  No cryptographic changes
    *  Editorial clarifications and fixes.
 
    -09
 
+   *  No cryptographic changes
    *  Editorial clarifications and fixing mistakes in api calls.
    *  Using CDDL style representation of test vector values.
 
    -10
 
+   *  No cryptographic changes
    *  Editorial and formatting fixes
    *  Clarifying the use of the h and 0x prefixes to represent test
       vectors
+
+   -11
+
+   *  No cryptographic changes
+   *  Editorial and formatting fixes
+   *  Use "three dot" notation for array/list expansion
+   *  Add "Multi Exponentiation" operation to simplify procedure
+      specification
+   *  Add "Proof Initialization Result" object to simplify CoreProofGen
+      and CoreProofVerify.  Refactor ProofInit, ProofVerifyInit,
+      ProofChallengeCalculate, and ProofFinalize
+
+   -12
+
+   *  No cryptographic changes
+   *  Add Greg Bernstein as co-author
 
 Authors' Addresses
 
