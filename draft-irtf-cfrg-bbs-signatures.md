@@ -981,7 +981,7 @@ Procedure:
 6.  Abar = A * (r1 * r2)
 
 7.  Bbar = multi_exponentiation_g1((D, Abar), (r1, -e))
-8.  T1 = multi_exponentiation_g1((Abar, D), (e~, r1!))
+8.  T1 = multi_exponentiation_g1((Abar, D), (e~, r1~))
 9.  T2 = multi_exponentiation_g1((D, ...undisclosed_generators),
                                           (r3~, m~_j1, ..., m~_jU))
 
@@ -1114,7 +1114,7 @@ Procedure:
 1. domain = calculate_domain(PK, generators, header, api_id)
 
 2. T1 = multi_exponentiation_g1((Bbar, Abar, D), (c, e^, r1^))
-3. Bv = multi_exponentiation_g1((P1, Q_1, H_i1, ..., H_iR).
+3. Bv = multi_exponentiation_g1((P1, Q_1, H_i1, ..., H_iR),
                                    (1, domain, ...disclosed_messages))
 
 4. T2 = multi_exponentiation_g1((Bv, D, H_j1, ..., H_jU),
