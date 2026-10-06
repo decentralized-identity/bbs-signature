@@ -3409,18 +3409,18 @@ Signing:
 
 * Generator and message product [@TZ23]
   1. C = g1 * product(**h**1[i], **m**[i]) over i
-* Generator and message  product this specification
+* Generator and message  product this specification (#coresign)
   1. `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`, where generators are a vector of length  L+1 where `L = length(messages)`, `generators[0]` is also known as Q1.
   2. B = P1 + domain*Q1 + sum messages[i]*generators[i] over i  = 1 to L.
 * *e* value computation [@TZ23]
   1. e a random value from [0, p-1]
-* *e* value computation  this  specification
+* *e* value computation  this  specification (#coresign)
   1. `domain = calculate_domain(PK, generators, header, api_id)`
   2. `e = hash_to_scalar(serialize((SK, ...messages, domain)), hash_to_scalar_dst)`
 * Final signature [@TZ23]
   1. A  = C^(1/(x + e)), where x = sk
   2. The signature sigma = (A, e)
-* Final signature this specification
+* Final signature this specification (#coresign)
   1. `A = B * (1 / (SK + e))`
   2. The signature is (A, e)
 
@@ -3428,15 +3428,23 @@ Verification:
 
 * Recompute generator and message product [@TZ23]
   1. C = g1 * product(**h**1[i], **m**[i]) over i
-* Recompute generator and message product this specification
+* Recompute generator and message product this specification (#coreverify)
   1. `domain = calculate_domain(PK, generators, header, api_id)`
   2. `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`
 * Check for pairing equivalence  [@TZ23]
   1. e(A, g2^e * vk) ?= e(C, g2)
-* Check for pairing equivalence this specification
+* Check for pairing equivalence this specification (#coreverify)
   1. `if h(A, W) * h(A * e - B, BP2) != Identity_GT, return INVALID;` Note that this is in GT which is a multiplicative group of a field extension and not a subgroup of an Elliptic curve hence multiplicative notation.
 
-TO DO? Show the via the math of the bilinear function that the two tests are equivalent.
+To see that these two verification tests are equivalent we use the the math of the bilinear function:
+
+1. Expressing `h(A, W) * h(A  * e - B, BP2) ?= Identity_GT` in multiplicative notation
+2. `h(A, W) * h(A^e * B^(-1), BP2) ?= Identity_GT`, Use bilinearity
+3. `h(A, W) * h(A^e, BP2) * h(B, BP2)^(-1) ?= Identity_GT`, some algebra
+4. `h(A, W) * e(A^e, BP2) ?= h(B, g2)`, Use bilinearity
+5. `h(A, W) * e(A, BP2^e) ?= h(B, g2)`, Use bilinearity
+6. `h(A, W * BP2^e) ?= h(B, g2)` substitute [@TZ23] symbols gives:
+7. `e(A, vk * g2^e) ?= e(C, g2)`
 
 ## Proof Generation and Verification Formulas
 
