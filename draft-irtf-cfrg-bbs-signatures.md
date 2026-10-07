@@ -3366,18 +3366,20 @@ To sum up; in order to validate the proof, a Verifier checks that `h(Abar, PK) =
 
 # Mapping Between [@TZ23] and Operations
 
-Reference [@TZ23] provides proofs for the BBS signature scheme described in this document. However, the notation of the academic paper [@TZ23] and the description of the imlementation herein and practical optimizations used can make it difficult to see that these are actually the same. Hence, in this section we explicitly "map" between reference [@TZ23] and the operations performed in this document.
+Reference [@TZ23] provides proofs for the BBS signature scheme described in this document. However, the notation of the academic paper [@TZ23] and the description of the imlementation herein and practical optimizations used can make it difficult to see that these are actually the same. Hence, in this section we explicitly "map" between reference [@TZ23] and the operations performed in this document. The formulas for setup, key generation, signature, and signature verification can be found in [@TZ23] page 8, Figure 3, while the formulas for proof generation and proof verification can be found in [@TZ23] Appendix B under "Protocol Description".
+
+Both "additive" and "multiplicative" notation can be used for Abelian groups such as G1, G2, and GT. The paper [@TZ23] uses "multiiplicative" notation throughout, i.e., it uses "multiplication" as the group operation and exponentiation as the group operation applied repeatedly to an element with itself. In this specification "additive" notation is used for the groups G1 and G2, while "multiplicative" notation is used for the group GT.
 
 Symbol Description    |  TZ23  | This Document |
 ----------------------|--------|---------------|
 prime order of subgroups     |  p   |  r  |
 mesage vector                |  m   | m |
-number of messages (note 1)  | l    | L |
+number of messages           | l    | L |
 bilinear map (pairing) G1 x G2 -> GT | e(A, B) | h(A, B) |
 Selected points of G1 and G2  | g1, g2 | P1 + domain * Q1, BP2  |
 Private/Secret Key        | sk = x | SK |
 Public/Verification Key   | vk | W (PK serialized) |
-Generators in G1          | **h**l | generators, H  |
+Generators in G1          | **h**1 | generators, H  |
 Product of messages and gens  | C | B |
 Signature elements (G1 Point, scalar)  |  (A, e) | (A, e) |
 Set of disclosed indexes | J | (i1, ..., iR) |
@@ -3396,44 +3398,57 @@ Proof scalars   | u_i I in I  | m^_j for j from 1, U |
 
 Figure 3 of [@TZ23] summarizes the procedures and formulas for key generation, signing and verification.
 
-Key generation:
+Secret key and public key creation:
 
-* Secret key and public key creation [@TZ23]
+* [@TZ23] Figure 3:
   1. *sk* = *x* is a random element from [0, p-1],
-  2. vk = g2^x in G2, also denoted X2 in the appendix
-* Secret key and public key creation (#secret-key), (#public-key)
+  2. vk = g2^x in G2, also denoted X2 in Appendix B
+* (#secret-key), (#public-key)
   1. `SK = KeyGen(key_material, key_info, key_dst)`
   2. `W = SK * BP2`
 
 Signing:
 
-* Generator and message product [@TZ23]
+Generator and message product
+
+* [@TZ23] Figure 3
   1. C = g1 * product(**h**1[i], **m**[i]) over i
-* Generator and message  product this specification (#coresign)
+* (#coresign)
   1. `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`, where generators are a vector of length  L+1 where `L = length(messages)`, `generators[0]` is also known as Q1.
   2. B = P1 + domain*Q1 + sum messages[i]*generators[i] over i  = 1 to L.
-* *e* value computation [@TZ23]
+
+*e* value computation
+
+* [@TZ23] Figure 3
   1. e a random value from [0, p-1]
-* *e* value computation  this  specification (#coresign)
+* (#coresign)
   1. `domain = calculate_domain(PK, generators, header, api_id)`
   2. `e = hash_to_scalar(serialize((SK, ...messages, domain)), hash_to_scalar_dst)`
-* Final signature [@TZ23]
+
+Final signature
+
+* [@TZ23] Figure 3
   1. A  = C^(1/(x + e)), where x = sk
   2. The signature sigma = (A, e)
-* Final signature this specification (#coresign)
+* (#coresign)
   1. `A = B * (1 / (SK + e))`
   2. The signature is (A, e)
 
 Verification:
 
-* Recompute generator and message product [@TZ23]
+Recompute generator and message product
+
+* [@TZ23] Figure 3
   1. C = g1 * product(**h**1[i], **m**[i]) over i
-* Recompute generator and message product this specification (#coreverify)
+* (#coreverify)
   1. `domain = calculate_domain(PK, generators, header, api_id)`
   2. `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`
-* Check for pairing equivalence  [@TZ23]
+
+Check for pairing equivalence
+
+* [@TZ23] Figure 3
   1. e(A, g2^e * vk) ?= e(C, g2)
-* Check for pairing equivalence this specification (#coreverify)
+* (#coreverify)
   1. `if h(A, W) * h(A * e - B, BP2) != Identity_GT, return INVALID;` Note that this is in GT which is a multiplicative group of a field extension and not a subgroup of an Elliptic curve hence multiplicative notation.
 
 To see that these two verification tests are equivalent we use the the math of the bilinear function:
@@ -3448,60 +3463,57 @@ To see that these two verification tests are equivalent we use the the math of t
 
 ## Proof Generation and Verification Formulas
 
-Proof generation part 1 [@TZ23] Appendix B "Protocol Description"
+Proof generation part 1
 
-1. r1 and r2 are random numbers from (1, p-1)
-2. A_bar = A^(r1/r2)
-3. D = C^(1/r2) where C is the same as in the signature
-4. B_bar = D^(r1) * A_bar^(-e)
-5. Random scalars  alpha, beta,  gamma, and delta_i for i in *I* the undisclosed indexes.
-6. U1 = D^(alpha) * A_bar^(beta)
-7. U2 = D^(gamma) * product over i in *I* of h1[i]^(delta_i)
+* [@TZ23] Appendix B "Protocol Description"
+  1. r1 and r2 are random numbers from (1, p-1)
+  2. A_bar = A^(r1/r2)
+  3. D = C^(1/r2) where C is the same as in the signature
+  4. B_bar = D^(r1) * A_bar^(-e)
+  5. Random scalars  alpha, beta,  gamma, and delta_i for i in *I* the undisclosed indexes.
+  6. U1 = D^(alpha) * A_bar^(beta)
+  7. U2 = D^(gamma) * product over i in *I* of h1[i]^(delta_i)
+* (#proof-initialization)
+  1. `(r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars(5 + U)`
+  2. `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`
+  3. `D = B * r2`
+  4. `Abar = A * (r1 * r2)`
+  5. `Bbar = multi_exponentiation_g1((D, Abar), (r1, -e))`
+  6. `T1 = multi_exponentiation_g1((Abar, D), (e~, r1~))`
+  7. `T2 = multi_exponentiation_g1((D, ...undisclosed_generators),(r3~, m~_j1, ..., m~_jU))`
 
-Proof Generation part 1 this specification (#proof-initialization)
+Proof generation part 2
 
-1. `(r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars(5 + U)`
-2. `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`
-3. `D = B * r2`
-4. `Abar = A * (r1 * r2)`
-5. `Bbar = multi_exponentiation_g1((D, Abar), (r1, -e))`
-6. `T1 = multi_exponentiation_g1((Abar, D), (e~, r1~))`
-7. `T2 = multi_exponentiation_g1((D, ...undisclosed_generators),(r3~, m~_j1, ..., m~_jU))`
+* [@TZ23] Appendix B "Protocol Description"
+  1. (A_bar, B_bar, D, U1, U2) sent to verifier
+  2. challenge *c* chosen by verifier
+  3. s = alpha + r1*c
+  4. t = beta  -  e*c
+  5. z = gamma + r2*c
+  6. u_i = delta_i - m[i] for i in *I*  (undisclosed)
+  7. (s, t, z, u_i) sent to verifier
+* (#challenge-calculation) and (#proof-finalization)
+  1. `challenge = ProofChallengeCalculate(init_res, ph, api_id)`
+  2. `r3 = r2^-1 (mod r)`
+  3. `e^ = e~ + e_value * challenge`
+  4. `r1^ = r1~ - r1 * challenge`
+  5. `r3^ = r3~ - r3 * challenge`
+  6. `for j in (1, ..., U): m^_j = m~_j + undisclosed_j * challenge (mod r)`
+  7. `proof = (Abar, Bbar, D, e^, r1^, r3^, (m^_j1, ..., m^_jU), challenge)`
 
-Proof generation part 2 [@TZ23] Appendix B "Protocol Description"
+Proof Verification
 
-1. (A_bar, B_bar, D, U1, U2) sent to verifier
-2. challenge *c* chosen by verifier
-3. s = alpha + r1*c
-4. t = beta  -  e*c
-5. z = gamma + r2*c
-6. u_i = delta_i - m[i] for i in *I*  (undisclosed)
-7. (s, t, z, u_i) sent to verifier
-
-Proof Generation part 2 this specification (#challenge-calculation) and (#proof-finalization)
-
-1. `challenge = ProofChallengeCalculate(init_res, ph, api_id)` over
-2. `r3 = r2^-1 (mod r)`
-3. `e^ = e~ + e_value * challenge`
-4. `r1^ = r1~ - r1 * challenge`
-5. `r3^ = r3~ - r3 * challenge`
-6. `for j in (1, ..., U): m^_j = m~_j + undisclosed_j * challenge (mod r)`
-7. `proof = (Abar, Bbar, D, e^, r1^, r3^, (m^_j1, ..., m^_jU), challenge)`
-
-Proof Verification [@TZ23] Appendix B "Protocol Description"
-
-1. check U1 * B_bar^(c) = D^s * A_bar^t. Note that this is the same as U1 = D^s * A_bar^t * B_bar^(-c)
-2. check U2 * CJ^c = D^z * product over i in *I* of h1[i]^(u_i). Note that this is the same as U2 = CJ^(-c) * D^z * product over i in *I* of h1[i]^(u_i).
-3. check e(A_bar, X2) = e(B_bar, g2) where X2 is the public key
-
-Proof Verification this specification (#proof-verification-initialization) (#coreproofverify)
-
-1. Compute `T1 = multi_exponentiation_g1((Bbar, Abar, D), (c, e^, r1^))` based on proof values.
-2. `Bv = multi_exponentiation_g1((P1, Q_1, H_i1, ..., H_iR), (1, domain, ...disclosed_messages))`
-3. Compute `T2 = multi_exponentiation_g1((Bv, D, H_j1, ..., H_jU), (c, r3^, ...commitments))` based  on proof values.
-4. Compute the `challenge = ProofChallengeCalculate(init_res, ph, api_id)`, where init_res = {Abar, Bbar, D, T1, T2, domain, L, disclosed_indexes, disclosed_messages}, and T1 and T2 are the recomputed values.
-5. check `challenge = sent challenge` if not, invalid. This is where the recomputed T1 and T2 are compared to the original T1 and T2 and expresses the checks of 1. and 2. above up to hash equivalence.
-6. `if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID`
+* [@TZ23] Appendix B "Protocol Description"
+  1. check U1 * B_bar^(c) = D^s * A_bar^t. Note that this is the same as U1 = D^s * A_bar^t * B_bar^(-c)
+  2. check U2 * CJ^c = D^z * product over i in *I* of h1[i]^(u_i). Note that this is the same as U2 = CJ^(-c) * D^z * product over i in *I* of h1[i]^(u_i).
+  3. check e(A_bar, X2) = e(B_bar, g2) where X2 is the public key
+* (#proof-verification-initialization) and (#coreproofverify)
+  1. Compute `T1 = multi_exponentiation_g1((Bbar, Abar, D), (c, e^, r1^))` based on proof values.
+  2. `Bv = multi_exponentiation_g1((P1, Q_1, H_i1, ..., H_iR), (1, domain, ...disclosed_messages))`
+  3. Compute `T2 = multi_exponentiation_g1((Bv, D, H_j1, ..., H_jU), (c, r3^, ...commitments))` based  on proof values.
+  4. Compute the `challenge = ProofChallengeCalculate(init_res, ph, api_id)`, where init_res = {Abar, Bbar, D, T1, T2, domain, L, disclosed_indexes, disclosed_messages}, and T1 and T2 are the recomputed values.
+  5. check `challenge = sent challenge` if not, invalid. This is where the recomputed T1 and T2 are compared to the original T1 and T2 and expresses the checks of 1. and 2. above up to hash equivalence.
+  6. `if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID`
 
 
 # Document History
