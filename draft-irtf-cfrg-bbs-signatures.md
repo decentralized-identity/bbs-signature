@@ -3396,8 +3396,6 @@ Proof scalars   | u_i I in I  | m^_j for j from 1, U |
 
 ## Key Generation, Signing, and Verification Formulas
 
-Figure 3 of [@TZ23] summarizes the procedures and formulas for key generation, signing and verification.
-
 Secret key and public key creation:
 
 * [@TZ23] Figure 3:
