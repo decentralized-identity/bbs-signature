@@ -1784,6 +1784,10 @@ For certain types of message values, set membership proofs (for example, [@VB22]
 
 # Security Considerations
 
+## Security Level and Underlying Assumptions
+
+The security of BBS is based on the d-SDH assumption [@BB04], where `d` is a parameter that depends on the number of valid signatures known to an attacker. Its concrete security has been extensively studied and is well understood [@CT25] [@CHT26]. In particular, under the usual concrete-hardness estimates, an attacker with `N` signatures in its possession needs roughly `2^(q/2) / N^(1/2)` time to recover the secret signing key, where `q` is the bit length of the scalar-field order of the elliptic curve used. For the BLS12-381 curve, when we consider an adversary having `2^30 > 1,000,000,000` signatures, this translates to roughly 110 bits of security.
+
 ## Validating Public Keys
 
 Note that all core operations as defined in (#core-operations) expect the Signer's public key as input. It is RECOMMENDED for all those operations, that they deserialize the public key first using the `octets_to_pubkey` procedure defined in (#octets-to-public-key), even if they only require the octet string representation of the public key. If the `octets_to_pubkey` procedure returns INVALID, the calling operation should also return INVALID and abort. This recommendation applies to the `CoreSign` ((#coresign)) and `CoreProofGen` ((#coreproofgen)) operations. An explicit invocation to the `octets_to_pubkey` operation is already defined and therefore required in the `CoreVerify` ((#coreverify)) and `CoreProofVerify` ((#coreproofverify)) operations. If the required checks for the validity of the Signer's public key are not performed, the results are unpredictable, leading to unexpected vulnerabilities (for example, the output of the pairing operation on input of an invalid elliptic curve point can be highly irregular and implementation-dependent, with some returning the identity point of the elliptic curve and others returning errors).
@@ -3886,4 +3890,52 @@ Proof Verification
     <date year="2012"/>
   </front>
   <seriesInfo name="In" value="INDOCRYPT"/>
+</reference>
+
+<reference anchor="BB04" target="https://link.springer.com/chapter/10.1007/978-3-540-24676-3_4">
+  <front>
+    <title>Short Signatures Without Random Oracles</title>
+    <author initials="D." surname="Boneh" fullname="Dan Boneh">
+      <organization>Stanford University</organization>
+    </author>
+    <author initials="X." surname="Boyen" fullname="Xavier Boyen">
+      <organization>Voltage Security</organization>
+    </author>
+    <date year="2004"/>
+  </front>
+  <seriesInfo name="In" value="EUROCRYPT"/>
+  <seriesInfo name="pages" value="56-73"/>
+</reference>
+
+<reference anchor="CT25" target="https://link.springer.com/chapter/10.1007/978-981-95-5119-4_13">
+  <front>
+    <title>On the Concrete Security of BBS/BBS+ Signatures</title>
+    <author initials="R." surname="Chairattana-Apirom" fullname="Rutchathon Chairattana-Apirom">
+      <organization>University of Washington</organization>
+    </author>
+    <author initials="S." surname="Tessaro" fullname="Stefano Tessaro">
+      <organization>University of Washington</organization>
+    </author>
+    <date year="2025"/>
+  </front>
+  <seriesInfo name="In" value="ASIACRYPT"/>
+  <seriesInfo name="pages" value="402-434"/>
+</reference>
+
+<reference anchor="CHT26" target="https://link.springer.com/chapter/10.1007/978-3-032-25291-3_9">
+  <front>
+    <title>Tight Security for BBS Signatures</title>
+    <author initials="R." surname="Chairattana-Apirom" fullname="Rutchathon Chairattana-Apirom">
+      <organization>University of Washington</organization>
+    </author>
+    <author initials="D." surname="Hofheinz" fullname="Dennis Hofheinz">
+      <organization>ETH Zurich</organization>
+    </author>
+    <author initials="S." surname="Tessaro" fullname="Stefano Tessaro">
+      <organization>University of Washington</organization>
+    </author>
+    <date year="2026"/>
+  </front>
+  <seriesInfo name="In" value="EUROCRYPT"/>
+  <seriesInfo name="pages" value="246-276"/>
 </reference>
