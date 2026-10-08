@@ -3372,27 +3372,27 @@ Both "additive" and "multiplicative" notation can be used for Abelian groups suc
 
 Symbol Description    |  TZ23  | This Document |
 ----------------------|--------|---------------|
-prime order of subgroups     |  p   |  r  |
-mesage vector                |  m   | m |
-number of messages           | l    | L |
-bilinear map (pairing) G1 x G2 -> GT | e(A, B) | h(A, B) |
-Selected points of G1 and G2  | g1, g2 | P1 + domain * Q1, BP2  |
-Private/Secret Key        | sk = x | SK |
-Public/Verification Key   | vk | W (PK serialized) |
-Generators in G1          | **h**1 | generators, H  |
-Product of messages and gens  | C | B |
-Signature elements (G1 Point, scalar)  |  (A, e) | (A, e) |
-Set of disclosed indexes | J | (i1, ..., iR) |
-Set of undisclosed indexes | I | (j1, ..., jU) |
-Product of disclosed messages and gens | CJ | Bv |
-Random scalar   | r1  | r1  |
-Random scalar   | r2 | 1/r2 |
-Random scalars  | alpha, beta, gamma | r1~, e~, r3~ |
-Random scalars  | delta_i i in I | m~_j1, ..., m~_jU  |
-Proof points    | U1, U2  | T1, T2 |
-Challenge value | c  | -challenge  |
-Proof scalars   | s, t, z  | r1^, e^, r3^ |
-Proof scalars   | u_i I in I  | m^_j for j from 1, U |
+prime order of subgroups     |  `p`   |  `r`  |
+mesage vector                |  `m`   | `m` |
+number of messages           | `l`    | `L` |
+bilinear map (pairing) G1 x G2 -> GT | `e(A, B)` | `h(A, B)` |
+Selected points of G1 and G2  | `g1`, `g2` | `P1 + domain * Q1`, `BP2`  |
+Private/Secret Key        | `sk = x` | `SK` |
+Public/Verification Key   | `vk` | `W` (`PK` serialized) |
+Generators in G1          | **h**1 | `generators`, `H`  |
+Product of messages and gens  | `C` | `B` |
+Signature elements (G1 Point, scalar)  |  `(A, e)` | `(A, e)` |
+Set of disclosed indexes | `J` | `(i1, ..., iR)` |
+Set of undisclosed indexes | `I` | `(j1, ..., jU)` |
+Product of disclosed messages and gens | `CJ` | `Bv` |
+Random scalar   | `r1`  | `r1`  |
+Random scalar   | `r2` | `1/r2` |
+Random scalars  | alpha, beta, gamma | `r1~`, `e~`, `r3~` |
+Random scalars  | `delta_i` i in I | `m~_j1, ..., m~_jU`  |
+Proof points    | `U1`, `U2`  | `T1`, `T2` |
+Challenge value | `c`  | `-challenge`  |
+Proof scalars   | `s`, `t`, `z`  | `r1^`, `e^`, `r3^` |
+Proof scalars   | `u_i` I in I  | `m^_j` for j from 1, U |
 
 ## Key Generation, Signing, and Verification Formulas
 
@@ -3412,8 +3412,8 @@ Generator and message product
 * [@TZ23] Figure 3
   1. C = g1 * product(**h**1[i], **m**[i]) over i
 * (#coresign)
-  1. `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`, where generators are a vector of length  L+1 where `L = length(messages)`, `generators[0]` is also known as Q1.
-  2. B = P1 + domain*Q1 + sum messages[i]*generators[i] over i  = 1 to L.
+  * `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`, where generators are a vector of length  L+1 where `L = length(messages)`, `generators[0]` is also known as Q1.
+  * Therefore B = P1 + domain*Q1 + sum messages[i]*generators[i] over i  = 1 to L.
 
 *e* value computation
 
@@ -3454,9 +3454,9 @@ To see that these two verification tests are equivalent we use the the math of t
 1. Expressing `h(A, W) * h(A  * e - B, BP2) ?= Identity_GT` in multiplicative notation
 2. `h(A, W) * h(A^e * B^(-1), BP2) ?= Identity_GT`, Use bilinearity
 3. `h(A, W) * h(A^e, BP2) * h(B, BP2)^(-1) ?= Identity_GT`, some algebra
-4. `h(A, W) * e(A^e, BP2) ?= h(B, g2)`, Use bilinearity
-5. `h(A, W) * e(A, BP2^e) ?= h(B, g2)`, Use bilinearity
-6. `h(A, W * BP2^e) ?= h(B, g2)` substitute [@TZ23] symbols gives:
+4. `h(A, W) * e(A^e, BP2) ?= h(B, BP2)`, Use bilinearity
+5. `h(A, W) * e(A, BP2^e) ?= h(B, BP2)`, Use bilinearity
+6. `h(A, W * BP2^e) ?= h(B, BP2)` substitute [@TZ23] symbols gives:
 7. `e(A, vk * g2^e) ?= e(C, g2)`
 
 ## Proof Generation and Verification Formulas
