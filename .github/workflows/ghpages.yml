@@ -3,76 +3,78 @@ name: "Update Editor's Copy"
 on:
   push:
     paths-ignore:
-      - README.md
-      - CONTRIBUTING.md
-      - LICENSE.md
-      - .gitignore
+    - README.md
+    - CONTRIBUTING.md
+    - LICENSE.md
+    - .gitignore
   pull_request:
     paths-ignore:
-      - README.md
-      - CONTRIBUTING.md
-      - LICENSE.md
-      - .gitignore
+    - README.md
+    - CONTRIBUTING.md
+    - LICENSE.md
+    - .gitignore
 
 jobs:
   build:
     name: "Update Editor's Copy"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
+    - name: "Checkout"
+      uses: actions/checkout@v6
 
-      # Temporarily disabled until the tool is updated to the latest spec
-      # - name: "Install and build message generator CLI"
-      #   run: cargo build
-      #   working-directory: ./tooling/message-generators
+    - name: "Setup"
+      id: setup
+      run: date -u "+date=%FT%T" >>"$GITHUB_OUTPUT"
 
-      # - name: "Update the message generators in the fixtures folder"
-      #   run: ./target/debug/bbs-signature-generator-demo -o file ../fixtures/generators.json
-      #   working-directory: ./tooling/message-generators
+    - name: "Caching"
+      uses: actions/cache@v5
+      with:
+        path: |
+          .refcache
+          .venv
+          .gems
+          node_modules
+          .targets.mk
+        key: i-d-${{ steps.setup.outputs.date }}
+        restore-keys: i-d-
 
-      - name: "Install yarn dependencies"
-        run: yarn install --frozen-lockfile
-        working-directory: ./tooling/fixtures
+    - name: "Build Drafts"
+      id: build
+      uses: martinthomson/i-d-template@v1
+      with:
+        token: ${{ github.token }}
 
-      - name: "Populate fixtures Yarn"
-        run: yarn populate-fixtures
-        working-directory: ./tooling/fixtures
+    - name: "Fix Lints"
+      id: fix-lint
+      if: always() && steps.build.outcome == 'failure'
+      uses: martinthomson/i-d-template@v1
+      with:
+        make: fix-lint
 
-      - name: "Cache Setup"
-        id: cache-setup
-        run: |
-          mkdir -p "$HOME"/.cache/xml2rfc
-          echo "::set-output name=path::$HOME/.cache/xml2rfc"
-          date -u "+::set-output name=date::%FT%T"
+    - name: "Propose Linting Fixes"
+      if: >
+        always() &&
+        steps.fix-lint.outcome != 'skipped' &&
+        github.event.pull_request &&
+        github.event.pull_request.head.repo.full_name == github.repository
+      uses: parkerbxyz/suggest-changes@v3
+      with:
+        token: ${{ github.token }}
 
-      - name: "Cache References"
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.cache-setup.outputs.path }}
-            .targets.mk
-          key: refcache-${{ steps.cache-setup.outputs.date }}
-          restore-keys: |
-            refcache-${{ steps.cache-setup.outputs.date }}
-            refcache-
+    - name: "Update GitHub Pages"
+      uses: martinthomson/i-d-template@v1
+      if: ${{ github.event_name == 'push' }}
+      with:
+        make: gh-pages
+        token: ${{ github.token }}
 
-      - name: "Build Drafts"
-        uses: martinthomson/i-d-template@v1
-        with:
-          token: ${{ github.token }}
-
-      - name: "Update GitHub Pages"
-        uses: martinthomson/i-d-template@v1
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
-        with:
-          make: gh-pages
-          token: ${{ github.token }}
-
-      - name: "Archive Built Drafts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: drafts
-          path: |
-            draft-*.html
-            draft-*.txt
+    - name: "Archive Built Drafts"
+      uses: actions/upload-artifact@v6
+      with:
+        name: drafts
+        path: |
+          draft-*.html
+          draft-*.txt
