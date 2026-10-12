@@ -4,84 +4,63 @@ on:
   push:
     tags:
       - "draft-*"
+  workflow_dispatch:
+    inputs:
+      email:
+        description: "Submitter email"
+        default: ""
+        type: string
 
 jobs:
   build:
     name: "Publish New Draft Version"
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
+    - name: "Checkout"
+      uses: actions/checkout@v6
+      with:
+        # Needed for tracing file history for replacement status
+        fetch-depth: 0
+        fetch-tags: true
 
-      # See https://github.com/actions/checkout/issues/290
-      - name: "Get Tag Annotations"
-        run: git fetch -f origin ${{ github.ref }}:${{ github.ref }}
+    # See https://github.com/actions/checkout/issues/290
+    - name: "Get Tag Annotations"
+      run: git fetch -f origin ${{ github.ref }}:${{ github.ref }}
 
-      # Temporarily disabled until the tool is updated to the latest spec
-      # - name: "Install and build message generator CLI"
-      #   run: cargo build
-      #   working-directory: ./tooling/message-generators
+    - name: "Setup"
+      id: setup
+      run: date -u "+date=%FT%T" >>"$GITHUB_OUTPUT"
 
-      # - name: "Update the message generators in the fixtures folder"
-      #   run: ./target/debug/bbs-signature-generator-demo -o file ../fixtures/generators.json
-      #   working-directory: ./tooling/message-generators
+    - name: "Caching"
+      uses: actions/cache@v5
+      with:
+        path: |
+          .refcache
+          .venv
+          .gems
+          node_modules
+          .targets.mk
+        key: i-d-${{ steps.setup.outputs.date }}
+        restore-keys: i-d-
 
-      - name: "Install yarn dependencies"
-        run: yarn install --frozen-lockfile
-        working-directory: ./tooling/fixtures
+    - name: "Build Drafts"
+      id: build
+      uses: martinthomson/i-d-template@v1
+      with:
+        make: releases
+        token: ${{ github.token }}
 
-      - name: "Populate fixtures Yarn"
-        run: yarn populate-fixtures
-        working-directory: ./tooling/fixtures
+    - name: "Upload to Datatracker"
+      uses: martinthomson/i-d-template@v1
+      with:
+        make: upload
+      env:
+        UPLOAD_EMAIL: ${{ inputs.email }}
+        GITHUB_STEP: upload
 
-      - name: "Cache Setup"
-        id: cache-setup
-        run: |
-          mkdir -p "$HOME"/.cache/xml2rfc
-          echo "::set-output name=path::$HOME/.cache/xml2rfc"
-          date -u "+::set-output name=date::%FT%T"
-
-      - name: "Cache References"
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.cache-setup.outputs.path }}
-            .targets.mk
-          key: refcache-${{ steps.date.outputs.date }}
-          restore-keys: |
-            refcache-${{ steps.date.outputs.date }}
-            refcache-
-      - name: "Build Drafts"
-        uses: martinthomson/i-d-template@v1
-        with:
-          token: ${{ github.token }}
-
-      # Build the draft with the test vectors included.
-      #
-      #   NOTE: this is a "hack" to go around uploaded draft not containing fixtures
-      #
-      #         Use "make next" to build the draft w/ fixtures and the tag
-      #         to give it the correct name. Later, "make upload" will use
-      #         that instead of building a new one from the tagged draft
-      #         (which does not contain the test vectors)
-      - name: "Create Draft w/ Fixtures"
-        uses: martinthomson/i-d-template@v1
-        with:
-          make: next
-
-      - name: "Re-name File with Correct Version"
-        run: |
-          sudo mv -v $(basename draft-irtf-cfrg-*-[0-9][0-9].xml) ${{ github.ref_name }}.xml
-          ls .
-        working-directory: ./versioned
-
-      - name: "Upload to Datatracker"
-        uses: martinthomson/i-d-template@v1
-        with:
-          make: upload
-
-      - name: "Archive Submitted Drafts"
-        uses: actions/upload-artifact@v4
-        with:
-          name: published-draft
-          path: "draft-*-[0-9][0-9].xml"
+    - name: "Archive Submitted Drafts"
+      uses: actions/upload-artifact@v6
+      if: always() && steps.build.outcome == 'success'
+      with:
+        name: published
+        path: "versioned/draft-*-[0-9][0-9].*"
