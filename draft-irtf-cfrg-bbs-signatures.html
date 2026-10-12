@@ -17,18 +17,18 @@
 <meta content="draft-irtf-cfrg-bbs-signatures-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.34.1
-    Python 3.14.7
-    ConfigArgParse 1.7.7
+    Python 3.14.8
+    ConfigArgParse 1.8.0
     google-i18n-address 3.1.1
     intervaltree 3.2.1
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.11.10
+    platformdirs 4.12.2
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.8.4
+    wcwidth 0.9.1
 -->
 <link href="draft-irtf-cfrg-bbs-signatures.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1048,7 +1048,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Looker, et al.</td>
-<td class="center">Expires 6 April 2027</td>
+<td class="center">Expires 15 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1061,12 +1061,12 @@ svg {
 <dd class="internet-draft">draft-irtf-cfrg-bbs-signatures-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-03" class="published">3 October 2026</time>
+<time datetime="2026-10-12" class="published">12 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-04-06">6 April 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-15">15 April 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1124,7 +1124,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 6 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 15 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1332,31 +1332,34 @@ svg {
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-validating-public-keys" class="internal xref">Validating Public Keys</a></p>
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-security-level-and-underlyi" class="internal xref">Security Level and Underlying Assumptions</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-skipping-membership-checks" class="internal xref">Skipping Membership Checks</a></p>
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-validating-public-keys" class="internal xref">Validating Public Keys</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.3">
-                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-side-channel-attacks" class="internal xref">Side Channel Attacks</a></p>
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-skipping-membership-checks" class="internal xref">Skipping Membership Checks</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
-                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-presentation-header-selecti" class="internal xref">Presentation Header Selection</a></p>
+                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-side-channel-attacks" class="internal xref">Side Channel Attacks</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.5">
-                <p id="section-toc.1-1.6.2.5.1"><a href="#section-6.5" class="auto internal xref">6.5</a>.  <a href="#name-implementing-hash_to_curve_" class="internal xref">Implementing hash_to_curve_g1</a></p>
+                <p id="section-toc.1-1.6.2.5.1"><a href="#section-6.5" class="auto internal xref">6.5</a>.  <a href="#name-presentation-header-selecti" class="internal xref">Presentation Header Selection</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.6">
-                <p id="section-toc.1-1.6.2.6.1"><a href="#section-6.6" class="auto internal xref">6.6</a>.  <a href="#name-choice-of-underlying-curve" class="internal xref">Choice of Underlying Curve</a></p>
+                <p id="section-toc.1-1.6.2.6.1"><a href="#section-6.6" class="auto internal xref">6.6</a>.  <a href="#name-implementing-hash_to_curve_" class="internal xref">Implementing hash_to_curve_g1</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.7">
-                <p id="section-toc.1-1.6.2.7.1"><a href="#section-6.7" class="auto internal xref">6.7</a>.  <a href="#name-randomness-requirements" class="internal xref">Randomness Requirements</a></p>
+                <p id="section-toc.1-1.6.2.7.1"><a href="#section-6.7" class="auto internal xref">6.7</a>.  <a href="#name-choice-of-underlying-curve" class="internal xref">Choice of Underlying Curve</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.8">
-                <p id="section-toc.1-1.6.2.8.1"><a href="#section-6.8" class="auto internal xref">6.8</a>.  <a href="#name-mapping-messages-to-scalars" class="internal xref">Mapping Messages to Scalars</a></p>
+                <p id="section-toc.1-1.6.2.8.1"><a href="#section-6.8" class="auto internal xref">6.8</a>.  <a href="#name-randomness-requirements" class="internal xref">Randomness Requirements</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.9">
-                <p id="section-toc.1-1.6.2.9.1"><a href="#section-6.9" class="auto internal xref">6.9</a>.  <a href="#name-post-quantum-security" class="internal xref">Post-quantum Security</a></p>
+                <p id="section-toc.1-1.6.2.9.1"><a href="#section-6.9" class="auto internal xref">6.9</a>.  <a href="#name-mapping-messages-to-scalars" class="internal xref">Mapping Messages to Scalars</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.10">
+                <p id="section-toc.1-1.6.2.10.1"><a href="#section-6.10" class="auto internal xref">6.10</a>. <a href="#name-post-quantum-security" class="internal xref">Post-quantum Security</a></p>
 </li>
             </ul>
 </li>
@@ -1533,10 +1536,21 @@ svg {
             <p id="section-toc.1-1.16.1"><a href="#appendix-E" class="auto internal xref">Appendix E</a>.  <a href="#name-proof-generation-and-verifi" class="internal xref">Proof Generation and Verification Algorithmic Explanation</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17">
-            <p id="section-toc.1-1.17.1"><a href="#appendix-F" class="auto internal xref">Appendix F</a>.  <a href="#name-document-history" class="internal xref">Document History</a></p>
+            <p id="section-toc.1-1.17.1"><a href="#appendix-F" class="auto internal xref">Appendix F</a>.  <a href="#name-mapping-between-and-operati" class="internal xref">Mapping Between TZ23 and Operations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17.2.1">
+                <p id="section-toc.1-1.17.2.1.1"><a href="#appendix-F.1" class="auto internal xref">F.1</a>.  <a href="#name-key-generation-signing-and-" class="internal xref">Key Generation, Signing, and Verification Formulas</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.17.2.2">
+                <p id="section-toc.1-1.17.2.2.1"><a href="#appendix-F.2" class="auto internal xref">F.2</a>.  <a href="#name-proof-generation-and-verific" class="internal xref">Proof Generation and Verification Formulas</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.18">
-            <p id="section-toc.1-1.18.1"><a href="#appendix-G" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.18.1"><a href="#appendix-G" class="auto internal xref">Appendix G</a>.  <a href="#name-document-history" class="internal xref">Document History</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.19">
+            <p id="section-toc.1-1.19.1"><a href="#appendix-H" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1550,7 +1564,7 @@ svg {
 <p id="section-1-1">A digital signature scheme is a fundamental cryptographic primitive that is used to provide data integrity and verifiable authenticity in various protocols. The core premise of digital signature technology is built upon asymmetric cryptography where-by the possessor of a private key is able to sign a message, where anyone in possession of the corresponding public key matching that of the private key is able to verify the signature.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">Beyond the core properties of a digital signature scheme, the BBS signatures and proofs provide multiple additional unique properties. Three key ones are:<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3"><strong>Selective Disclosure</strong> - The scheme allows a Signer to sign multiple messages and produce a single -constant size- output signature. A Prover then possessing the messages and the signature can generate a proof whereby they can choose which messages to disclose, while revealing no information about the undisclosed messages. The proof itself guarantees the integrity and authenticity of the disclosed messages (e.g. that they were originally signed by the Signer).<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4"><strong>Unlinkable Proofs</strong> - The proofs generated by the scheme are zero-knowledge, proofs of knowledge of the signature, meaning a verifying party in receipt of a proof is unable to determine which signature was used to generate the proof, removing a common source of correlation. In general, the value of a BBS proof is indistinguishable from random even if generated from the same signature.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-4"><strong>Unlinkable Proofs</strong> - The generated proofs are unlinkable: a verifier cannot tell which signature, among those satisfying the proven statement, was used to generate a proof, removing a common source of correlation.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <p id="section-1-5"><strong>Proof of Possession</strong> - The proofs generated by the scheme prove to a Verifier that the party who generated the proof (Prover) was in possession of a signature without revealing it. The scheme also supports binding a <code>presentation_header</code> to the generated proof, which acts as a message signed by the Prover. The <code>presentation_header</code> can include arbitrary information such as a cryptographic nonce, an audience/domain identifier and or time based validity information (for more details on the <code>presentation_header</code>, see <a href="#header-and-presentation-header-usage" class="auto internal xref">Section 3.3.6</a>).<a href="#section-1-5" class="pilcrow">¶</a></p>
 <p id="section-1-6">Refer to the <a href="#use-cases" class="auto internal xref">Appendix C</a> for an elaboration on situations where these properties are useful.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <p id="section-1-7">Below is a basic diagram describing the main entities involved in the scheme<a href="#section-1-7" class="pilcrow">¶</a></p>
@@ -1601,7 +1615,7 @@ svg {
         </figcaption></figure>
 <p id="section-1-9"><strong>Note</strong> The protocols implied by the items annotated by an asterisk are out of scope for this specification<a href="#section-1-9" class="pilcrow">¶</a></p>
 <p id="section-1-10">The name BBS is derived from the authors of the original academic work by Dan Boneh, Xavier Boyen, and Hovav Shacham <span>[<a href="#BBS04" class="cite xref">BBS04</a>]</span>, where the scheme was first described as part of a group signatures protocol. Soon after, the scheme was described by Camenisch and Lysyanskaya as a stand-alone signatures scheme in <span>[<a href="#CL04" class="cite xref">CL04</a>]</span>, for anonymous credentials applications. Later, Au, Susilo an Mu presented the first, provably secure version of BBS Signatures in <span>[<a href="#ASM06" class="cite xref">ASM06</a>]</span>. Following, works by Camenisch, Drijvers and Lehmann <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> and by Barki, Brunet, Desmoulins and Traore <span>[<a href="#BBDT16" class="cite xref">BBDT16</a>]</span>, proved the security of the scheme in settings where more efficient computations are possible, thereby improving performance. Finally, in 2023, Tessaro and Zhu, presented in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> further performance improvements, shrinking the BBS signature. This document is mainly based on that work. More specifically, the BBS signature generation and verification algorithms are as defined in Section 3.1 of <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> while the BBS proof generation and verification algorithms are as defined in Appendix B of the same work.<a href="#section-1-10" class="pilcrow">¶</a></p>
-<p id="section-1-11">Note that the BBS Signatures scheme is based on the discrete logarithm problem. This means that it is not "post-quantum secure". However, the privacy and hiding properties of BBS proofs are resilient even against an attacker utilizing a Cryptographically Relevant Quantum Computer (<span>[<a href="#I-D.ietf-pquip-pqc-engineers" class="cite xref">I-D.ietf-pquip-pqc-engineers</a>]</span>). See <a href="#post-quantum-security" class="auto internal xref">Section 6.9</a> for an elaboration on the security properties of BBS Signatures against such a computer.<a href="#section-1-11" class="pilcrow">¶</a></p>
+<p id="section-1-11">Note that the BBS Signatures scheme is based on the discrete logarithm problem. This means that it is not "post-quantum secure". However, the privacy and hiding properties of BBS proofs are resilient even against an attacker utilizing a Cryptographically Relevant Quantum Computer (<span>[<a href="#I-D.ietf-pquip-pqc-engineers" class="cite xref">I-D.ietf-pquip-pqc-engineers</a>]</span>). See <a href="#post-quantum-security" class="auto internal xref">Section 6.10</a> for an elaboration on the security properties of BBS Signatures against such a computer.<a href="#section-1-11" class="pilcrow">¶</a></p>
 <div id="terminology">
 <section id="section-1.1">
         <h3 id="name-terminology">
@@ -1866,7 +1880,7 @@ document, are to be interpreted as described in <span>[<a href="#RFC2119" class=
           <h4 id="name-messages">
 <a href="#section-3.3.3" class="section-number selfRef">3.3.3. </a><a href="#name-messages" class="section-name selfRef">Messages</a>
           </h4>
-<p id="section-3.3.3-1">In this document, the messages to be signed are defined as octet strings. Each message must be mapped to a scalar value before passed to one of the core BBS operations (<a href="#core-operations" class="auto internal xref">Section 3.6</a>). There are various ways to map a message to a scalar value. The BBS Signatures Interface defined in this document (see <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a>), makes use of a hash function (see <a href="#messages-to-scalars" class="auto internal xref">Section 4.1.2</a>). See <a href="#messages-to-scalars" class="auto internal xref">Section 4.1.2</a> on further details on how the each message is mapped to a scalar value and <a href="#mapping-messages-to-scalars" class="auto internal xref">Section 6.8</a> for more details and guidance on using alternative mapping methods.<a href="#section-3.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.3-1">In this document, the messages to be signed are defined as octet strings. Each message must be mapped to a scalar value before passed to one of the core BBS operations (<a href="#core-operations" class="auto internal xref">Section 3.6</a>). There are various ways to map a message to a scalar value. The BBS Signatures Interface defined in this document (see <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a>), makes use of a hash function (see <a href="#messages-to-scalars" class="auto internal xref">Section 4.1.2</a>). See <a href="#messages-to-scalars" class="auto internal xref">Section 4.1.2</a> on further details on how the each message is mapped to a scalar value and <a href="#mapping-messages-to-scalars" class="auto internal xref">Section 6.9</a> for more details and guidance on using alternative mapping methods.<a href="#section-3.3.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="indexing-of-arrays">
@@ -1924,7 +1938,11 @@ X[n-1] = a_n
           <h4 id="name-unlinkability">
 <a href="#section-3.3.7" class="section-number selfRef">3.3.7. </a><a href="#name-unlinkability" class="section-name selfRef">Unlinkability</a>
           </h4>
-<p id="section-3.3.7-1">As mentioned in the Introduction, a BBS proof is unlinkable. In this section we will define the term in more detail. Formally, we use unlinkability to refer to the fact that a BBS proof is zero-knowledge <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>. In practice, this guarantees that an adversary (a Verifier, the Issuer or coalitions between one or more Verifiers and the Issuer) will not be able to infer any information from the BBS proof value, other than what the Prover decided to provide, even with access to multiple proof values. Consequently, the Verifier will not be able to correlate multiple proofs generated by the same signature or Prover. Note however, that this holds only for the value of the BBS proof. In other words, other values revealed by the Prover during their interaction with a Verifier, may still be used to correlate their activity and compromise their privacy. Examples of such values include the disclosed messages (if the same message of high enough entropy is revealed between multiple proofs), the <code>header</code> and <code>presentation_header</code> values (see Section <a href="#header-and-presentation-header-usage" class="auto internal xref">Section 3.3.6</a>), or the total number of signed messages. See Section <a href="#privacy-considerations" class="auto internal xref">Section 5</a> for privacy considerations and recommendations on minimizing these sources of correlation.<a href="#section-3.3.7-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.7-1">As mentioned in the Introduction, a BBS proof is unlinkable. In this section, we define the term in more detail. Unlinkability guarantees that an adversary (capturing coalitions between one or more Verifiers and the Issuer) will not be able to infer any information from the BBS proof value, other than what the Prover decided to provide, even with access to multiple proof values.
+This property can be captured by an experiment where the adversary, given the public parameters of the system, generates a BBS signature key pair and issues two credentials to the experiment. The experiment selects one of the two supplied credentials at random and uses it to generate a BBS presentation for an adversarially chosen statement satisfied by both credentials. The adversary must then guess which credential was used.
+We say that the credential scheme has unlinkable presentations if no efficient adversary can do substantially better than random guessing, even when it generates both credentials.
+This property holds as the specified presentation algorithm is derived from a sigma protocol in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>, Appendix B, which, in particular, satisfies HVZK (with a leakage that can be derived from any issued credential) and has high first-message min-entropy. This means that the presentation algorithm obtained by compiling the sigma protocol with Fiat-Shamir satisfies the Zero Knowledge property and can be simulated <span>[<a href="#FKMV12" class="cite xref">FKMV12</a>]</span>, Theorem 1, enabling the proof of the indistinguishability of presentations derived from the two credentials. The indistinguishability claim follows from the indistinguishability of presentations of both credentials from simulated presentations.<a href="#section-3.3.7-1" class="pilcrow">¶</a></p>
+<p id="section-3.3.7-2">Note however, that this holds only for the value of the BBS proof. In other words, other values revealed by the Prover during their interaction with a Verifier, may still be used to correlate their activity and compromise their privacy. Examples of such values include the disclosed messages (if the same message of high enough entropy is revealed between multiple proofs), the <code>header</code> and <code>presentation_header</code> values (see Section <a href="#header-and-presentation-header-usage" class="auto internal xref">Section 3.3.6</a>), or the total number of signed messages. See Section <a href="#privacy-considerations" class="auto internal xref">Section 5</a> for privacy considerations and recommendations on minimizing these sources of correlation.<a href="#section-3.3.7-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2364,7 +2382,7 @@ Procedure:
 <p id="section-3.6.3-1">This operation computes a zero-knowledge proof-of-knowledge of a signature, while optionally selectively disclosing from the original set of signed messages. The Prover may also supply a <code>presentation_header</code> (denoted as <code>ph</code> on the input definitions of the <code>CoreProofGen</code> operation). See <a href="#header-and-presentation-header-usage" class="auto internal xref">Section 3.3.6</a> for more details. Validating the resulting proof (using the <code>CoreProofVerify</code> algorithm defined in <a href="#coreproofverify" class="auto internal xref">Section 3.6.4</a>), guarantees the integrity and authenticity of the revealed messages, as well as the possession of a valid signature (for the public key <code>PK</code>) by the Prover. See <a href="#proof-generation-and-verification-algorithmic-explanation" class="auto internal xref">Appendix E</a> for a high level explanation on the inner-workings of the algorithm.<a href="#section-3.6.3-1" class="pilcrow">¶</a></p>
 <p id="section-3.6.3-2">The <code>CoreProofGen</code> operation will accept that signature as an input. It is RECOMMENDED to validate that signature, using the inputted public key <code>PK</code> and <code>generators</code> set, against the supplied <code>messages</code> and <code>header</code>, with the <code>CoreVerify</code> operation defined in <a href="#coreverify" class="auto internal xref">Section 3.6.2</a>.<a href="#section-3.6.3-2" class="pilcrow">¶</a></p>
 <p id="section-3.6.3-3">The messages supplied in this operation MUST be in the same order as when supplied to <code>CoreSign</code> (<a href="#coresign" class="auto internal xref">Section 3.6.1</a>). To specify which of those messages will be disclosed, the Prover can supply the list of indexes (<code>disclosed_indexes</code>) that the disclosed messages have in the array of signed messages. Each element in <code>disclosed_indexes</code> MUST be a non-negative integer, in the range from 0 to <code>length(messages) - 1</code>.<a href="#section-3.6.3-3" class="pilcrow">¶</a></p>
-<p id="section-3.6.3-4">The operation works by first calculating a set of random scalars using the <code>calculate_random_scalars</code> operation defined in <a href="#random-scalars" class="auto internal xref">Section 4.2.1</a>, utilized to blind the signature and the undisclosed messages (see <a href="#randomness-requirements" class="auto internal xref">Section 6.7</a> for considerations and requirements on random scalars generation). It then initializes the proof using the <code>ProofInit</code> subroutine defined in <a href="#proof-initialization" class="auto internal xref">Section 3.7.2</a>. The result will be passed to the challenge calculation operation (<code>ProofChallengeCalculate</code>, defined in <a href="#challenge-calculation" class="auto internal xref">Section 3.7.5</a>). The outputted challenge, together with the initialization result, will be used by the <code>ProofFinalize</code> subroutine defined in <a href="#proof-finalization" class="auto internal xref">Section 3.7.3</a>, which will return the proof value.<a href="#section-3.6.3-4" class="pilcrow">¶</a></p>
+<p id="section-3.6.3-4">The operation works by first calculating a set of random scalars using the <code>calculate_random_scalars</code> operation defined in <a href="#random-scalars" class="auto internal xref">Section 4.2.1</a>, utilized to blind the signature and the undisclosed messages (see <a href="#randomness-requirements" class="auto internal xref">Section 6.8</a> for considerations and requirements on random scalars generation). It then initializes the proof using the <code>ProofInit</code> subroutine defined in <a href="#proof-initialization" class="auto internal xref">Section 3.7.2</a>. The result will be passed to the challenge calculation operation (<code>ProofChallengeCalculate</code>, defined in <a href="#challenge-calculation" class="auto internal xref">Section 3.7.5</a>). The outputted challenge, together with the initialization result, will be used by the <code>ProofFinalize</code> subroutine defined in <a href="#proof-finalization" class="auto internal xref">Section 3.7.3</a>, which will return the proof value.<a href="#section-3.6.3-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.6.3-5">
 <pre>proof = CoreProofGen(PK, signature, generators, header, ph, messages,
                                               disclosed_indexes, api_id)
@@ -3071,7 +3089,7 @@ C1 == C2.
 <a href="#section-4.2.1" class="section-number selfRef">4.2.1. </a><a href="#name-random-scalars" class="section-name selfRef">Random Scalars</a>
           </h4>
 <p id="section-4.2.1-1">This operation returns the requested number of pseudo-random scalars, using the <code>get_random</code> operation (see <a href="#parameters" class="auto internal xref">Section 3.1</a>). The operation makes multiple calls to <code>get_random</code>. It is REQUIRED that each call will be independent from each other, as to ensure independence of the returned pseudo-random scalars.<a href="#section-4.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.1-2"><strong>Note</strong>: The security of the proof generation algorithm (<code>ProofGen</code> defined in <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>) is highly dependant on the quality of the <code>get_random</code> function. Care must be taken to ensure that a cryptographically secure pseudo-random generator is chosen, and that its outputs are not leaked to an adversary. See also <a href="#randomness-requirements" class="auto internal xref">Section 6.7</a> for more details and guidance.<a href="#section-4.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-2"><strong>Note</strong>: The security of the proof generation algorithm (<code>ProofGen</code> defined in <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>) is highly dependant on the quality of the <code>get_random</code> function. Care must be taken to ensure that a cryptographically secure pseudo-random generator is chosen, and that its outputs are not leaked to an adversary. See also <a href="#randomness-requirements" class="auto internal xref">Section 6.8</a> for more details and guidance.<a href="#section-4.2.1-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.2.1-3">
 <pre>random_scalars = calculate_random_scalars(count)
 
@@ -3548,7 +3566,7 @@ Procedure:
 <a href="#section-5.4" class="section-number selfRef">5.4. </a><a href="#name-disclosed-messages" class="section-name selfRef">Disclosed Messages</a>
         </h3>
 <p id="section-5.4-1">Although multiple BBS proofs cannot be linked to each other, privacy also depends on the uniqueness of the disclosed messages during proof generation. If a unique message (or unique combination of messages) is revealed multiple times, it could be used to link the corresponding proofs together. Examples of such messages include full names, government IDs, email addresses and phone numbers. If not required by the use case, the Prover should avoid disclosing such information when constructing a BBS proof.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
-<p id="section-5.4-2">For certain types of message values, set membership proofs (for example, <span>[<a href="#VB22" class="cite xref">VB22</a>]</span>) or range proofs (for example, <span>[<a href="#BBB17" class="cite xref">BBB17</a>]</span>) could be used to further mitigate the above issue. With a set membership proof, the BBS proof Verifier will be able to validate that one of the Prover's signed (and undisclosed) messages, belongs to a pre-defined set (for example that the Prover's government ID belongs to a set of valid government IDs). The inverse is also possible, where the Prover showcases that one of the undisclosed messages is not part of a set (for example, that a signed unique revocation identifier is not part of the set of revoked identifiers). If a message is represented by a numeric value (see <a href="#mapping-messages-to-scalars" class="auto internal xref">Section 6.8</a>), range proofs can be used to prove that it is within a specific range. As an example, a Prover, instead of revealing their age, they could use a range proof to showcase that they are over 18 years old.<a href="#section-5.4-2" class="pilcrow">¶</a></p>
+<p id="section-5.4-2">For certain types of message values, set membership proofs (for example, <span>[<a href="#VB22" class="cite xref">VB22</a>]</span>) or range proofs (for example, <span>[<a href="#BBB17" class="cite xref">BBB17</a>]</span>) could be used to further mitigate the above issue. With a set membership proof, the BBS proof Verifier will be able to validate that one of the Prover's signed (and undisclosed) messages, belongs to a pre-defined set (for example that the Prover's government ID belongs to a set of valid government IDs). The inverse is also possible, where the Prover showcases that one of the undisclosed messages is not part of a set (for example, that a signed unique revocation identifier is not part of the set of revoked identifiers). If a message is represented by a numeric value (see <a href="#mapping-messages-to-scalars" class="auto internal xref">Section 6.9</a>), range proofs can be used to prove that it is within a specific range. As an example, a Prover, instead of revealing their age, they could use a range proof to showcase that they are over 18 years old.<a href="#section-5.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -3558,90 +3576,98 @@ Procedure:
       <h2 id="name-security-considerations">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<div id="validating-public-keys">
+<div id="security-level-and-underlying-assumptions">
 <section id="section-6.1">
-        <h3 id="name-validating-public-keys">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-validating-public-keys" class="section-name selfRef">Validating Public Keys</a>
+        <h3 id="name-security-level-and-underlyi">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-security-level-and-underlyi" class="section-name selfRef">Security Level and Underlying Assumptions</a>
         </h3>
-<p id="section-6.1-1">Note that all core operations as defined in <a href="#core-operations" class="auto internal xref">Section 3.6</a> expect the Signer's public key as input. It is RECOMMENDED for all those operations, that they deserialize the public key first using the <code>octets_to_pubkey</code> procedure defined in <a href="#octets-to-public-key" class="auto internal xref">Section 4.2.5.6</a>, even if they only require the octet string representation of the public key. If the <code>octets_to_pubkey</code> procedure returns INVALID, the calling operation should also return INVALID and abort. This recommendation applies to the <code>CoreSign</code> (<a href="#coresign" class="auto internal xref">Section 3.6.1</a>) and <code>CoreProofGen</code> (<a href="#coreproofgen" class="auto internal xref">Section 3.6.3</a>) operations. An explicit invocation to the <code>octets_to_pubkey</code> operation is already defined and therefore required in the <code>CoreVerify</code> (<a href="#coreverify" class="auto internal xref">Section 3.6.2</a>) and <code>CoreProofVerify</code> (<a href="#coreproofverify" class="auto internal xref">Section 3.6.4</a>) operations. If the required checks for the validity of the Signer's public key are not performed, the results are unpredictable, leading to unexpected vulnerabilities (for example, the output of the pairing operation on input of an invalid elliptic curve point can be highly irregular and implementation-dependent, with some returning the identity point of the elliptic curve and others returning errors).<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-1">The security of BBS is based on the d-SDH assumption <span>[<a href="#BB04" class="cite xref">BB04</a>]</span>, where <code>d</code> is a parameter that depends on the number of valid signatures known to an attacker. Its concrete security has been extensively studied and is well understood <span>[<a href="#CT25" class="cite xref">CT25</a>]</span> <span>[<a href="#CHT26" class="cite xref">CHT26</a>]</span>. In particular, under the usual concrete-hardness estimates, an attacker with <code>N</code> signatures in its possession needs roughly <code>2^(q/2) / N^(1/2)</code> time to recover the secret signing key, where <code>q</code> is the bit length of the scalar-field order of the elliptic curve used. For the BLS12-381 curve, when we consider an adversary having <code>2^30 &gt; 1,000,000,000</code> signatures, this translates to roughly 110 bits of security.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="validating-public-keys">
+<section id="section-6.2">
+        <h3 id="name-validating-public-keys">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-validating-public-keys" class="section-name selfRef">Validating Public Keys</a>
+        </h3>
+<p id="section-6.2-1">Note that all core operations as defined in <a href="#core-operations" class="auto internal xref">Section 3.6</a> expect the Signer's public key as input. It is RECOMMENDED for all those operations, that they deserialize the public key first using the <code>octets_to_pubkey</code> procedure defined in <a href="#octets-to-public-key" class="auto internal xref">Section 4.2.5.6</a>, even if they only require the octet string representation of the public key. If the <code>octets_to_pubkey</code> procedure returns INVALID, the calling operation should also return INVALID and abort. This recommendation applies to the <code>CoreSign</code> (<a href="#coresign" class="auto internal xref">Section 3.6.1</a>) and <code>CoreProofGen</code> (<a href="#coreproofgen" class="auto internal xref">Section 3.6.3</a>) operations. An explicit invocation to the <code>octets_to_pubkey</code> operation is already defined and therefore required in the <code>CoreVerify</code> (<a href="#coreverify" class="auto internal xref">Section 3.6.2</a>) and <code>CoreProofVerify</code> (<a href="#coreproofverify" class="auto internal xref">Section 3.6.4</a>) operations. If the required checks for the validity of the Signer's public key are not performed, the results are unpredictable, leading to unexpected vulnerabilities (for example, the output of the pairing operation on input of an invalid elliptic curve point can be highly irregular and implementation-dependent, with some returning the identity point of the elliptic curve and others returning errors).<a href="#section-6.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="skipping-membership-checks">
-<section id="section-6.2">
+<section id="section-6.3">
         <h3 id="name-skipping-membership-checks">
-<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-skipping-membership-checks" class="section-name selfRef">Skipping Membership Checks</a>
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-skipping-membership-checks" class="section-name selfRef">Skipping Membership Checks</a>
         </h3>
-<p id="section-6.2-1">The subgroup check <code>subgroup_check_G*</code> invocation during either signature deserialization (<code>octets_to_signature</code>, defined in <a href="#octets-to-signature" class="auto internal xref">Section 4.2.5.3</a>), proof deserialization (<code>octets_to_proof</code>, defined in <a href="#octets-to-proof" class="auto internal xref">Section 4.2.5.5</a>) or public key deserialization (<code>octets_to_pubkey</code>, define in <a href="#octets-to-public-key" class="auto internal xref">Section 4.2.5.6</a>) is REQUIRED by all implementations. Failure to comply would lead to unpredicted behavior and vulnerabilities. Note that some libraries implementing the pairing-friendly curves functionality, may incorporate that check as part of a <code>octets_to_point_G1</code> or <code>octet_to_point_G2</code> operation (i.e., operations that both deserialize an octet string to get an elliptic curve point and then check if the resulting point is part of the <code>G1</code> or <code>G2</code> group accordingly). In those cases, the implementer must make sure that those checks are executed correctly.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">Note that checking that the points are in the correct subgroup is essential to avoid possible forgeries of a BBS signature or proof (<span>[<a href="#ADR02" class="cite xref">ADR02</a>]</span>). Furthermore, the pairing operation <a href="#notation" class="auto internal xref">Section 1.2</a> is undefined when its input points are not in <code>G1</code> and <code>G2</code>. As a result, applications MUST execute all the subgroup checks defined by this document.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.3-1">The subgroup check <code>subgroup_check_G*</code> invocation during either signature deserialization (<code>octets_to_signature</code>, defined in <a href="#octets-to-signature" class="auto internal xref">Section 4.2.5.3</a>), proof deserialization (<code>octets_to_proof</code>, defined in <a href="#octets-to-proof" class="auto internal xref">Section 4.2.5.5</a>) or public key deserialization (<code>octets_to_pubkey</code>, define in <a href="#octets-to-public-key" class="auto internal xref">Section 4.2.5.6</a>) is REQUIRED by all implementations. Failure to comply would lead to unpredicted behavior and vulnerabilities. Note that some libraries implementing the pairing-friendly curves functionality, may incorporate that check as part of a <code>octets_to_point_G1</code> or <code>octet_to_point_G2</code> operation (i.e., operations that both deserialize an octet string to get an elliptic curve point and then check if the resulting point is part of the <code>G1</code> or <code>G2</code> group accordingly). In those cases, the implementer must make sure that those checks are executed correctly.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">Note that checking that the points are in the correct subgroup is essential to avoid possible forgeries of a BBS signature or proof (<span>[<a href="#ADR02" class="cite xref">ADR02</a>]</span>). Furthermore, the pairing operation <a href="#notation" class="auto internal xref">Section 1.2</a> is undefined when its input points are not in <code>G1</code> and <code>G2</code>. As a result, applications MUST execute all the subgroup checks defined by this document.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="side-channel-attacks">
-<section id="section-6.3">
+<section id="section-6.4">
         <h3 id="name-side-channel-attacks">
-<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-side-channel-attacks" class="section-name selfRef">Side Channel Attacks</a>
+<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-side-channel-attacks" class="section-name selfRef">Side Channel Attacks</a>
         </h3>
-<p id="section-6.3-1">There are two places where side channel attacks could be relevant in the BBS Signatures scheme. First, against the Signer, where side channel leakage during signature generation could reveal their secret key. Second, against the Prover, where a side channel attack could be used during proof generation to either directly reveal the undisclosed messages and signature value, or reveal the random scalars used, leading again to the leakage of the undisclosed messages or the hidden signature. Therefore, implementations MUST apply proper side channel attack protection. One method to achieve this, is by using elliptic curve implementations that execute curve operations in constant time.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.4-1">There are two places where side channel attacks could be relevant in the BBS Signatures scheme. First, against the Signer, where side channel leakage during signature generation could reveal their secret key. Second, against the Prover, where a side channel attack could be used during proof generation to either directly reveal the undisclosed messages and signature value, or reveal the random scalars used, leading again to the leakage of the undisclosed messages or the hidden signature. Therefore, implementations MUST apply proper side channel attack protection. One method to achieve this, is by using elliptic curve implementations that execute curve operations in constant time.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="presentation-header-selection">
-<section id="section-6.4">
+<section id="section-6.5">
         <h3 id="name-presentation-header-selecti">
-<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-presentation-header-selecti" class="section-name selfRef">Presentation Header Selection</a>
+<a href="#section-6.5" class="section-number selfRef">6.5. </a><a href="#name-presentation-header-selecti" class="section-name selfRef">Presentation Header Selection</a>
         </h3>
-<p id="section-6.4-1">The signature proofs of knowledge generated in this specification are created using a specified <code>presentation_header</code>. A Verifier-specified cryptographically random value (e.g., a nonce) featuring in the <code>presentation_header</code> provides strong protections against replay attacks, and is RECOMMENDED in most use cases. In some settings, proofs can be generated in a non-interactive fashion, in which case verifiers MUST be able to verify the uniqueness of the <code>presentation_header</code> values.<a href="#section-6.4-1" class="pilcrow">¶</a></p>
+<p id="section-6.5-1">The signature proofs of knowledge generated in this specification are created using a specified <code>presentation_header</code>. A Verifier-specified cryptographically random value (e.g., a nonce) featuring in the <code>presentation_header</code> provides strong protections against replay attacks, and is RECOMMENDED in most use cases. In some settings, proofs can be generated in a non-interactive fashion, in which case verifiers MUST be able to verify the uniqueness of the <code>presentation_header</code> values.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="implementing-hash-to-curve-g1">
-<section id="section-6.5">
+<section id="section-6.6">
         <h3 id="name-implementing-hash_to_curve_">
-<a href="#section-6.5" class="section-number selfRef">6.5. </a><a href="#name-implementing-hash_to_curve_" class="section-name selfRef">Implementing hash_to_curve_g1</a>
+<a href="#section-6.6" class="section-number selfRef">6.6. </a><a href="#name-implementing-hash_to_curve_" class="section-name selfRef">Implementing hash_to_curve_g1</a>
         </h3>
-<p id="section-6.5-1">The security analysis models hash_to_curve_g1 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span>.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
-<p id="section-6.5-2">In addition, ciphersuites MUST specify unique domain separation tags for hash_to_curve.  Some guidance around defining this can be found in <a href="#ciphersuites" class="auto internal xref">Section 7</a>.<a href="#section-6.5-2" class="pilcrow">¶</a></p>
+<p id="section-6.6-1">The security analysis models hash_to_curve_g1 as random oracles.  It is crucial that these functions are implemented using a cryptographically secure hash function.  For this purpose, implementations MUST meet the requirements of <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span>.<a href="#section-6.6-1" class="pilcrow">¶</a></p>
+<p id="section-6.6-2">In addition, ciphersuites MUST specify unique domain separation tags for hash_to_curve.  Some guidance around defining this can be found in <a href="#ciphersuites" class="auto internal xref">Section 7</a>.<a href="#section-6.6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="choice-of-underlying-curve">
-<section id="section-6.6">
+<section id="section-6.7">
         <h3 id="name-choice-of-underlying-curve">
-<a href="#section-6.6" class="section-number selfRef">6.6. </a><a href="#name-choice-of-underlying-curve" class="section-name selfRef">Choice of Underlying Curve</a>
+<a href="#section-6.7" class="section-number selfRef">6.7. </a><a href="#name-choice-of-underlying-curve" class="section-name selfRef">Choice of Underlying Curve</a>
         </h3>
-<p id="section-6.6-1">BBS signatures can be implemented on any pairing-friendly curves suitable for type 3 pairing computations. However care must be taken when selecting one that is appropriate, to guarantee the desired security level for the targeted application. This specification defines a ciphersuite for using the BLS12-381 curve in <a href="#ciphersuites" class="auto internal xref">Section 7</a> which as a curve achieves around 117 bits of security <span>[<a href="#ZCASH-REVIEW" class="cite xref">ZCASH-REVIEW</a>]</span>.<a href="#section-6.6-1" class="pilcrow">¶</a></p>
+<p id="section-6.7-1">BBS signatures can be implemented on any pairing-friendly curves suitable for type 3 pairing computations. However care must be taken when selecting one that is appropriate, to guarantee the desired security level for the targeted application. This specification defines a ciphersuite for using the BLS12-381 curve in <a href="#ciphersuites" class="auto internal xref">Section 7</a> which as a curve achieves around 117 bits of security <span>[<a href="#ZCASH-REVIEW" class="cite xref">ZCASH-REVIEW</a>]</span>.<a href="#section-6.7-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="randomness-requirements">
-<section id="section-6.7">
+<section id="section-6.8">
         <h3 id="name-randomness-requirements">
-<a href="#section-6.7" class="section-number selfRef">6.7. </a><a href="#name-randomness-requirements" class="section-name selfRef">Randomness Requirements</a>
+<a href="#section-6.8" class="section-number selfRef">6.8. </a><a href="#name-randomness-requirements" class="section-name selfRef">Randomness Requirements</a>
         </h3>
-<p id="section-6.7-1">The <code>key_material</code> input to the <code>KeyGen</code> operation defined in <a href="#secret-key" class="auto internal xref">Section 3.4.1</a> MUST be infeasible to guess and MUST be kept secret. One possibility is to generate the <code>key_material</code> from a trusted, cryptographically secure pseudo random function <span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span>. Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.<a href="#section-6.7-1" class="pilcrow">¶</a></p>
-<p id="section-6.7-2">The <code>ProofGen</code> operation defined in <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a> is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes <code>ProofGen</code> vulnerable to attacks caused by bad entropy (like the ones described in <span>[<a href="#HDWH12" class="cite xref">HDWH12</a>]</span>). If randomness is re-used or is in any way predictable or maliciously constructed, an adversary may be able to unveil undisclosed information from the proof messages or the hidden signature value. More subtle attacks are also possible, where the security properties of the BBS proof may not be broken, but a system making use of the BBS scheme may still be compromised. As an example, consider systems that needs to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the <code>get_random</code> function (<a href="#parameters" class="auto internal xref">Section 3.1</a>) to create an undetected channel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed <span>[<a href="#DRBG" class="cite xref">DRBG</a>]</span>. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).<a href="#section-6.7-2" class="pilcrow">¶</a></p>
-<p id="section-6.7-3">In any case, the randomness used in ProofGen MUST be unique in each call and MUST have a distribution that is indistinguishable from uniform. If the random scalars are re-used, created from "bad randomness" (for example with a known relationship to each other) or are in any way predictable, the undisclosed messages or the signature value may be compromised. Naturally, a cryptographically secure pseudorandom number generator or pseudo random function is REQUIRED to implement the <code>get_random</code> functionality. See <span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span> for guidance on implementing such functionality. See also <span>[<a href="#RFC8937" class="cite xref">RFC8937</a>]</span>, for recommendations on generating good randomness in cases where the Prover has direct or in-direct access to a secret key.<a href="#section-6.7-3" class="pilcrow">¶</a></p>
+<p id="section-6.8-1">The <code>key_material</code> input to the <code>KeyGen</code> operation defined in <a href="#secret-key" class="auto internal xref">Section 3.4.1</a> MUST be infeasible to guess and MUST be kept secret. One possibility is to generate the <code>key_material</code> from a trusted, cryptographically secure pseudo random function <span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span>. Secret keys MAY be generated using other methods; in this case they MUST be infeasible to guess and MUST be indistinguishable from uniformly random modulo r.<a href="#section-6.8-1" class="pilcrow">¶</a></p>
+<p id="section-6.8-2">The <code>ProofGen</code> operation defined in <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a> is by its nature a randomized algorithm, requiring the generation of multiple uniformly distributed, pseudo random scalars. This makes <code>ProofGen</code> vulnerable to attacks caused by bad entropy (like the ones described in <span>[<a href="#HDWH12" class="cite xref">HDWH12</a>]</span>). If randomness is re-used or is in any way predictable or maliciously constructed, an adversary may be able to unveil undisclosed information from the proof messages or the hidden signature value. More subtle attacks are also possible, where the security properties of the BBS proof may not be broken, but a system making use of the BBS scheme may still be compromised. As an example, consider systems that needs to monitor and potentially restrict outbound traffic, in order to minimize data leakage during a breach. In such cases, the attacker could manipulate couple of bits in the output of the <code>get_random</code> function (<a href="#parameters" class="auto internal xref">Section 3.1</a>) to create an undetected channel out of the system. Although the applicability of such attacks is limited for most of the targeted use cases of the BBS scheme, some applications may want to take measures towards mitigating them. To that end, it is RECOMMENDED to use a deterministic RNG (like a ChaCha20 based deterministic RNG), seeded with a unique, uniformly random, single seed <span>[<a href="#DRBG" class="cite xref">DRBG</a>]</span>. This will limit the amount of bits the attacker can manipulate (note that some randomness is always needed).<a href="#section-6.8-2" class="pilcrow">¶</a></p>
+<p id="section-6.8-3">In any case, the randomness used in ProofGen MUST be unique in each call and MUST have a distribution that is indistinguishable from uniform. If the random scalars are re-used, created from "bad randomness" (for example with a known relationship to each other) or are in any way predictable, the undisclosed messages or the signature value may be compromised. Naturally, a cryptographically secure pseudorandom number generator or pseudo random function is REQUIRED to implement the <code>get_random</code> functionality. See <span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span> for guidance on implementing such functionality. See also <span>[<a href="#RFC8937" class="cite xref">RFC8937</a>]</span>, for recommendations on generating good randomness in cases where the Prover has direct or in-direct access to a secret key.<a href="#section-6.8-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="mapping-messages-to-scalars">
-<section id="section-6.8">
+<section id="section-6.9">
         <h3 id="name-mapping-messages-to-scalars">
-<a href="#section-6.8" class="section-number selfRef">6.8. </a><a href="#name-mapping-messages-to-scalars" class="section-name selfRef">Mapping Messages to Scalars</a>
+<a href="#section-6.9" class="section-number selfRef">6.9. </a><a href="#name-mapping-messages-to-scalars" class="section-name selfRef">Mapping Messages to Scalars</a>
         </h3>
-<p id="section-6.8-1">In an application using BBS Signatures, there are two places where messages could be processed. First, before the messages are passed to the BBS Interface operations, and second, after they are passed to the BBS Interface operations but before they are passed to the BBS Core operations.<a href="#section-6.8-1" class="pilcrow">¶</a></p>
-<p id="section-6.8-2">To allow for re-usability of software, it is RECOMMENDED that application specific processing (like UTF-8 encoding <span>[<a href="#RFC3629" class="cite xref">RFC3629</a>]</span> or Base-64  decoding <span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span>) would happen before messages are passed to the BBS Interface operations. In those cases, the application should ensure that all protocol participants have a clear and consistent understanding of which method should be used to process a message. This can be achieved by associating specific Interfaces (with unique <code>api_id</code> values, see <a href="#defining-new-interfaces" class="auto internal xref">Section 3.8</a>) or unique <code>header</code> values (see <a href="#signature-generation-sign" class="auto internal xref">Section 3.5.1</a>) with different pre-processing methodologies.<a href="#section-6.8-2" class="pilcrow">¶</a></p>
-<p id="section-6.8-3">Note that the BBS Interface defined in this document (see <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a>) only accepts messages that are represented as octet strings. However, in some more advanced applications, like the ones using range proofs (<span>[<a href="#BBB17" class="cite xref">BBB17</a>]</span>) to prove that a signed message is within some range (without disclosing that message), the pre-processing of messages may result to some of them being mapped to scalar values, before they are passed to the BBS Interface (for example, an application could use <span>[<a href="#ISO8601" class="cite xref">ISO8601</a>]</span> to represent dates as integers or map the user's age directly to a number) that should directly be signed (e.g., to not be further processed by <code>hash_to_scalar</code>).<a href="#section-6.8-3" class="pilcrow">¶</a></p>
-<p id="section-6.8-4">If a BBS Interface accepts both octet strings and scalar values as messages, where depending on the message's type different operations will be used to map it to a scalar (e.g., <code>hash_to_scalar</code> for octet strings and the identity operation for scalars), it must still ensure that the properties described in <a href="#define-a-new-map-to-scalar" class="auto internal xref">Section 4.1.2.1</a> holds. To that end, the application MUST ensure that it is clear to all participants, which message should be considered an octet string and which a scalar.<a href="#section-6.8-4" class="pilcrow">¶</a></p>
-<p id="section-6.8-5">As an example, if the type (i.e., octet string or scalar) of the messages inputted to the BBS Interface, is uniquely determined by its index in the messages list (for example, first message is an octet string, second message a scalar etc.,), the map between message index and message type (determined by the Signer), could be made available as part of the Signer's public parameters (similar to <span>[<a href="#UPROVE" class="cite xref">UPROVE</a>]</span>). This map would then be passed to the BBS Interface, which will use it to correctly map each message to a scalar. Another option, is to sign such configurations as part of the <code>header</code> parameter of the BBS signature (see <a href="#signature-generation-sign" class="auto internal xref">Section 3.5.1</a>). In this case, the map does not need to be published by the Signer.<a href="#section-6.8-5" class="pilcrow">¶</a></p>
-<p id="section-6.8-6">If the application defines that the first (or last) <code>n</code> messages will be scalars and everything else octet strings, it could just publish the <code>n</code> value as part of the Signer's public parameters or again sign it as part of the <code>header</code> value.<a href="#section-6.8-6" class="pilcrow">¶</a></p>
-<p id="section-6.8-7">In any case, the privacy considerations described in <a href="#privacy-considerations" class="auto internal xref">Section 5</a> MUST NOT be violated, for example, by using unique pre-processing rules or maps between message index and type. To validate the consistency of the message processing rules, the Prover could use mechanisms like the ones described in <span>[<a href="#I-D.ietf-privacypass-key-consistency" class="cite xref">I-D.ietf-privacypass-key-consistency</a>]</span>.<a href="#section-6.8-7" class="pilcrow">¶</a></p>
+<p id="section-6.9-1">In an application using BBS Signatures, there are two places where messages could be processed. First, before the messages are passed to the BBS Interface operations, and second, after they are passed to the BBS Interface operations but before they are passed to the BBS Core operations.<a href="#section-6.9-1" class="pilcrow">¶</a></p>
+<p id="section-6.9-2">To allow for re-usability of software, it is RECOMMENDED that application specific processing (like UTF-8 encoding <span>[<a href="#RFC3629" class="cite xref">RFC3629</a>]</span> or Base-64  decoding <span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span>) would happen before messages are passed to the BBS Interface operations. In those cases, the application should ensure that all protocol participants have a clear and consistent understanding of which method should be used to process a message. This can be achieved by associating specific Interfaces (with unique <code>api_id</code> values, see <a href="#defining-new-interfaces" class="auto internal xref">Section 3.8</a>) or unique <code>header</code> values (see <a href="#signature-generation-sign" class="auto internal xref">Section 3.5.1</a>) with different pre-processing methodologies.<a href="#section-6.9-2" class="pilcrow">¶</a></p>
+<p id="section-6.9-3">Note that the BBS Interface defined in this document (see <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a>) only accepts messages that are represented as octet strings. However, in some more advanced applications, like the ones using range proofs (<span>[<a href="#BBB17" class="cite xref">BBB17</a>]</span>) to prove that a signed message is within some range (without disclosing that message), the pre-processing of messages may result to some of them being mapped to scalar values, before they are passed to the BBS Interface (for example, an application could use <span>[<a href="#ISO8601" class="cite xref">ISO8601</a>]</span> to represent dates as integers or map the user's age directly to a number) that should directly be signed (e.g., to not be further processed by <code>hash_to_scalar</code>).<a href="#section-6.9-3" class="pilcrow">¶</a></p>
+<p id="section-6.9-4">If a BBS Interface accepts both octet strings and scalar values as messages, where depending on the message's type different operations will be used to map it to a scalar (e.g., <code>hash_to_scalar</code> for octet strings and the identity operation for scalars), it must still ensure that the properties described in <a href="#define-a-new-map-to-scalar" class="auto internal xref">Section 4.1.2.1</a> holds. To that end, the application MUST ensure that it is clear to all participants, which message should be considered an octet string and which a scalar.<a href="#section-6.9-4" class="pilcrow">¶</a></p>
+<p id="section-6.9-5">As an example, if the type (i.e., octet string or scalar) of the messages inputted to the BBS Interface, is uniquely determined by its index in the messages list (for example, first message is an octet string, second message a scalar etc.,), the map between message index and message type (determined by the Signer), could be made available as part of the Signer's public parameters (similar to <span>[<a href="#UPROVE" class="cite xref">UPROVE</a>]</span>). This map would then be passed to the BBS Interface, which will use it to correctly map each message to a scalar. Another option, is to sign such configurations as part of the <code>header</code> parameter of the BBS signature (see <a href="#signature-generation-sign" class="auto internal xref">Section 3.5.1</a>). In this case, the map does not need to be published by the Signer.<a href="#section-6.9-5" class="pilcrow">¶</a></p>
+<p id="section-6.9-6">If the application defines that the first (or last) <code>n</code> messages will be scalars and everything else octet strings, it could just publish the <code>n</code> value as part of the Signer's public parameters or again sign it as part of the <code>header</code> value.<a href="#section-6.9-6" class="pilcrow">¶</a></p>
+<p id="section-6.9-7">In any case, the privacy considerations described in <a href="#privacy-considerations" class="auto internal xref">Section 5</a> MUST NOT be violated, for example, by using unique pre-processing rules or maps between message index and type. To validate the consistency of the message processing rules, the Prover could use mechanisms like the ones described in <span>[<a href="#I-D.ietf-privacypass-key-consistency" class="cite xref">I-D.ietf-privacypass-key-consistency</a>]</span>.<a href="#section-6.9-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="post-quantum-security">
-<section id="section-6.9">
+<section id="section-6.10">
         <h3 id="name-post-quantum-security">
-<a href="#section-6.9" class="section-number selfRef">6.9. </a><a href="#name-post-quantum-security" class="section-name selfRef">Post-quantum Security</a>
+<a href="#section-6.10" class="section-number selfRef">6.10. </a><a href="#name-post-quantum-security" class="section-name selfRef">Post-quantum Security</a>
         </h3>
-<p id="section-6.9-1">BBS Signatures combine two security properties; data authenticity and data confidentiality.<a href="#section-6.9-1" class="pilcrow">¶</a></p>
-<p id="section-6.9-2">Data authenticity refers to the inability of anyone other that the Signer being able to generate BBS signatures that are valid under the Signer's public key (this property is often referred to as unforgeability, or in the case of BBS Signatures, strong unforgeability, e.g., by <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>). It also means that no one should be able to generate valid BBS proofs disclosing sets of messages, without first obtaining a valid BBS signature on those messages (in academic works, this is referred to as the BBS proof being a proof-of-knowledge of a BBS signature <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.9-2" class="pilcrow">¶</a></p>
-<p id="section-6.9-3">Data confidentiality means that no one (not even the Signer) should be able to use a BBS proof to extract information about the messages the Prover decided not to disclose during the proof generation process, or the signature that was used to generate that proof (something that is referred to as the zero-knowledge property of the BBS proof <span>[<a href="#BBDT16" class="cite xref">BBDT16</a>]</span> <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.9-3" class="pilcrow">¶</a></p>
-<p id="section-6.9-4">On the presence of a Cryptographically Relevant Quantum Computer (CRQC), meaning a computer that will be able to break the discrete logarithm problem in the groups used by BBS Signatures (see <span>[<a href="#I-D.ietf-pquip-pqc-engineers" class="cite xref">I-D.ietf-pquip-pqc-engineers</a>]</span>), the data authenticity property will not hold. Specifically, an adversary could use a CRQC to reveal the Signer's secret key from their public key, hence giving them the ability to generate BBS signatures on behalf of that Signer, for messages of their choosing, as well as BBS proofs using those signatures.<a href="#section-6.9-4" class="pilcrow">¶</a></p>
-<p id="section-6.9-5">On the other hand, data confidentiality cannot be broken, even by adversaries with unbounded computational resources and in possession of the Signer's secret key. This means that even by utilizing a CRQC, adversaries will not be able to compromise the data confidentiality property of BBS proofs. As a result, an adversary with access to such a quantum computer, will not be able to reveal either the messages undisclosed by a BBS proof, or the hidden signature value (which the Prover showcases possession of). This guarantees that the privacy and hiding properties of BBS proofs that are currently used, will not be compromised by future quantum-attacks (a property that is often referred to as everlasting privacy). Note that this only considers BBS proofs, not BBS signatures, which do not possess the same hiding properties as the BBS proofs.<a href="#section-6.9-5" class="pilcrow">¶</a></p>
+<p id="section-6.10-1">BBS Signatures combine two security properties; data authenticity and data confidentiality.<a href="#section-6.10-1" class="pilcrow">¶</a></p>
+<p id="section-6.10-2">Data authenticity refers to the inability of anyone other that the Signer being able to generate BBS signatures that are valid under the Signer's public key (this property is often referred to as unforgeability, or in the case of BBS Signatures, strong unforgeability, e.g., by <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>). It also means that no one should be able to generate valid BBS proofs disclosing sets of messages, without first obtaining a valid BBS signature on those messages (in academic works, this is referred to as the BBS proof being a proof-of-knowledge of a BBS signature <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.10-2" class="pilcrow">¶</a></p>
+<p id="section-6.10-3">Data confidentiality means that no one (not even the Signer) should be able to use a BBS proof to extract information about the messages the Prover decided not to disclose during the proof generation process, or the signature that was used to generate that proof (something that is referred to as the zero-knowledge property of the BBS proof <span>[<a href="#BBDT16" class="cite xref">BBDT16</a>]</span> <span>[<a href="#CDL16" class="cite xref">CDL16</a>]</span> <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>).<a href="#section-6.10-3" class="pilcrow">¶</a></p>
+<p id="section-6.10-4">On the presence of a Cryptographically Relevant Quantum Computer (CRQC), meaning a computer that will be able to break the discrete logarithm problem in the groups used by BBS Signatures (see <span>[<a href="#I-D.ietf-pquip-pqc-engineers" class="cite xref">I-D.ietf-pquip-pqc-engineers</a>]</span>), the data authenticity property will not hold. Specifically, an adversary could use a CRQC to reveal the Signer's secret key from their public key, hence giving them the ability to generate BBS signatures on behalf of that Signer, for messages of their choosing, as well as BBS proofs using those signatures.<a href="#section-6.10-4" class="pilcrow">¶</a></p>
+<p id="section-6.10-5">On the other hand, data confidentiality cannot be broken, even by adversaries with unbounded computational resources and in possession of the Signer's secret key. This means that even by utilizing a CRQC, adversaries will not be able to compromise the data confidentiality property of BBS proofs. As a result, an adversary with access to such a quantum computer, will not be able to reveal either the messages undisclosed by a BBS proof, or the hidden signature value (which the Prover showcases possession of). This guarantees that the privacy and hiding properties of BBS proofs that are currently used, will not be compromised by future quantum-attacks (a property that is often referred to as everlasting privacy). Note that this only considers BBS proofs, not BBS signatures, which do not possess the same hiding properties as the BBS proofs.<a href="#section-6.10-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -4919,6 +4945,10 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
         <dd>
 <span class="refAuthor">Au, M. H.</span>, <span class="refAuthor">Susilo, W.</span>, and <span class="refAuthor">Y. Mu</span>, <span class="refTitle">"Constant-Size Dynamic k-TAA"</span>, <span class="seriesInfo">In International Conference on Security and Cryptography for Networks</span>, <span class="seriesInfo">pages 111-125</span>, <span class="seriesInfo">Springer, Berlin, Heidelberg</span>, <time datetime="2006" class="refDate">2006</time>, <span>&lt;<a href="https://link.springer.com/chapter/10.1007/11832072_8">https://link.springer.com/chapter/10.1007/11832072_8</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="BB04">[BB04]</dt>
+        <dd>
+<span class="refAuthor">Boneh, D.</span> and <span class="refAuthor">X. Boyen</span>, <span class="refTitle">"Short Signatures Without Random Oracles"</span>, <span class="seriesInfo">In EUROCRYPT</span>, <span class="seriesInfo">pages 56-73</span>, <time datetime="2004" class="refDate">2004</time>, <span>&lt;<a href="https://link.springer.com/chapter/10.1007/978-3-540-24676-3_4">https://link.springer.com/chapter/10.1007/978-3-540-24676-3_4</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="BBB17">[BBB17]</dt>
         <dd>
 <span class="refAuthor">Bunz, B.</span>, <span class="refAuthor">Bootle, J.</span>, <span class="refAuthor">Boneh, D.</span>, <span class="refAuthor">Poelstra, A.</span>, <span class="refAuthor">Wuille, P.</span>, and <span class="refAuthor">G. Maxwell</span>, <span class="refTitle">"Bulletproofs: Short Proofs for Confidential Transactions and More"</span>, <span class="seriesInfo">In 2018 IEEE Symposium on Security and Privacy</span>, <time datetime="2017" class="refDate">2017</time>, <span>&lt;<a href="https://ia.cr/2017/1066">https://ia.cr/2017/1066</a>&gt;</span>. </dd>
@@ -4939,13 +4969,25 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
         <dd>
 <span class="refAuthor">Camenisch, J.</span>, <span class="refAuthor">Drijvers, M.</span>, and <span class="refAuthor">A. Lehmann</span>, <span class="refTitle">"Anonymous Attestation Using the Strong Diffie Hellman Assumption Revisited"</span>, <span class="seriesInfo">In International Conference on Trust and Trustworthy Computing</span>, <span class="seriesInfo">pages 1-20</span>, <span class="seriesInfo">Springer, Cham</span>, <time datetime="2016" class="refDate">2016</time>, <span>&lt;<a href="https://eprint.iacr.org/2016/663.pdf">https://eprint.iacr.org/2016/663.pdf</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="CHT26">[CHT26]</dt>
+        <dd>
+<span class="refAuthor">Chairattana-Apirom, R.</span>, <span class="refAuthor">Hofheinz, D.</span>, and <span class="refAuthor">S. Tessaro</span>, <span class="refTitle">"Tight Security for BBS Signatures"</span>, <span class="seriesInfo">In EUROCRYPT</span>, <span class="seriesInfo">pages 246-276</span>, <time datetime="2026" class="refDate">2026</time>, <span>&lt;<a href="https://link.springer.com/chapter/10.1007/978-3-032-25291-3_9">https://link.springer.com/chapter/10.1007/978-3-032-25291-3_9</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="CL04">[CL04]</dt>
         <dd>
 <span class="refAuthor">Camenisch, J.</span> and <span class="refAuthor">A. Lysyanskaya</span>, <span class="refTitle">"Signature Schemes and Anonymous Credentials from Bilinear Maps"</span>, <span class="seriesInfo">In Annual International Cryptology Conference</span>, <span class="seriesInfo">pages 56-72</span>, <time datetime="2004" class="refDate">2004</time>, <span>&lt;<a href="https://link.springer.com/chapter/10.1007/978-3-540-28628-8_4">https://link.springer.com/chapter/10.1007/978-3-540-28628-8_4</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="CT25">[CT25]</dt>
+        <dd>
+<span class="refAuthor">Chairattana-Apirom, R.</span> and <span class="refAuthor">S. Tessaro</span>, <span class="refTitle">"On the Concrete Security of BBS/BBS+ Signatures"</span>, <span class="seriesInfo">In ASIACRYPT</span>, <span class="seriesInfo">pages 402-434</span>, <time datetime="2025" class="refDate">2025</time>, <span>&lt;<a href="https://link.springer.com/chapter/10.1007/978-981-95-5119-4_13">https://link.springer.com/chapter/10.1007/978-981-95-5119-4_13</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="DMS04">[DMS04]</dt>
         <dd>
 <span class="refAuthor">Dingledine, R.</span>, <span class="refAuthor">Mathewson, N.</span>, and <span class="refAuthor">P. Syverson</span>, <span class="refTitle">"Tor: The Second-Generation Onion Router"</span>, <time datetime="2004" class="refDate">2004</time>, <span>&lt;<a href="https://svn-archive.torproject.org/svn/projects/design-paper/tor-design.html">https://svn-archive.torproject.org/svn/projects/design-paper/tor-design.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="FKMV12">[FKMV12]</dt>
+        <dd>
+<span class="refAuthor">Faust, S.</span>, <span class="refAuthor">Kohlweiss, M.</span>, <span class="refAuthor">Marson, G. A.</span>, and <span class="refAuthor">D. Venturi</span>, <span class="refTitle">"On the Non-malleability of the Fiat-Shamir Transform"</span>, <span class="seriesInfo">In INDOCRYPT</span>, <time datetime="2012" class="refDate">2012</time>, <span>&lt;<a href="https://ia.cr/2012/704">https://ia.cr/2012/704</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="HDWH12">[HDWH12]</dt>
         <dd>
@@ -6202,166 +6244,663 @@ proof = h'a2ed608e8e12ed21abc2bf154e462d744a367c7f1f969bdbf784a2a134c7db
 <p id="appendix-E-15">To sum up; in order to validate the proof, a Verifier checks that <code>h(Abar, PK) = h(Bbar, BP2)</code> and verifies the <code>NIZK</code>. Validating the proof will guarantee the authenticity and integrity of the disclosed messages, as well as knowledge of the undisclosed messages and of the signature.<a href="#appendix-E-15" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="document-history">
+<div id="mapping-between-tz23-and-operations">
 <section id="appendix-F">
-      <h2 id="name-document-history">
-<a href="#appendix-F" class="section-number selfRef">Appendix F. </a><a href="#name-document-history" class="section-name selfRef">Document History</a>
+      <h2 id="name-mapping-between-and-operati">
+<a href="#appendix-F" class="section-number selfRef">Appendix F. </a><a href="#name-mapping-between-and-operati" class="section-name selfRef">Mapping Between <span class="cite xref">[TZ23]</span> and Operations</a>
       </h2>
-<p id="appendix-F-1">-00<a href="#appendix-F-1" class="pilcrow">¶</a></p>
+<p id="appendix-F-1">Reference <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> provides proofs for the BBS signature scheme described in this document. However, the notation of the academic paper <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> and the description of the imlementation herein and practical optimizations used can make it difficult to see that these are actually the same. Hence, in this section we explicitly "map" between reference <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> and the operations performed in this document. The formulas for setup, key generation, signature, and signature verification can be found in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> page 8, Figure 3, while the formulas for proof generation and proof verification can be found in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Appendix B under "Protocol Description".<a href="#appendix-F-1" class="pilcrow">¶</a></p>
+<p id="appendix-F-2">Both "additive" and "multiplicative" notation can be used for Abelian groups such as G1, G2, and GT. The paper <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> uses "multiiplicative" notation throughout, i.e., it uses "multiplication" as the group operation and exponentiation as the group operation applied repeatedly to an element with itself. In this specification "additive" notation is used for the groups G1 and G2, while "multiplicative" notation is used for the group GT.<a href="#appendix-F-2" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+        <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Symbol Description</th>
+            <th class="text-left" rowspan="1" colspan="1">TZ23</th>
+            <th class="text-left" rowspan="1" colspan="1">This Document</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">prime order of subgroups</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>p</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>r</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">mesage vector</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>m</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>m</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">number of messages</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>l</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>L</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">bilinear map (pairing) G1 x G2 -&gt; GT</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>e(A, B)</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>h(A, B)</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Selected points of G1 and G2</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>g1</code>, <code>g2</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>P1 + domain * Q1</code>, <code>BP2</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Private/Secret Key</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>sk = x</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>SK</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Public/Verification Key</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>vk</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>W</code> (<code>PK</code> serialized)</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Generators in G1</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <strong>h</strong>1</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>generators</code>, <code>H</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Product of messages and gens</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>C</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>B</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Signature elements (G1 Point, scalar)</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>(A, e)</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>(A, e)</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Set of disclosed indexes</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>J</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>(i1, ..., iR)</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Set of undisclosed indexes</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>I</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>(j1, ..., jU)</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Product of disclosed messages and gens</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>CJ</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>Bv</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Random scalar</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>r1</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>r1</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Random scalar</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>r2</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>1/r2</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Random scalars</td>
+            <td class="text-left" rowspan="1" colspan="1">alpha, beta, gamma</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>r1~</code>, <code>e~</code>, <code>r3~</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Random scalars</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>delta_i</code> i in I</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>m~_j1, ..., m~_jU</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Proof points</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>U1</code>, <code>U2</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>T1</code>, <code>T2</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Challenge value</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>c</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>-challenge</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Proof scalars</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>s</code>, <code>t</code>, <code>z</code>
+</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>r1^</code>, <code>e^</code>, <code>r3^</code>
+</td>
+          </tr>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">Proof scalars</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>u_i</code> I in I</td>
+            <td class="text-left" rowspan="1" colspan="1">
+              <code>m^_j</code> for j from 1, U</td>
+          </tr>
+        </tbody>
+      </table>
+<div id="key-generation-signing-and-verification-formulas">
+<section id="appendix-F.1">
+        <h3 id="name-key-generation-signing-and-">
+<a href="#appendix-F.1" class="section-number selfRef">F.1. </a><a href="#name-key-generation-signing-and-" class="section-name selfRef">Key Generation, Signing, and Verification Formulas</a>
+        </h3>
+<p id="appendix-F.1-1">Secret key and public key creation:<a href="#appendix-F.1-1" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-2.1">Initial version<a href="#appendix-F-2.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-F.1-2.1">
+            <p id="appendix-F.1-2.1.1"><span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Figure 3:<a href="#appendix-F.1-2.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-2.1.2">
+<li id="appendix-F.1-2.1.2.1">
+                <em>sk</em> = <em>x</em> is a random element from [0, p-1],<a href="#appendix-F.1-2.1.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.1-2.1.2.2">vk = g2^x in G2, also denoted X2 in Appendix B<a href="#appendix-F.1-2.1.2.2" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+          <li class="compact" id="appendix-F.1-2.2">
+            <p id="appendix-F.1-2.2.1"><a href="#secret-key" class="auto internal xref">Section 3.4.1</a>, <a href="#public-key" class="auto internal xref">Section 3.4.2</a><a href="#appendix-F.1-2.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-2.2.2">
+<li id="appendix-F.1-2.2.2.1">
+                <code>SK = KeyGen(key_material, key_info, key_dst)</code><a href="#appendix-F.1-2.2.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.1-2.2.2.2">
+                <code>W = SK * BP2</code><a href="#appendix-F.1-2.2.2.2" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+        </ul>
+<p id="appendix-F.1-3">Signing:<a href="#appendix-F.1-3" class="pilcrow">¶</a></p>
+<p id="appendix-F.1-4">Generator and message product<a href="#appendix-F.1-4" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F.1-5.1">
+            <p id="appendix-F.1-5.1.1"><span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Figure 3<a href="#appendix-F.1-5.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-5.1.2">
+<li id="appendix-F.1-5.1.2.1">C = g1 * product(<strong>h</strong>1[i], <strong>m</strong>[i]) over i<a href="#appendix-F.1-5.1.2.1" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+          <li class="compact" id="appendix-F.1-5.2">
+            <p id="appendix-F.1-5.2.1"><a href="#coresign" class="auto internal xref">Section 3.6.1</a><a href="#appendix-F.1-5.2.1" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F.1-5.2.2.1">
+                <code>B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))</code>, where generators are a vector of length  L+1 where <code>L = length(messages)</code>, <code>generators[0]</code> is also known as Q1.<a href="#appendix-F.1-5.2.2.1" class="pilcrow">¶</a>
+</li>
+              <li class="compact" id="appendix-F.1-5.2.2.2">Therefore B = P1 + domain*Q1 + sum messages[i]*generators[i] over i  = 1 to L.<a href="#appendix-F.1-5.2.2.2" class="pilcrow">¶</a>
+</li>
+            </ul>
+</li>
+        </ul>
+<p id="appendix-F.1-6"><em>e</em> value computation<a href="#appendix-F.1-6" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F.1-7.1">
+            <p id="appendix-F.1-7.1.1"><span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Figure 3<a href="#appendix-F.1-7.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-7.1.2">
+<li id="appendix-F.1-7.1.2.1">e a random value from [0, p-1]<a href="#appendix-F.1-7.1.2.1" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+          <li class="compact" id="appendix-F.1-7.2">
+            <p id="appendix-F.1-7.2.1"><a href="#coresign" class="auto internal xref">Section 3.6.1</a><a href="#appendix-F.1-7.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-7.2.2">
+<li id="appendix-F.1-7.2.2.1">
+                <code>domain = calculate_domain(PK, generators, header, api_id)</code><a href="#appendix-F.1-7.2.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.1-7.2.2.2">
+                <code>e = hash_to_scalar(serialize((SK, ...messages, domain)), hash_to_scalar_dst)</code><a href="#appendix-F.1-7.2.2.2" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+        </ul>
+<p id="appendix-F.1-8">Final signature<a href="#appendix-F.1-8" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F.1-9.1">
+            <p id="appendix-F.1-9.1.1"><span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Figure 3<a href="#appendix-F.1-9.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-9.1.2">
+<li id="appendix-F.1-9.1.2.1">A  = C^(1/(x + e)), where x = sk<a href="#appendix-F.1-9.1.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.1-9.1.2.2">The signature sigma = (A, e)<a href="#appendix-F.1-9.1.2.2" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+          <li class="compact" id="appendix-F.1-9.2">
+            <p id="appendix-F.1-9.2.1"><a href="#coresign" class="auto internal xref">Section 3.6.1</a><a href="#appendix-F.1-9.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-9.2.2">
+<li id="appendix-F.1-9.2.2.1">
+                <code>A = B * (1 / (SK + e))</code><a href="#appendix-F.1-9.2.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.1-9.2.2.2">The signature is (A, e)<a href="#appendix-F.1-9.2.2.2" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+        </ul>
+<p id="appendix-F.1-10">Verification:<a href="#appendix-F.1-10" class="pilcrow">¶</a></p>
+<p id="appendix-F.1-11">Recompute generator and message product<a href="#appendix-F.1-11" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F.1-12.1">
+            <p id="appendix-F.1-12.1.1"><span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Figure 3<a href="#appendix-F.1-12.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-12.1.2">
+<li id="appendix-F.1-12.1.2.1">C = g1 * product(<strong>h</strong>1[i], <strong>m</strong>[i]) over i<a href="#appendix-F.1-12.1.2.1" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+          <li class="compact" id="appendix-F.1-12.2">
+            <p id="appendix-F.1-12.2.1"><a href="#coreverify" class="auto internal xref">Section 3.6.2</a><a href="#appendix-F.1-12.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-12.2.2">
+<li id="appendix-F.1-12.2.2.1">
+                <code>domain = calculate_domain(PK, generators, header, api_id)</code><a href="#appendix-F.1-12.2.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.1-12.2.2.2">
+                <code>B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))</code><a href="#appendix-F.1-12.2.2.2" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+        </ul>
+<p id="appendix-F.1-13">Check for pairing equivalence<a href="#appendix-F.1-13" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F.1-14.1">
+            <p id="appendix-F.1-14.1.1"><span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Figure 3<a href="#appendix-F.1-14.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-14.1.2">
+<li id="appendix-F.1-14.1.2.1">e(A, g2^e * vk) ?= e(C, g2)<a href="#appendix-F.1-14.1.2.1" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+          <li class="compact" id="appendix-F.1-14.2">
+            <p id="appendix-F.1-14.2.1"><a href="#coreverify" class="auto internal xref">Section 3.6.2</a><a href="#appendix-F.1-14.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-14.2.2">
+<li id="appendix-F.1-14.2.2.1">
+                <code>if h(A, W) * h(A * e - B, BP2) != Identity_GT, return INVALID;</code> Note that this is in GT which is a multiplicative group of a field extension and not a subgroup of an Elliptic curve hence multiplicative notation.<a href="#appendix-F.1-14.2.2.1" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+        </ul>
+<p id="appendix-F.1-15">To see that these two verification tests are equivalent we use the the math of the bilinear function:<a href="#appendix-F.1-15" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.1-16">
+<li id="appendix-F.1-16.1">Expressing <code>h(A, W) * h(A  * e - B, BP2) ?= Identity_GT</code> in multiplicative notation<a href="#appendix-F.1-16.1" class="pilcrow">¶</a>
+</li>
+          <li id="appendix-F.1-16.2">
+            <code>h(A, W) * h(A^e * B^(-1), BP2) ?= Identity_GT</code>, Use bilinearity<a href="#appendix-F.1-16.2" class="pilcrow">¶</a>
+</li>
+          <li id="appendix-F.1-16.3">
+            <code>h(A, W) * h(A^e, BP2) * h(B, BP2)^(-1) ?= Identity_GT</code>, some algebra<a href="#appendix-F.1-16.3" class="pilcrow">¶</a>
+</li>
+          <li id="appendix-F.1-16.4">
+            <code>h(A, W) * e(A^e, BP2) ?= h(B, BP2)</code>, Use bilinearity<a href="#appendix-F.1-16.4" class="pilcrow">¶</a>
+</li>
+          <li id="appendix-F.1-16.5">
+            <code>h(A, W) * e(A, BP2^e) ?= h(B, BP2)</code>, Use bilinearity<a href="#appendix-F.1-16.5" class="pilcrow">¶</a>
+</li>
+          <li id="appendix-F.1-16.6">
+            <code>h(A, W * BP2^e) ?= h(B, BP2)</code> substitute <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> symbols gives:<a href="#appendix-F.1-16.6" class="pilcrow">¶</a>
+</li>
+          <li id="appendix-F.1-16.7">
+            <code>e(A, vk * g2^e) ?= e(C, g2)</code><a href="#appendix-F.1-16.7" class="pilcrow">¶</a>
+</li>
+        </ol>
+</section>
+</div>
+<div id="proof-generation-and-verification-formulas">
+<section id="appendix-F.2">
+        <h3 id="name-proof-generation-and-verific">
+<a href="#appendix-F.2" class="section-number selfRef">F.2. </a><a href="#name-proof-generation-and-verific" class="section-name selfRef">Proof Generation and Verification Formulas</a>
+        </h3>
+<p id="appendix-F.2-1">Proof generation part 1<a href="#appendix-F.2-1" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F.2-2.1">
+            <p id="appendix-F.2-2.1.1"><span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Appendix B "Protocol Description"<a href="#appendix-F.2-2.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.2-2.1.2">
+<li id="appendix-F.2-2.1.2.1">r1 and r2 are random numbers from (1, p-1)<a href="#appendix-F.2-2.1.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.1.2.2">A_bar = A^(r1/r2)<a href="#appendix-F.2-2.1.2.2" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.1.2.3">D = C^(1/r2) where C is the same as in the signature<a href="#appendix-F.2-2.1.2.3" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.1.2.4">B_bar = D^(r1) * A_bar^(-e)<a href="#appendix-F.2-2.1.2.4" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.1.2.5">Random scalars  alpha, beta,  gamma, and delta_i for i in <em>I</em> the undisclosed indexes.<a href="#appendix-F.2-2.1.2.5" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.1.2.6">U1 = D^(alpha) * A_bar^(beta)<a href="#appendix-F.2-2.1.2.6" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.1.2.7">U2 = D^(gamma) * product over i in <em>I</em> of h1[i]^(delta_i)<a href="#appendix-F.2-2.1.2.7" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+          <li class="compact" id="appendix-F.2-2.2">
+            <p id="appendix-F.2-2.2.1"><a href="#proof-initialization" class="auto internal xref">Section 3.7.2</a><a href="#appendix-F.2-2.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.2-2.2.2">
+<li id="appendix-F.2-2.2.2.1">
+                <code>(r1, r2, e~, r1~, r3~, m~_j1, ..., m~_jU) = random_scalars(5 + U)</code><a href="#appendix-F.2-2.2.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.2.2.2">
+                <code>B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))</code><a href="#appendix-F.2-2.2.2.2" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.2.2.3">
+                <code>D = B * r2</code><a href="#appendix-F.2-2.2.2.3" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.2.2.4">
+                <code>Abar = A * (r1 * r2)</code><a href="#appendix-F.2-2.2.2.4" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.2.2.5">
+                <code>Bbar = multi_exponentiation_g1((D, Abar), (r1, -e))</code><a href="#appendix-F.2-2.2.2.5" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.2.2.6">
+                <code>T1 = multi_exponentiation_g1((Abar, D), (e~, r1~))</code><a href="#appendix-F.2-2.2.2.6" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-2.2.2.7">
+                <code>T2 = multi_exponentiation_g1((D, ...undisclosed_generators),(r3~, m~_j1, ..., m~_jU))</code><a href="#appendix-F.2-2.2.2.7" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+        </ul>
+<p id="appendix-F.2-3">Proof generation part 2<a href="#appendix-F.2-3" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F.2-4.1">
+            <p id="appendix-F.2-4.1.1"><span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Appendix B "Protocol Description"<a href="#appendix-F.2-4.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.2-4.1.2">
+<li id="appendix-F.2-4.1.2.1">(A_bar, B_bar, D, U1, U2) sent to verifier<a href="#appendix-F.2-4.1.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.1.2.2">challenge <em>c</em> chosen by verifier<a href="#appendix-F.2-4.1.2.2" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.1.2.3">s = alpha + r1*c<a href="#appendix-F.2-4.1.2.3" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.1.2.4">t = beta  -  e*c<a href="#appendix-F.2-4.1.2.4" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.1.2.5">z = gamma + r2*c<a href="#appendix-F.2-4.1.2.5" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.1.2.6">u_i = delta_i - m[i] for i in <em>I</em>  (undisclosed)<a href="#appendix-F.2-4.1.2.6" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.1.2.7">(s, t, z, u_i) sent to verifier<a href="#appendix-F.2-4.1.2.7" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+          <li class="compact" id="appendix-F.2-4.2">
+            <p id="appendix-F.2-4.2.1"><a href="#challenge-calculation" class="auto internal xref">Section 3.7.5</a> and <a href="#proof-finalization" class="auto internal xref">Section 3.7.3</a><a href="#appendix-F.2-4.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.2-4.2.2">
+<li id="appendix-F.2-4.2.2.1">
+                <code>challenge = ProofChallengeCalculate(init_res, ph, api_id)</code><a href="#appendix-F.2-4.2.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.2.2.2">
+                <code>r3 = r2^-1 (mod r)</code><a href="#appendix-F.2-4.2.2.2" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.2.2.3">
+                <code>e^ = e~ + e_value * challenge</code><a href="#appendix-F.2-4.2.2.3" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.2.2.4">
+                <code>r1^ = r1~ - r1 * challenge</code><a href="#appendix-F.2-4.2.2.4" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.2.2.5">
+                <code>r3^ = r3~ - r3 * challenge</code><a href="#appendix-F.2-4.2.2.5" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.2.2.6">
+                <code>for j in (1, ..., U): m^_j = m~_j + undisclosed_j * challenge (mod r)</code><a href="#appendix-F.2-4.2.2.6" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-4.2.2.7">
+                <code>proof = (Abar, Bbar, D, e^, r1^, r3^, (m^_j1, ..., m^_jU), challenge)</code><a href="#appendix-F.2-4.2.2.7" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+        </ul>
+<p id="appendix-F.2-5">Proof Verification<a href="#appendix-F.2-5" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-F.2-6.1">
+            <p id="appendix-F.2-6.1.1"><span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Appendix B "Protocol Description"<a href="#appendix-F.2-6.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.2-6.1.2">
+<li id="appendix-F.2-6.1.2.1">check U1 * B_bar^(c) = D^s * A_bar^t. Note that this is the same as U1 = D^s * A_bar^t * B_bar^(-c)<a href="#appendix-F.2-6.1.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-6.1.2.2">check U2 * CJ^c = D^z * product over i in <em>I</em> of h1[i]^(u_i). Note that this is the same as U2 = CJ^(-c) * D^z * product over i in <em>I</em> of h1[i]^(u_i).<a href="#appendix-F.2-6.1.2.2" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-6.1.2.3">check e(A_bar, X2) = e(B_bar, g2) where X2 is the public key<a href="#appendix-F.2-6.1.2.3" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+          <li class="compact" id="appendix-F.2-6.2">
+            <p id="appendix-F.2-6.2.1"><a href="#proof-verification-initialization" class="auto internal xref">Section 3.7.4</a> and <a href="#coreproofverify" class="auto internal xref">Section 3.6.4</a><a href="#appendix-F.2-6.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="compact type-1" id="appendix-F.2-6.2.2">
+<li id="appendix-F.2-6.2.2.1">Compute <code>T1 = multi_exponentiation_g1((Bbar, Abar, D), (c, e^, r1^))</code> based on proof values.<a href="#appendix-F.2-6.2.2.1" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-6.2.2.2">
+                <code>Bv = multi_exponentiation_g1((P1, Q_1, H_i1, ..., H_iR), (1, domain, ...disclosed_messages))</code><a href="#appendix-F.2-6.2.2.2" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-6.2.2.3">Compute <code>T2 = multi_exponentiation_g1((Bv, D, H_j1, ..., H_jU), (c, r3^, ...commitments))</code> based  on proof values.<a href="#appendix-F.2-6.2.2.3" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-6.2.2.4">Compute the <code>challenge = ProofChallengeCalculate(init_res, ph, api_id)</code>, where init_res = {Abar, Bbar, D, T1, T2, domain, L, disclosed_indexes, disclosed_messages}, and T1 and T2 are the recomputed values.<a href="#appendix-F.2-6.2.2.4" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-6.2.2.5">check <code>challenge = sent challenge</code> if not, invalid. This is where the recomputed T1 and T2 are compared to the original T1 and T2 and expresses the checks of 1. and 2. above up to hash equivalence.<a href="#appendix-F.2-6.2.2.5" class="pilcrow">¶</a>
+</li>
+              <li id="appendix-F.2-6.2.2.6">
+                <code>if h(Abar, W) * h(Bbar, -BP2) != Identity_GT, return INVALID</code><a href="#appendix-F.2-6.2.2.6" class="pilcrow">¶</a>
+</li>
+            </ol>
+</li>
+        </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="document-history">
+<section id="appendix-G">
+      <h2 id="name-document-history">
+<a href="#appendix-G" class="section-number selfRef">Appendix G. </a><a href="#name-document-history" class="section-name selfRef">Document History</a>
+      </h2>
+<p id="appendix-G-1">-00<a href="#appendix-G-1" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="appendix-G-2.1">Initial version<a href="#appendix-G-2.1" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-3">-01<a href="#appendix-F-3" class="pilcrow">¶</a></p>
+<p id="appendix-G-3">-01<a href="#appendix-G-3" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-4.1">Populated fixtures<a href="#appendix-F-4.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-4.1">Populated fixtures<a href="#appendix-G-4.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-4.2">Added SHA-256 based ciphersuite<a href="#appendix-F-4.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-4.2">Added SHA-256 based ciphersuite<a href="#appendix-G-4.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-4.3">Fixed typo in ProofVerify<a href="#appendix-F-4.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-4.3">Fixed typo in ProofVerify<a href="#appendix-G-4.3" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-4.4">Clarify ASCII string usage in DST<a href="#appendix-F-4.4" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-4.4">Clarify ASCII string usage in DST<a href="#appendix-G-4.4" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-4.5">Added MapMessageToScalar test vectors<a href="#appendix-F-4.5" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-4.5">Added MapMessageToScalar test vectors<a href="#appendix-G-4.5" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-4.6">Fix typo in ciphersuite name<a href="#appendix-F-4.6" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-4.6">Fix typo in ciphersuite name<a href="#appendix-G-4.6" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-5">-02<a href="#appendix-F-5" class="pilcrow">¶</a></p>
+<p id="appendix-G-5">-02<a href="#appendix-G-5" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-6.1">Variety of editiorial clarifications<a href="#appendix-F-6.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-6.1">Variety of editiorial clarifications<a href="#appendix-G-6.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-6.2">Clarified integer endianness<a href="#appendix-F-6.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-6.2">Clarified integer endianness<a href="#appendix-G-6.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-6.3">Revised the encode for hash operation<a href="#appendix-F-6.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-6.3">Revised the encode for hash operation<a href="#appendix-G-6.3" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-6.4">Shifted to using CSPRNG instead of PRF<a href="#appendix-F-6.4" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-6.4">Shifted to using CSPRNG instead of PRF<a href="#appendix-G-6.4" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-6.5">Removed total number of messages from proof verify operation<a href="#appendix-F-6.5" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-6.5">Removed total number of messages from proof verify operation<a href="#appendix-G-6.5" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-6.6">Added deterministic proof fixtures<a href="#appendix-F-6.6" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-6.6">Added deterministic proof fixtures<a href="#appendix-G-6.6" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-6.7">Shifted to multiple CSPRNG calls to calculate random elements, instead of expand_message<a href="#appendix-F-6.7" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-6.7">Shifted to multiple CSPRNG calls to calculate random elements, instead of expand_message<a href="#appendix-G-6.7" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-6.8">Updated hash_to_scalar to a single output<a href="#appendix-F-6.8" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-6.8">Updated hash_to_scalar to a single output<a href="#appendix-G-6.8" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-7">-03<a href="#appendix-F-7" class="pilcrow">¶</a></p>
+<p id="appendix-G-7">-03<a href="#appendix-G-7" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-8.1">Updated core operation based on new <a href="https://eprint.iacr.org/2023/275">academic paper</a><a href="#appendix-F-8.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-8.1">Updated core operation based on new <a href="https://eprint.iacr.org/2023/275">academic paper</a><a href="#appendix-G-8.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-8.2">Variety of editorial updates<a href="#appendix-F-8.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-8.2">Variety of editorial updates<a href="#appendix-G-8.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-8.3">Updated exception and error handling<a href="#appendix-F-8.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-8.3">Updated exception and error handling<a href="#appendix-G-8.3" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-8.4">Added extension point for the operation with which the generators are created, allowing ciphersuites to define different operations for creating the generator points.<a href="#appendix-F-8.4" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-8.4">Added extension point for the operation with which the generators are created, allowing ciphersuites to define different operations for creating the generator points.<a href="#appendix-G-8.4" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-8.5">Added extension point for the operation with which the input messages are mapped to scalar values, allowing ciphersuites to define different message-to-scalar mapping operations<a href="#appendix-F-8.5" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-8.5">Added extension point for the operation with which the input messages are mapped to scalar values, allowing ciphersuites to define different message-to-scalar mapping operations<a href="#appendix-G-8.5" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-8.6">Added signature/proof fixtures with an empty header or an empty presentation header input<a href="#appendix-F-8.6" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-8.6">Added signature/proof fixtures with an empty header or an empty presentation header input<a href="#appendix-G-8.6" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-8.7">Updated the fixtures to use variable length messages (one of which is now the empty message "")<a href="#appendix-F-8.7" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-8.7">Updated the fixtures to use variable length messages (one of which is now the empty message "")<a href="#appendix-G-8.7" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-9">-04<a href="#appendix-F-9" class="pilcrow">¶</a></p>
+<p id="appendix-G-9">-04<a href="#appendix-G-9" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-10.1">Restructure Proof Generation and Verification operation to different subroutines.<a href="#appendix-F-10.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-10.1">Restructure Proof Generation and Verification operation to different subroutines.<a href="#appendix-G-10.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-10.2">Separate high-level (Interface) operations from low-level (Core) operations.<a href="#appendix-F-10.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-10.2">Separate high-level (Interface) operations from low-level (Core) operations.<a href="#appendix-G-10.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-10.3">Update the ciphersuite ID to remove from it the <code>create_generators</code> and <code>map_message_to_scalar</code> IDs, since those are defined as part of the high-level interface instead of the ciphersuite.<a href="#appendix-F-10.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-10.3">Update the ciphersuite ID to remove from it the <code>create_generators</code> and <code>map_message_to_scalar</code> IDs, since those are defined as part of the high-level interface instead of the ciphersuite.<a href="#appendix-G-10.3" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-10.4">Add a <code>commitment</code> optional value to the <code>CoreSign</code> operation. The <code>commitment</code> value is added to allow using BBS as part of other protocols but is ignored in this document.<a href="#appendix-F-10.4" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-10.4">Add a <code>commitment</code> optional value to the <code>CoreSign</code> operation. The <code>commitment</code> value is added to allow using BBS as part of other protocols but is ignored in this document.<a href="#appendix-G-10.4" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-10.5">Update test-vectors display.<a href="#appendix-F-10.5" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-10.5">Update test-vectors display.<a href="#appendix-G-10.5" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-11">-05<a href="#appendix-F-11" class="pilcrow">¶</a></p>
+<p id="appendix-G-11">-05<a href="#appendix-G-11" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-12.1">Proof Generation and Verification operations updated based on Appendix B of <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>.<a href="#appendix-F-12.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-12.1">Proof Generation and Verification operations updated based on Appendix B of <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>.<a href="#appendix-G-12.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-12.2">Test vectors updated based on the new proof generation procedure.<a href="#appendix-F-12.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-12.2">Test vectors updated based on the new proof generation procedure.<a href="#appendix-G-12.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-12.3">Removed the optional <code>commitment</code> value from the <code>CoreSign</code> operation, as the intended use case (blind signatures) will be addressed differently and in another document.<a href="#appendix-F-12.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-12.3">Removed the optional <code>commitment</code> value from the <code>CoreSign</code> operation, as the intended use case (blind signatures) will be addressed differently and in another document.<a href="#appendix-G-12.3" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-12.4">Changed the reference to <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span> from Normative to Informative, by re-defining the relevant functionality to this document.<a href="#appendix-F-12.4" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-12.4">Changed the reference to <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span> from Normative to Informative, by re-defining the relevant functionality to this document.<a href="#appendix-G-12.4" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-12.5">Various editorial updates.<a href="#appendix-F-12.5" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-12.5">Various editorial updates.<a href="#appendix-G-12.5" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-13">-06<a href="#appendix-F-13" class="pilcrow">¶</a></p>
+<p id="appendix-G-13">-06<a href="#appendix-G-13" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-14.1">To support bounded memory implementations, the order of the inputs to the digest operation for the calculation of the <code>e</code> value during <code>CoreSign</code> and the <code>challenge</code> value during <code>CoreProofGen</code> and <code>CoreProofVerify</code> was updated.<a href="#appendix-F-14.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-14.1">To support bounded memory implementations, the order of the inputs to the digest operation for the calculation of the <code>e</code> value during <code>CoreSign</code> and the <code>challenge</code> value during <code>CoreProofGen</code> and <code>CoreProofVerify</code> was updated.<a href="#appendix-G-14.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-14.2">Updated the test vectores to match the above update.<a href="#appendix-F-14.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-14.2">Updated the test vectores to match the above update.<a href="#appendix-G-14.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-14.3">Renamed the pairing function from <code>e</code> to <code>h</code>, to avoid naming collisions with the scalar component of the signature.<a href="#appendix-F-14.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-14.3">Renamed the pairing function from <code>e</code> to <code>h</code>, to avoid naming collisions with the scalar component of the signature.<a href="#appendix-G-14.3" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-14.4">Renamed <code>signature_dst</code>, <code>challenge_dst</code> and <code>domain_dst</code> to <code>hash_to_scalar_dst</code>.<a href="#appendix-F-14.4" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-14.4">Renamed <code>signature_dst</code>, <code>challenge_dst</code> and <code>domain_dst</code> to <code>hash_to_scalar_dst</code>.<a href="#appendix-G-14.4" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-15">-07<a href="#appendix-F-15" class="pilcrow">¶</a></p>
+<p id="appendix-G-15">-07<a href="#appendix-G-15" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-16.1">Editorial fixes (nizk -&gt; NIZK, clarified scalar multiplication in Notation Section).<a href="#appendix-F-16.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-16.1">Editorial fixes (nizk -&gt; NIZK, clarified scalar multiplication in Notation Section).<a href="#appendix-G-16.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-16.2">Removed "subject to change" warning on additional test vectors.<a href="#appendix-F-16.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-16.2">Removed "subject to change" warning on additional test vectors.<a href="#appendix-G-16.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-16.3">Fixed proof deserialization error.<a href="#appendix-F-16.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-16.3">Fixed proof deserialization error.<a href="#appendix-G-16.3" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-16.4">Fixed order of inputs in <code>CoreSign</code> call.<a href="#appendix-F-16.4" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-16.4">Fixed order of inputs in <code>CoreSign</code> call.<a href="#appendix-G-16.4" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-16.5">Fixed wrong inputs in <code>calculate_domain</code> call in <code>CoreSign</code> and <code>CoreVerify</code>.<a href="#appendix-F-16.5" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-16.5">Fixed wrong inputs in <code>calculate_domain</code> call in <code>CoreSign</code> and <code>CoreVerify</code>.<a href="#appendix-G-16.5" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-17">-08<a href="#appendix-F-17" class="pilcrow">¶</a></p>
+<p id="appendix-G-17">-08<a href="#appendix-G-17" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-18.1">No cryptographic changes<a href="#appendix-F-18.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-18.1">No cryptographic changes<a href="#appendix-G-18.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-18.2">Editorial clarifications and fixes.<a href="#appendix-F-18.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-18.2">Editorial clarifications and fixes.<a href="#appendix-G-18.2" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-19">-09<a href="#appendix-F-19" class="pilcrow">¶</a></p>
+<p id="appendix-G-19">-09<a href="#appendix-G-19" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-20.1">No cryptographic changes<a href="#appendix-F-20.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-20.1">No cryptographic changes<a href="#appendix-G-20.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-20.2">Editorial clarifications and fixing mistakes in api calls.<a href="#appendix-F-20.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-20.2">Editorial clarifications and fixing mistakes in api calls.<a href="#appendix-G-20.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-20.3">Using CDDL style representation of test vector values.<a href="#appendix-F-20.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-20.3">Using CDDL style representation of test vector values.<a href="#appendix-G-20.3" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-21">-10<a href="#appendix-F-21" class="pilcrow">¶</a></p>
+<p id="appendix-G-21">-10<a href="#appendix-G-21" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-22.1">No cryptographic changes<a href="#appendix-F-22.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-22.1">No cryptographic changes<a href="#appendix-G-22.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-22.2">Editorial and formatting fixes<a href="#appendix-F-22.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-22.2">Editorial and formatting fixes<a href="#appendix-G-22.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-22.3">Clarifying the use of the h and 0x prefixes to represent test vectors<a href="#appendix-F-22.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-22.3">Clarifying the use of the h and 0x prefixes to represent test vectors<a href="#appendix-G-22.3" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-23">-11<a href="#appendix-F-23" class="pilcrow">¶</a></p>
+<p id="appendix-G-23">-11<a href="#appendix-G-23" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-24.1">No cryptographic changes<a href="#appendix-F-24.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-24.1">No cryptographic changes<a href="#appendix-G-24.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-24.2">Editorial and formatting fixes<a href="#appendix-F-24.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-24.2">Editorial and formatting fixes<a href="#appendix-G-24.2" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-24.3">Use "three dot" notation for array/list expansion<a href="#appendix-F-24.3" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-24.3">Use "three dot" notation for array/list expansion<a href="#appendix-G-24.3" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-24.4">Add "Multi Exponentiation" operation to simplify procedure specification<a href="#appendix-F-24.4" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-24.4">Add "Multi Exponentiation" operation to simplify procedure specification<a href="#appendix-G-24.4" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-24.5">Add "Proof Initialization Result" object to simplify CoreProofGen and CoreProofVerify. Refactor ProofInit, ProofVerifyInit, ProofChallengeCalculate, and ProofFinalize<a href="#appendix-F-24.5" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-24.5">Add "Proof Initialization Result" object to simplify CoreProofGen and CoreProofVerify. Refactor ProofInit, ProofVerifyInit, ProofChallengeCalculate, and ProofFinalize<a href="#appendix-G-24.5" class="pilcrow">¶</a>
 </li>
       </ul>
-<p id="appendix-F-25">-12<a href="#appendix-F-25" class="pilcrow">¶</a></p>
+<p id="appendix-G-25">-12<a href="#appendix-G-25" class="pilcrow">¶</a></p>
 <ul class="compact">
-<li class="compact" id="appendix-F-26.1">No cryptographic changes<a href="#appendix-F-26.1" class="pilcrow">¶</a>
+<li class="compact" id="appendix-G-26.1">No cryptographic changes<a href="#appendix-G-26.1" class="pilcrow">¶</a>
 </li>
-        <li class="compact" id="appendix-F-26.2">Add Greg Bernstein as co-author<a href="#appendix-F-26.2" class="pilcrow">¶</a>
+        <li class="compact" id="appendix-G-26.2">Add Greg Bernstein as co-author<a href="#appendix-G-26.2" class="pilcrow">¶</a>
 </li>
       </ul>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-G">
+<section id="appendix-H">
       <h2 id="name-authors-addresses">
 <a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
