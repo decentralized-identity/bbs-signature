@@ -3620,6 +3620,12 @@ Proof Verification
 * No cryptographic changes
 * Add Greg Bernstein as co-author
 
+-13
+
+* Added appendix mapping between reference [@TZ23] and operations/functions in this draft per panel review request.
+* Updated definition/explanation of unlinkability per panel review request.
+* Added text on "Security Level and Underlying Assumptions" per request from list.
+
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
     <title>Faster subgroup checks for BLS12-381</title>
