@@ -630,7 +630,7 @@ Table of Contents
    (with a leakage that can be derived from any issued credential) and
    has high first-message min-entropy.  This means that the presentation
    algorithm obtained by compiling the sigma protocol with Fiat-Shamir
-   satisfies the Zero Knowledge property and can be simulated [FKMV12],
+   satisfies the Zero Knowledge property and can be simulated [FKMV12]
    Theorem 1, enabling the proof of the indistinguishability of
    presentations derived from the two credentials.  The
    indistinguishability claim follows from the indistinguishability of
