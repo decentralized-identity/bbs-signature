@@ -1,4 +1,4 @@
-name: "Update generated files"
+name: "Update Generated Files"
 # This rule is not run automatically.
 # It can be run manually to update all of the files that are part
 # of the template, specifically:
@@ -20,17 +20,19 @@ on: workflow_dispatch
 
 jobs:
   build:
-    name: "Update files"
+    name: "Update Files"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: "Checkout"
-        uses: actions/checkout@v4
+    - name: "Checkout"
+      uses: actions/checkout@v6
 
-      - name: "Update generated files"
-        uses: martinthomson/i-d-template@v1
-        with:
-          make: update-files
-          token: ${{ github.token }}
+    - name: "Update Generated Files"
+      uses: martinthomson/i-d-template@v1
+      with:
+        make: update-files
+        token: ${{ github.token }}
 
-      - name: "Push Update"
-        run: git push
+    - name: "Push Update"
+      run: git push
