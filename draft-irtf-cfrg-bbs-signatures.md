@@ -1474,7 +1474,7 @@ Definitions:
 
 Deserialization:
 
-1. L = length(H_Points)
+1. L = length(generators) - 1
 
 ABORT if:
 
@@ -1514,7 +1514,7 @@ Outputs:
 Procedure:
 
 1. P = Identity_G1
-2. For i in (0, ..., length(scalars)):
+2. For i in (0, ..., length(scalars) - 1):
 3.     P = P + points[i] * scalars(i)
 4. return P
 ```
