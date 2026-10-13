@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-04-01T00:14:55.574126+00:00",
+  "timestamp": "2026-10-13T00:47:33.504605+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -1284,7 +1284,7 @@
       "id": "I_kwDOF8lax85CSaUd",
       "title": "Supporting use cases for blind signing",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/29",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -1293,8 +1293,8 @@
       ],
       "body": "Currently the spec documents a procedure for constructing BBS signatures where by some / all of the messages signed by the signer are unknown to them. This issue is to discuss the usecases for this feature and whether it should remain in scope for the core spec of whether it could be added in the form of a seperate extension specification. The tradeoff being that electing to keep blind signing in scope significantly increases deliverables for the spec in the form of multiple cryptographic operations and data structures.\r\n\r\nNote - related to this is a discussion on how we should handle \"bound\" bbs signatures captured in issue #28",
       "createdAt": "2022-01-24T03:25:08Z",
-      "updatedAt": "2022-04-21T23:31:56Z",
-      "closedAt": null,
+      "updatedAt": "2026-10-01T16:24:22Z",
+      "closedAt": "2026-10-01T16:24:22Z",
       "comments": [
         {
           "author": "christianpaquin",
@@ -1323,6 +1323,13 @@
           "body": " \r\n> Is the idea here for the holder to send a commitment with the user-ID to a new issuer? If so, how the second issuer can be sure that the holder committed to the correct user-ID (also contained in the first credential)?\r\n\r\nYes. Conceptually, the holder creates a presentation proof with a commitment, showing that the undisclosed attribute is the same as in its credential; after validation by the issuer, the commitment can be integrated in the new credential. The U-Prove extension above shows how to do that for Brands' credentials; the details would be slightly different for a BBS+ based credential. An analysis is required to answer the questions you raised. Bottom line, it's not a trivial thing and perhaps this justifies specifying this functionality outside of the core spec (making sure however it has the right hooks for extensions).",
           "createdAt": "2022-01-28T14:37:15Z",
           "updatedAt": "2022-01-28T14:37:58Z"
+        },
+        {
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Separate Blind BBS draft exists.",
+          "createdAt": "2026-10-01T16:24:22Z",
+          "updatedAt": "2026-10-01T16:24:22Z"
         }
       ]
     },
@@ -3324,7 +3331,7 @@
       "id": "I_kwDOF8lax85GkqlR",
       "title": "Updates to blind signature extension draft",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/90",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "tplooker",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -3334,8 +3341,8 @@
       ],
       "body": "We made significant progress on the core draft over the past couple of months, which is likely to have created some in-consistencies in how the blind sign draft maps onto it as an extension, this issue is just open to track this work and re-alignment.",
       "createdAt": "2022-03-28T21:32:13Z",
-      "updatedAt": "2022-04-22T23:27:59Z",
-      "closedAt": null,
+      "updatedAt": "2026-10-01T16:26:11Z",
+      "closedAt": "2026-10-01T16:26:11Z",
       "comments": [
         {
           "author": "tplooker",
@@ -3343,6 +3350,20 @@
           "body": "Partially addressed in #108 ",
           "createdAt": "2022-04-22T23:27:59Z",
           "updatedAt": "2022-04-22T23:27:59Z"
+        },
+        {
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Separate Blind BBS draft now exists.",
+          "createdAt": "2026-10-01T16:25:45Z",
+          "updatedAt": "2026-10-01T16:25:45Z"
+        },
+        {
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Separate Blind BBS draft now exists.",
+          "createdAt": "2026-10-01T16:26:11Z",
+          "updatedAt": "2026-10-01T16:26:11Z"
         }
       ]
     },
@@ -4285,7 +4306,7 @@
       "id": "I_kwDOF8lax85JceAN",
       "title": "Fix Blind Messages Proof",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/134",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "alessandroguggino",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [
@@ -4297,8 +4318,8 @@
       ],
       "body": "I found something new from the Blind signature extension. I know that you are now focused on the core draft but I leave it here :)\r\n\r\nIn `BlindMessagesProofGen`:\r\nhttps://github.com/decentralized-identity/bbs-signature/blob/5fba426d415b85b6156a0c001e605482bdf3b770/draft-blind-bbs-signatures.md?plain=1#L249\r\nIn `BlindMessagesProofVerify`:\r\nhttps://github.com/decentralized-identity/bbs-signature/blob/5fba426d415b85b6156a0c001e605482bdf3b770/draft-blind-bbs-signatures.md?plain=1#L284\r\n\r\nThe values in `c` and `cv` are inconsistent: we should decide which one to follow.\r\n1) `c = hash(U || U~ || nonce)` and `cv = hash(U || U^ || nonce)` + add `U` (known messages) as input parameter in _BlindMessagesProofVerify_\r\n**or**\r\n2) `c = hash(commitment || U~ || nonce)` and `cv = hash(commitment || U^ || nonce)`\r\n\r\nP.S. I'm going to open a pull request to remove the unuseful escape chars and, if you want, update the draft to snake_case notation",
       "createdAt": "2022-05-11T08:25:05Z",
-      "updatedAt": "2023-12-18T19:51:34Z",
-      "closedAt": null,
+      "updatedAt": "2026-10-01T16:27:01Z",
+      "closedAt": "2026-10-01T16:27:01Z",
       "comments": [
         {
           "author": "tplooker",
@@ -4306,6 +4327,13 @@
           "body": "Hey @alessandroguggino good catch, yes there are some inconsistencies, however you are right that our focus as a WG is primarily on the core draft right now. Feel free to open a PR to address any syntax inconsistencies anything broader we will address once the core draft is complete/stable.",
           "createdAt": "2022-05-11T09:02:36Z",
           "updatedAt": "2022-05-11T09:02:36Z"
+        },
+        {
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Separate Blind BBS draft now exists.",
+          "createdAt": "2026-10-01T16:26:56Z",
+          "updatedAt": "2026-10-01T16:26:56Z"
         }
       ]
     },
@@ -5370,10 +5398,12 @@
       "author": "andrewwhitehead",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "I'm just opening this issue for discussion of whether the current algorithms preclude support for signing by an HSM (hardware security module) or other types of key vaults.\r\n\r\nSome questions that come to mind:\r\n- Is it reasonable to assume that the HSM will compute (or ship with) the required generator points, or would they need to be submitted by the caller?\r\n- Would there need to be a limit on the number of signed messages?\r\n- Should the messages be submitted as scalars in order to support different message encodings?\r\n- Do specific ciphersuites need to be explicitly supported (and perhaps included in the key metadata to prevent reuse across ciphersuites)?\r\n- What would support for blind signing look like?\r\n\r\nAnd in general, are there examples of multi-message signing APIs for comparison?",
       "createdAt": "2022-08-08T21:38:49Z",
-      "updatedAt": "2022-08-10T15:09:27Z",
+      "updatedAt": "2026-10-01T16:29:12Z",
       "closedAt": null,
       "comments": [
         {
@@ -6220,12 +6250,13 @@
       "assignees": [],
       "labels": [
         "ready-for-pr",
+        "pending-close",
         "core",
         "editorial"
       ],
       "body": "2 sugestions for the Ciphersuite format:\r\n\r\n### A. Points serialization:\r\n\r\nThe point serialization we use is curve agnostic. No reason to be defined in the Ciphersuite. We could simplify things and define them as global parameters.\r\n\r\n### B. `expand_len` definition:\r\n\r\nAfter #243 is merged, we can define `expand_len` in the ciphersuite and impose requirements for its value in a way that `expand_message` will never fail. We can then remove all the `if uniform_bytes is INVALID, return INVALID` steps (and potentially even make `hash_to_scalar` to never fail if we remove the check for 0s).",
       "createdAt": "2023-02-21T21:55:40Z",
-      "updatedAt": "2023-10-23T18:48:57Z",
+      "updatedAt": "2026-10-01T16:29:13Z",
       "closedAt": null,
       "comments": [
         {
@@ -6488,10 +6519,12 @@
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "Hey all!\r\n\r\nPosting a first draft of bound BBS signatures, using BLS key pairs: https://basileioskal.github.io/bbs-bound-signatures/draft-bound-bbs-signatures.html\r\n\r\nYou can find the repo [here](https://github.com/BasileiosKal/bbs-bound-signatures)\r\n\r\n(for context see also #28 and #37)\r\n",
       "createdAt": "2023-04-30T20:17:12Z",
-      "updatedAt": "2024-09-01T10:03:22Z",
+      "updatedAt": "2026-10-01T16:29:14Z",
       "closedAt": null,
       "comments": [
         {
@@ -6510,7 +6543,7 @@
         },
         {
           "author": "Wind4Greg",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Hi Vasilis, I did an initial read. I think the curve BLS12-381 curve library I use has a pretty good BLS signature implementation. Let us know if/when you've got some test vectors and I can try a JavaScript implementation. Cheers Greg",
           "createdAt": "2023-05-02T17:30:02Z",
           "updatedAt": "2023-05-02T17:30:02Z"
@@ -6573,7 +6606,7 @@
         },
         {
           "author": "Wind4Greg",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Hi @matthiasgeihs we are using  [Blind BBS Signatures](https://www.ietf.org/archive/id/draft-kalos-bbs-blind-signatures-01.html#) to implement  a  form  of holder  binding  for verifiable credentials [VC-DI=BBS: anonymous holder  binding](https://w3c.github.io/vc-di-bbs/#anonymous-holder-binding).   My  implementation of Blind BBS can be  found at https://github.com/Wind4Greg/grotto-bbs-signatures. Cheers Greg",
           "createdAt": "2024-08-30T15:34:10Z",
           "updatedAt": "2024-08-30T15:34:10Z"
@@ -6758,10 +6791,12 @@
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "As discussed on our WG call, here's a first draft on BBS Signatures with less or no pairing operations:\r\n\r\nhttps://basileioskal.github.io/pairing-free-bbs/draft-vasilis-pairing-free-bbs.html\r\n\r\nYou can find the repo [here](https://github.com/BasileiosKal/pairing-free-bbs). Note that after review, if consensus is achieved, the intention is for the document to become part of this repository.\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
       "createdAt": "2023-08-31T18:36:21Z",
-      "updatedAt": "2024-10-09T03:21:21Z",
+      "updatedAt": "2026-10-01T16:29:15Z",
       "closedAt": null,
       "comments": [
         {
@@ -6813,10 +6848,12 @@
       "author": "hasinitg",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "Hi,\r\n\r\nCan you please provide any information on whether there are any plans for supporting predicate proofs on identity attributes and revocation on credentials alongside the standardization of BBS+ signatures for identity credentials?\r\n\r\nThank you!",
       "createdAt": "2023-09-16T05:58:05Z",
-      "updatedAt": "2023-09-16T05:58:05Z",
+      "updatedAt": "2026-10-01T16:29:15Z",
       "closedAt": null,
       "comments": []
     },
@@ -6825,15 +6862,15 @@
       "id": "I_kwDOF8lax851_Oor",
       "title": "Blind BBS Signatures",
       "url": "https://github.com/decentralized-identity/bbs-signature/issues/292",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "BasileiosKal",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "New (updated) draft on blind signatures: https://basileioskal.github.io/blind-bbs-signatures/draft-bbs-blind-signatures.html\r\n\r\nCouple notes:\r\n- It seems that the commitment value added in `CoreSign` in the main draft is not useful after all. Will probably remove it.\r\n- If agreed, the above would probably replace the current draft and hopefully be submitted at the IETF as well.\r\n- Will add test vectors soon.",
       "createdAt": "2023-11-06T16:03:25Z",
-      "updatedAt": "2023-11-27T17:28:20Z",
-      "closedAt": null,
+      "updatedAt": "2026-10-01T16:27:39Z",
+      "closedAt": "2026-10-01T16:27:39Z",
       "comments": [
         {
           "author": "BasileiosKal",
@@ -6841,6 +6878,13 @@
           "body": "Fixtures added: https://github.com/BasileiosKal/blind-bbs-signatures/tree/main/fixtures/fixture_data",
           "createdAt": "2023-11-27T17:28:19Z",
           "updatedAt": "2023-11-27T17:28:19Z"
+        },
+        {
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Separate Blind BBS draft now exists.",
+          "createdAt": "2026-10-01T16:27:39Z",
+          "updatedAt": "2026-10-01T16:27:39Z"
         }
       ]
     },
@@ -6884,15 +6928,17 @@
       "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "Hey there,\r\n\r\nFirst some context.\r\nWe are students of the Bern University of Applied Sciences.\r\nWe are making a Java implementation of your Draft as a pre-requisite of our Bachelors thesis.\r\nsee: https://github.com/RockstaYT/P2_BBS_Signature\r\n\r\nAs part of this project we also went over the Draft and saw some spelling errors.\r\nWould be nice if you could fix them if you have time :)\r\n\r\nFirst error is:\r\n\r\n`ciphersuite and and \"H2GHM2S\"` in 3.5. BBS Signature Interface\r\n\r\nShouldn't it be `ciphersuite and and \"H2G_HM2S_\"`?",
       "createdAt": "2024-01-17T17:52:01Z",
-      "updatedAt": "2024-01-22T18:58:24Z",
+      "updatedAt": "2026-10-01T16:29:16Z",
       "closedAt": null,
       "comments": [
         {
           "author": "Wind4Greg",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "Hi @RockstaYT, glad to see another implementation under way. I don't think there is a Java implementation yet. I've been working on a JavaScript only implementation [JavaScript BBS Signatures](https://www.npmjs.com/package/@grottonetworking/bbs-signatures), there are some in TypeScript, and Rust that I know of. \r\n\r\nNote that we have weekly calls Mondays 11AM (PST) via [DIF Applied Crypto WG](https://identity.foundation/working-groups/crypto.html). Also note that DIF is free to join for individuals and gives you access to the zoom calls and slack channel. We go over the latest issues on the call.",
           "createdAt": "2024-01-18T17:42:34Z",
           "updatedAt": "2024-01-18T17:42:34Z"
@@ -6931,10 +6977,12 @@
       "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "In 3.5.4 Proof verification, U + R + 1 generators are created.\r\nR = number of disclosed index\r\nU = number of commitments + 2 \r\n\r\nThen in 3.7.3, a verification of the number of generators takes place:\r\n`11. if length(generators) != L + 1, return INVALID`\r\n\r\nwhere L = number of commitments + number of disclosed indexes.\r\n\r\nThis is incorrect.\r\nAssuming 0 commitments and 0 disclosed indexes:\r\nR = 0, U = 0 + 2, generators created (U + R + 1) = 3\r\n\r\nL = 0 (as no commitments and no messages to be disclosed), generators checked (L + 1) = 1\r\n\r\nMy proposition:\r\n\r\n**Instead of checking L + 1, it should be L + 3.**",
       "createdAt": "2024-01-17T23:27:17Z",
-      "updatedAt": "2024-01-17T23:58:49Z",
+      "updatedAt": "2026-10-01T16:29:17Z",
       "closedAt": null,
       "comments": [
         {
@@ -6955,10 +7003,12 @@
       "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "In the Test vector \"[D.2.3. ](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bbs-signatures-05#appendix-D.2.3)[Hash to Scalar Test Vectors](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bbs-signatures-05#name-hash-to-scalar-test-vectors-2)\"\r\nthe dst is \"4242535f424c53313233383147315f584d443a5348412d3235365f535357555f524f5f4832475f484d32535f4832535f\"\r\n\r\nin your own [files](https://github.com/decentralized-identity/bbs-signature/blob/main/tooling/fixtures/fixture_data/bls12-381-sha-256/MapMessageToScalarAsHash.json) the used dst is as follows:\r\n\"4242535f424c53313233383147315f584d443a5348412d3235365f535357555f524f5f4832475f484d32535f4d41505f4d53475f544f5f5343414c41525f41535f484153485f\"\r\n\r\nWith the dst in your files the test vector works",
       "createdAt": "2024-01-18T17:23:04Z",
-      "updatedAt": "2024-01-18T17:23:04Z",
+      "updatedAt": "2026-10-01T16:29:18Z",
       "closedAt": null,
       "comments": []
     },
@@ -7103,10 +7153,12 @@
       "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "In the fixture proof010.json, there are two identical disclosed indexes.\r\nFor me that also means that in the disclosed messages vector, the same message is present twice.\r\nThere is no check for that.\r\nThe only check is if the length of the disclosed messages is the same as the length of the disclosed indexes.\r\n\r\nOther implementations (see [Greg Bernstein's JS implementation](https://github.com/Wind4Greg/grotto-bbs-signatures)) solve this issue by filtering the fixture messages, so that the messages only appears once in the vector.\r\nIn that case the lengths of the disclosed messages and indexes would mismatch.\r\n\r\nThere should be a check if the disclosed indexes are in order, and  maybe a check if there are duplicate entries in the vectors.",
       "createdAt": "2024-02-16T23:54:22Z",
-      "updatedAt": "2024-02-16T23:54:22Z",
+      "updatedAt": "2026-10-01T16:29:19Z",
       "closedAt": null,
       "comments": []
     },
@@ -7119,10 +7171,12 @@
       "author": "roblesjoel",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "In the generate secret key function (see [here](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bbs-signatures-05#name-secret-key)) only the cyphersuiteID is used for the key_dst.\r\nInstead the api_id needs to be used.\r\n\r\nSo in the definition of key_dst it should be: \r\n\r\n> Defaults to the octet string ciphersuite_id || \"H2G_HM2S_\" || \"KEYGEN_DST_\" if not supplied",
       "createdAt": "2024-02-18T20:33:34Z",
-      "updatedAt": "2024-02-19T20:56:35Z",
+      "updatedAt": "2026-10-01T16:29:20Z",
       "closedAt": null,
       "comments": [
         {
@@ -7167,10 +7221,12 @@
       "author": "bellebaum",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "There is a possibility that one day a dedicated entity will find a nontrivial relationship in the generators used for a particular parameter set. This is about as hard as computing a discrete logarithm (about 128 bits of security), as has been proven before, thus we take this impossibility for granted. What worries me is this:\r\n\r\nOnce one or few of such nontrivial relationships are found, they might translate not into an attack on one particular key pair, but into an attack on all key pairs using the same `api_id`, which severely increases the reward for anyone attempting such an attack.\r\n\r\nOne simple fix would be to hash the public key into the initial value of `v` (maybe even into all of them), which would however make caching of generators more expensive and less useful. What do you think about this potential threat? Is it worth it to incorporate measures against it?",
       "createdAt": "2024-03-19T09:13:15Z",
-      "updatedAt": "2024-03-19T09:13:15Z",
+      "updatedAt": "2026-10-01T16:29:21Z",
       "closedAt": null,
       "comments": []
     },
@@ -7254,10 +7310,12 @@
       "author": "NikZak",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "Hi. When I look at [section 8.4.5.2](https://identity.foundation/bbs-signature/draft-irtf-cfrg-bbs-signatures.html#section-8.4.5.2)\r\nor [section 8.4.5.1](https://identity.foundation/bbs-signature/draft-irtf-cfrg-bbs-signatures.html#section-8.4.5.1)\r\nrandom scalars go as \r\n```\r\nrandom scalars:\r\n    r1 = \"60ca409f6b0563f687fc471c63d2819f446f39c23bb540925d9d4254ac58f3\r\n          37\"\r\n    r2 = \"2ceff4982de0c913090f75f081df5ec594c310bb48c17cfdaab5332a682ef8\r\n          11\"\r\n    e_tilde = \"6101c4404895f3dff87ab39c34cb995af07e7139e6b3847180ffdd1bc\r\n               8c313cd\"\r\n    r1_tilde = \"0dfcffd97a6ecdebef3c9c114b99d7a030c998d938905f357df62822\r\n                dee072e8\"\r\n    r3_tilde = \"639e3417007d38e5d34ba8c511e836768ddc2669fdd3faff5c14ad27\r\n                ac2b2da1\"\r\n```\r\n\r\nWhen I look at [section 8.4.5.3](https://identity.foundation/bbs-signature/draft-irtf-cfrg-bbs-signatures.html#section-8.4.5.3) random scalars are:\r\n```\r\nrandom scalars:\r\n    r1 = \"44679831fe60eca50938ef0e812e2a9284ad7971b6932a38c7303538b712e4\r\n          57\"\r\n    r2 = \"6481692f89086cce11779e847ff884db8eebb85a13e81b2d0c79d6c1062069\r\n          d8\"\r\n    e_tilde = \"721ce4c4c148a1d5826f326af6fd6ac2844f29533ba4127c3a43d222d\r\n               51b7081\"\r\n    r1_tilde = \"1ecfaf5a079b0504b00a1f0d6fe8857291dd798291d7ad7454b39811\r\n                4393f37f\"\r\n    r3_tilde = \"0a4b3d59b34707bb9999bc6e2a6d382a2d2e214bff36ecd88639a141\r\n                24b1622e\"\r\n    m_tilde_scalars:\r\n        m~_1 = \"7217411a9e329c7a5705e8db552274646e2949d62c288d7537dd62bc\r\n                284715e4\"\r\n        m~_3 = \"67d4d43660746759f598caac106a2b5f58ccd1c3eefaec31841a4f77\r\n                d2548870\"\r\n        m~_5 = \"715d965b1c3912d20505b381470ff1a528700b673e50ba89fd287e13\r\n                171cc137\"\r\n        m~_7 = \"4d3281a149674e58c9040fc7a10dd92cb9c7f76f6f0815a1afc3b09d\r\n                74b92fe4\"\r\n        m~_8 = \"438feebaa5894ca0da49992df2c97d872bf153eab07e08ff73b28131\r\n                c46ff415\"\r\n        m~_9 = \"602b723c8bbaec1b057d70f18269ae5e6de6197a5884967b03b933fa\r\n                80006121\"\r\n```\r\n\r\nThere are few issues with it. \r\nFirst:\r\nHow were the first random scalars derived? This is not defined in the standard. I've figured that you can get them by using seeded_random_scalars(SEED, DST, count) where SEED = \"332e313431353932363533353839373933323338343632363433333833323739\" and DST =\r\n\"BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_MOCK_RANDOM_SCALARS_DST_\" but I had to make a few guesses to find that. I think this better be defined in the standard.\r\n\r\nSecond:\r\nHow second random scalars are derived, I don't know\r\n\r\nI mean you may argue that how the random scalars are derived is not necessary to run the tests. But then why defining `seeded_random_scalars` function and saying that it is used to get random scalars. This function can not be used so the whole section about `seeded_random_scalars` is redundant",
       "createdAt": "2024-10-08T00:55:53Z",
-      "updatedAt": "2024-10-08T03:59:41Z",
+      "updatedAt": "2026-10-01T16:29:21Z",
       "closedAt": null,
       "comments": []
     },
@@ -7270,12 +7328,22 @@
       "author": "emlun",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "Hi,\r\n\r\nIt looks like there's a typo in [Appendix E of the `07` draft](https://www.ietf.org/archive/id/draft-irtf-cfrg-bbs-signatures-07.html#appendix-E). Equation `[6]` reads:\r\n\r\n```\r\n[6]     P1 + Q_1 * domain + H_i1 * msg_i1 + ... + H_iR * msg_iR =\r\n                        D * r2' - H_ji * msg_j1 - ... - H_jU * msg_jU\r\n```\r\n\r\nwhere I think the `H_ji` on the second line is meant to be `H_j1`?",
       "createdAt": "2024-11-04T14:13:35Z",
-      "updatedAt": "2024-11-04T14:13:35Z",
+      "updatedAt": "2026-10-01T16:29:22Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Yes, that's correct. Fixed in PR #339. Thank you!",
+          "createdAt": "2026-02-19T17:56:13Z",
+          "updatedAt": "2026-02-19T17:56:13Z"
+        }
+      ]
     },
     {
       "number": 329,
@@ -7286,10 +7354,12 @@
       "author": "akakou",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "Hello, \r\n\r\nMy name is Kosei Akama, and I am a master's student at Keio University. \r\nI am writing to inquire about plans to adopt TPM-supported elliptic curves in the BBS draft.\r\n\r\nThe [BN638 and BN256I curves](https://www.ietf.org/archive/id/draft-irtf-cfrg-pairing-friendly-curves-11.html) are utilized for remote attestation mechanisms, \r\nsuch as Direct Anonymous Attestation (DAA) and Enhanced Privacy ID (EPID), both of which are based on the BBS.\r\n\r\nGiven this context, it seems necessary to specify the BN638 and BN256I as supported curves. \r\nIs there a plan to include these curves in the draft?",
       "createdAt": "2024-11-18T13:33:48Z",
-      "updatedAt": "2024-11-18T13:33:48Z",
+      "updatedAt": "2026-10-01T16:29:23Z",
       "closedAt": null,
       "comments": []
     },
@@ -7302,12 +7372,142 @@
       "author": "bellebaum",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "pending-close"
+      ],
       "body": "We have implemented the current spec in C: https://github.com/Fraunhofer-AISEC/libbbs\r\n\r\nOur implementation tries to simplify certain constructions. For instance, it avoids to create long arrays and can generally be adapted to provide an incremental API (which is useful if `2^64` messages, or even `2^16`, shall be supported in any application). While the README lists the current performance characteristics for the main interface, we might eventually provide optimized interfaces for e.g. signers.\r\n\r\nSome random feedback from working with the current draft:\r\n\r\n1. The draft layout makes it quite hard to implement the spec in a straight forward way, because what ends up being only a few lines of code is separated into a lot of subroutines, each with (sometimes redundant) deserialization and validation steps. My guess that this was done in preparation for extensions (e.g. blind BBS signatures), but it does slow down development and makes it more likely to overlook crucial validation steps (this happened to me). Where validation steps in subroutines are not meaningful to a standalone implementation, it seems more straightforward to document the assumptions enforced by the validation, and perform necessary validation in the calling functions, e.g. in extensions.\r\n2. This modularity sometimes creates additional work. For instance, during our simplifications I decided to simply not implement the special rules for serializing/deserializing the identity element (instead returning an error). This simplified the code not just in the deserialization, but also made several validation steps obsolete. Unless there are good reasons against it, I would recommend considering this for the draft as well.\r\n3. The deterministic generation of random scalars for the test vectors was a pain, as expected. I ended up implementing a callback for these values, which is a hash-to-scalar-powered PRF from a random 32-byte salt during normal signing, and replaced by the mockup in the draft for the tests. If anything, the random function gives slightly less power to an adversary influencing the OS randomness.\r\n\r\nAs a concrete example of possible \"simplifications\", consider the following procedure for Sign:\r\n\r\n```\r\n1. (msg_1, ..., msg_L) = messages_to_scalars(messages, api_id)\r\n2. (Q_1, H_1, ..., H_L) = create_generators(length(messages)+1, api_id)\r\n\r\n3. domain = calculate_domain(PK, (Q_1,H_1, ..., H_L), header, api_id)\r\n4. e = hash_to_scalar(serialize((SK, msg_1, ..., msg_L, domain)),\r\n                                                     hash_to_scalar_dst)\r\n\r\n5. B = P1 + Q_1 * domain + H_1 * msg_1 + ... + H_L * msg_L\r\n6. A = B * (1 / (SK + e))\r\n\r\n7. return serialize((A, e))\r\n```\r\n\r\nThis is seven steps instead of ten, not counting the superfluous length checks in CoreSign (thus also rendering the INVALID check redundant). Furthermore, the text about a possible identity `A` becomes superfluous if serialization of `A` returns INVALID for the identity, so for an implementer, not much additional text is needed. For good measure, I also removed the `signature_to_octets` wrapper on `serialize`. The same would theoretically be possible for `calculate_domain`. Extensions to the signature scheme can always just restate the missing 3-4 lines of the signing procedure above. \r\nEven greater improvements in readability and conciseness are achievable with other methods, especially `ProofGen`.\r\n\r\nI believe the fastest implementation would have been possible having a draft with code structured roughly as follows:\r\n\r\n1. serialization/deserialization operations for curve points, scalars etc. (opt. excluding the identity element)\r\n2. message scalars (hashed and random) and generators\r\n3. (optional) domain calculation\r\n4. `KeyGen`, `Sign`, `Verify`, `ProofGen`, `ProofVerify`, with everything inlined as much as possible\r\n\r\nThanks for reading :)",
       "createdAt": "2024-12-18T14:11:46Z",
-      "updatedAt": "2024-12-18T14:11:46Z",
+      "updatedAt": "2026-10-01T16:29:24Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Hello and thank you for the feedback! Sorry for the late reply!\n\nYou are correct that the procedures are segmented to promote extendability and composability with other zero-knowledge protocols, without necessarily requesting any deep knowledge of BBS signatures specifically.\n\nFor example, by segmenting `ProofGen` in three subroutines, following the normal Sigma protocol formalization, knowledge of generic Sigma protocols would be enough to combine BBS with a range proof etc..\n\nWith that in mind, we have been trying to minimize redundant checks in the latest versions of the draft. I also opened PR #338, with some restructuring towards that goal. Would love to get your feedback on that.\n\nBest regards!",
+          "createdAt": "2026-02-19T17:51:44Z",
+          "updatedAt": "2026-02-19T17:51:44Z"
+        }
+      ]
+    },
+    {
+      "number": 336,
+      "id": "I_kwDOF8lax86_W3y5",
+      "title": "Use `0x` xor `h` prefix consistenly.",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/336",
+      "state": "CLOSED",
+      "author": "armfazh",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Use an hex prefix consistenly, either `0x` xor `h`, but not both. \n\nFrom [draft v09](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bbs-signatures-09#name-test-vectors)\n```\nkey_dst = h'4242535f424c53313233383147315f584f463a5348414b452d3235365f53\n             5357555f524f5f4832475f484d32535f4b455947454e5f4453545f'\nSK = 0x'2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09\n         a079'\n```",
+      "createdAt": "2025-07-07T22:49:30Z",
+      "updatedAt": "2026-02-16T12:26:11Z",
+      "closedAt": "2026-02-16T12:26:11Z",
+      "comments": [
+        {
+          "author": "armfazh",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Since scalars are defined as integers, then the `0x` prefix is correct. \nHowever, the single quotes are unnecessary.\n\nSee hex numeric examples at: https://datatracker.ietf.org/doc/html/rfc8610#appendix-G.5",
+          "createdAt": "2025-07-07T23:11:49Z",
+          "updatedAt": "2025-07-07T23:11:49Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Hey @armfazh! Thanks for catching this. It should be fixed in PR #337 ",
+          "createdAt": "2025-07-09T18:32:24Z",
+          "updatedAt": "2025-07-09T18:32:24Z"
+        },
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Issue fixed in the latest version of the draft: https://www.ietf.org/archive/id/draft-irtf-cfrg-bbs-signatures-10.html\n\nClosing for now! Thanks \ud83d\ude4f ",
+          "createdAt": "2026-02-16T12:26:11Z",
+          "updatedAt": "2026-02-16T12:26:11Z"
+        }
+      ]
+    },
+    {
+      "number": 341,
+      "id": "I_kwDOF8lax879-uXt",
+      "title": "Leave Serialization to Pairing-Friendly Curves draft",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/341",
+      "state": "OPEN",
+      "author": "bellebaum",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The pairing-friendly curves draft now has two open issues for defining encoding and decoding of points:\n\nhttps://github.com/cfrg/draft-irtf-cfrg-pairing-friendly-curves/issues/74\nhttps://github.com/cfrg/draft-irtf-cfrg-pairing-friendly-curves/issues/75\n\nThat draft is a reasonable place to include considerations around general curve handling, like encoding, decoding, pairing computation, etc., as it can go into much more detail than the BBS drafts can. Furthermore, \"upstreaming\" the serialization does not run the risk of creating subtle differences in the serialization, which would require libraries to implement custom routines for each scheme.\n\nThe current plan discussed in the issues, if I understand it correctly, is particularly helpful for BBS:\n\n- It likely rejects the identity element by default, which the BBS drafts will (practically) never serialize.\n- It should only deserialize full-order points, which the BBS drafts want to check everywhere, but have missed at least once for the blinding commitment.\n\nConcretely, I propose to remove Appendix B.2 and instead call the to-be-written functions from draft-irtf-cfrg-pairing-friendly-curves.\nNext, provide a global `deserialize` functionality (essentially the inverse of 4.2.4.1). Note how all `octets_to_X` functions are essentially only this function and can be removed.\nFinally, in the main API, replace all dedicated calls to `octets_to_X` and `X_to_octets` with calls to `serialize` and `deserialize`. This makes for a smoother read and signals to the reader that there is no dedicated functionality and security checks despite the generic de-/serialization.\n\nAll these changes should be purely editorial and not affect the test vectors.",
+      "createdAt": "2026-04-14T09:24:23Z",
+      "updatedAt": "2026-04-14T09:24:23Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 344,
+      "id": "I_kwDOF8lax88AAAABVMI0QA",
+      "title": "Closing out Cryptographic Panel Review",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/344",
+      "state": "OPEN",
+      "author": "Wind4Greg",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The [CFRG Review of BBS Signatures draft-07 Julia Hesse <juliahesse2@gmail.com> Tue, 08 October 2024 20:38 UTC](https://mailarchive.ietf.org/arch/msg/cfrg/Nnktr2ZUcrMuyg2CWpE_U97C_bs/) from the CFRG mailing includes a discussion thread concerning items to be addressed in the BBS draft. The following are still open and need attention. Please let me know  which items you can  address.\n\n1. Security argument for the proof. The proof algorithms follow Appendix B of [TZ23], and Julia's main concern was that TZ23 only sketches their security argument. Vasilis answered her on Oct 24, 2024 and asked whether his argument was enough, but that exchange was never settled. Could you lay out how the cited work covers the algorithm as specified, and whether any further argument is needed? See @anflan comments in post below.\n\n2. The difference from TZ23. Vasilis told Julia on Oct 24, 2024 that the draft uses r_2 where the paper uses 1/r_2. The draft doesn't map its notation to the paper's, which makes the two hard to compare. Please document the mapping. **PR** by @Wind4Greg, reviewed by @emlun and *merged*.\n\n3. Unlinkability. Section 3.3.7 now defines it as zero-knowledge of the proof value. What's left: say in the draft which zero-knowledge notion you mean, as Vasilis did on the list, and which result it rests on. Also answer Julia's \"by whom?\" on the Introduction's \"indistinguishable from random\" sentence. **PR** from @anflan has been *merged*.\n\n4. Assumptions. Michele asked for the hardness assumption and the best known attacks, along the lines of RFC 9497 Section 7.2.3. -12 names the discrete logarithm problem but not the specific assumption or the attacks. **PR** by @alexandroszacharakis8 *merged*.\n\n5. Michele's design questions. He asked about the security and efficiency trade-offs against PS signatures, and put it to the group whether the proofs should come from a separate, generic proof framework that can be extended with arbitrary statements. Each needs an answer on the list, even if the answer is no change. See @alexandroszacharakis8 comment in post below.\n\n6. Smaller items, which don't need to hold up last call: Julia's suggested order for Section 3, the rationale for signing an empty message (so far only in email), and Michele's request that ProofChallengeCalculate say what can be pre-processed. My  @Wind4Greg opinion: (a)  one reason to sign an \"empty\" message is to  provide a  signature on the \"mandatory reveal\" BBS *header*  information, i.e., there is no selectively disclosable content, but one still wants the benefits of unlinkable proofs. (b) If by pre-processing we mean what can the prover calculate ahead of time one should  look to the *ProofInit()* operation. Here random scalars are generated and used some of which depend on the disclosed messages some that do not. ProofChallengeCalculate() provides a hash over the serialization of this and related information.\n\nWe  need reply to each point, with the change you'd make in -13 or why you think no change is needed.",
+      "createdAt": "2026-10-05T18:20:05Z",
+      "updatedAt": "2026-10-08T16:25:41Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "alexandroszacharakis8",
+          "authorAssociation": "NONE",
+          "body": "Regarding 5. In the discussion thread the main advantage against PS is already stated: the public key does not depend on the number of attributes. That said, both constructions offer different trade-offs. My opinion is that a comparison with PS is not in scope for this document. \n\nThis goes as well for the generic proof framework. This is a great suggestion overall that adds a lot of value, but again I think this is not the place to have this. The efforts to formalize committed disclosure on the [blind bbs draft](https://datatracker.ietf.org/doc/draft-irtf-cfrg-bbs-blind-signatures/03/) seem a good step towards this direction. Eventually arbitrary statements can be proven on top of the committed attributes. ",
+          "createdAt": "2026-10-06T14:40:50Z",
+          "updatedAt": "2026-10-06T14:40:50Z"
+        },
+        {
+          "author": "anflan",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Regarding 1.\nA possible source of confusion is the distinction between privacy of the interactive Sigma protocol and unlinkability of credential presentations. TZ23 analyses the former, whereas the latter is a security property of the anonymous credential scheme concerning its non-interactive presentation algorithm specified in the draft.\n\nThe connection is that the Sigma protocol in TZ23 satisfies L-HVZK and its first-message distribution has high min-entropy. These properties are sufficient to ensure that applying the Fiat\u2013Shamir transform to the sigma protocol yields a non-interactive presentation algorithm satisfying the unlinkability requirement of the anonymous credential scheme. \n\nI believe that clarifying the definition of unlinkability for anonymous credentials would help resolve this issue. See also the comment about point 3.",
+          "createdAt": "2026-10-06T16:03:31Z",
+          "updatedAt": "2026-10-06T16:03:50Z"
+        },
+        {
+          "author": "anflan",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Regarding point 3, but also related to point 1.\n\nIn section 3.3.7 I would add  a more explicit description of unlinkability notion, and an argument of why the unlinkability of presentations holds based on the results proven in [TZ23].\n\nI would change it into the following:\n\n\nAs mentioned in the Introduction, a BBS proof is unlinkable. In this section we will define the term in more detail.  Unlinkability guarantees that an adversary (capturing coalitions between one or more Verifiers and the Issuer) will not be able to infer any information from the BBS proof value, other than what the Prover decided to provide, even with access to multiple proof values. \nThis property can be captured by an experiment where the adversary, given the public parameters of the system, generates a BBS signature key pair and issues two credentials to the experiment. The experiment generates a BBS presentation for an adversarially chosen statement satisfied by both credentials, and the adversary must be able to distinguish which credential has been used to generate the presentation. \nThis property holds as the specified presentation algorithm is derived from a sigma protocol [TZ23, Appendix B], which, in particular, satisfies HVZK (with a leakage that can be derived from any issued credential) and has high first-message min-entropy. This means that the presentation algorithm obtained by compiling the sigma protocol with Fiat-Shamir can be simulated [FKMV12], enabling the proof of the indistinguishability of presentations derived from the two credentials. The indistinguishability claim follows from the indistinguishability of presentations of both credentials from simulated presentations.\nNote, however, that this holds only for the value of the BBS proof. In other words, other values revealed by the Prover during their interaction with a Verifier may still be used to correlate their activity and compromise their privacy. Examples of such values include the disclosed messages (if the same message of high enough entropy is revealed between multiple proofs), the header and presentation_header values (see Section 3.3.6), or the total number of signed messages. See Section 5 for privacy considerations and recommendations on minimizing these sources of correlation\n\n[FKMV12] ---->  https://eprint.iacr.org/2012/704.pdf\n\nRegarding the text in the introduction I would simply write\n\nUnlinkable Proofs - The proofs generated by the scheme are unlinkable, meaning that a verifying party, in receipt of a proof, is unable to determine which signature was used to generate the proof, removing a common source of correlation.\n\n",
+          "createdAt": "2026-10-06T16:09:52Z",
+          "updatedAt": "2026-10-06T16:09:52Z"
+        },
+        {
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@anflan, in the sentence: \"The experiment generates a BBS presentation for an adversarially chosen statement satisfied by both credentials, and the adversary must be able to distinguish which credential has been used to generate the presentation.\" \n\nShouldn't this  be \"The experiment generates a BBS presentation for an adversarially chosen statement satisfied by both credentials, and the adversary must **not** be able to distinguish which credential has been used to generate the presentation.\"?",
+          "createdAt": "2026-10-06T21:04:14Z",
+          "updatedAt": "2026-10-06T21:17:06Z"
+        },
+        {
+          "author": "anflan",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Yes you are right, but maybe we might describe first the goal of the adversary, which is distinguishing which of the two credentials has been used, then stating that the privacy property holds if no adversary can succeed.\n\nSo, correct me if I'm wrong, but the right phrasing should be:\n\"The experiment selects one of the two supplied credentials at random and uses it to generate a BBS presentation for an adversarially chosen statement satisfied by both credentials. The adversary must then guess which credential was used.\nWe say that the credential scheme has unlinkable presentations if no efficient adversary can do substantially better than random guessing, even when it generated both credentials.\"",
+          "createdAt": "2026-10-06T23:12:58Z",
+          "updatedAt": "2026-10-06T23:12:58Z"
+        },
+        {
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "body": "@anflan can you put together a PR for this or did you want me to? ",
+          "createdAt": "2026-10-07T01:45:33Z",
+          "updatedAt": "2026-10-07T01:45:33Z"
+        },
+        {
+          "author": "anflan",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I've created it myself https://github.com/decentralized-identity/bbs-signature/pull/346",
+          "createdAt": "2026-10-07T09:42:10Z",
+          "updatedAt": "2026-10-07T09:42:10Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -31696,12 +31896,12 @@
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/255",
       "state": "CLOSED",
       "author": "Wind4Greg",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Per the last meeting I added some small clarifying text on the `header` and `ph` fields.\r\n\r\nCheers\r\nGreg",
       "createdAt": "2023-04-07T17:55:07Z",
-      "updatedAt": "2023-04-27T22:35:48Z",
+      "updatedAt": "2026-10-02T16:02:11Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "63db108bad3a40fb71e0d234b8922e8e4efcaac1",
@@ -31754,7 +31954,7 @@
             "abbreviatedOid": "a1355a8"
           },
           "author": "Wind4Greg",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "state": "COMMENTED",
           "body": "",
           "createdAt": "2023-04-19T21:36:26Z",
@@ -36949,12 +37149,12 @@
       "url": "https://github.com/decentralized-identity/bbs-signature/pull/326",
       "state": "MERGED",
       "author": "Wind4Greg",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Some small edits for readability. Started from end of document.\r\n\r\n1. Should use `NIZK` for acronym rather than `nizk`\r\n2. Removed \"subject to change\" warning on additional test vectors.\r\n3. Clarified scalar multiplication in *Notation* section. Document is very consistent with always using P*x where P is group element and x is scalar, in that order. *Notation* section had this reversed.",
       "createdAt": "2024-09-12T18:32:15Z",
-      "updatedAt": "2024-09-19T19:34:54Z",
+      "updatedAt": "2026-10-02T16:02:07Z",
       "baseRepository": "decentralized-identity/bbs-signature",
       "baseRefName": "main",
       "baseRefOid": "26c3949161303bce575b6503b18b95634367f775",
@@ -37644,6 +37844,958 @@
           "body": "Looks good with Andrew's fixes too.",
           "createdAt": "2025-02-11T01:17:01Z",
           "updatedAt": "2025-02-11T01:17:01Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 332,
+      "id": "PR_kwDOF8lax86bXNZi",
+      "title": "Update to v08",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/332",
+      "state": "MERGED",
+      "author": "armfazh",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Updating generators to match with draft v08.\r\nAdds API_ID prefix as described in [Section 3.5](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bbs-signatures-08#section-3.5)",
+      "createdAt": "2025-06-20T08:01:02Z",
+      "updatedAt": "2025-07-04T12:00:30Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "bbc09290c2b4034672ac887bd809028b2c33067b",
+      "headRepository": "armfazh/bbs-signature",
+      "headRefName": "draft_v08",
+      "headRefOid": "ada2d91d14a8b6ccce50e8c41b3be1f060c98d12",
+      "closedAt": "2025-07-04T12:00:30Z",
+      "mergedAt": "2025-07-04T12:00:30Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "d131f5272e1884d505bea2b334988597d961c33b"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax86wETkK",
+          "commit": {
+            "abbreviatedOid": "c1ec637"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-06-24T13:45:41Z",
+          "updatedAt": "2025-06-24T13:45:41Z",
+          "comments": [
+            {
+              "originalPosition": 4,
+              "body": "```suggestion\r\n    const API_ID_SUFFIX: &'a [u8] = b\"H2G_HM2S_\";\r\n```\r\n\r\nJust to be a bit more accurate to the draft",
+              "createdAt": "2025-06-24T13:45:41Z",
+              "updatedAt": "2025-06-24T13:45:41Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86wEUJ6",
+          "commit": {
+            "abbreviatedOid": "c1ec637"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-06-24T13:46:04Z",
+          "updatedAt": "2025-06-24T13:46:05Z",
+          "comments": [
+            {
+              "originalPosition": 10,
+              "body": "```suggestion\r\n        [Self::ID, Self::API_ID_SUFFIX, b\"MESSAGE_GENERATOR_SEED\"].concat()\r\n```",
+              "createdAt": "2025-06-24T13:46:04Z",
+              "updatedAt": "2025-06-24T13:46:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86wEUVI",
+          "commit": {
+            "abbreviatedOid": "c1ec637"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-06-24T13:46:18Z",
+          "updatedAt": "2025-06-24T13:46:18Z",
+          "comments": [
+            {
+              "originalPosition": 16,
+              "body": "```suggestion\r\n        [Self::ID, Self::API_ID_SUFFIX, b\"BP_MESSAGE_GENERATOR_SEED\"].concat()\r\n```",
+              "createdAt": "2025-06-24T13:46:18Z",
+              "updatedAt": "2025-06-24T13:46:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86wEUgu",
+          "commit": {
+            "abbreviatedOid": "c1ec637"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-06-24T13:46:30Z",
+          "updatedAt": "2025-06-24T13:46:30Z",
+          "comments": [
+            {
+              "originalPosition": 21,
+              "body": "```suggestion\r\n        [Self::ID, Self::API_ID_SUFFIX, b\"SIG_GENERATOR_SEED_\"].concat()\r\n```",
+              "createdAt": "2025-06-24T13:46:30Z",
+              "updatedAt": "2025-06-24T13:46:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86wEUz3",
+          "commit": {
+            "abbreviatedOid": "c1ec637"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-06-24T13:46:41Z",
+          "updatedAt": "2025-06-24T13:46:41Z",
+          "comments": [
+            {
+              "originalPosition": 26,
+              "body": "```suggestion\r\n        [Self::ID, Self::API_ID_SUFFIX, b\"SIG_GENERATOR_DST_\"].concat()\r\n```",
+              "createdAt": "2025-06-24T13:46:41Z",
+              "updatedAt": "2025-06-24T13:46:41Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax86wEXGq",
+          "commit": {
+            "abbreviatedOid": "c1ec637"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "Just a nit. Thank you!",
+          "createdAt": "2025-06-24T13:48:32Z",
+          "updatedAt": "2025-06-24T13:48:32Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax86yCJKQ",
+          "commit": {
+            "abbreviatedOid": "ada2d91"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "LGTM",
+          "createdAt": "2025-07-04T12:00:20Z",
+          "updatedAt": "2025-07-04T12:00:20Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 333,
+      "id": "PR_kwDOF8lax86dQCco",
+      "title": "Fix some typos and correct function invocation.",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/333",
+      "state": "MERGED",
+      "author": "armfazh",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Changes:\r\n- Update reference to RFC9380.\r\n- Correct some typos in text.\r\n- Passing the right parameters.",
+      "createdAt": "2025-07-03T11:21:02Z",
+      "updatedAt": "2025-07-04T11:59:46Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "bbc09290c2b4034672ac887bd809028b2c33067b",
+      "headRepository": "armfazh/bbs-signature",
+      "headRefName": "fixTypos",
+      "headRefOid": "4cc5108c261a59cbd677241330000c3ae4303167",
+      "closedAt": "2025-07-04T11:59:46Z",
+      "mergedAt": "2025-07-04T11:59:46Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "130b2e65733bd303337e750a4be10ab509e47ef5"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax86yBRoW",
+          "commit": {
+            "abbreviatedOid": "4cc5108"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "LGTM! Thanks",
+          "createdAt": "2025-07-04T11:02:23Z",
+          "updatedAt": "2025-07-04T11:02:23Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 334,
+      "id": "PR_kwDOF8lax86dQC3_",
+      "title": "Faster signature verification on G1.",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/334",
+      "state": "MERGED",
+      "author": "armfazh",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Moves scalar multiplication from G2 to G1.\r\n\r\nIt follows from bilinearity,\r\n\r\n   h(A, W + BP2 * e) * h(B, -BP2) \r\n = h(A, W) * h(A, BP2 * e) * h(B, BP2)^-1 \r\n = h(A, W) * h(A, BP2)^e * h(B, BP2)^-1 \r\n = h(A, W) * h(A*e, BP2) * h(-B, BP2) \r\n = h(A, W) * h(A * e - B, BP2)",
+      "createdAt": "2025-07-03T11:21:48Z",
+      "updatedAt": "2025-07-07T17:40:36Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "bbc09290c2b4034672ac887bd809028b2c33067b",
+      "headRepository": "armfazh/bbs-signature",
+      "headRefName": "simplerVerif",
+      "headRefOid": "1f765168014fba24600c3044360e9a385a9c32c8",
+      "closedAt": "2025-07-07T17:40:36Z",
+      "mergedAt": "2025-07-07T17:40:36Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "a6a445dd3c2a382fb8affa08a4bc077bd27bf753"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax86ygSDa",
+          "commit": {
+            "abbreviatedOid": "1f76516"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "lgtm",
+          "createdAt": "2025-07-07T17:40:29Z",
+          "updatedAt": "2025-07-07T17:40:29Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 335,
+      "id": "PR_kwDOF8lax86dyL6M",
+      "title": "Draft 09 updates",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/335",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Updates from implementers feedback from [here](https://mailarchive.ietf.org/arch/msg/cfrg/sBx3_5pw_WCkNrF87EsnhRG-McI/) and [here](https://mailarchive.ietf.org/arch/msg/cfrg/2XuK5BoAy-WjKWjzWM3O19Vry6g/)",
+      "createdAt": "2025-07-07T15:34:06Z",
+      "updatedAt": "2025-07-07T17:36:47Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "d131f5272e1884d505bea2b334988597d961c33b",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "v09",
+      "headRefOid": "548be3b68b471dae1991d161e0badde187d39a2a",
+      "closedAt": "2025-07-07T17:36:47Z",
+      "mergedAt": "2025-07-07T17:36:47Z",
+      "mergedBy": "BasileiosKal",
+      "mergeCommit": {
+        "oid": "951c125b2d3ba75ab3ae5e60b33915646b5ee3a2"
+      },
+      "comments": [
+        {
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Approved! Editorial updates! Merging",
+          "createdAt": "2025-07-07T17:36:34Z",
+          "updatedAt": "2025-07-07T17:36:34Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax86yfyFP",
+          "commit": {
+            "abbreviatedOid": "548be3b"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Looks good. LGTM.",
+          "createdAt": "2025-07-07T16:47:25Z",
+          "updatedAt": "2025-07-07T16:47:25Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 337,
+      "id": "PR_kwDOF8lax86eK8en",
+      "title": "Various editorial updates",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/337",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "- Adds to the history section\r\n- Fixing formatting issues\r\n- Fixes #336 ",
+      "createdAt": "2025-07-09T18:31:55Z",
+      "updatedAt": "2026-09-30T20:41:44Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "79ad844c7b9d960266095e347bb7cdadf1542809",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "various-edits",
+      "headRefOid": "3056fcc2b6ec34d842bea228f0b5c74fb269fec0",
+      "closedAt": "2026-09-30T20:41:44Z",
+      "mergedAt": "2026-09-30T20:41:44Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "19083e9e15ea8407dc868e4d1e5dc67fef50dde9"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax87ZQCGi",
+          "commit": {
+            "abbreviatedOid": "aa1f124"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Looks good.",
+          "createdAt": "2026-01-09T17:19:02Z",
+          "updatedAt": "2026-01-09T17:19:02Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax87Zr4Ho",
+          "commit": {
+            "abbreviatedOid": "aa1f124"
+          },
+          "author": "brentzundel",
+          "authorAssociation": "MEMBER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-01-12T18:34:39Z",
+          "updatedAt": "2026-01-12T18:34:39Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax878LBwT",
+          "commit": {
+            "abbreviatedOid": "aa1f124"
+          },
+          "author": "selfissued",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-05-05T18:44:46Z",
+          "updatedAt": "2026-05-05T18:44:46Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 338,
+      "id": "PR_kwDOF8lax87E8eM4",
+      "title": "Reduce redundant checks",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/338",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Incorporate implementation feedback from issue #331\r\n\r\nAdd `multi_exponentiation_g1` operation that checks that the inputted points and scalars have the same size. This feats    most implementations and avoids some redundant checks in higher order operations.",
+      "createdAt": "2026-02-19T17:48:21Z",
+      "updatedAt": "2026-10-01T16:33:50Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "a6a445dd3c2a382fb8affa08a4bc077bd27bf753",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "vasilis/issue331",
+      "headRefOid": "76380225d0736cbfeaf0cc00e8769f553ce95a48",
+      "closedAt": "2026-10-01T16:33:50Z",
+      "mergedAt": "2026-10-01T16:33:50Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "29e4e74e7c2d49d8b6f290a4d27972b1e3e93ec6"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax87m2PA-",
+          "commit": {
+            "abbreviatedOid": "b0fd1cd"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Nice update. Eases implementation and extendability.",
+          "createdAt": "2026-03-01T18:06:41Z",
+          "updatedAt": "2026-03-01T18:06:41Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABLFO4iQ",
+          "commit": {
+            "abbreviatedOid": "b0fd1cd"
+          },
+          "author": "alexandroszacharakis8",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "Some minor comments.",
+          "createdAt": "2026-08-27T08:16:45Z",
+          "updatedAt": "2026-08-27T08:37:06Z",
+          "comments": [
+            {
+              "originalPosition": 195,
+              "body": "It seems here `H_points` is undefined. Should be `generators - 1` I think.",
+              "createdAt": "2026-08-27T08:16:45Z",
+              "updatedAt": "2026-08-27T08:37:07Z"
+            },
+            {
+              "originalPosition": 239,
+              "body": "`scalars[i]`?",
+              "createdAt": "2026-08-27T08:31:27Z",
+              "updatedAt": "2026-08-27T08:37:07Z"
+            },
+            {
+              "originalPosition": 122,
+              "body": "I think there is a typo `r1! vs r1~`",
+              "createdAt": "2026-08-27T08:32:24Z",
+              "updatedAt": "2026-08-27T08:37:07Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 339,
+      "id": "PR_kwDOF8lax87E8kbu",
+      "title": "feat: fix typo",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/339",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes issue #328",
+      "createdAt": "2026-02-19T17:55:42Z",
+      "updatedAt": "2026-09-30T20:48:32Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "a6a445dd3c2a382fb8affa08a4bc077bd27bf753",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "vasilis/typo-fix",
+      "headRefOid": "a4be2395172372764af3b96493961f747ea6bf96",
+      "closedAt": "2026-09-30T20:48:32Z",
+      "mergedAt": "2026-09-30T20:48:32Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "4a166f11318f3bf4a27fa7dbff41403fe2c9bfae"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax87k6wuP",
+          "commit": {
+            "abbreviatedOid": "a4be239"
+          },
+          "author": "emlun",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-02-23T11:46:14Z",
+          "updatedAt": "2026-02-23T11:46:14Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax87m2QAx",
+          "commit": {
+            "abbreviatedOid": "a4be239"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-03-01T18:07:35Z",
+          "updatedAt": "2026-03-01T18:07:35Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax878LCr8",
+          "commit": {
+            "abbreviatedOid": "a4be239"
+          },
+          "author": "selfissued",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-05-05T18:45:24Z",
+          "updatedAt": "2026-05-05T18:45:24Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 340,
+      "id": "PR_kwDOF8lax87Gnlqf",
+      "title": "feat: add a proof init res object",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/340",
+      "state": "MERGED",
+      "author": "BasileiosKal",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Introduce a `ProofInitRes` object, to be generated and used by the Proof utility operations, as well as a `validate_init_res` operation to verify the above object.\r\n\r\nThis gathers the verification steps in the same place, reducing redundant verification steps and making it potentially easier to remove, if all operations are inlined.\r\n\r\nNote: this PR is based on #338 ",
+      "createdAt": "2026-02-26T18:04:24Z",
+      "updatedAt": "2026-09-30T20:49:22Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "vasilis/issue331",
+      "baseRefOid": "b0fd1cdde5b0b63dbd871bedbbf01be67f42aa17",
+      "headRepository": "decentralized-identity/bbs-signature",
+      "headRefName": "vasilis/init_res_obj",
+      "headRefOid": "965d5e6cf105268fdd8651045da9d8e129c1c319",
+      "closedAt": "2026-09-30T20:49:22Z",
+      "mergedAt": "2026-09-30T20:49:22Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "76380225d0736cbfeaf0cc00e8769f553ce95a48"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax87m2Wtp",
+          "commit": {
+            "abbreviatedOid": "27d2e2d"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-01T18:14:02Z",
+          "updatedAt": "2026-03-01T18:14:02Z",
+          "comments": [
+            {
+              "originalPosition": 103,
+              "body": "Should be \"Below\" rather than \"Bellow\".",
+              "createdAt": "2026-03-01T18:14:02Z",
+              "updatedAt": "2026-03-01T18:14:02Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax87m2bjR",
+          "commit": {
+            "abbreviatedOid": "27d2e2d"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Looks good. Caught a spelling error. See comment inline.",
+          "createdAt": "2026-03-01T18:19:11Z",
+          "updatedAt": "2026-03-01T18:19:11Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOF8lax87rzYei",
+          "commit": {
+            "abbreviatedOid": "27d2e2d"
+          },
+          "author": "BasileiosKal",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-16T19:23:29Z",
+          "updatedAt": "2026-03-16T19:23:30Z",
+          "comments": [
+            {
+              "originalPosition": 103,
+              "body": "Fixed",
+              "createdAt": "2026-03-16T19:23:29Z",
+              "updatedAt": "2026-03-16T19:23:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax87tGY_S",
+          "commit": {
+            "abbreviatedOid": "965d5e6"
+          },
+          "author": "christianpaquin",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "I left some comments",
+          "createdAt": "2026-03-19T20:44:54Z",
+          "updatedAt": "2026-03-19T20:48:37Z",
+          "comments": [
+            {
+              "originalPosition": 91,
+              "body": "why is that commented?",
+              "createdAt": "2026-03-19T20:44:54Z",
+              "updatedAt": "2026-03-19T20:48:37Z"
+            },
+            {
+              "originalPosition": 126,
+              "body": "The text above says \"disclosed_messages\", not \"undisclosed_messages\"; which one is it?",
+              "createdAt": "2026-03-19T20:47:12Z",
+              "updatedAt": "2026-03-19T20:48:37Z"
+            },
+            {
+              "originalPosition": 103,
+              "body": "typo: correcectness --> correctness",
+              "createdAt": "2026-03-19T20:47:49Z",
+              "updatedAt": "2026-03-19T20:48:37Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 342,
+      "id": "PR_kwDOF8lax88AAAABGUiiKg",
+      "title": "History Update",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/342",
+      "state": "MERGED",
+      "author": "Wind4Greg",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Updated history based on records of git commits. Removed out of date Blind BBS file as Blind BBS has its own repo now.",
+      "createdAt": "2026-10-02T16:59:55Z",
+      "updatedAt": "2026-10-02T17:01:22Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "29e4e74e7c2d49d8b6f290a4d27972b1e3e93ec6",
+      "headRepository": "Wind4Greg/bbs-signature",
+      "headRefName": "HistoryUpdate",
+      "headRefOid": "cabb9f4ca8864f19aa6d7cc2da39991d4725a832",
+      "closedAt": "2026-10-02T17:01:22Z",
+      "mergedAt": "2026-10-02T17:01:22Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "9b54041040e7ec308e580be066d86e8db45f1c24"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 343,
+      "id": "PR_kwDOF8lax88AAAABGX_cOQ",
+      "title": "Fix two typos that could be very confusing",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/343",
+      "state": "MERGED",
+      "author": "Wind4Greg",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The title says it all.  Small but potentially very  confusing.",
+      "createdAt": "2026-10-03T00:10:25Z",
+      "updatedAt": "2026-10-03T00:10:46Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "9b54041040e7ec308e580be066d86e8db45f1c24",
+      "headRepository": "Wind4Greg/bbs-signature",
+      "headRefName": "BugFixes",
+      "headRefOid": "b61dd7c4f3341d7751988a444c4d3b5373737ebe",
+      "closedAt": "2026-10-03T00:10:46Z",
+      "mergedAt": "2026-10-03T00:10:46Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "d3ee4653e0429f3054ff1501ec2e89a22822c9d1"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 345,
+      "id": "PR_kwDOF8lax88AAAABG963SQ",
+      "title": "Add Section Mapping TZ23 Formulas to  Spec Operations",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/345",
+      "state": "MERGED",
+      "author": "Wind4Greg",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This  PR adds an informative appendix  that provides a mapping between the  formulas of the  key reference [TZ23] and the operations in the specification. It maps  between  variable names and shows comparisons between key formulas to help readers  understand that the specification does implement the  formulas of [TZ23].",
+      "createdAt": "2026-10-06T17:46:10Z",
+      "updatedAt": "2026-10-08T16:04:34Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "d3ee4653e0429f3054ff1501ec2e89a22822c9d1",
+      "headRepository": "Wind4Greg/bbs-signature",
+      "headRefName": "TZ23Mapping",
+      "headRefOid": "f3d7dd617f483cf4cfd8d489d8be405c2a14dfda",
+      "closedAt": "2026-10-08T16:04:33Z",
+      "mergedAt": "2026-10-08T16:04:33Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "4cfd9e1b7a6691814c259ed2462a97200c2cb8fa"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax88AAAABRGf6SA",
+          "commit": {
+            "abbreviatedOid": "280778f"
+          },
+          "author": "emlun",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-07T12:59:36Z",
+          "updatedAt": "2026-10-07T14:32:19Z",
+          "comments": [
+            {
+              "originalPosition": 12,
+              "body": "What does \"(note 1)\" mean? I can't find anything this would seem to be a reference to.",
+              "createdAt": "2026-10-07T12:59:36Z",
+              "updatedAt": "2026-10-07T14:32:19Z"
+            },
+            {
+              "originalPosition": 17,
+              "body": "I think this is `**h**<sub>1</sub>` (1 as in \"group 1\"), not `**h**l` (l as in \"length of message vector\"). (Looks like `<sub>` doesn't work in kramdown-rfc though, so you might need to write it as `**h**_1` instead)",
+              "createdAt": "2026-10-07T12:59:47Z",
+              "updatedAt": "2026-10-07T14:32:19Z"
+            },
+            {
+              "originalPosition": 6,
+              "body": "This is mapping against Appendix B of [@TZ23], right? I would assume so since that's the only place where the paper has U1 and U2 (Section 5.2 has only a single U), and the mapping checks out as far as I can tell. I think it should point out that it's referencing Appendix B.\n\nIt's not immediately obvious since Appendix B describes an interactive protocol where U1 and U2 are sent to the verifier, while this draft does not include T1 and T2 in the proof. I believe that difference comes from the Fiat-Shamir transform replacing U1 and U2 with c in the transmitted proof; perhaps this should also be highlighted.",
+              "createdAt": "2026-10-07T14:22:25Z",
+              "updatedAt": "2026-10-07T14:32:19Z"
+            },
+            {
+              "originalPosition": 43,
+              "body": "I found this formatting a bit confusing, with the trailing `[@TS23]`/`this specification` not standing out enough as the intended differentiator. I would propose something like this instead:\n\n```suggestion\nSecret key generation and public key creation:\n\n* [@TZ23]:\n  1. *sk* = *x* is a random element from [0, p-1],\n  2. vk = g2^x in G2, also denoted X2 in the appendix\n* (#secret-key), (#public-key):\n  1. `SK = KeyGen(key_material, key_info, key_dst)`\n  2. `W = SK * BP2`\n```\n\nand same for the rest of these two sections.",
+              "createdAt": "2026-10-07T14:30:44Z",
+              "updatedAt": "2026-10-07T14:32:19Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABRILzuA",
+          "commit": {
+            "abbreviatedOid": "280778f"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-07T15:19:04Z",
+          "updatedAt": "2026-10-07T15:19:04Z",
+          "comments": [
+            {
+              "originalPosition": 12,
+              "body": "Whoops, left that in by mistake. I was debating how  to handle the Q1*domain term, but ended up grouping it into TZ23's g1 along with P1.",
+              "createdAt": "2026-10-07T15:19:04Z",
+              "updatedAt": "2026-10-07T15:19:04Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABRIO8fQ",
+          "commit": {
+            "abbreviatedOid": "280778f"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-07T15:22:54Z",
+          "updatedAt": "2026-10-07T15:22:55Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "Good catch. Should be **h**1. Yeah, I went without the underscore in g_1 or G_1 to save space and key strokes.",
+              "createdAt": "2026-10-07T15:22:54Z",
+              "updatedAt": "2026-10-07T15:22:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABRITdzQ",
+          "commit": {
+            "abbreviatedOid": "280778f"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-07T15:28:40Z",
+          "updatedAt": "2026-10-07T15:28:40Z",
+          "comments": [
+            {
+              "originalPosition": 6,
+              "body": "Whoops. I forgot to go back and update the high level description. They hardest part of doing the mapping was finding the formulas. Figure 3 (main  text) and Appendix B \"Protocol Description\" are where they are and also need to mention we use  additive notation for G1 and G2 and multiplicative notation for GT while TZ23 uses multiplicative throughout.",
+              "createdAt": "2026-10-07T15:28:40Z",
+              "updatedAt": "2026-10-07T15:28:40Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABRIUr9Q",
+          "commit": {
+            "abbreviatedOid": "280778f"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-07T15:30:16Z",
+          "updatedAt": "2026-10-07T15:30:17Z",
+          "comments": [
+            {
+              "originalPosition": 43,
+              "body": "Let me try it and see how that looks when rendered in HTML, but  I like it here.",
+              "createdAt": "2026-10-07T15:30:16Z",
+              "updatedAt": "2026-10-07T15:30:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABRI9z4w",
+          "commit": {
+            "abbreviatedOid": "280778f"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-07T16:24:44Z",
+          "updatedAt": "2026-10-07T16:24:45Z",
+          "comments": [
+            {
+              "originalPosition": 43,
+              "body": "Looked fine in HTML so implemented it in  all mapping sections.",
+              "createdAt": "2026-10-07T16:24:45Z",
+              "updatedAt": "2026-10-07T16:24:45Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABRTG8Ag",
+          "commit": {
+            "abbreviatedOid": "f0b1fdf"
+          },
+          "author": "emlun",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-08T11:29:27Z",
+          "updatedAt": "2026-10-08T11:47:49Z",
+          "comments": [
+            {
+              "originalPosition": 28,
+              "body": "Huh... apparently `m~_jU` here _is_ [rendering as subscript](https://www.markdownguide.org/extended-syntax/#subscript):\n\n```html\n<td class=\"text-left\" rowspan=\"1\" colspan=\"1\">m~_j1, ..., m<sub>_jU</sub>\n</td>\n```\n\n...I've no idea why that does not happen for `m~_j1` though :S\n\nSo it's probably safest to wrap all of these variables with `~`s and `^s` in code formatting to prevent this.",
+              "createdAt": "2026-10-08T11:29:27Z",
+              "updatedAt": "2026-10-08T11:47:49Z"
+            },
+            {
+              "originalPosition": 53,
+              "body": "I don't understand why this is a numbered list. That makes it seem like these are steps of a sequence, but (2) is just meant as a clarifying reformulation of (1), right? This might fit better as plain paragraph text, then, or maybe a non-numbered list:\n\n\n```suggestion\n  `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`, where generators are a vector of length  L+1 where `L = length(messages)`, `generators[0]` is also known as Q1.\n  Therefore B = P1 + domain*Q1 + sum messages[i]*generators[i] over i  = 1 to L.\n```\n\n```suggestion\n  - `B = multi_exponentiation_g1((P1, ...generators), (1, domain, ...messages))`, where generators are a vector of length  L+1 where `L = length(messages)`, `generators[0]` is also known as Q1.\n  - Therefore B = P1 + domain*Q1 + sum messages[i]*generators[i] over i  = 1 to L.\n```\n\nI think numbered lists make sense for all the other paragraphs, though.",
+              "createdAt": "2026-10-08T11:35:25Z",
+              "updatedAt": "2026-10-08T11:47:49Z"
+            },
+            {
+              "originalPosition": 96,
+              "body": "This should probably keep BP2 until after the \"substitute [@TZ23] symbols\" step.\n```suggestion\n4. `h(A, W) * e(A^e, BP2) ?= h(B, BP2)`, Use bilinearity\n5. `h(A, W) * e(A, BP2^e) ?= h(B, BP2)`, Use bilinearity\n6. `h(A, W * BP2^e) ?= h(B, BP2)` substitute [@TZ23] symbols gives:\n```",
+              "createdAt": "2026-10-08T11:40:26Z",
+              "updatedAt": "2026-10-08T11:47:49Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 346,
+      "id": "PR_kwDOF8lax88AAAABHFyTTQ",
+      "title": "Update unlinkability notion",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/346",
+      "state": "MERGED",
+      "author": "anflan",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This change aims to clarify the intended notion of unlinkability for anonymous credential presentations, and how the results proven in [TZ23, Appendix B] guarantee the unlinkability of presentations specified in this document.",
+      "createdAt": "2026-10-07T09:40:17Z",
+      "updatedAt": "2026-10-07T16:29:19Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "d3ee4653e0429f3054ff1501ec2e89a22822c9d1",
+      "headRepository": "anflan/bbs-signature",
+      "headRefName": "update-unlinkability",
+      "headRefOid": "cc7aaa671d2a0d52a7477911e44b587c9ac14bd7",
+      "closedAt": "2026-10-07T16:29:19Z",
+      "mergedAt": "2026-10-07T16:29:19Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "a03cbef684b8b081df55a0dd1825e1f934529414"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax88AAAABRJA1kw",
+          "commit": {
+            "abbreviatedOid": "cc7aaa6"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Thanks Andrea, this reads well!",
+          "createdAt": "2026-10-07T16:28:26Z",
+          "updatedAt": "2026-10-07T16:28:26Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 347,
+      "id": "PR_kwDOF8lax88AAAABHWwuww",
+      "title": "Add security level and assumptions",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/347",
+      "state": "MERGED",
+      "author": "alexandroszacharakis8",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR adds a paragraphs and some references regarding the concrete security of BBS and the underlying security assumptions. This addresses #344.",
+      "createdAt": "2026-10-08T14:49:47Z",
+      "updatedAt": "2026-10-08T16:08:50Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "a03cbef684b8b081df55a0dd1825e1f934529414",
+      "headRepository": "alexandroszacharakis8/bbs-signature",
+      "headRefName": "feature/bbs-security",
+      "headRefOid": "9d7fcad09020ec5b45d7c39033d0c64ff8c539ac",
+      "closedAt": "2026-10-08T16:08:50Z",
+      "mergedAt": "2026-10-08T16:08:50Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "2fefa29d7c9fd6a0dff58b13e505247630d1f182"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax88AAAABRWnzUg",
+          "commit": {
+            "abbreviatedOid": "9d7fcad"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Thanks @alexandroszacharakis8!",
+          "createdAt": "2026-10-08T16:06:42Z",
+          "updatedAt": "2026-10-08T16:06:42Z",
           "comments": []
         }
       ]
