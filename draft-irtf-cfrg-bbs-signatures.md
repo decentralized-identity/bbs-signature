@@ -1479,7 +1479,7 @@ Deserialization:
 ABORT if:
 
 1. length(header) > 2^64 - 1
-2. L > 2^64 - 1 or L == 0
+2. L > 2^64 - 1
 
 Procedure:
 
