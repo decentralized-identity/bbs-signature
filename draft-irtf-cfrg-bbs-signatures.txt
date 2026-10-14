@@ -5,13 +5,13 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 16 April 2027                                      A. Whitehead
+Expires: 17 April 2027                                      A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
                                                             G. Bernstein
                                                        Grotto Networking
-                                                         13 October 2026
+                                                         14 October 2026
 
 
                         The BBS Signature Scheme
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 April 2027.
+   This Internet-Draft will expire on 17 April 2027.
 
 Copyright Notice
 
@@ -2056,7 +2056,7 @@ Procedure:
  ABORT if:
 
  1. length(header) > 2^64 - 1
- 2. L > 2^64 - 1 or L == 0
+ 2. L > 2^64 - 1
 
  Procedure:
 
