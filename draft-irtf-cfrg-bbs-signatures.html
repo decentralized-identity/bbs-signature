@@ -2536,7 +2536,7 @@ Procedure:
                                      // messages
   disclosed_indexes: (REQUIRED) Array of numbers  // Indexes of the
                                                   // disclosed messages.
-  // disclosed_messages: (REQUIRED) Array of scalars // The disclosed
+  disclosed_messages: (REQUIRED) Array of scalars // The disclosed
                                                   // messages.
   undisclosed_messages: (OPTIONAL) Array of scalars // The undisclosed
                                                     // messages.
@@ -2548,7 +2548,7 @@ Procedure:
 </pre><a href="#section-3.7.1-2" class="pilcrow">¶</a>
 </div>
 <p id="section-3.7.1-3">We will use the dot <code>.</code> notation to represent different attributes of the objects defined above. For example, if <code>init_res</code> object follows the <code>ProofInitRes</code> object definition, <code>init_res.Abar</code>, <code>init_res.Bbar</code> and <code>init_res.T2</code> to represent the <code>Abar</code>, <code>Bbar</code> and <code>T2</code> attributes of the <code>init_res</code> object.<a href="#section-3.7.1-3" class="pilcrow">¶</a></p>
-<p id="section-3.7.1-4">Below, we define an operation to validate the <code>ProofInitRes</code> object correcectness, meaning that the <code>random_scalars</code> attribute has a length 5 more than the length of the <code>disclosed_messages</code> and that the <code>disclosed_indexes</code> and the <code>disclosed_messages</code> arrays have the same length.<a href="#section-3.7.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.7.1-4">Below, we define an operation to validate the <code>ProofInitRes</code> object correctness, meaning that the <code>random_scalars</code> attribute has a length 5 more than the length of the <code>undisclosed_messages</code> and that the <code>disclosed_indexes</code> and the <code>disclosed_messages</code> arrays have the same length.<a href="#section-3.7.1-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.7.1-5">
 <pre>res = validate_init_res(init_res)
 
@@ -2566,7 +2566,7 @@ Procedure:
 1. if length(init_res.disclosed_messages) !=
                  length(init_res.disclosed_indexes) return INVALID
 
-2. for i in init_res.disclosed_indexes, if i &gt; init_res.L,
+2. for i in init_res.disclosed_indexes, if i &gt; init_res.L - 1,
                                                           return INVALID
 
 3. if init_res includes random_scalars and undisclosed_messages:
