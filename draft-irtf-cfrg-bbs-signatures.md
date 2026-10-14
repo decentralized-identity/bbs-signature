@@ -876,7 +876,7 @@ ProofInitRes = {
                                      // messages
   disclosed_indexes: (REQUIRED) Array of numbers  // Indexes of the
                                                   // disclosed messages.
-  // disclosed_messages: (REQUIRED) Array of scalars // The disclosed
+  disclosed_messages: (REQUIRED) Array of scalars // The disclosed
                                                   // messages.
   undisclosed_messages: (OPTIONAL) Array of scalars // The undisclosed
                                                     // messages.
@@ -888,7 +888,7 @@ ProofInitRes = {
 
 We will use the dot `.` notation to represent different attributes of the objects defined above. For example, if `init_res` object follows the `ProofInitRes` object definition, `init_res.Abar`, `init_res.Bbar` and `init_res.T2` to represent the `Abar`, `Bbar` and `T2` attributes of the `init_res` object.
 
-Below, we define an operation to validate the `ProofInitRes` object correcectness, meaning that the `random_scalars` attribute has a length 5 more than the length of the `disclosed_messages` and that the `disclosed_indexes` and the `disclosed_messages` arrays have the same length.
+Below, we define an operation to validate the `ProofInitRes` object correctness, meaning that the `random_scalars` attribute has a length 5 more than the length of the `undisclosed_messages` and that the `disclosed_indexes` and the `disclosed_messages` arrays have the same length.
 
 ```
 res = validate_init_res(init_res)
@@ -907,7 +907,7 @@ Procedure:
 1. if length(init_res.disclosed_messages) !=
                  length(init_res.disclosed_indexes) return INVALID
 
-2. for i in init_res.disclosed_indexes, if i > init_res.L,
+2. for i in init_res.disclosed_indexes, if i > init_res.L - 1,
                                                           return INVALID
 
 3. if init_res includes random_scalars and undisclosed_messages:
