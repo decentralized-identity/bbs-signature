@@ -3626,6 +3626,12 @@ Proof Verification
 * Updated definition/explanation of unlinkability per panel review request.
 * Added text on "Security Level and Underlying Assumptions" per request from list.
 
+-14
+
+* Editorial Fixes (spelling, puntuation, word usage)
+* Fix "Off by one" errors in multi exponentiation description and disclosed indexes
+* Remove incorrect "L == 0" check in domain computation
+
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
     <title>Faster subgroup checks for BLS12-381</title>
