@@ -5139,6 +5139,13 @@ Appendix G.  Document History
    *  Added text on "Security Level and Underlying Assumptions" per
       request from list.
 
+   -14
+
+   *  Editorial Fixes (spelling, puntuation, word usage)
+   *  Fix "Off by one" errors in multi exponentiation description and
+      disclosed indexes
+   *  Remove incorrect "L == 0" check in domain computation
+
 Authors' Addresses
 
    Tobias Looker
