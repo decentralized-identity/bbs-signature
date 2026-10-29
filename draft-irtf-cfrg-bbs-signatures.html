@@ -24,11 +24,11 @@
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.12.2
+    platformdirs 4.13.4
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.9.1
+    wcwidth 0.9.2
 -->
 <link href="draft-irtf-cfrg-bbs-signatures.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1048,7 +1048,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Looker, et al.</td>
-<td class="center">Expires 17 April 2027</td>
+<td class="center">Expires 2 May 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1061,12 +1061,12 @@ svg {
 <dd class="internet-draft">draft-irtf-cfrg-bbs-signatures-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-10-14" class="published">14 October 2026</time>
+<time datetime="2026-10-29" class="published">29 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-04-17">17 April 2027</time></dd>
+<dd class="expires"><time datetime="2027-05-02">2 May 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1124,7 +1124,7 @@ svg {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 17 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 2 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1676,7 +1676,7 @@ svg {
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.1-2.27">OS2IP</dt>
-          <dd style="margin-left: 1.5em" id="section-1.1-2.28">An operation that transforms a octet string into an non-negative integer, defined in Section 4 of <span>[<a href="#RFC8017" class="cite xref">RFC8017</a>]</span>. The input of this operation must be in big-endian order.<a href="#section-1.1-2.28" class="pilcrow">¶</a>
+          <dd style="margin-left: 1.5em" id="section-1.1-2.28">An operation that transforms a octet string into a non-negative integer, defined in Section 4 of <span>[<a href="#RFC8017" class="cite xref">RFC8017</a>]</span>. The input of this operation must be in big-endian order.<a href="#section-1.1-2.28" class="pilcrow">¶</a>
 </dd>
           <dd class="break"></dd>
 <dt id="section-1.1-2.29">INVALID, ABORT</dt>
@@ -1942,7 +1942,7 @@ X[n-1] = a_n
 This property can be captured by an experiment where the adversary, given the public parameters of the system, generates a BBS signature key pair and issues two credentials to the experiment. The experiment selects one of the two supplied credentials at random and uses it to generate a BBS presentation for an adversarially chosen statement satisfied by both credentials. The adversary must then guess which credential was used.
 We say that the credential scheme has unlinkable presentations if no efficient adversary can do substantially better than random guessing, even when it generates both credentials.
 This property holds as the specified presentation algorithm is derived from a sigma protocol in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>, Appendix B, which, in particular, satisfies HVZK (with a leakage that can be derived from any issued credential) and has high first-message min-entropy. This means that the presentation algorithm obtained by compiling the sigma protocol with Fiat-Shamir satisfies the Zero Knowledge property and can be simulated <span>[<a href="#FKMV12" class="cite xref">FKMV12</a>]</span> Theorem 1, enabling the proof of the indistinguishability of presentations derived from the two credentials. The indistinguishability claim follows from the indistinguishability of presentations of both credentials from simulated presentations.<a href="#section-3.3.7-1" class="pilcrow">¶</a></p>
-<p id="section-3.3.7-2">Note however, that this holds only for the value of the BBS proof. In other words, other values revealed by the Prover during their interaction with a Verifier, may still be used to correlate their activity and compromise their privacy. Examples of such values include the disclosed messages (if the same message of high enough entropy is revealed between multiple proofs), the <code>header</code> and <code>presentation_header</code> values (see Section <a href="#header-and-presentation-header-usage" class="auto internal xref">Section 3.3.6</a>), or the total number of signed messages. See Section <a href="#privacy-considerations" class="auto internal xref">Section 5</a> for privacy considerations and recommendations on minimizing these sources of correlation.<a href="#section-3.3.7-2" class="pilcrow">¶</a></p>
+<p id="section-3.3.7-2">Note however, that this holds only for the value of the BBS proof. In other words, other values revealed by the Prover during their interaction with a Verifier, may still be used to correlate their activity and compromise their privacy. Examples of such values include the disclosed messages (if the same message of high enough entropy is revealed between multiple proofs), the <code>header</code> and <code>presentation_header</code> values (see <a href="#header-and-presentation-header-usage" class="auto internal xref">Section 3.3.6</a>), or the total number of signed messages. See <a href="#privacy-considerations" class="auto internal xref">Section 5</a> for privacy considerations and recommendations on minimizing these sources of correlation.<a href="#section-3.3.7-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2270,7 +2270,7 @@ Procedure:
           <h4 id="name-coresign">
 <a href="#section-3.6.1" class="section-number selfRef">3.6.1. </a><a href="#name-coresign" class="section-name selfRef">CoreSign</a>
           </h4>
-<p id="section-3.6.1-1">This operation computes a deterministic signature from a secret key (<code>SK</code>), a set of <code>generators</code> (points of G1) and optionally a <code>header</code> and a vector of <code>messages</code>. Note that signature generation is deterministic, in contrast to the academic literature, where signature generation, and more specifically the calculation of the <code>e</code> value (Procedure step 2 below), is randomized (i.e., the <code>e</code> value is drawn at random, instead of been deterministically calculated by hashing the Signer's secret key and the list of messages). This alteration protects the scheme (at least the signature generation part) from vulnerabilities related to bad entropy sources, as well as some of the the best currently known attacks, as suggested in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>. Additionally, it makes testing of the <code>CoreSign</code> operation easier, as it avoids the need for a mocked random scalar.<a href="#section-3.6.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.6.1-1">This operation computes a deterministic signature from a secret key (<code>SK</code>), a set of <code>generators</code> (points of G1) and optionally a <code>header</code> and a vector of <code>messages</code>. Note that signature generation is deterministic, in contrast to the academic literature, where signature generation, and more specifically the calculation of the <code>e</code> value (Procedure step 2 below), is randomized (i.e., the <code>e</code> value is drawn at random, instead of being deterministically calculated by hashing the Signer's secret key and the list of messages). This alteration protects the scheme (at least the signature generation part) from vulnerabilities related to bad entropy sources, as well as some of the best currently known attacks, as suggested in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span>. Additionally, it makes testing of the <code>CoreSign</code> operation easier, as it avoids the need for a mocked random scalar.<a href="#section-3.6.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.6.1-2">
 <pre>signature = CoreSign(SK, PK, generators, header, messages, api_id)
 
@@ -2725,7 +2725,7 @@ Procedure:
 <a href="#section-3.7.4" class="section-number selfRef">3.7.4. </a><a href="#name-proof-verification-initiali" class="section-name selfRef">Proof Verification Initialization</a>
           </h4>
 <p id="section-3.7.4-1">This operation initializes the proof verification operation and returns part of the input that will be passed to the challenge calculation operation (i.e., <code>ProofChallengeCalculate</code>, <a href="#challenge-calculation" class="auto internal xref">Section 3.7.5</a>), during the <code>CoreProofVerify</code> operation defined in <a href="#coreproofverify" class="auto internal xref">Section 3.6.4</a>.<a href="#section-3.7.4-1" class="pilcrow">¶</a></p>
-<p id="section-3.7.4-2">Note that, the scalars representing the disclosed messages (<code>disclosed_messages</code>) MUST be supplied to this operation in the same order as they had as part of the <code>messages</code> input of the <code>CoreSign</code> operation defined in <a href="#coresign" class="auto internal xref">Section 3.6.1</a> (otherwise, proof verification will fail). Similarly, the indexes of the disclosed messages in the set of signed messages MUST be supplied to this operation as a set of integers in accenting order (<code>disclosed_indexes</code>).<a href="#section-3.7.4-2" class="pilcrow">¶</a></p>
+<p id="section-3.7.4-2">Note that, the scalars representing the disclosed messages (<code>disclosed_messages</code>) MUST be supplied to this operation in the same order as they had as part of the <code>messages</code> input of the <code>CoreSign</code> operation defined in <a href="#coresign" class="auto internal xref">Section 3.6.1</a> (otherwise, proof verification will fail). Similarly, the indexes of the disclosed messages in the set of signed messages MUST be supplied to this operation as a set of integers in ascending order (<code>disclosed_indexes</code>).<a href="#section-3.7.4-2" class="pilcrow">¶</a></p>
 <p id="section-3.7.4-3">This operation makes use of the <code>calculate_domain</code> function defined in <a href="#domain-calculation" class="auto internal xref">Section 4.2.3</a> and of the <code>multi_exponentiation_g1</code> function defined in <a href="#multi-exponentiation" class="auto internal xref">Section 4.2.4</a>.<a href="#section-3.7.4-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.7.4-4">
 <pre>init_res = ProofVerifyInit(PK,
@@ -2963,7 +2963,7 @@ Procedure:
 </pre><a href="#section-4.1.1-3" class="pilcrow">¶</a>
 </div>
 <p id="section-4.1.1-4">The value of <code>v</code> MAY also be cached in order to efficiently extend an existing list of cached generator points.<a href="#section-4.1.1-4" class="pilcrow">¶</a></p>
-<p id="section-4.1.1-5">The <code>CREATE_GENERATORS_ID</code> of the above operation is define as,<a href="#section-4.1.1-5" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-5">The <code>CREATE_GENERATORS_ID</code> of the above operation is defined as,<a href="#section-4.1.1-5" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.1.1-6">
 <pre>CREATE_GENERATORS_ID = "H2G_"
 
@@ -3033,7 +3033,7 @@ Procedure:
 
 </pre><a href="#section-4.1.2-2" class="pilcrow">¶</a>
 </div>
-<p id="section-4.1.2-3">The <code>MAP_TO_SCALAR_ID</code> of the above operation is defines as,<a href="#section-4.1.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.1.2-3">The <code>MAP_TO_SCALAR_ID</code> of the above operation is defined as,<a href="#section-4.1.2-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.1.2-4">
 <pre>MAP_TO_SCALAR_ID = "HM2S_"
 
@@ -3263,8 +3263,8 @@ Inputs:
 
 - input_array (REQUIRED), an array of elements to be serialized. Each
                           element must be either a point of G1 or G2, a
-                          scalar, an ASCII string or an integer value
-                          between 0 and 2^64 - 1.
+                          scalar, or an integer value between 0 and
+                          2^64 - 1.
 
 Parameters:
 
@@ -3278,7 +3278,7 @@ Parameters:
 
 Outputs:
 
-- octets_result, a scalar value or INVALID.
+- octets_result, an octet string or INVALID.
 
 Procedure:
 
@@ -3460,7 +3460,7 @@ Procedure:
 
 // Points (i.e., (Abar, Bbar, D) in ProofGen) de-serialization.
 3.  index = 0
-4.  for i in (0, 2):
+4.  for i in (0, 1, 2):
 5.      end_index = index + octet_point_length - 1
 6.      A_i = octets_to_point_E1(proof_octets[index..end_index])
 7.      if A_i is INVALID or Identity_G1, return INVALID
@@ -3533,14 +3533,14 @@ Procedure:
       <h2 id="name-privacy-considerations">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-privacy-considerations" class="section-name selfRef">Privacy Considerations</a>
       </h2>
-<p id="section-5-1">This section will go through threats to the Prover's privacy. Note that a BBS proof is unlinkable against both the Verifiers and the Signer, as well as multiple Verifiers colluding with each other and Verifiers colluding with the Signer. Bear in mind that those guarantees concern only the proof value, as outputted by the <code>CoreProofGen</code> (Section <a href="#coreproofgen" class="auto internal xref">Section 3.6.3</a>) and of course the <code>ProofGen</code> (Section <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>) operations. Correspondingly, the unlinkability property does not include other values that a Prover could either knowingly or unknowingly provide to a Verifier. Those values can include disclosed messages of high entropy, the <code>header</code> and <code>presentation_header</code> values, their network address, or generally any information disclosed during an interaction with the Verifier having the potential to identify the user. Such threats, if exploited, could lead to correlation of the Prover's interactions with different Verifiers, resulting to fingerprinting attacks against the Prover's activity.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-1">This section will go through threats to the Prover's privacy. Note that a BBS proof is unlinkable against both the Verifiers and the Signer, as well as multiple Verifiers colluding with each other and Verifiers colluding with the Signer. Bear in mind that those guarantees concern only the proof value, as outputted by the <code>CoreProofGen</code> (see <a href="#coreproofgen" class="auto internal xref">Section 3.6.3</a>) and of course the <code>ProofGen</code> (see <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>) operations. Correspondingly, the unlinkability property does not include other values that a Prover could either knowingly or unknowingly provide to a Verifier. Those values can include disclosed messages of high entropy, the <code>header</code> and <code>presentation_header</code> values, their network address, or generally any information disclosed during an interaction with the Verifier having the potential to identify the user. Such threats, if exploited, could lead to correlation of the Prover's interactions with different Verifiers, resulting to fingerprinting attacks against the Prover's activity.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <p id="section-5-2">The following sections will describe possible privacy threats, resulting from such values and side channels, that could compromise the unlinkability property of the BBS proof. Note that, the following sections describe ways to minimize possible identifying information revealed during a BBS proof presentation, related to the BBS Signatures scheme. To minimize the privacy threats of an entire system, other protections may also need to be employed, for example, using an IP hiding proxy network like TOR (<span>[<a href="#DMS04" class="cite xref">DMS04</a>]</span>).<a href="#section-5-2" class="pilcrow">¶</a></p>
 <div id="header-and-presentation-header">
 <section id="section-5.1">
         <h3 id="name-header-and-presentation-head">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-header-and-presentation-head" class="section-name selfRef">Header and Presentation Header</a>
         </h3>
-<p id="section-5.1-1">As mentioned in Section <a href="#header-and-presentation-header" class="auto internal xref">Section 5.1</a>, the <code>header</code> value is chosen by the Signer and bound to a BBS Signature and proof. Consequently, it must be revealed to the Verifier, together with a BBS proof. If that <code>header</code> value is chosen to have high entropy (i.e., unique per credential, Prover or small group of Provers), it can be used as a correlation vector to trace and link together all BBS proofs made by a signature bound to that <code>header</code> value. This will result in significantly worse privacy guarantees, by allowing adversaries to trace and link together all generated proofs bound to that <code>header</code> value (for example, if a random <code>header</code> is used during each BBS signature generation, adversaries will be able to link and trace the BBS proofs generated from that signature). The Issuer MUST choose a low entropy <code>header</code> value and it MUST be the same for a large number of users (Provers). Examples of acceptable values include, an application identifier, a country identifier or a low cardinality version number. Examples of unacceptable values include, random values, high cardinality expiration dates, the Prover's email address or any other identifying information.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-1">As mentioned in <a href="#header-and-presentation-header-usage" class="auto internal xref">Section 3.3.6</a>, the <code>header</code> value is chosen by the Signer and bound to a BBS Signature and proof. Consequently, it must be revealed to the Verifier, together with a BBS proof. If that <code>header</code> value is chosen to have high entropy (i.e., unique per credential, Prover or small group of Provers), it can be used as a correlation vector to trace and link together all BBS proofs made by a signature bound to that <code>header</code> value. This will result in significantly worse privacy guarantees, by allowing adversaries to trace and link together all generated proofs bound to that <code>header</code> value (for example, if a random <code>header</code> is used during each BBS signature generation, adversaries will be able to link and trace the BBS proofs generated from that signature). The Issuer MUST choose a low entropy <code>header</code> value and it MUST be the same for a large number of users (Provers). Examples of acceptable values include, an application identifier, a country identifier or a low cardinality version number. Examples of unacceptable values include, random values, high cardinality expiration dates, the Prover's email address or any other identifying information.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">On the other hand, the misuse of a <code>presentation_header</code>, chosen by the Prover and only bound to a BBS proof, does not incur as many privacy risks as the <code>header</code> value. For example, since a new <code>presentation_header</code> can be chosen each time a BBS proof is generated, random values are a viable choice. Still, to not break the unlinkability property, care must be taken that the <code>presentation_header</code> does not identify a single or small group of Provers. If the <code>presentation_header</code> is chosen to have high entropy (for example, to be a random value, a high accuracy locality identifier or a specific software build number), then the same value must not be used for more than one Proof generations. Note however, that even though the <code>presentation_header</code> can include high entropy values (as long as they are used only once), its a good practice for the Prover to avoid revealing personally identifying information (like their name, email address or phone number), to minimize the danger of correlating that information with other data sources, potentially unrelated to the specific application.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -3598,7 +3598,7 @@ Procedure:
 <a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-skipping-membership-checks" class="section-name selfRef">Skipping Membership Checks</a>
         </h3>
 <p id="section-6.3-1">The subgroup check <code>subgroup_check_G*</code> invocation during either signature deserialization (<code>octets_to_signature</code>, defined in <a href="#octets-to-signature" class="auto internal xref">Section 4.2.5.3</a>), proof deserialization (<code>octets_to_proof</code>, defined in <a href="#octets-to-proof" class="auto internal xref">Section 4.2.5.5</a>) or public key deserialization (<code>octets_to_pubkey</code>, define in <a href="#octets-to-public-key" class="auto internal xref">Section 4.2.5.6</a>) is REQUIRED by all implementations. Failure to comply would lead to unpredicted behavior and vulnerabilities. Note that some libraries implementing the pairing-friendly curves functionality, may incorporate that check as part of a <code>octets_to_point_G1</code> or <code>octet_to_point_G2</code> operation (i.e., operations that both deserialize an octet string to get an elliptic curve point and then check if the resulting point is part of the <code>G1</code> or <code>G2</code> group accordingly). In those cases, the implementer must make sure that those checks are executed correctly.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
-<p id="section-6.3-2">Note that checking that the points are in the correct subgroup is essential to avoid possible forgeries of a BBS signature or proof (<span>[<a href="#ADR02" class="cite xref">ADR02</a>]</span>). Furthermore, the pairing operation <a href="#notation" class="auto internal xref">Section 1.2</a> is undefined when its input points are not in <code>G1</code> and <code>G2</code>. As a result, applications MUST execute all the subgroup checks defined by this document.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">Note that checking that the points are in the correct subgroup is essential to avoid possible forgeries of a BBS signature or proof (<span>[<a href="#ADR02" class="cite xref">ADR02</a>]</span>). Furthermore, the pairing operation (see <a href="#notation" class="auto internal xref">Section 1.2</a>) is undefined when its input points are not in <code>G1</code> and <code>G2</code>. As a result, applications MUST execute all the subgroup checks defined by this document.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="side-channel-attacks">
@@ -3763,8 +3763,8 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 <a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-bls12-381-ciphersuites" class="section-name selfRef">BLS12-381 Ciphersuites</a>
         </h3>
 <p id="section-7.2-1">The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. The targeted security level of both suites in bits is <code>k = 128</code> (the actual security level is closer to 126 bits). The number of bits of the order <code>r</code>, of the G1 and G2 subgroups, is <code>log2(r) = 255</code>. The base points <code>BP1</code> and <code>BP2</code> of G1 and G2 are the points <code>BP</code> and <code>BP'</code> correspondingly, as defined in Section 4.2.1 of <span>[<a href="#I-D.irtf-cfrg-pairing-friendly-curves" class="cite xref">I-D.irtf-cfrg-pairing-friendly-curves</a>]</span>. For completeness, BLS12-381 and the relevant functionality (base points <code>BP1</code> and <code>BP2</code>, the pairing <code>h</code> as well as the point encoding and decoding operations) are defined in <a href="#the-bls12-381-curve" class="auto internal xref">Appendix B</a>.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
-<p id="section-7.2-2">The first ciphersuite uses the hash-to-curve suite <code>BLS12381G1_XOF:SHAKE-256_SSWU_RO_</code>, defined by this document in <a href="#bls12-381-hash_to_curve-def">Appendix A.1</a>, which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of <span>[<a href="#SHA3" class="cite xref">SHA3</a>]</span>.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
-<p id="section-7.2-3">The second ciphersuite uses the hash-to-curve suite <code>BLS12381G1_XMD:SHA-256_SSWU_RO_</code>, defined in Section 8.8.1 of the <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> document, which is based on the SHA-256, as defined in Section 6.2 of <span>[<a href="#SHA2" class="cite xref">SHA2</a>]</span> .<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<p id="section-7.2-2">The first ciphersuite uses the hash-to-curve suite <code>BLS12381G1_XOF:SHAKE-256_SSWU_RO_</code>, defined by this document in <a href="#bls12-381-g1" class="auto internal xref">Appendix A.1</a>, which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of <span>[<a href="#SHA3" class="cite xref">SHA3</a>]</span>.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+<p id="section-7.2-3">The second ciphersuite uses the hash-to-curve suite <code>BLS12381G1_XMD:SHA-256_SSWU_RO_</code>, defined in Section 8.8.1 of the <span>[<a href="#RFC9380" class="cite xref">RFC9380</a>]</span> document, which is based on the SHA-256, as defined in Section 6.2 of <span>[<a href="#SHA2" class="cite xref">SHA2</a>]</span>.<a href="#section-7.2-3" class="pilcrow">¶</a></p>
 <p id="section-7.2-4">For both ciphersuites defined in this section, the fixed point <code>P1</code> of G1 is defined as the output of the <code>create_generators</code> procedure defined in <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a> instantiated with the parameters defined by each ciphersuite, with the inputs <code>count = 1</code>, not supplying an <code>api_id</code> value and making use of the following "Definitions" for the <code>seed_dst</code>, <code>generator_dst</code> and <code>generator_seed</code> variables;<a href="#section-7.2-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-7.2-5">
 <pre>- seed_dst: ciphersuite_id || "H2G_HM2S_SIG_GENERATOR_SEED_" where
@@ -3780,7 +3780,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 </pre><a href="#section-7.2-5" class="pilcrow">¶</a>
 </div>
 <p id="section-7.2-6">In the above, <code>ciphersuite_id</code> is the unique identifier defined by each ciphersuite. Note that the <code>P1</code> point is independent from the BBS Interface that may use it and it remains constant for each ciphersuite. The similarity of the above "Definitions" with the Interface identifier (<code>api_id</code>) defined in <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a>, is only for compatibility reasons with previous versions of this document.<a href="#section-7.2-6" class="pilcrow">¶</a></p>
-<p id="section-7.2-7">Note that these two ciphersuites differ only in the hash-to-curve suites used. The hash-to-curve suites differ in the <code>expand_message</code> variant and underlying hash function. More concretely, the <a href="#bls12-381-shake-256">BLS12-381-SHAKE-256</a> ciphersuite makes use of <code>expand_message_xof</code> with SHAKE-256, while <a href="#bls12-381-sha-256">BLS12-381-SHA-256</a> makes use of <code>expand_message_xmd</code> with SHA-256. Curve parameters are common between the two ciphersuites.<a href="#section-7.2-7" class="pilcrow">¶</a></p>
+<p id="section-7.2-7">Note that these two ciphersuites differ only in the hash-to-curve suites used. The hash-to-curve suites differ in the <code>expand_message</code> variant and underlying hash function. More concretely, the <code>BLS12-381-SHAKE-256</code> ciphersuite (<a href="#bls12-381-shake-256" class="auto internal xref">Section 7.2.1</a>) makes use of <code>expand_message_xof</code> with SHAKE-256, while <code>BLS12-381-SHA-256</code> (<a href="#bls12-381-sha-256" class="auto internal xref">Section 7.2.2</a>) makes use of <code>expand_message_xmd</code> with SHA-256. Curve parameters are common between the two ciphersuites.<a href="#section-7.2-7" class="pilcrow">¶</a></p>
 <div id="bls12-381-shake-256">
 <section id="section-7.2.1">
           <h4 id="name-bls12-381-shake-256">
@@ -3798,7 +3798,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
               <p id="section-7.2.1-2.3.1">octet_point_length: 48, based on the RECOMMENDED approach of <code>ceil(log2(p)/8)</code>.<a href="#section-7.2.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-7.2.1-2.4">
-              <p id="section-7.2.1-2.4.1">hash_to_curve_suite: "BLS12381G1_XOF:SHAKE-256_SSWU_RO_" as defined in <a href="#bls12-381-hash-to-curve-definition-using-shake-256">Appendix A.1</a> for the G1 subgroup.<a href="#section-7.2.1-2.4.1" class="pilcrow">¶</a></p>
+              <p id="section-7.2.1-2.4.1">hash_to_curve_suite: "BLS12381G1_XOF:SHAKE-256_SSWU_RO_" as defined in <a href="#bls12-381-g1" class="auto internal xref">Appendix A.1</a> for the G1 subgroup.<a href="#section-7.2.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-7.2.1-2.5">
               <p id="section-7.2.1-2.5.1">expand_len: 48 ( <code>= ceil((ceil(log2(r))+k)/8)</code>)<a href="#section-7.2.1-2.5.1" class="pilcrow">¶</a></p>
@@ -3978,7 +3978,7 @@ m_10 = h'{{ $messages[9] }}'
         <h3 id="name-bls12-381-shake-256-test-ve">
 <a href="#section-8.3" class="section-number selfRef">8.3. </a><a href="#name-bls12-381-shake-256-test-ve" class="section-name selfRef">BLS12-381-SHAKE-256 Test Vectors</a>
         </h3>
-<p id="section-8.3-1">Test vectors of the <code>BLS12-381-SHAKE-256</code> ciphersuite defined in <a href="#bls12-381-shake-256-ciphersuite" class="auto internal xref">Appendix D.1</a> ciphersuite. Further fixtures are available in <a href="#bls12-381-shake-256-ciphersuite" class="auto internal xref">Appendix D.1</a>.<a href="#section-8.3-1" class="pilcrow">¶</a></p>
+<p id="section-8.3-1">Test vectors of the <code>BLS12-381-SHAKE-256</code> ciphersuite defined in <a href="#bls12-381-shake-256" class="auto internal xref">Section 7.2.1</a>. Further fixtures are available in <a href="#bls12-381-shake-256-ciphersuite" class="auto internal xref">Appendix D.1</a>.<a href="#section-8.3-1" class="pilcrow">¶</a></p>
 <div id="key-pair">
 <section id="section-8.3.1">
           <h4 id="name-key-pair">
@@ -4043,7 +4043,7 @@ msg_scalar_10 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageT
           <h4 id="name-message-generators">
 <a href="#section-8.3.3" class="section-number selfRef">8.3.3. </a><a href="#name-message-generators" class="section-name selfRef">Message Generators</a>
           </h4>
-<p id="section-8.3.3-1">Following the procedure defined in <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a> for the <a href="#bls12-381-shake-256">BLS12-381-SHAKE-256</a> suite, with an input count value of 11 and an <code>api_id</code> value of <code>api_id = BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_H2G_HM2S_</code> (as defined in <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a> for the <code>BLS12-381-SHAKE-256</code> ciphersuite), outputs the following values (note that the first one corresponds to <code>Q_1</code>, while the next 10, to the message generators <code>H_1, ..., H_10</code>).<a href="#section-8.3.3-1" class="pilcrow">¶</a></p>
+<p id="section-8.3.3-1">Following the procedure defined in <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a> for the <code>BLS12-381-SHAKE-256</code> suite (<a href="#bls12-381-shake-256" class="auto internal xref">Section 7.2.1</a>), with an input count value of 11 and an <code>api_id</code> value of <code>api_id = BBS_BLS12381G1_XOF:SHAKE-256_SSWU_RO_H2G_HM2S_</code> (as defined in <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a> for the <code>BLS12-381-SHAKE-256</code> ciphersuite), outputs the following values (note that the first one corresponds to <code>Q_1</code>, while the next 10, to the message generators <code>H_1, ..., H_10</code>).<a href="#section-8.3.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.3.3-2">
 <pre>Q_1 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.Q1 }}'
 H_1 = h'{{ $generatorFixtures.bls12-381-shake-256.generators.MsgGenerators[0] }}'
@@ -4161,7 +4161,7 @@ random_scalar_10 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedSca
 <a href="#section-8.3.5.1" class="section-number selfRef">8.3.5.1. </a><a href="#name-valid-single-message-proof" class="section-name selfRef">Valid Single Message Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.3.5.1-1">
-<pre>m_0 = h'{{ $proofFixtures.bls12-381-shake-256.proof001.messages[0] }}'
+<pre>m_1 = h'{{ $proofFixtures.bls12-381-shake-256.proof001.messages[0] }}'
 
 public_key = h'{{ $proofFixtures.bls12-381-shake-256.proof001.signerPublicKey }}'
 signature = h'{{ $proofFixtures.bls12-381-shake-256.proof001.signature }}'
@@ -4284,7 +4284,7 @@ proof = h'{{ $proofFixtures.bls12-381-shake-256.proof003.proof }}'
         <h3 id="name-bls12381-sha-256-test-vecto">
 <a href="#section-8.4" class="section-number selfRef">8.4. </a><a href="#name-bls12381-sha-256-test-vecto" class="section-name selfRef">BLS12381-SHA-256 Test Vectors</a>
         </h3>
-<p id="section-8.4-1">Test vectors of the <a href="#bls12-381-sha-256-ciphersuite">BLS12-381-SHA-256</a> ciphersuite. Further fixtures are available in <a href="#bls12-381-sha-256-ciphersuite" class="auto internal xref">Appendix D.2</a>.<a href="#section-8.4-1" class="pilcrow">¶</a></p>
+<p id="section-8.4-1">Test vectors of the <code>BLS12-381-SHA-256</code> ciphersuite defined in <a href="#bls12-381-sha-256" class="auto internal xref">Section 7.2.2</a>. Further fixtures are available in <a href="#bls12-381-sha-256-ciphersuite" class="auto internal xref">Appendix D.2</a>.<a href="#section-8.4-1" class="pilcrow">¶</a></p>
 <div id="key-pair-1">
 <section id="section-8.4.1">
           <h4 id="name-key-pair-2">
@@ -4355,7 +4355,7 @@ msg_scalar_10 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToS
           <h4 id="name-message-generators-2">
 <a href="#section-8.4.3" class="section-number selfRef">8.4.3. </a><a href="#name-message-generators-2" class="section-name selfRef">Message Generators</a>
           </h4>
-<p id="section-8.4.3-1">Following the procedure defined in <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a> for the <a href="#bls12-381-sha-256">BLS12-381-SHA-256</a> suite, with an input count value of 11 and an <code>api_id</code> value of <code>api_id = BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_</code> (as defined in <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a> for the <code>BLS12-381-SHA-256</code> ciphersuite), outputs the following values (note that the first one corresponds to <code>Q_1</code>, while the next 10, to the message generators <code>H_1, ..., H_10</code>).<a href="#section-8.4.3-1" class="pilcrow">¶</a></p>
+<p id="section-8.4.3-1">Following the procedure defined in <a href="#generators-calculation" class="auto internal xref">Section 4.1.1</a> for the <code>BLS12-381-SHA-256</code> suite (<a href="#bls12-381-sha-256" class="auto internal xref">Section 7.2.2</a>), with an input count value of 11 and an <code>api_id</code> value of <code>api_id = BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_</code> (as defined in <a href="#bbs-signatures-interface" class="auto internal xref">Section 3.5</a> for the <code>BLS12-381-SHA-256</code> ciphersuite), outputs the following values (note that the first one corresponds to <code>Q_1</code>, while the next 10, to the message generators <code>H_1, ..., H_10</code>).<a href="#section-8.4.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.4.3-2">
 <pre>Q_1 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.Q1 }}'
 H_1 = h'{{ $generatorFixtures.bls12-381-sha-256.generators.MsgGenerators[0] }}'
@@ -4437,7 +4437,7 @@ signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}'
           <h4 id="name-proof-fixtures-2">
 <a href="#section-8.4.5" class="section-number selfRef">8.4.5. </a><a href="#name-proof-fixtures-2" class="section-name selfRef">Proof Fixtures</a>
           </h4>
-<p id="section-8.4.5-1">This section presents test vectors for the <code>ProofGen</code> operation, as defined in <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>, for the <code>BLS12-381-SHA-256</code> ciphersuite (<a href="#bls12-381-shake-256" class="auto internal xref">Section 7.2.1</a>).<a href="#section-8.4.5-1" class="pilcrow">¶</a></p>
+<p id="section-8.4.5-1">This section presents test vectors for the <code>ProofGen</code> operation, as defined in <a href="#proof-generation-proofgen" class="auto internal xref">Section 3.5.3</a>, for the <code>BLS12-381-SHA-256</code> ciphersuite (<a href="#bls12-381-sha-256" class="auto internal xref">Section 7.2.2</a>).<a href="#section-8.4.5-1" class="pilcrow">¶</a></p>
 <p id="section-8.4.5-2">For the generation of the following test vectors, the <code>mocked_calculate_random_scalars</code> defined in <a href="#mocked-random-scalars" class="auto internal xref">Section 8.1</a> is used, in place of the <code>calculate_random_scalars</code> operation, with the following <code>SEED</code> value (hex encoding of the ASCII-encoded 30 first digits of pi)<a href="#section-8.4.5-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-8.4.5-3">
 <pre>SEED =
@@ -4474,7 +4474,7 @@ random_scalar_10 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScala
 <a href="#section-8.4.5.1" class="section-number selfRef">8.4.5.1. </a><a href="#name-valid-single-message-proof-2" class="section-name selfRef">Valid Single Message Proof</a>
             </h5>
 <div class="alignLeft art-text artwork" id="section-8.4.5.1-1">
-<pre>m_0 = h'{{ $proofFixtures.bls12-381-sha-256.proof001.messages[0] }}'
+<pre>m_1 = h'{{ $proofFixtures.bls12-381-sha-256.proof001.messages[0] }}'
 
 public_key = h'{{ $proofFixtures.bls12-381-sha-256.proof001.signerPublicKey }}'
 signature = h'{{ $proofFixtures.bls12-381-sha-256.proof001.signature }}'
@@ -4791,7 +4791,7 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof003.proof }}'
 <p id="appendix-A.1-1">The suite of <code>BLS12381G1_XOF:SHAKE-256_SSWU_RO_</code> is defined as follows:<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-A.1-2">
 <pre>* encoding type: hash_to_curve (Section 3 of
-                 [@!RFC9380])
+                 RFC 9380)
 
 * E: y^2 = x^3 + 4
 
@@ -4805,14 +4805,14 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof003.proof }}'
 * k: 128
 
 * expand_message: expand_message_xof (Section 5.3.2 of
-                  [@!RFC9380])
+                  RFC 9380)
 
 * hash: SHAKE-256
 
 * L: 64
 
 * f: Simplified SWU for AB == 0 (Section 6.6.3 of
-     [@!RFC9380])
+     RFC 9380)
 
 * Z: 11
 
@@ -4825,7 +4825,7 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof003.proof }}'
                 cef35ef55a23215a316ceaa5d1cc48e98e172be0
 
 *  iso_map: the 11-isogeny map from E' to E given in Appendix E.2 of
-            [@!RFC9380]
+            RFC 9380
 
 *  h_eff: 0xd201000000010001
 
@@ -4862,7 +4862,7 @@ E2: y ^ 2 = x ^ 3 + 4 * (I + 1)
 
 </pre><a href="#appendix-B-7" class="pilcrow">¶</a>
 </div>
-<p id="appendix-B-8">The group <code>G1</code> and <code>G2</code> are defined as the the order <code>r</code> subgroup of <code>E1</code> defined over <code>GF(p)</code> and <code>E2</code> defined over <code>GF(p^2)</code> correspondingly, where <code>r</code> is defined as,<a href="#appendix-B-8" class="pilcrow">¶</a></p>
+<p id="appendix-B-8">The group <code>G1</code> and <code>G2</code> are defined as the order <code>r</code> subgroup of <code>E1</code> defined over <code>GF(p)</code> and <code>E2</code> defined over <code>GF(p^2)</code> correspondingly, where <code>r</code> is defined as,<a href="#appendix-B-8" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-B-9">
 <pre>r = 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
 
@@ -4953,7 +4953,7 @@ Procedure:
 
 Inputs:
 
-- y (REQUIRED), point of the GF(p) group
+- y (REQUIRED), an element of GF(p)
 
 Outputs:
 
@@ -4972,7 +4972,7 @@ Procedure:
 
 Inputs:
 
-- y (REQUIRED), point of the GF(p^2) group
+- y (REQUIRED), an element of GF(p^2)
 
 Outputs:
 
@@ -5723,7 +5723,7 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}'
       </h2>
 <p id="appendix-E-1">The following section provides a high-level explanation of how the <code>CoreProofGen</code> and <code>CoreProofVerify</code> operations work, as presented in Appendix B of <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> and used by this document. The <code>CoreProofGen</code> procedure uses a generic non-interactive zero-knowledge proof-of-knowledge (<code>NIZK</code>) protocol, executed between a Prover and a Verifier. A <code>NIZK</code> works as follows; Assume the group points <code>J_0</code>, <code>J_1</code>, ..., <code>J_n</code> and the exponents <code>e_0</code>, <code>e_1</code>, ..., <code>e_n</code>. Assume also that all the group points are publicly known, while only the exponent <code>e_0</code> is known to the Verifier of the <code>NIZK</code> and the exponents <code>e_1</code>, ..., <code>e_n</code> are known only by the Prover of the protocol. The <code>NIZK</code> can be used to prove a relationship of the form,<a href="#appendix-E-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="appendix-E-2">
-<pre>J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
+<pre>J_0 * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
 
 </pre><a href="#appendix-E-2" class="pilcrow">¶</a>
 </div>
@@ -5782,8 +5782,8 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}'
       <h2 id="name-mapping-between-and-operati">
 <a href="#appendix-F" class="section-number selfRef">Appendix F. </a><a href="#name-mapping-between-and-operati" class="section-name selfRef">Mapping Between <span class="cite xref">[TZ23]</span> and Operations</a>
       </h2>
-<p id="appendix-F-1">Reference <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> provides proofs for the BBS signature scheme described in this document. However, the notation of the academic paper <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> and the description of the imlementation herein and practical optimizations used can make it difficult to see that these are actually the same. Hence, in this section we explicitly "map" between reference <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> and the operations performed in this document. The formulas for setup, key generation, signature, and signature verification can be found in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> page 8, Figure 3, while the formulas for proof generation and proof verification can be found in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Appendix B under "Protocol Description".<a href="#appendix-F-1" class="pilcrow">¶</a></p>
-<p id="appendix-F-2">Both "additive" and "multiplicative" notation can be used for Abelian groups such as G1, G2, and GT. The paper <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> uses "multiiplicative" notation throughout, i.e., it uses "multiplication" as the group operation and exponentiation as the group operation applied repeatedly to an element with itself. In this specification "additive" notation is used for the groups G1 and G2, while "multiplicative" notation is used for the group GT.<a href="#appendix-F-2" class="pilcrow">¶</a></p>
+<p id="appendix-F-1">Reference <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> provides proofs for the BBS signature scheme described in this document. However, the notation of the academic paper <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> and the description of the implementation herein and practical optimizations used can make it difficult to see that these are actually the same. Hence, in this section we explicitly "map" between reference <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> and the operations performed in this document. The formulas for setup, key generation, signature, and signature verification can be found in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> page 8, Figure 3, while the formulas for proof generation and proof verification can be found in <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> Appendix B under "Protocol Description".<a href="#appendix-F-1" class="pilcrow">¶</a></p>
+<p id="appendix-F-2">Both "additive" and "multiplicative" notation can be used for Abelian groups such as G1, G2, and GT. The paper <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> uses "multiplicative" notation throughout, i.e., it uses "multiplication" as the group operation and exponentiation as the group operation applied repeatedly to an element with itself. In this specification "additive" notation is used for the groups G1 and G2, while "multiplicative" notation is used for the group GT.<a href="#appendix-F-2" class="pilcrow">¶</a></p>
 <table class="center" id="table-1">
         <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
 <thead>
@@ -5804,7 +5804,7 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}'
 </td>
           </tr>
           <tr>
-            <td class="text-left" rowspan="1" colspan="1">mesage vector</td>
+            <td class="text-left" rowspan="1" colspan="1">message vector</td>
             <td class="text-left" rowspan="1" colspan="1">
               <code>m</code>
 </td>
@@ -6111,7 +6111,7 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}'
             </ol>
 </li>
         </ul>
-<p id="appendix-F.1-15">To see that these two verification tests are equivalent we use the the math of the bilinear function:<a href="#appendix-F.1-15" class="pilcrow">¶</a></p>
+<p id="appendix-F.1-15">To see that these two verification tests are equivalent we use the math of the bilinear function:<a href="#appendix-F.1-15" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="compact type-1" id="appendix-F.1-16">
 <li id="appendix-F.1-16.1">Expressing <code>h(A, W) * h(A  * e - B, BP2) ?= Identity_GT</code> in multiplicative notation<a href="#appendix-F.1-16.1" class="pilcrow">¶</a>
 </li>
@@ -6122,10 +6122,10 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}'
             <code>h(A, W) * h(A^e, BP2) * h(B, BP2)^(-1) ?= Identity_GT</code>, some algebra<a href="#appendix-F.1-16.3" class="pilcrow">¶</a>
 </li>
           <li id="appendix-F.1-16.4">
-            <code>h(A, W) * e(A^e, BP2) ?= h(B, BP2)</code>, Use bilinearity<a href="#appendix-F.1-16.4" class="pilcrow">¶</a>
+            <code>h(A, W) * h(A^e, BP2) ?= h(B, BP2)</code>, Use bilinearity<a href="#appendix-F.1-16.4" class="pilcrow">¶</a>
 </li>
           <li id="appendix-F.1-16.5">
-            <code>h(A, W) * e(A, BP2^e) ?= h(B, BP2)</code>, Use bilinearity<a href="#appendix-F.1-16.5" class="pilcrow">¶</a>
+            <code>h(A, W) * h(A, BP2^e) ?= h(B, BP2)</code>, Use bilinearity<a href="#appendix-F.1-16.5" class="pilcrow">¶</a>
 </li>
           <li id="appendix-F.1-16.6">
             <code>h(A, W * BP2^e) ?= h(B, BP2)</code> substitute <span>[<a href="#TZ23" class="cite xref">TZ23</a>]</span> symbols gives:<a href="#appendix-F.1-16.6" class="pilcrow">¶</a>
@@ -6204,7 +6204,7 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof015.proof }}'
 </li>
               <li id="appendix-F.2-4.1.2.5">z = gamma + r2*c<a href="#appendix-F.2-4.1.2.5" class="pilcrow">¶</a>
 </li>
-              <li id="appendix-F.2-4.1.2.6">u_i = delta_i - m[i] for i in <em>I</em>  (undisclosed)<a href="#appendix-F.2-4.1.2.6" class="pilcrow">¶</a>
+              <li id="appendix-F.2-4.1.2.6">u_i = delta_i - m[i]*c for i in <em>I</em>  (undisclosed)<a href="#appendix-F.2-4.1.2.6" class="pilcrow">¶</a>
 </li>
               <li id="appendix-F.2-4.1.2.7">(s, t, z, u_i) sent to verifier<a href="#appendix-F.2-4.1.2.7" class="pilcrow">¶</a>
 </li>

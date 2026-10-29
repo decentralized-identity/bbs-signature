@@ -5,13 +5,13 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 17 April 2027                                      A. Whitehead
+Expires: 2 May 2027                                         A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
                                                             G. Bernstein
                                                        Grotto Networking
-                                                         14 October 2026
+                                                         29 October 2026
 
 
                         The BBS Signature Scheme
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 April 2027.
+   This Internet-Draft will expire on 2 May 2027.
 
 Copyright Notice
 
@@ -325,7 +325,7 @@ Table of Contents
    I2OSP  An operation that transforms a non-negative integer into an
       octet string, defined in Section 4 of [RFC8017].  The output of
       this operation is in big-endian order.
-   OS2IP  An operation that transforms a octet string into an non-
+   OS2IP  An operation that transforms a octet string into a non-
       negative integer, defined in Section 4 of [RFC8017].  The input of
       this operation must be in big-endian order.
    INVALID, ABORT  Error indicators.  INVALID refers to an error
@@ -642,10 +642,9 @@ Table of Contents
    activity and compromise their privacy.  Examples of such values
    include the disclosed messages (if the same message of high enough
    entropy is revealed between multiple proofs), the header and
-   presentation_header values (see Section Section 3.3.6), or the total
-   number of signed messages.  See Section Section 5 for privacy
-   considerations and recommendations on minimizing these sources of
-   correlation.
+   presentation_header values (see Section 3.3.6), or the total number
+   of signed messages.  See Section 5 for privacy considerations and
+   recommendations on minimizing these sources of correlation.
 
 3.4.  Key Generation Operations
 
@@ -980,11 +979,11 @@ Procedure:
    deterministic, in contrast to the academic literature, where
    signature generation, and more specifically the calculation of the e
    value (Procedure step 2 below), is randomized (i.e., the e value is
-   drawn at random, instead of been deterministically calculated by
+   drawn at random, instead of being deterministically calculated by
    hashing the Signer's secret key and the list of messages).  This
    alteration protects the scheme (at least the signature generation
    part) from vulnerabilities related to bad entropy sources, as well as
-   some of the the best currently known attacks, as suggested in [TZ23].
+   some of the best currently known attacks, as suggested in [TZ23].
    Additionally, it makes testing of the CoreSign operation easier, as
    it avoids the need for a mocked random scalar.
 
@@ -1508,7 +1507,7 @@ Procedure:
    operation defined in Section 3.6.1 (otherwise, proof verification
    will fail).  Similarly, the indexes of the disclosed messages in the
    set of signed messages MUST be supplied to this operation as a set of
-   integers in accenting order (disclosed_indexes).
+   integers in ascending order (disclosed_indexes).
 
    This operation makes use of the calculate_domain function defined in
    Section 4.2.3 and of the multi_exponentiation_g1 function defined in
@@ -1805,7 +1804,7 @@ Procedure:
    The value of v MAY also be cached in order to efficiently extend an
    existing list of cached generator points.
 
-   The CREATE_GENERATORS_ID of the above operation is define as,
+   The CREATE_GENERATORS_ID of the above operation is defined as,
 
    CREATE_GENERATORS_ID = "H2G_"
 
@@ -1880,7 +1879,7 @@ Procedure:
 3.     msg_scalar_i = hash_to_scalar(messages[i], map_dst)
 4. return (msg_scalar_1, ..., msg_scalar_L)
 
-   The MAP_TO_SCALAR_ID of the above operation is defines as,
+   The MAP_TO_SCALAR_ID of the above operation is defined as,
 
    MAP_TO_SCALAR_ID = "HM2S_"
 
@@ -2122,8 +2121,8 @@ Inputs:
 
 - input_array (REQUIRED), an array of elements to be serialized. Each
                           element must be either a point of G1 or G2, a
-                          scalar, an ASCII string or an integer value
-                          between 0 and 2^64 - 1.
+                          scalar, or an integer value between 0 and
+                          2^64 - 1.
 
 Parameters:
 
@@ -2137,7 +2136,7 @@ Parameters:
 
 Outputs:
 
-- octets_result, a scalar value or INVALID.
+- octets_result, an octet string or INVALID.
 
 Procedure:
 
@@ -2306,7 +2305,7 @@ Procedure:
 
 // Points (i.e., (Abar, Bbar, D) in ProofGen) de-serialization.
 3.  index = 0
-4.  for i in (0, 2):
+4.  for i in (0, 1, 2):
 5.      end_index = index + octet_point_length - 1
 6.      A_i = octets_to_point_E1(proof_octets[index..end_index])
 7.      if A_i is INVALID or Identity_G1, return INVALID
@@ -2368,11 +2367,11 @@ Procedure:
    Signer, as well as multiple Verifiers colluding with each other and
    Verifiers colluding with the Signer.  Bear in mind that those
    guarantees concern only the proof value, as outputted by the
-   CoreProofGen (Section Section 3.6.3) and of course the ProofGen
-   (Section Section 3.5.3) operations.  Correspondingly, the
-   unlinkability property does not include other values that a Prover
-   could either knowingly or unknowingly provide to a Verifier.  Those
-   values can include disclosed messages of high entropy, the header and
+   CoreProofGen (see Section 3.6.3) and of course the ProofGen (see
+   Section 3.5.3) operations.  Correspondingly, the unlinkability
+   property does not include other values that a Prover could either
+   knowingly or unknowingly provide to a Verifier.  Those values can
+   include disclosed messages of high entropy, the header and
    presentation_header values, their network address, or generally any
    information disclosed during an interaction with the Verifier having
    the potential to identify the user.  Such threats, if exploited,
@@ -2391,9 +2390,9 @@ Procedure:
 
 5.1.  Header and Presentation Header
 
-   As mentioned in Section Section 5.1, the header value is chosen by
-   the Signer and bound to a BBS Signature and proof.  Consequently, it
-   must be revealed to the Verifier, together with a BBS proof.  If that
+   As mentioned in Section 3.3.6, the header value is chosen by the
+   Signer and bound to a BBS Signature and proof.  Consequently, it must
+   be revealed to the Verifier, together with a BBS proof.  If that
    header value is chosen to have high entropy (i.e., unique per
    credential, Prover or small group of Provers), it can be used as a
    correlation vector to trace and link together all BBS proofs made by
@@ -2548,7 +2547,7 @@ Procedure:
 
    Note that checking that the points are in the correct subgroup is
    essential to avoid possible forgeries of a BBS signature or proof
-   ([ADR02]).  Furthermore, the pairing operation Section 1.2 is
+   ([ADR02]).  Furthermore, the pairing operation (see Section 1.2) is
    undefined when its input points are not in G1 and G2.  As a result,
    applications MUST execute all the subgroup checks defined by this
    document.
@@ -2855,14 +2854,13 @@ Procedure:
 
    The first ciphersuite uses the hash-to-curve suite
    BLS12381G1_XOF:SHAKE-256_SSWU_RO_, defined by this document in
-   Appendix A.1 (#bls12-381-hash_to_curve-def), which is based on the
-   SHAKE-256 extendable output function, as defined in Section 6.2 of
-   [SHA3].
+   Appendix A.1, which is based on the SHAKE-256 extendable output
+   function, as defined in Section 6.2 of [SHA3].
 
    The second ciphersuite uses the hash-to-curve suite
    BLS12381G1_XMD:SHA-256_SSWU_RO_, defined in Section 8.8.1 of the
    [RFC9380] document, which is based on the SHA-256, as defined in
-   Section 6.2 of [SHA2] .
+   Section 6.2 of [SHA2].
 
    For both ciphersuites defined in this section, the fixed point P1 of
    G1 is defined as the output of the create_generators procedure
@@ -2891,10 +2889,10 @@ Procedure:
    Note that these two ciphersuites differ only in the hash-to-curve
    suites used.  The hash-to-curve suites differ in the expand_message
    variant and underlying hash function.  More concretely, the
-   BLS12-381-SHAKE-256 (#bls12-381-shake-256) ciphersuite makes use of
+   BLS12-381-SHAKE-256 ciphersuite (Section 7.2.1) makes use of
    expand_message_xof with SHAKE-256, while BLS12-381-SHA-256
-   (#bls12-381-sha-256) makes use of expand_message_xmd with SHA-256.
-   Curve parameters are common between the two ciphersuites.
+   (Section 7.2.2) makes use of expand_message_xmd with SHA-256.  Curve
+   parameters are common between the two ciphersuites.
 
 7.2.1.  BLS12-381-SHAKE-256
 
@@ -2909,8 +2907,7 @@ Procedure:
       ceil(log2(p)/8).
 
    *  hash_to_curve_suite: "BLS12381G1_XOF:SHAKE-256_SSWU_RO_" as
-      defined in Appendix A.1 (#bls12-381-hash-to-curve-definition-
-      using-shake-256) for the G1 subgroup.
+      defined in Appendix A.1 for the G1 subgroup.
 
    *  expand_len: 48 ( = ceil((ceil(log2(r))+k)/8))
 
@@ -3091,8 +3088,7 @@ Procedure:
 8.3.  BLS12-381-SHAKE-256 Test Vectors
 
    Test vectors of the BLS12-381-SHAKE-256 ciphersuite defined in
-   Appendix D.1 ciphersuite.  Further fixtures are available in
-   Appendix D.1.
+   Section 7.2.1.  Further fixtures are available in Appendix D.1.
 
 8.3.1.  Key Pair
 
@@ -3148,8 +3144,8 @@ msg_scalar_10 = 0x{{ $MapMessageToScalarFixtures.bls12-381-shake-256.MapMessageT
 8.3.3.  Message Generators
 
    Following the procedure defined in Section 4.1.1 for the
-   BLS12-381-SHAKE-256 (#bls12-381-shake-256) suite, with an input count
-   value of 11 and an api_id value of api_id = BBS_BLS12381G1_XOF:SHAKE-
+   BLS12-381-SHAKE-256 suite (Section 7.2.1), with an input count value
+   of 11 and an api_id value of api_id = BBS_BLS12381G1_XOF:SHAKE-
    256_SSWU_RO_H2G_HM2S_ (as defined in Section 3.5 for the
    BLS12-381-SHAKE-256 ciphersuite), outputs the following values (note
    that the first one corresponds to Q_1, while the next 10, to the
@@ -3250,7 +3246,7 @@ random_scalar_10 = 0x{{ $MockRngFixtures.bls12-381-shake-256.mockedRng.mockedSca
 
 8.3.5.1.  Valid Single Message Proof
 
-m_0 = h'{{ $proofFixtures.bls12-381-shake-256.proof001.messages[0] }}'
+m_1 = h'{{ $proofFixtures.bls12-381-shake-256.proof001.messages[0] }}'
 
 public_key = h'{{ $proofFixtures.bls12-381-shake-256.proof001.signerPublicKey }}'
 signature = h'{{ $proofFixtures.bls12-381-shake-256.proof001.signature }}'
@@ -3346,9 +3342,8 @@ proof = h'{{ $proofFixtures.bls12-381-shake-256.proof003.proof }}'
 
 8.4.  BLS12381-SHA-256 Test Vectors
 
-   Test vectors of the BLS12-381-SHA-256 (#bls12-381-sha-
-   256-ciphersuite) ciphersuite.  Further fixtures are available in
-   Appendix D.2.
+   Test vectors of the BLS12-381-SHA-256 ciphersuite defined in
+   Section 7.2.2.  Further fixtures are available in Appendix D.2.
 
 8.4.1.  Key Pair
 
@@ -3409,8 +3404,8 @@ msg_scalar_10 = 0x{{ $MapMessageToScalarFixtures.bls12-381-sha-256.MapMessageToS
 8.4.3.  Message Generators
 
    Following the procedure defined in Section 4.1.1 for the
-   BLS12-381-SHA-256 (#bls12-381-sha-256) suite, with an input count
-   value of 11 and an api_id value of api_id = BBS_BLS12381G1_XMD:SHA-
+   BLS12-381-SHA-256 suite (Section 7.2.2), with an input count value of
+   11 and an api_id value of api_id = BBS_BLS12381G1_XMD:SHA-
    256_SSWU_RO_H2G_HM2S_ (as defined in Section 3.5 for the
    BLS12-381-SHA-256 ciphersuite), outputs the following values (note
    that the first one corresponds to Q_1, while the next 10, to the
@@ -3473,7 +3468,7 @@ signature = h'{{ $signatureFixtures.bls12-381-sha-256.signature004.signature }}'
 
    This section presents test vectors for the ProofGen operation, as
    defined in Section 3.5.3, for the BLS12-381-SHA-256 ciphersuite
-   (Section 7.2.1).
+   (Section 7.2.2).
 
    For the generation of the following test vectors, the
    mocked_calculate_random_scalars defined in Section 8.1 is used, in
@@ -3514,7 +3509,7 @@ random_scalar_10 = 0x{{ $MockRngFixtures.bls12-381-sha-256.mockedRng.mockedScala
 
 8.4.5.1.  Valid Single Message Proof
 
-m_0 = h'{{ $proofFixtures.bls12-381-sha-256.proof001.messages[0] }}'
+m_1 = h'{{ $proofFixtures.bls12-381-sha-256.proof001.messages[0] }}'
 
 public_key = h'{{ $proofFixtures.bls12-381-sha-256.proof001.signerPublicKey }}'
 signature = h'{{ $proofFixtures.bls12-381-sha-256.proof001.signature }}'
@@ -3848,7 +3843,7 @@ A.1.  BLS12-381 G1
    The suite of BLS12381G1_XOF:SHAKE-256_SSWU_RO_ is defined as follows:
 
 * encoding type: hash_to_curve (Section 3 of
-                 [@!RFC9380])
+                 RFC 9380)
 
 * E: y^2 = x^3 + 4
 
@@ -3862,14 +3857,14 @@ A.1.  BLS12-381 G1
 * k: 128
 
 * expand_message: expand_message_xof (Section 5.3.2 of
-                  [@!RFC9380])
+                  RFC 9380)
 
 * hash: SHAKE-256
 
 * L: 64
 
 * f: Simplified SWU for AB == 0 (Section 6.6.3 of
-     [@!RFC9380])
+     RFC 9380)
 
 * Z: 11
 
@@ -3882,7 +3877,7 @@ A.1.  BLS12-381 G1
                 cef35ef55a23215a316ceaa5d1cc48e98e172be0
 
 *  iso_map: the 11-isogeny map from E' to E given in Appendix E.2 of
-            [@!RFC9380]
+            RFC 9380
 
 *  h_eff: 0xd201000000010001
 
@@ -3920,9 +3915,9 @@ Appendix B.  The BLS12-381 Curve
    E1: y ^ 2 = x ^ 3 + 4
    E2: y ^ 2 = x ^ 3 + 4 * (I + 1)
 
-   The group G1 and G2 are defined as the the order r subgroup of E1
-   defined over GF(p) and E2 defined over GF(p^2) correspondingly, where
-   r is defined as,
+   The group G1 and G2 are defined as the order r subgroup of E1 defined
+   over GF(p) and E2 defined over GF(p^2) correspondingly, where r is
+   defined as,
 
   r = 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
 
@@ -4024,7 +4019,7 @@ B.2.  Point Encoding
 
    Inputs:
 
-   - y (REQUIRED), point of the GF(p) group
+   - y (REQUIRED), an element of GF(p)
 
    Outputs:
 
@@ -4042,7 +4037,7 @@ B.2.  Point Encoding
 
    Inputs:
 
-   - y (REQUIRED), point of the GF(p^2) group
+   - y (REQUIRED), an element of GF(p^2)
 
    Outputs:
 
@@ -4672,7 +4667,7 @@ Appendix E.  Proof Generation and Verification Algorithmic Explanation
    only by the Prover of the protocol.  The NIZK can be used to prove a
    relationship of the form,
 
-   J_O * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
+   J_0 * e_0 = J_1 * e_1 + J_2 * e_2 + ... + J_n * e_n
 
    While revealing nothing about the secret exponents (i.e., e_1, ...,
    e_n), other than the fact that the Prover knows them.
@@ -4785,7 +4780,7 @@ Appendix F.  Mapping Between [TZ23] and Operations
 
    Reference [TZ23] provides proofs for the BBS signature scheme
    described in this document.  However, the notation of the academic
-   paper [TZ23] and the description of the imlementation herein and
+   paper [TZ23] and the description of the implementation herein and
    practical optimizations used can make it difficult to see that these
    are actually the same.  Hence, in this section we explicitly "map"
    between reference [TZ23] and the operations performed in this
@@ -4796,7 +4791,7 @@ Appendix F.  Mapping Between [TZ23] and Operations
 
    Both "additive" and "multiplicative" notation can be used for Abelian
    groups such as G1, G2, and GT.  The paper [TZ23] uses
-   "multiiplicative" notation throughout, i.e., it uses "multiplication"
+   "multiplicative" notation throughout, i.e., it uses "multiplication"
    as the group operation and exponentiation as the group operation
    applied repeatedly to an element with itself.  In this specification
    "additive" notation is used for the groups G1 and G2, while
@@ -4807,7 +4802,7 @@ Appendix F.  Mapping Between [TZ23] and Operations
         +==========================+=============+===============+
         | prime order of subgroups | p           | r             |
         +--------------------------+-------------+---------------+
-        | mesage vector            | m           | m             |
+        | message vector           | m           | m             |
         +--------------------------+-------------+---------------+
         | number of messages       | l           | L             |
         +--------------------------+-------------+---------------+
@@ -4924,15 +4919,15 @@ F.1.  Key Generation, Signing, and Verification Formulas
           multiplicative notation.
 
    To see that these two verification tests are equivalent we use the
-   the math of the bilinear function:
+   math of the bilinear function:
 
    1.  Expressing h(A, W) * h(A * e - B, BP2) ?= Identity_GT in
        multiplicative notation
    2.  h(A, W) * h(A^e * B^(-1), BP2) ?= Identity_GT, Use bilinearity
    3.  h(A, W) * h(A^e, BP2) * h(B, BP2)^(-1) ?= Identity_GT, some
        algebra
-   4.  h(A, W) * e(A^e, BP2) ?= h(B, BP2), Use bilinearity
-   5.  h(A, W) * e(A, BP2^e) ?= h(B, BP2), Use bilinearity
+   4.  h(A, W) * h(A^e, BP2) ?= h(B, BP2), Use bilinearity
+   5.  h(A, W) * h(A, BP2^e) ?= h(B, BP2), Use bilinearity
    6.  h(A, W * BP2^e) ?= h(B, BP2) substitute [TZ23] symbols gives:
    7.  e(A, vk * g2^e) ?= e(C, g2)
 
@@ -4969,7 +4964,7 @@ F.2.  Proof Generation and Verification Formulas
       3.  s = alpha + r1*c
       4.  t = beta - e*c
       5.  z = gamma + r2*c
-      6.  u_i = delta_i - m[i] for i in _I_ (undisclosed)
+      6.  u_i = delta_i - m[i]*c for i in _I_ (undisclosed)
       7.  (s, t, z, u_i) sent to verifier
    *  Section 3.7.5 and Section 3.7.3
       1.  challenge = ProofChallengeCalculate(init_res, ph, api_id)
