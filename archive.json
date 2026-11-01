@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-13T00:47:33.504605+00:00",
+  "timestamp": "2026-11-01T00:31:11.675615+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -38796,6 +38796,128 @@
           "body": "Thanks @alexandroszacharakis8!",
           "createdAt": "2026-10-08T16:06:42Z",
           "updatedAt": "2026-10-08T16:06:42Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 348,
+      "id": "PR_kwDOF8lax88AAAABLjw0mA",
+      "title": "editorial fixes / typos etc.",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/348",
+      "state": "MERGED",
+      "author": "c2bo",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-10-29T15:16:51Z",
+      "updatedAt": "2026-10-29T17:03:37Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "1329e8587e08fac3d970ab8fe504f7eb882f058d",
+      "headRepository": "c2bo/bbs-signature",
+      "headRefName": "review-13",
+      "headRefOid": "986c033dac83fe0826d958588fd9a6e7ceeb5a99",
+      "closedAt": "2026-10-29T17:03:37Z",
+      "mergedAt": "2026-10-29T17:03:37Z",
+      "mergedBy": "Wind4Greg",
+      "mergeCommit": {
+        "oid": "92af2d0ef24274c9093325cad6ef41ca4143e8e8"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOF8lax88AAAABU8Itog",
+          "commit": {
+            "abbreviatedOid": "986c033"
+          },
+          "author": "c2bo",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-29T15:17:48Z",
+          "updatedAt": "2026-10-29T15:17:48Z",
+          "comments": [
+            {
+              "originalPosition": 60,
+              "body": "We are not dealing with ASCII string input in the Procedure, so it should probably be removed?",
+              "createdAt": "2026-10-29T15:17:48Z",
+              "updatedAt": "2026-10-29T15:17:48Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABU8Jpzg",
+          "commit": {
+            "abbreviatedOid": "986c033"
+          },
+          "author": "c2bo",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-29T15:18:43Z",
+          "updatedAt": "2026-10-29T15:18:43Z",
+          "comments": [
+            {
+              "originalPosition": 206,
+              "body": "rfc tooling references don't work in code blocks",
+              "createdAt": "2026-10-29T15:18:43Z",
+              "updatedAt": "2026-10-29T15:18:43Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABU8KXbQ",
+          "commit": {
+            "abbreviatedOid": "986c033"
+          },
+          "author": "c2bo",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-29T15:19:31Z",
+          "updatedAt": "2026-10-29T15:19:31Z",
+          "comments": [
+            {
+              "originalPosition": 302,
+              "body": "I believe this was a typo since we use h(...), whereas TZ23 uses e(...) ?",
+              "createdAt": "2026-10-29T15:19:31Z",
+              "updatedAt": "2026-10-29T15:19:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABU8KqSA",
+          "commit": {
+            "abbreviatedOid": "986c033"
+          },
+          "author": "c2bo",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-29T15:19:49Z",
+          "updatedAt": "2026-10-29T15:19:50Z",
+          "comments": [
+            {
+              "originalPosition": 312,
+              "body": "was missing",
+              "createdAt": "2026-10-29T15:19:50Z",
+              "updatedAt": "2026-10-29T15:19:50Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOF8lax88AAAABU9qXvg",
+          "commit": {
+            "abbreviatedOid": "986c033"
+          },
+          "author": "Wind4Greg",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Thanks a bunch Christian!",
+          "createdAt": "2026-10-29T17:03:17Z",
+          "updatedAt": "2026-10-29T17:03:17Z",
           "comments": []
         }
       ]
