@@ -1814,7 +1814,7 @@ In addition, ciphersuites MUST specify unique domain separation tags for hash\_t
 
 ## Choice of Underlying Curve
 
-BBS signatures can be implemented on any pairing-friendly curves suitable for type 3 pairing computations. However care must be taken when selecting one that is appropriate, to guarantee the desired security level for the targeted application. This specification defines a ciphersuite for using the BLS12-381 curve in (#ciphersuites) which as a curve achieves around 117 bits of security [@ZCASH-REVIEW].
+BBS signatures can be instantiated using pairing-friendly curves suitable for type 3 pairings. Curve selection must account for both discrete-logarithm attacks and attacks against the assumptions underlying BBS signatures, to meet the desired security level of the application. (#ciphersuites) specifies ciphersuites using BLS12-381. The best estimates of this curve’s security against discrete-logarithm attacks are approximately 117 bits [@ZCASH-REVIEW]. This estimate alone does not determine the concrete security of BBS signatures, which also depends on the number of signatures available to an adversary, as discussed in (#security-level-and-underlying-assumptions).
 
 ## Randomness Requirements
 
@@ -1907,7 +1907,7 @@ a function that returns the point P in the elliptic curve E2 corresponding to th
 
 ## BLS12-381 Ciphersuites
 
-The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. The targeted security level of both suites in bits is `k = 128` (the actual security level is closer to 126 bits). The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. For completeness, BLS12-381 and the relevant functionality (base points `BP1` and `BP2`, the pairing `h` as well as the point encoding and decoding operations) are defined in (#the-bls12-381-curve).
+The following two ciphersuites are based on the BLS12-381 elliptic curves defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. The estimated security level of both suites in bits (measured based on the best known attacks against the discrete logarithm problem) is `k = 117` [@ZCASH-REVIEW]. The number of bits of the order `r`, of the G1 and G2 subgroups, is `log2(r) = 255`. The base points `BP1` and `BP2` of G1 and G2 are the points `BP` and `BP'` correspondingly, as defined in Section 4.2.1 of [@I-D.irtf-cfrg-pairing-friendly-curves]. For completeness, BLS12-381 and the relevant functionality (base points `BP1` and `BP2`, the pairing `h` as well as the point encoding and decoding operations) are defined in (#the-bls12-381-curve).
 
 The first ciphersuite uses the hash-to-curve suite `BLS12381G1_XOF:SHAKE-256_SSWU_RO_`, defined by this document in (#bls12-381-g1), which is based on the SHAKE-256 extendable output function, as defined in Section 6.2 of [@!SHA3].
 
@@ -3746,7 +3746,7 @@ Proof Verification
  <seriesInfo name="pages" value="111-125"/>
  <seriesInfo name="Springer," value="Berlin, Heidelberg"/>
 </reference>
-<reference anchor="ZCASH-REVIEW" target="https://research.nccgroup.com/wp-content/uploads/2020/07/NCC_Group_Zcash2018_Public_Report_2019-01-30_v1.3.pdf">
+<reference anchor="ZCASH-REVIEW" target="https://www.nccgroup.com/media/v1kkxeae/_ncc_group_zcash2018_public_report_2019-01-30_v13.pdf">
  <front>
    <title>Zcash Overwinter Consensus and Sapling Cryptography Review</title>
    <author><organization>NCC Group</organization></author>
