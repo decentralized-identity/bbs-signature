@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-01T00:31:11.675615+00:00",
+  "timestamp": "2026-11-05T00:26:41.459479+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -38921,6 +38921,32 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 349,
+      "id": "PR_kwDOF8lax88AAAABM1kTFQ",
+      "title": "Add clarifications on bit security of BLS12-381",
+      "url": "https://github.com/decentralized-identity/bbs-signature/pull/349",
+      "state": "OPEN",
+      "author": "alexandroszacharakis8",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR: \n\n- clarifies what \"bit security\" refers to\n- fixes the bit security in the ciphersuit description\n- fixes a broken reference",
+      "createdAt": "2026-11-04T14:59:12Z",
+      "updatedAt": "2026-11-04T14:59:13Z",
+      "baseRepository": "decentralized-identity/bbs-signature",
+      "baseRefName": "main",
+      "baseRefOid": "434522cf17ad970707080a62ce5ac19bcdb82acd",
+      "headRepository": "alexandroszacharakis8/bbs-signature",
+      "headRefName": "azacharakis8/curve-security",
+      "headRefOid": "34627830911f9ac6c8cd3208d8c21898f46fa95b",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
