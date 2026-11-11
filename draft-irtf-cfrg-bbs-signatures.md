@@ -733,7 +733,6 @@ The `CoreProofGen` operation will accept that signature as an input. It is RECOM
 The messages supplied in this operation MUST be in the same order as when supplied to `CoreSign` ((#coresign)). To specify which of those messages will be disclosed, the Prover can supply the list of indexes (`disclosed_indexes`) that the disclosed messages have in the array of signed messages. Each element in `disclosed_indexes` MUST be a non-negative integer, in the range from 0 to `length(messages) - 1`.
 
 The operation works by first calculating a set of random scalars using the `calculate_random_scalars` operation defined in (#random-scalars), utilized to blind the signature and the undisclosed messages (see (#randomness-requirements) for considerations and requirements on random scalars generation). It then initializes the proof using the `ProofInit` subroutine defined in (#proof-initialization). The result will be passed to the challenge calculation operation (`ProofChallengeCalculate`, defined in (#challenge-calculation)). The outputted challenge, together with the initialization result, will be used by the `ProofFinalize` subroutine defined in (#proof-finalization), which will return the proof value.
-ciao
 
 ```
 proof = CoreProofGen(PK, signature, generators, header, ph, messages,
