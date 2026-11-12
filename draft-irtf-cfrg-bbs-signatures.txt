@@ -618,24 +618,27 @@ Table of Contents
    with access to multiple proof values.  This property can be captured
    by an experiment where the adversary, given the public parameters of
    the system, generates a BBS signature key pair and issues two
-   credentials to the experiment.  The experiment selects one of the two
-   supplied credentials at random and uses it to generate a BBS
-   presentation for an adversarially chosen statement satisfied by both
-   credentials.  The adversary must then guess which credential was
-   used.  We say that the credential scheme has unlinkable presentations
-   if no efficient adversary can do substantially better than random
-   guessing, even when it generates both credentials.  This property
-   holds as the specified presentation algorithm is derived from a sigma
-   protocol in [TZ23], Appendix B, which, in particular, satisfies HVZK
-   (with a leakage that can be derived from any issued credential) and
-   has high first-message min-entropy.  This means that the presentation
+   credentials to the experiment.  The experiment verifies the validity
+   of the supplied credentials, selects one of the two at random and
+   uses it to generate a BBS presentation for an adversarially chosen
+   statement satisfied by both credentials.  The adversary must then
+   guess which credential was used.  We say that the credential scheme
+   has unlinkable presentations if no efficient adversary can do
+   substantially better than random guessing, even when it generates
+   both credentials.  This property holds as the specified presentation
+   algorithm is derived from a sigma protocol in [TZ23], Appendix B,
+   which, in particular, satisfies HVZK (with a leakage that can be
+   derived from any valid credential issued by the same issuer) and has
+   high first-message min-entropy.  This means that the presentation
    algorithm obtained by compiling the sigma protocol with Fiat-Shamir
    satisfies the Zero Knowledge property and can be simulated [FKMV12]
-   Theorem 1, enabling the proof of the indistinguishability of
-   presentations derived from the two credentials.  The
-   indistinguishability claim follows from the indistinguishability of
-   presentations of both credentials from simulated presentations.
-
+   Theorem 1, enabling the proof of indistinguishability of simulated
+   presentations and presentations derived from any of the two
+   credentials.  This implies that also presentations of the two valid
+   credentials are indistinguishable.  It is important to remark that
+   the leakage used to design the Zero Knowledge simulator can be
+   derived from both credentials, provided that they are both valid, and
+   this is why such leakage can be given to the simulator as an input.
    Note however, that this holds only for the value of the BBS proof.
    In other words, other values revealed by the Prover during their
    interaction with a Verifier, may still be used to correlate their
@@ -1106,9 +1109,16 @@ Procedure:
    a high level explanation on the inner-workings of the algorithm.
 
    The CoreProofGen operation will accept that signature as an input.
-   It is RECOMMENDED to validate that signature, using the inputted
-   public key PK and generators set, against the supplied messages and
-   header, with the CoreVerify operation defined in Section 3.6.2.
+   To guarantee the unlinkability of presentation, the CorProofGen
+   algorithm must take as an input a valid signature of the issuer.  So,
+   when the prover receives a BBS signature from the issuer, it MUST run
+   the signature verification algorithm using the inputted public key PK
+   and generators set, against the supplied messages and header, with
+   the CoreVerify operation defined in Section 3.6.2.  Once the
+   verification has passed the prover stores the signature and can use
+   it to generate presentations.  If the prover does not trust the
+   security of the storage of the credentials it has been issued, it is
+   RECOMMENDED to validate the signature before every presentation.
 
    The messages supplied in this operation MUST be in the same order as
    when supplied to CoreSign (Section 3.6.1).  To specify which of those
