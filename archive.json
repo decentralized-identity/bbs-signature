@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-15T00:27:52.006635+00:00",
+  "timestamp": "2026-11-17T00:26:25.424778+00:00",
   "repo": "decentralized-identity/bbs-signature",
   "labels": [
     {
@@ -7508,6 +7508,22 @@
           "updatedAt": "2026-10-07T09:42:10Z"
         }
       ]
+    },
+    {
+      "number": 351,
+      "id": "I_kwDOF8lax88AAAABfk0ypQ",
+      "title": "Fgnfififi",
+      "url": "https://github.com/decentralized-identity/bbs-signature/issues/351",
+      "state": "OPEN",
+      "author": "carteraf05-code",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Uejrjj4rjjrjt\n",
+      "createdAt": "2026-11-16T04:08:13Z",
+      "updatedAt": "2026-11-16T04:08:13Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
