@@ -5,13 +5,13 @@
 CFRG                                                           T. Looker
 Internet-Draft                                                  V. Kalos
 Intended status: Informational                                     MATTR
-Expires: 16 May 2027                                        A. Whitehead
+Expires: 23 May 2027                                        A. Whitehead
                                                                  Portage
                                                                M. Lodder
                                                                  CryptID
                                                             G. Bernstein
                                                        Grotto Networking
-                                                        12 November 2026
+                                                        19 November 2026
 
 
                         The BBS Signature Scheme
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 May 2027.
+   This Internet-Draft will expire on 23 May 2027.
 
 Copyright Notice
 
@@ -3636,12 +3636,12 @@ proof = h'{{ $proofFixtures.bls12-381-sha-256.proof003.proof }}'
    following individuals contributed ideas, feedback and wording that
    influenced this specification:
 
-   Orie Steele, Christian Paquin, Alessandro Guggino, Tomislav Markovski
-   and Greg Bernstein.
+   Orie Steele, Christian Paquin, Alessandro Guggino, and Tomislav
+   Markovski.
 
-   Additionally, the authors would like to acknowledge Jacques Traore
-   and Antoine Dumanois, for their crucial contributions to this
-   document.
+   Additionally, the authors would like to acknowledge Jacques Traore,
+   Antoine Dumanois, Andrea Flamini, Alexandros Zacharakis, and Anja
+   Lehmann for their crucial contributions to this document.
 
 11.  References
 
@@ -5160,6 +5160,14 @@ Appendix G.  Document History
    *  Fix "Off by one" errors in multi exponentiation description and
       disclosed indexes
    *  Remove incorrect "L == 0" check in domain computation
+
+   -15
+
+   *  Elevation of signature verification prior to proof generation to a
+      "MUST" from "RECOMMENDED" to insure unlinkability.
+   *  Further clarification of curve security estimation.
+   *  Further clarification of the meaning of "unlinkability".
+   *  Add to Acknowledgements.
 
 Authors' Addresses
 
