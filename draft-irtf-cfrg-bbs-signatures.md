@@ -2579,9 +2579,9 @@ The authors would like to acknowledge the significant amount of academic work th
 
 The current state of this document is the product of the work of the Decentralized Identity Foundation Applied Cryptography Working group, which includes numerous active participants. In particular, the following individuals contributed ideas, feedback and wording that influenced this specification:
 
-Orie Steele, Christian Paquin, Alessandro Guggino, Tomislav Markovski and Greg Bernstein.
+Orie Steele, Christian Paquin, Alessandro Guggino, and Tomislav Markovski.
 
-Additionally, the authors would like to acknowledge Jacques Traore and Antoine Dumanois, for their crucial contributions to this document.
+Additionally, the authors would like to acknowledge Jacques Traore, Antoine Dumanois, Andrea Flamini, Alexandros Zacharakis, and Anja Lehmann for their crucial contributions to this document.
 
 {backmatter}
 
@@ -3631,6 +3631,13 @@ Proof Verification
 * Editorial Fixes (spelling, puntuation, word usage)
 * Fix "Off by one" errors in multi exponentiation description and disclosed indexes
 * Remove incorrect "L == 0" check in domain computation
+
+-15
+
+* Elevation of signature verification prior to proof generation to a "MUST" from  "RECOMMENDED" to insure unlinkability.
+* Further clarification of curve security estimation.
+* Further clarification of the meaning of "unlinkability".
+* Add to Acknowledgements.
 
 <reference anchor="Bowe19" target="https://eprint.iacr.org/2019/814">
   <front>
